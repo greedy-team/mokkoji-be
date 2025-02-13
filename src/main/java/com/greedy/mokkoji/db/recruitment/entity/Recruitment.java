@@ -28,10 +28,10 @@ public class Recruitment extends BaseTime {
     @Column(name = "content", columnDefinition = "text")
     private String content;
 
-    @Column(name = "recruit_start", columnDefinition = "text")
+    @Column(name = "recruit_start", columnDefinition = "timestamp")
     private LocalDateTime recruitStart;
 
-    @Column(name = "recruit_end", columnDefinition = "text")
+    @Column(name = "recruit_end", columnDefinition = "timestamp")
     private LocalDateTime recruitEnd;
 
     @Builder

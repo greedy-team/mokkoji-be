@@ -15,6 +15,6 @@ import java.time.LocalDateTime;
 public abstract class BaseTime {
 
     @LastModifiedDate
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "timestamp")
     private LocalDateTime updatedAt;
 }
