@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.db.club.entity;
 
-import com.greedy.mokkoji.enums.ClubAffiliation;
-import com.greedy.mokkoji.enums.ClubCategory;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
+import com.greedy.mokkoji.enums.club.ClubCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
