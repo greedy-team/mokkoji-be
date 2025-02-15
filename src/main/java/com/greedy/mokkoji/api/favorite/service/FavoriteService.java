@@ -23,12 +23,8 @@ public class FavoriteService {
     @Transactional
     public Void addFavorite(final Long userId, final Long clubId) {
 
-        final User user = userRepository.findById(userId).orElseThrow(
-                () -> new MokkojiException(FailMessage.NOT_FOUND_USER)
-        );
-        final Club club = clubRepository.findById(clubId).orElseThrow(
-                () -> new MokkojiException(FailMessage.NOT_FOUND_CLUB)
-        );
+        final User user = getUserById(userId);
+        final Club club = getClubById(clubId);
 
         if (favoriteRepository.existsByUserAndClub(user, club)) {
             throw new MokkojiException(FailMessage.CONFLICT_FAVORITE);
@@ -47,12 +43,8 @@ public class FavoriteService {
     @Transactional
     public Void deleteFavorite(final Long userId, final Long clubId) {
 
-        final User user = userRepository.findById(userId).orElseThrow(
-                () -> new MokkojiException(FailMessage.NOT_FOUND_USER)
-        );
-        final Club club = clubRepository.findById(clubId).orElseThrow(
-                () -> new MokkojiException(FailMessage.NOT_FOUND_CLUB)
-        );
+        final User user = getUserById(userId);
+        final Club club = getClubById(clubId);
 
         if (!favoriteRepository.existsByUserAndClub(user, club)) {
             throw new MokkojiException(FailMessage.NOT_FOUND_FAVORITE);
@@ -61,5 +53,17 @@ public class FavoriteService {
         favoriteRepository.deleteByUserAndClub(user, club);
 
         return null;
+    }
+
+    private User getUserById(final Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new MokkojiException(FailMessage.NOT_FOUND_USER)
+        );
+    }
+
+    private Club getClubById(final Long clubId) {
+        return clubRepository.findById(clubId).orElseThrow(
+                () -> new MokkojiException(FailMessage.NOT_FOUND_CLUB)
+        );
     }
 }
