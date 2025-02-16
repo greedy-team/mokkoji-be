@@ -33,7 +33,8 @@ public enum FailMessage {
     CONFLICT_INTEGRITY(HttpStatus.CONFLICT, 40901, "데이터 무결성 위반입니다."),
 
     //500
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다."),
+    INTERNAL_SERVER_ERROR_SMTP(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "SMTP 서버 내부 오류가 발생했습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
