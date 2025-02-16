@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.test.notification;
+package com.greedy.mokkoji.api.test.notification.service;
 
 import com.greedy.mokkoji.api.test.notification.exception.MailGeneratingException;
 import com.greedy.mokkoji.api.test.notification.exception.MailSendingException;

@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.test.notification;
+package com.greedy.mokkoji.api.test.notification.service;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.test.notification;
+package com.greedy.mokkoji.api.test.notification.service;
 
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
