@@ -24,7 +24,7 @@ public class ClubRecruitmentNotificationScheduler {
         this.notificationService = notificationService;
     }
 
-    @Scheduled(cron = "0 0 21 * * *", zone = "Asia/Seoul")
+    @Scheduled(cron = "${schedules.cron.reward.publish}", zone = "${schedules.cron.reward.zone}")
     public void sendDailyRecruitmentNotifications() {
         log.info("[SCHEDULER START]");
         LocalDate currentDate = LocalDate.now();
