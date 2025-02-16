@@ -7,6 +7,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -37,7 +38,7 @@ public class EmailNotificationChannel implements NotificationChannel {
                 + "모집 기간은" + recruitStart + "부터 " + recruitEnd + "까지 입니다!.";
     }
 
-    public MimeMessage generateNotification(
+    private MimeMessage generateNotification(
             List<String> receiverMails,
             String clubName,
             LocalDateTime recruitStartTime,
@@ -82,7 +83,7 @@ public class EmailNotificationChannel implements NotificationChannel {
 
             mailSender.send(mimeMessage);
             log.info("[MAIL SEND SUCCESSFULLY]");
-        } catch (Exception e) {
+        } catch (MailException e) {
             log.error("[MAIL SEND FAILED] : {}", e.getMessage());
             throw new MailSendingException(FailMessage.INTERNAL_SERVER_ERROR_SMTP);
         }
