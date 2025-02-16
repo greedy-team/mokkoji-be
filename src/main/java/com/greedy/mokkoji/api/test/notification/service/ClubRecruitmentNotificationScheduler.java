@@ -26,15 +26,15 @@ public class ClubRecruitmentNotificationScheduler {
 
     @Scheduled(cron = "0 0 21 * * *", zone = "Asia/Seoul")
     public void sendDailyRecruitmentNotifications() {
-        log.info("[Scheduler Start]");
+        log.info("[SCHEDULER START]");
         LocalDate currentDate = LocalDate.now();
 
         List<Recruitment> recruitments = recruitmentRepository.findTodayRecruitStartDate(currentDate);
-        log.info("[Scheduler Start]");
 
         for (Recruitment recruitment : recruitments) {
             Club club = recruitment.getClub();
             notificationService.sendNotification(club, recruitment);
         }
+        log.info("[SCHEDULER END]");
     }
 }

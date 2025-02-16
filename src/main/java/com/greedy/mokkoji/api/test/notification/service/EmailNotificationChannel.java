@@ -83,7 +83,7 @@ public class EmailNotificationChannel implements NotificationChannel {
             mailSender.send(mimeMessage);
             log.info("[MAIL SEND SUCCESSFULLY]");
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error("[MAIL SEND FAILED] : {}", e.getMessage());
             throw new MailSendingException(FailMessage.INTERNAL_SERVER_ERROR_SMTP);
         }
     }
