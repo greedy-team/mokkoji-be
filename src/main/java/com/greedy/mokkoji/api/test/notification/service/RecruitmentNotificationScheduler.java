@@ -12,11 +12,11 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class ClubRecruitmentNotificationScheduler {
+public class RecruitmentNotificationScheduler {
     private final RecruitmentRepository recruitmentRepository;
     private final NotificationService notificationService;
 
-    public ClubRecruitmentNotificationScheduler(
+    public RecruitmentNotificationScheduler(
             final RecruitmentRepository recruitmentRepository,
             final NotificationService notificationService
     ) {
