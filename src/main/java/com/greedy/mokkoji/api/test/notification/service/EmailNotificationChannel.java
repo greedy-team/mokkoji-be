@@ -18,11 +18,11 @@ import java.util.List;
 @Slf4j
 @Component
 public class EmailNotificationChannel implements NotificationChannel {
-    private static String SUBJECT = "동아리 모집 시작";
-    private static String SENDER_NAME = "모꼬지";
+    private static final String SUBJECT = "동아리 모집 시작";
+    private static final String SENDER_NAME = "모꼬지";
+    private final JavaMailSender mailSender;
     @Value("${spring.mail.username}")
     private String senderMail;
-    private final JavaMailSender mailSender;
 
     public EmailNotificationChannel(final JavaMailSender mailSender) {
         this.mailSender = mailSender;
