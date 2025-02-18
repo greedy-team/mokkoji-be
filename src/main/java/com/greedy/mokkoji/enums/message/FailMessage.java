@@ -38,7 +38,8 @@ public enum FailMessage {
     CONFLICT_FAVORITE(HttpStatus.CONFLICT, 40902, "이미 즐겨찾기 목록에 추가된 동아리입니다."),
 
     //500
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다."),
+    INTERNAL_SERVER_ERROR_SMTP(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "SMTP 서버 내부 오류가 발생했습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
