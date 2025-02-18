@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.service;
+package com.greedy.mokkoji.notification;
 
 import com.greedy.mokkoji.api.test.notification.service.NotificationService;
 import com.greedy.mokkoji.api.test.notification.service.RecruitmentNotificationScheduler;

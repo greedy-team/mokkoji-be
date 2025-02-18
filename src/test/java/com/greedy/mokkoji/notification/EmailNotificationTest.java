@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.service;
+package com.greedy.mokkoji.notification;
 
 import com.greedy.mokkoji.api.test.notification.service.EmailNotificationChannel;
 import jakarta.mail.MessagingException;
