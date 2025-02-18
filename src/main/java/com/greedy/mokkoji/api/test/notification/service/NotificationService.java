@@ -4,6 +4,7 @@ import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class NotificationService {
         this.favoriteRepository = favoriteRepository;
     }
 
+    @Transactional
     public void sendNotification(Club club, Recruitment recruitment) {
         List<Favorite> favorites = favoriteRepository.findByClubIdWithFetchJoin(club.getId());
 
