@@ -1,6 +1,5 @@
 package com.greedy.mokkoji.api.login.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greedy.mokkoji.api.login.JwtUtil;
 import com.greedy.mokkoji.api.login.dto.LoginRequestDto;
@@ -18,6 +17,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -27,6 +27,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/auth")
 public class LoginController {
     private final UserService userService;
     private final LoginService loginService;

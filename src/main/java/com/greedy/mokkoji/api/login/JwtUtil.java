@@ -5,6 +5,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.Date;
@@ -12,12 +13,11 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    private static final long EXPIRATION_TIME = 86400000; // 1일
     // 비밀 키를 설정 파일에서 가져오기
     @Value("${jwt.secret}")
     private String secretKey;
-
     private Key key;
-    private static final long EXPIRATION_TIME = 86400000; // 1일
 
     @PostConstruct
     public void init() {
