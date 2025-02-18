@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.club;
 
+import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -22,6 +23,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -128,5 +130,35 @@ class ClubSearchTest {
         BDDMockito.verify(clubRepository, times(1)).findClubs(any(), any(), any(), any(), any(Pageable.class));
         BDDMockito.verify(recruitmentRepository, times(2)).findByClubId(anyLong());
         BDDMockito.verify(favoriteRepository, times(2)).existsByUserIdAndClubId(anyLong(), anyLong());
+    }
+
+    @Test
+    @DisplayName("동아리 상세 정보를 조회할 수 있다.")
+    void findClub() {
+        final Long userId = 1L;
+        final Long clubId = club1.getId();
+
+        BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.ofNullable(club));
+        BDDMockito.given(recruitmentRepository.findByClubId(clubId)).willReturn(recruitment);
+        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId)).willReturn(true);
+
+        ClubDetailResponse response = clubService.findClub(userId, clubId);
+
+        assertThat(response).isNotNull();
+        assertThat(response.name()).isEqualTo("testClub1");
+        assertThat(response.category()).isEqualTo("학술/교양");
+        assertThat(response.affiliation()).isEqualTo("중앙동아리");
+        assertThat(response.description()).isEqualTo("testDescription1");
+        assertThat(response.recruitStartDate()).isEqualTo("2025-01-01");
+        assertThat(response.recruitEndDate()).isEqualTo("2025-03-30");
+        assertThat(response.imageURL()).isEqualTo("testLogo1");
+        assertThat(response.isFavorite()).isEqualTo(true);
+        assertThat(response.instagramLink()).isEqualTo("testInstagramURL1");
+        assertThat(response.recruitPost()).isEqualTo("testContent1");
+
+        verify(clubRepository, times(1)).findById(anyLong());
+        verify(recruitmentRepository, times(1)).findByClubId(anyLong());
+        verify(favoriteRepository, times(1)).existsByUserIdAndClubId(anyLong(), anyLong());
+
     }
 }
