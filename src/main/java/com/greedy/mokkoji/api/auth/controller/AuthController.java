@@ -1,10 +1,10 @@
-package com.greedy.mokkoji.api.login.controller;
+package com.greedy.mokkoji.api.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
-import com.greedy.mokkoji.api.login.dto.LoginRequestDto;
-import com.greedy.mokkoji.api.login.dto.StudentInformationResponseDto;
-import com.greedy.mokkoji.api.login.service.LoginService;
+import com.greedy.mokkoji.api.auth.dto.LoginRequestDto;
+import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
+import com.greedy.mokkoji.api.auth.service.LoginService;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
-public class LoginController {
+public class AuthController {
     private final UserService userService;
     private final LoginService loginService;
     private final ObjectMapper mapper;

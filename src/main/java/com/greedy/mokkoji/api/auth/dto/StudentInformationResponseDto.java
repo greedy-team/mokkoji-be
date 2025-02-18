@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.login.dto;
+package com.greedy.mokkoji.api.auth.dto;
 
 public class StudentInformationResponseDto {
     private String name;

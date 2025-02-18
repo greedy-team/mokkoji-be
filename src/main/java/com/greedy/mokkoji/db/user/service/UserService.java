@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.db.user.service;
 
-import com.greedy.mokkoji.api.login.dto.StudentInformationResponseDto;
+import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import org.slf4j.Logger;
