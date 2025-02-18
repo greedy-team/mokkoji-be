@@ -27,7 +27,7 @@ public class User {
     @Column(name = "grade", columnDefinition = "int", nullable = false)
     private String grade;
 
-    @Column(name = "email", columnDefinition = "varchar(50)", nullable = false)
+    @Column(name = "email", columnDefinition = "varchar(50)", nullable = true)
     private String email;
 
     @Builder
@@ -37,6 +37,13 @@ public class User {
         this.department = department;
         this.grade = grade;
         this.email = email;
+    }
+
+    public User(String studentId, String name, String department, String grade) {
+        this.studentId = studentId;
+        this.name = name;
+        this.department = department;
+        this.grade = grade;
     }
 
     public String getStudentId() {
