@@ -48,6 +48,4 @@ public class Club {
         this.logo = logo;
         this.instagram = instagram;
     }
-
 }
-
