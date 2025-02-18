@@ -1,6 +1,6 @@
-package com.greedy.mokkoji.api.login.service;
+package com.greedy.mokkoji.api.auth.service;
 
-import com.greedy.mokkoji.api.login.dto.StudentInformationResponseDto;
+import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
 import jakarta.transaction.Transactional;
 import okhttp3.*;
 import org.jsoup.Jsoup;
