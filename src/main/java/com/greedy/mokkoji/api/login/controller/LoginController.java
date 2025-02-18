@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greedy.mokkoji.api.login.JwtUtil;
 import com.greedy.mokkoji.api.login.dto.LoginRequestDto;
+import com.greedy.mokkoji.api.login.dto.StudentInformationResponseDto;
+import com.greedy.mokkoji.api.login.service.LoginService;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.db.user.service.UserService;
@@ -17,7 +19,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,9 +28,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @RestController
 public class LoginController {
-    private static final String apiUrl = "https://auth.imsejong.com/auth?method=ClassicSession";
-    private final RestTemplate restTemplate;
     private final UserService userService;
+    private final LoginService loginService;
     private final ObjectMapper mapper;
     private final JwtUtil jwtUtil;
 
@@ -39,65 +39,60 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequestDto request) {
         String id = request.getId();
-        String pw = request.getPw();
+        String password = request.getPassword();
         MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
         multiValueMap.add("id", id);
-        multiValueMap.add("pw", pw);
-        log.info("multivaluemap = {}", multiValueMap);
+        multiValueMap.add("password", password);
 
         try {
-            ResponseEntity<String> responseEntity = restTemplate.postForEntity(apiUrl, request, String.class);
-            if (responseEntity.getStatusCode() == HttpStatus.OK) {
-                String responseBody = responseEntity.getBody();
-                JsonNode jsonNode = mapper.readTree(responseBody);
-                boolean isAuthenticated = jsonNode.get("result").get("is_auth").asBoolean();
+            StudentInformationResponseDto response = loginService.getStudentInformation(id, password);
 
-                if (isAuthenticated) {
-                    JsonNode bodyNode = jsonNode.get("result").get("body");
-                    String name = bodyNode.get("name").asText();
-                    String department = bodyNode.get("major").asText();
-                    String grade = bodyNode.get("grade").asText();
-
-                    String studentId = id;
-                    Optional<User> findUser = userRepository.findById(Long.parseLong(studentId));
-
-                    // Log to check if findUser has been retrieved
-                    if (findUser != null) {
-                        log.info("User found: {}", findUser);
-                    } else {
-                        log.info("User not found. Saving new user from response.");
-                        userService.saveUser(responseBody, studentId);
-                        findUser = userRepository.findById(Long.parseLong(studentId));
-                        if (findUser == null) {
-                            log.error("Failed to retrieve user after saving. Aborting operation.");
-                            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                        }
-                        log.info("User created and retrieved: {}", findUser);
-                    }
-
-                    // JWT 토큰 생성
-                    String token = jwtUtil.generateToken(studentId);
-                    log.info("Generated Token: {}", token);
-
-                    // User 엔티티의 정보와 함께 JSON 응답 생성
-                    Map<String, Object> userInfoMap = new HashMap<>();
-                    userInfoMap.put("token", token);
-                    userInfoMap.put("studentId", findUser.get().getStudentId());
-                    userInfoMap.put("name", name);
-                    userInfoMap.put("department", department);
-                    userInfoMap.put("grade", grade);
-
-                    String userInfoJson = mapper.writeValueAsString(userInfoMap);
-                    return ResponseEntity.ok(userInfoJson);
-                } else {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-                }
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            // 로그인 실패 시 (이전 코드에서 null 체크 오류 수정)
+            if (response.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"error\": \"Invalid credentials\"}");
             }
+
+            String name = response.getName();
+            String department = response.getDepartment();
+            String grade = response.getGrade();
+            String studentId = id;
+
+            Optional<User> findUser = userRepository.findByStudentId(studentId);
+
+
+            if (findUser.isEmpty()) {
+                log.info("User not found. Saving new user from response.");
+                userService.saveUser(response, studentId);
+                findUser = userRepository.findByStudentId(studentId);
+
+
+                if (findUser.isEmpty()) {
+                    log.error("Failed to retrieve user after saving. Aborting operation.");
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Failed to retrieve user\"}");
+                }
+                log.info("User created and retrieved: {}", findUser.get());
+            }
+
+            // JWT 토큰 생성
+            String token = jwtUtil.generateToken(studentId);
+            log.info("Generated Token: {}", token);
+
+            // User 엔티티의 정보와 함께 JSON 응답 생성
+            Map<String, Object> userInfoMap = new HashMap<>();
+            userInfoMap.put("token", token);
+            userInfoMap.put("studentId", findUser.get().getStudentId());
+            userInfoMap.put("name", name);
+            userInfoMap.put("department", department);
+            userInfoMap.put("grade", grade);
+
+            // JSON 변환
+            String userInfoJson = mapper.writeValueAsString(userInfoMap);
+            return ResponseEntity.ok().body(userInfoJson);
+
         } catch (Exception e) {
             log.error("An error occurred during login: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"Internal server error\"}");
         }
     }
+
 }

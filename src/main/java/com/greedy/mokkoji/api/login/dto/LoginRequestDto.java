@@ -2,18 +2,18 @@ package com.greedy.mokkoji.api.login.dto;
 
 public class LoginRequestDto {
     private String id;
-    private String pw;
+    private String password;
 
-    public LoginRequestDto(String id, String pw) {
+    public LoginRequestDto(String id, String password) {
         this.id = id;
-        this.pw = pw;
+        this.password = password;
     }
 
     public String getId() {
         return id;
     }
 
-    public String getPw() {
-        return pw;
+    public String getPassword() {
+        return password;
     }
 }
