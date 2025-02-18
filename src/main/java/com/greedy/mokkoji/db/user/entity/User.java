@@ -46,6 +46,10 @@ public class User {
         this.grade = grade;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getStudentId() {
         return studentId;
     }

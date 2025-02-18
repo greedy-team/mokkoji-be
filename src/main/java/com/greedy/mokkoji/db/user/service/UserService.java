@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-
     private final UserRepository userRepository;
 
     @Autowired
@@ -21,23 +20,16 @@ public class UserService {
     }
 
     @Transactional
-    public void saveUser(StudentInformationResponseDto response, String studentId) {
-        boolean isUserExists = userRepository.existsByStudentId(studentId);
-        if (isUserExists) {
-            return;
-        }
-        try {
-            String name = response.getName();
-            String department = response.getDepartment();
-            String grade = response.getGrade();
-
-            User user = new User(studentId, name, department, grade);
-
-            userRepository.save(user);
-
-        } catch (Exception e) {
-            logger.error("Error saving user and creating profile: {}", e.getMessage(), e);
-            throw new RuntimeException("사용자 정보 저장 중 오류가 발생했습니다.");
-        }
+    public User findOrCreateUser(StudentInformationResponseDto response, String studentId) {
+        return userRepository.findByStudentId(studentId).orElseGet(() -> {
+            try {
+                User newUser = new User(studentId, response.getName(), response.getDepartment(), response.getGrade());
+                return userRepository.save(newUser);
+            } catch (Exception e) {
+                logger.error("사용자 정보 저장 중 오류 발생: studentId={}", studentId, e);
+                throw new RuntimeException("사용자 정보 저장 실패: " + e.getMessage(), e);
+            }
+        });
     }
 }
+
