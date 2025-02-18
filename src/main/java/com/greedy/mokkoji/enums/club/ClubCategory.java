@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.enums;
+package com.greedy.mokkoji.enums.club;
 
 public enum ClubCategory {
     // 문화/예술
@@ -13,4 +13,6 @@ public enum ClubCategory {
     ACADEMIC,
     // 기타
     ETC,
+
+    TEST
 }
