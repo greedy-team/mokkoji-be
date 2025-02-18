@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.login;
+package com.greedy.mokkoji.api.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -12,9 +12,9 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60; // 1시간
+    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 30; //30일
 
-    private static final long EXPIRATION_TIME = 86400000; // 1일
-    // 비밀 키를 설정 파일에서 가져오기
     @Value("${jwt.secret}")
     private String secretKey;
     private Key key;
@@ -27,24 +27,31 @@ public class JwtUtil {
         key = new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS256.getJcaName());
     }
 
-    // userId를 기반으로 JWT 생성
-    public String generateToken(String studentId) {
+    public String generateAccessToken(Long userId) {
         return Jwts.builder()
-                .setSubject(String.valueOf(studentId)) // userId를 주제(subject)로 설정
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key, SignatureAlgorithm.HS256) // 서명 알고리즘과 비밀 키 설정
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // 토큰에서 userId 추출
+    public String generateRefreshToken(Long userId) {
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public Long getUserIdFromToken(String token) {
         return Long.parseLong(Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .getSubject()); // Subject에 저장된 userId를 가져옴
+                .getSubject());
     }
-}
 
+}

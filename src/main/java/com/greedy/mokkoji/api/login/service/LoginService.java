@@ -34,7 +34,6 @@ public class LoginService {
         });
 
         String name = null;
-        String studentId = null;
         String department = null;
         String grade = null;
 
@@ -42,9 +41,6 @@ public class LoginService {
             switch (rowLabels.get(i)) {
                 case "이름":
                     name = rowValues.get(i);
-                    break;
-                case "학번":
-                    studentId = rowValues.get(i);
                     break;
                 case "학과명":
                     department = rowValues.get(i);
@@ -57,12 +53,11 @@ public class LoginService {
 
         log.info("==== [사용자 정보] ====");
         log.info("이름 = {}", name);
-        log.info("학번 = {}", studentId);
         log.info("학과명 = {}", department);
         log.info("학년 = {}", grade);
         log.info("=== 모든 정보 로그 출력 완료 ===");
 
-        return new StudentInformationResponseDto(name, studentId, department, grade);
+        return new StudentInformationResponseDto(name, department, grade);
     }
 
     private static OkHttpClient buildClient() throws Exception {
@@ -107,7 +102,6 @@ public class LoginService {
 
         OkHttpClient client = buildClient();
 
-        // 로그인 요청
         FormBody formData = new FormBody.Builder()
                 .add("mainLogin", "N")
                 .add("rtUrl", "library.sejong.ac.kr")
@@ -124,17 +118,16 @@ public class LoginService {
         try (Response loginResponse = client.newCall(loginRequest).execute()) {
             if (loginResponse.body() == null) {
                 log.error("로그인 실패: 응답이 없음");
-                return new StudentInformationResponseDto(null, null, null, null);
+                return new StudentInformationResponseDto(null, null, null);
             }
         }
 
-        // 로그인 후 최종 URL 요청
         Request finalRequest = new Request.Builder().url(finalUrl).get().build();
         String finalHtml;
         try (Response finalResponse = client.newCall(finalRequest).execute()) {
             if (finalResponse.body() == null) {
                 log.error("사용자 정보 페이지 로딩 실패");
-                return new StudentInformationResponseDto(null, null, null, null);
+                return new StudentInformationResponseDto(null, null, null);
             }
             finalHtml = finalResponse.body().string();
         }
