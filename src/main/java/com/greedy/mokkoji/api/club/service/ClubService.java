@@ -1,8 +1,10 @@
 package com.greedy.mokkoji.api.club.service;
 
+import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
+import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
@@ -11,6 +13,7 @@ import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.enums.RecruitStatus;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +30,15 @@ public class ClubService {
     private final RecruitmentRepository recruitmentRepository;
     private final FavoriteRepository favoriteRepository;
 
+    public ClubDetailResponse findClub(Long userId, Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+        Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
+        Boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(userId, clubId);
+
+        return ClubDetailResponse.of(club, recruitment, isFavorite);
+    }
+
     public ClubSearchResponse findClubsByConditions(final Long userId,
                                                     final String keyword,
                                                     final ClubCategory category,
@@ -42,11 +54,11 @@ public class ClubService {
         return new ClubSearchResponse(clubResponses, pageResponse);
     }
 
-    private List<ClubResponse> mapToClubResponses(final List<Club> clubs, final Long userId) {
+    private List<ClubResponse> mapToClubResponses(final Long userId, final List<Club> clubs) {
         return clubs.stream()
                 .map(club -> {
-                    final Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
-                    final boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(userId, club.getId());
+                    Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
+                    boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(userId, club.getId());
                     return ClubResponse.of(club.getId(),
                             club.getName(),
                             club.getClubCategory().getDescription(),
@@ -61,8 +73,11 @@ public class ClubService {
     }
 
     private PageResponse createPageResponse(final Page<Club> clubPage) {
-        return PageResponse.of(clubPage.getNumber() + 1,
-                clubPage.getSize(), clubPage.getTotalPages(),
-                (int) clubPage.getTotalElements());
+        return PageResponse.of(
+                clubPage.getNumber() + 1,
+                clubPage.getSize(),
+                clubPage.getTotalPages(),
+                (int) clubPage.getTotalElements()
+        );
     }
 }

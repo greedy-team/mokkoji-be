@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.club.controller;
 
+import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchCond;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
@@ -18,6 +19,13 @@ public class ClubController {
 
     private final ClubService clubService;
     private static final Long USER_ID = 1L;
+
+    @GetMapping("/{clubId}")
+    public ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(@PathVariable("clubId") final Long clubId) {
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                clubService.findClub(USER_ID, clubId));
+    }
 
     @GetMapping
     public ResponseEntity<APISuccessResponse<ClubSearchResponse>> getClubs(
