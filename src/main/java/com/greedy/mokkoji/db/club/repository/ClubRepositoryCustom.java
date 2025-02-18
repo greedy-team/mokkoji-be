@@ -8,9 +8,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ClubRepositoryCustom {
-    Page<Club> findClubs(final String keyword,
-                         final ClubCategory category,
-                         final ClubAffiliation affiliation,
-                         final RecruitStatus status,
-                         final Pageable pageable);
+    Page<Club> findClubs(
+            final String keyword,
+            final ClubCategory category,
+            final ClubAffiliation affiliation,
+            final RecruitStatus status,
+            final Pageable pageable
+    );
 }
