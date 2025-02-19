@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,8 +21,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("스케줄러 테스트")
@@ -74,18 +75,18 @@ public class RecruitmentNotificationSchedulerTest {
                 .content("모집글2")
                 .build();
 
-        given(recruitmentRepository.findTodayRecruitStartDate(currentDateTime.toLocalDate()))
+        BDDMockito.given(recruitmentRepository.findTodayRecruitStartDate(currentDateTime.toLocalDate()))
                 .willReturn(List.of(recruitment1, recruitment2));
 
-        doNothing().when(notificationService).sendNotification(any(Club.class), any(Recruitment.class));
+        BDDMockito.doNothing().when(notificationService).sendNotification(any(Club.class), any(Recruitment.class));
 
         // when
         recruitmentNotificationScheduler.sendDailyRecruitmentNotifications();
 
         //then
-        verify(recruitmentRepository, times(1))
+        BDDMockito.verify(recruitmentRepository, times(1))
                 .findTodayRecruitStartDate(currentDateTime.toLocalDate());
 
-        verify(notificationService, times(2)).sendNotification(any(Club.class), any(Recruitment.class));
+        BDDMockito.verify(notificationService, times(2)).sendNotification(any(Club.class), any(Recruitment.class));
     }
 }
