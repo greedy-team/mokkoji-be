@@ -11,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
+    //TODO:: query dsl로 변경
     @Query("SELECT f FROM Favorite f JOIN FETCH f.user WHERE f.club.id = :clubId")
     List<Favorite> findByClubIdWithFetchJoin(final Long clubId);
 
