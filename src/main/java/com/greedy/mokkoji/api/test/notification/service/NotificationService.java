@@ -20,7 +20,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void sendNotification(Club club, Recruitment recruitment) {
+    public void sendNotification(final Club club, final Recruitment recruitment) {
         List<Favorite> favorites = favoriteRepository.findByClubIdWithFetchJoin(club.getId());
 
         List<String> userEmail = favorites.stream().map(f -> f.getUser().getEmail()).toList();

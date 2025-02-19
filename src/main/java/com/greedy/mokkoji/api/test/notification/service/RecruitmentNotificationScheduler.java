@@ -37,6 +37,7 @@ public class RecruitmentNotificationScheduler {
             Club club = recruitment.getClub();
             notificationService.sendNotification(club, recruitment);
         }
+
         log.info("[SCHEDULER END]");
     }
 }

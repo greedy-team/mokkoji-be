@@ -29,7 +29,7 @@ public class MailConfig {
 
     @Bean
     public JavaMailSender getMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        final JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         Properties properties = new Properties();
         properties.put("mail.transport,auth", auth);
         properties.put("mail.smtp.starttls.enable", starttls);
