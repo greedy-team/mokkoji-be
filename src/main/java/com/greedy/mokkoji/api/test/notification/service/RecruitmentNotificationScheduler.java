@@ -22,7 +22,6 @@ public class RecruitmentNotificationScheduler {
     @Scheduled(cron = "${schedules.cron.reward.publish}", zone = "${schedules.cron.reward.zone}")
     @Transactional
     public void sendDailyRecruitmentNotifications() {
-        log.info("[SCHEDULER START]");
         final LocalDate currentDate = LocalDate.now();
 
         List<Recruitment> recruitments = recruitmentRepository.findTodayRecruitStartDate(currentDate);
@@ -31,7 +30,5 @@ public class RecruitmentNotificationScheduler {
             Club club = recruitment.getClub();
             notificationService.sendNotification(club, recruitment);
         }
-
-        log.info("[SCHEDULER END]");
     }
 }
