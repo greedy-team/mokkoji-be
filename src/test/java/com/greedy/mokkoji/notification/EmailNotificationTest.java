@@ -36,7 +36,7 @@ public class EmailNotificationTest {
 
     @Test
     @DisplayName("이메일 알림이 발송된다")
-    void sendNotificationTest() throws MessagingException {
+    void sendNotificationTest() {
         // given
         final List<String> receiverMails = List.of("test@test.com");
         final String clubName = "테스트";
