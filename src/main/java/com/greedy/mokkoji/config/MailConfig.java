@@ -10,6 +10,9 @@ import java.util.Properties;
 
 @Configuration
 public class MailConfig {
+    private static final String AUTH_KEY = "mail.transport.auth";
+    private static final String TLS_KEY = "mail.smtp.starttls.enable";
+    private static final String TIMEOUT_KEY = "spring.mail.properties.mail.smtp.timeout";
     @Value("${spring.mail.host}")
     private String host;
     @Value("${spring.mail.username}")
@@ -31,9 +34,9 @@ public class MailConfig {
     public JavaMailSender getMailSender() {
         final JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         Properties properties = new Properties();
-        properties.put("mail.transport.auth", auth);
-        properties.put("mail.smtp.starttls.enable", starttls);
-        properties.put("spring.mail.properties.mail.smtp.timeout", timeout);
+        properties.put(AUTH_KEY, auth);
+        properties.put(TLS_KEY, starttls);
+        properties.put(TIMEOUT_KEY, timeout);
 
         mailSender.setHost(host);
         mailSender.setUsername(userName);
