@@ -39,13 +39,6 @@ public class User {
         this.email = email;
     }
 
-    public User(String studentId, String name, String department, String grade) {
-        this.studentId = studentId;
-        this.name = name;
-        this.department = department;
-        this.grade = grade;
-    }
-
     public Long getId() {
         return id;
     }

@@ -23,7 +23,12 @@ public class UserService {
     public User findOrCreateUser(StudentInformationResponseDto response, String studentId) {
         return userRepository.findByStudentId(studentId).orElseGet(() -> {
             try {
-                User newUser = new User(studentId, response.getName(), response.getDepartment(), response.getGrade());
+                User newUser = User.builder()
+                        .studentId(studentId)
+                        .name(response.getName())
+                        .department(response.getDepartment())
+                        .grade(response.getGrade())
+                        .build();
                 return userRepository.save(newUser);
             } catch (Exception e) {
                 logger.error("사용자 정보 저장 중 오류 발생: studentId={}", studentId, e);
