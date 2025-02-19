@@ -47,11 +47,9 @@ public class EmailNotificationChannel implements NotificationChannel {
             final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
             helper.setFrom(senderMail, SENDER_NAME);
-            log.info("[SENDER MAIL] : {}", senderMail);
 
             final String[] receiverMailsS = receiverMails.toArray(String[]::new);
             helper.setTo(receiverMailsS);
-            log.info("[RECEIVER MAILS] : {}", senderMail);
 
             helper.setSubject(SUBJECT);
 
@@ -77,10 +75,8 @@ public class EmailNotificationChannel implements NotificationChannel {
     ) {
         try {
             final MimeMessage mimeMessage = generateNotification(receiverMails, clubName, recruitStartTime, recruitEndTime);
-            log.info("[MAIL GENERATE SUCCESSFULLY]");
 
             mailSender.send(mimeMessage);
-            log.info("[MAIL SEND SUCCESSFULLY]");
         } catch (MailException e) {
             log.error("[MAIL SEND FAILED] : {}", e.getMessage());
             throw new MailSendingException(FailMessage.INTERNAL_SERVER_ERROR_SMTP);
