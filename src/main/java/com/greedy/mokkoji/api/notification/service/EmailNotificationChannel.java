@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.test.notification.service;
+package com.greedy.mokkoji.api.notification.service;
 
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.enums.message.FailMessage;

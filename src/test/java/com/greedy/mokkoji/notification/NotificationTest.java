@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.test.notification.service.NotificationChannel;
-import com.greedy.mokkoji.api.test.notification.service.NotificationService;
+import com.greedy.mokkoji.api.notification.service.NotificationChannel;
+import com.greedy.mokkoji.api.notification.service.NotificationService;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
