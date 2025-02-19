@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("${api.prefix}/favorites")
 public class FavoriteController {
 
-    private final FavoriteService favoriteService;
     private static final Long USER_ID = 1L;
+    private final FavoriteService favoriteService;
 
     @PostMapping("/{clubId}")
     public ResponseEntity<APISuccessResponse<Void>> addFavorite(
