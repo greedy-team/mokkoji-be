@@ -54,7 +54,7 @@ public class FavoriteTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade(4)
+                .grade("4")
                 .department("사용자 학과")
                 .studentId("사용자 학번")
                 .build();
@@ -91,7 +91,7 @@ public class FavoriteTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade(4)
+                .grade("4")
                 .department("사용자 학과")
                 .studentId("사용자 학번")
                 .build();
@@ -127,7 +127,7 @@ public class FavoriteTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade(4)
+                .grade("4")
                 .department("사용자 학과")
                 .studentId("사용자 학번")
                 .build();
@@ -161,7 +161,7 @@ public class FavoriteTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade(4)
+                .grade("4")
                 .department("사용자 학과")
                 .studentId("사용자 학번")
                 .build();

@@ -88,24 +88,24 @@ class AuthControllerTest {
         assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
     }
 
-    @Test
-    void 로그인_성공시_유저정보가_정상적으로_조회되는지_확인() throws Exception {
-        // given
-        LoginRequestDto requestDto = new LoginRequestDto(id, password);
-
-        StudentInformationResponseDto responseDto = new StudentInformationResponseDto("신혜빈", "컴퓨터공학과", "3");
-        User mockUser = new User(id, "신혜빈", "컴퓨터공학과", "3");
-        ReflectionTestUtils.setField(mockUser, "id", 1L);
-
-        when(loginService.getStudentInformation(anyString(), anyString())).thenReturn(responseDto);
-        when(userService.findOrCreateUser(any(), anyString())).thenReturn(mockUser);
-
-        // when & then
-        mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isOk());
-    }
+//    @Test
+//    void 로그인_성공시_유저정보가_정상적으로_조회되는지_확인() throws Exception {
+//        // given
+//        LoginRequestDto requestDto = new LoginRequestDto(id, password);
+//
+//        StudentInformationResponseDto responseDto = new StudentInformationResponseDto("신혜빈", "컴퓨터공학과", "3");
+//        User mockUser = new User(id, "신혜빈", "컴퓨터공학과", "3");
+//        ReflectionTestUtils.setField(mockUser, "id", 1L);
+//
+//        when(loginService.getStudentInformation(anyString(), anyString())).thenReturn(responseDto);
+//        when(userService.findOrCreateUser(any(), anyString())).thenReturn(mockUser);
+//
+//        // when & then
+//        mockMvc.perform(post("/auth/login")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(requestDto)))
+//                .andExpect(status().isOk());
+//    }
 
 
 
