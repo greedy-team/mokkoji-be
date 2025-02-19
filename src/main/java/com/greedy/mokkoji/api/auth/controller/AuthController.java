@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.api.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.greedy.mokkoji.api.auth.dto.LoginResponseDto;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.auth.dto.LoginRequestDto;
 import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
@@ -15,9 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -50,11 +48,8 @@ public class AuthController {
             log.info("Generated Access Token: {}", accessToken);
             log.info("Generated Refresh Token: {}", refreshToken);
 
-            Map<String, Object> userInfoMap = new HashMap<>();
-            userInfoMap.put("accessToken", accessToken);
-            userInfoMap.put("refreshToken", refreshToken);
-
-            return ResponseEntity.ok().body(mapper.writeValueAsString(userInfoMap));
+            LoginResponseDto tokenResponse = new LoginResponseDto(accessToken, refreshToken);
+            return ResponseEntity.ok().body(mapper.writeValueAsString(tokenResponse));
 
         } catch (Exception e) {
             log.error("서버 내부 오류 발생: {}", e.getMessage(), e);
