@@ -26,9 +26,11 @@ public class RecruitmentNotificationScheduler {
 
         List<Recruitment> recruitments = recruitmentRepository.findTodayRecruitStartDate(currentDate);
 
-        for (Recruitment recruitment : recruitments) {
-            Club club = recruitment.getClub();
-            notificationService.sendNotification(club, recruitment);
-        }
+        recruitments.forEach(
+                recruitment -> {
+                    Club club = recruitment.getClub();
+                    notificationService.sendNotification(club, recruitment);
+                }
+        );
     }
 }
