@@ -1,7 +1,6 @@
 package com.greedy.mokkoji.api.test.notification.service;
 
-import com.greedy.mokkoji.api.test.notification.exception.MailGeneratingException;
-import com.greedy.mokkoji.api.test.notification.exception.MailSendingException;
+import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -59,10 +58,10 @@ public class EmailNotificationChannel implements NotificationChannel {
             return mimeMessage;
         } catch (MessagingException e) {
             log.error("[MAIL GENERATING ERROR]: {}", e.getMessage());
-            throw new MailGeneratingException(FailMessage.BAD_REQUEST);
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SMTP_MAIL);
         } catch (UnsupportedEncodingException e) {
             log.error("[Mail GENERATING ERROR FROM SENDER INFORMATION]: {}", e.getMessage());
-            throw new MailGeneratingException(FailMessage.INTERNAL_SERVER_ERROR);
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SMTP_MAIL);
         }
     }
 
@@ -79,7 +78,7 @@ public class EmailNotificationChannel implements NotificationChannel {
             mailSender.send(mimeMessage);
         } catch (MailException e) {
             log.error("[MAIL SEND FAILED] : {}", e.getMessage());
-            throw new MailSendingException(FailMessage.INTERNAL_SERVER_ERROR_SMTP);
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SMTP);
         }
     }
 }
