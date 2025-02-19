@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.test.notification.service.EmailNotificationChannel;
+import com.greedy.mokkoji.api.notification.service.EmailNotificationChannel;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;

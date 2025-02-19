@@ -1,5 +1,6 @@
-package com.greedy.mokkoji.api.test.notification.service;
+package com.greedy.mokkoji.api.scheduler.service;
 
+import com.greedy.mokkoji.api.notification.service.NotificationService;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
