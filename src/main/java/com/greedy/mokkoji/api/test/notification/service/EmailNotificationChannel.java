@@ -5,6 +5,7 @@ import com.greedy.mokkoji.api.test.notification.exception.MailSendingException;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -18,16 +19,13 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class EmailNotificationChannel implements NotificationChannel {
     private static final String SUBJECT = "동아리 모집 시작";
     private static final String SENDER_NAME = "모꼬지";
     private final JavaMailSender mailSender;
     @Value("${spring.mail.username}")
     private String senderMail;
-
-    public EmailNotificationChannel(final JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
 
     private String generateText(
             final String clubName,
