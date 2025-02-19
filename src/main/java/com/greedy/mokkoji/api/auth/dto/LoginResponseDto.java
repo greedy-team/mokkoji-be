@@ -11,12 +11,4 @@ public class LoginResponseDto {
         this.data.put("accessToken", accessToken);
         this.data.put("refreshToken", refreshToken);
     }
-
-    public Map<String, String> getData() {
-        return data;
-    }
-
-    public void setData(Map<String, String> data) {
-        this.data = data;
-    }
 }
