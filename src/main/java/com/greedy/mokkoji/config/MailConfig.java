@@ -31,7 +31,7 @@ public class MailConfig {
     public JavaMailSender getMailSender() {
         final JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         Properties properties = new Properties();
-        properties.put("mail.transport,auth", auth);
+        properties.put("mail.transport.auth", auth);
         properties.put("mail.smtp.starttls.enable", starttls);
         properties.put("spring.mail.properties.mail.smtp.timeout", timeout);
 
