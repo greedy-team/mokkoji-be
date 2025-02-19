@@ -38,12 +38,12 @@ public class EmailNotificationTest {
     @DisplayName("이메일 알림이 발송된다")
     void sendNotificationTest() throws MessagingException {
         // given
-        List<String> receiverMails = List.of("test@test.com");
-        String clubName = "테스트";
-        LocalDateTime recruitStart = LocalDateTime.now();
-        LocalDateTime recruitEnd = LocalDateTime.now().plusDays(7);
+        final List<String> receiverMails = List.of("test@test.com");
+        final String clubName = "테스트";
+        final LocalDateTime recruitStart = LocalDateTime.now();
+        final LocalDateTime recruitEnd = LocalDateTime.now().plusDays(7);
 
-        MimeMessage mimeMessage = new MimeMessage((Session) null);
+        final MimeMessage mimeMessage = new MimeMessage((Session) null);
         BDDMockito.when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         BDDMockito.doNothing().when(mailSender).send(any(MimeMessage.class));
 

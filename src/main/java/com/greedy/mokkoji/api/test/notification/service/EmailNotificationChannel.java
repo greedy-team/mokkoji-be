@@ -30,34 +30,34 @@ public class EmailNotificationChannel implements NotificationChannel {
     }
 
     private String generateText(
-            String clubName,
-            LocalDateTime recruitStart,
-            LocalDateTime recruitEnd
+            final String clubName,
+            final LocalDateTime recruitStart,
+            final LocalDateTime recruitEnd
     ) {
         return "모꼬지를 서비스에서 즐겨찾기 해주신 " + clubName + "이 동아리 모집을 시작했습니다!\n"
                 + "모집 기간은" + recruitStart + "부터 " + recruitEnd + "까지 입니다!.";
     }
 
     private MimeMessage generateNotification(
-            List<String> receiverMails,
-            String clubName,
-            LocalDateTime recruitStartTime,
-            LocalDateTime recruitEndTime
+            final List<String> receiverMails,
+            final String clubName,
+            final LocalDateTime recruitStartTime,
+            final LocalDateTime recruitEndTime
     ) {
         try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            final MimeMessage mimeMessage = mailSender.createMimeMessage();
+            final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
             helper.setFrom(senderMail, SENDER_NAME);
             log.info("[SENDER MAIL] : {}", senderMail);
 
-            String[] receiverMailsS = receiverMails.toArray(String[]::new);
+            final String[] receiverMailsS = receiverMails.toArray(String[]::new);
             helper.setTo(receiverMailsS);
             log.info("[RECEIVER MAILS] : {}", senderMail);
 
             helper.setSubject(SUBJECT);
 
-            String text = generateText(clubName, recruitStartTime, recruitEndTime);
+            final String text = generateText(clubName, recruitStartTime, recruitEndTime);
             helper.setText(text);
 
             return mimeMessage;
@@ -72,13 +72,13 @@ public class EmailNotificationChannel implements NotificationChannel {
 
     @Override
     public void sendNotification(
-            List<String> receiverMails,
-            String clubName,
-            LocalDateTime recruitStartTime,
-            LocalDateTime recruitEndTime
+            final List<String> receiverMails,
+            final String clubName,
+            final LocalDateTime recruitStartTime,
+            final LocalDateTime recruitEndTime
     ) {
         try {
-            MimeMessage mimeMessage = generateNotification(receiverMails, clubName, recruitStartTime, recruitEndTime);
+            final MimeMessage mimeMessage = generateNotification(receiverMails, clubName, recruitStartTime, recruitEndTime);
             log.info("[MAIL GENERATE SUCCESSFULLY]");
 
             mailSender.send(mimeMessage);
