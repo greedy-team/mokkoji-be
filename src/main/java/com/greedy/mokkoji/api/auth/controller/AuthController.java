@@ -35,7 +35,7 @@ public class AuthController {
         try {
             StudentInformationResponseDto response = loginService.getStudentInformation(id, password);
 
-            if (response.getName() == null) {
+            if (response.name() == null) {
                 log.warn("로그인 실패: 잘못된 아이디 또는 비밀번호. studentId={}", id);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body("{\"error\": \"잘못된 아이디 또는 비밀번호입니다.\"}");
