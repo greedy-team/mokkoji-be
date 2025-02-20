@@ -67,30 +67,20 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<String> refresh(@RequestBody Map<String, String> request) {
-        String accessToken = request.get("accessToken");
         String refreshToken = request.get("refreshToken");
-
-        try {
-            jwtUtil.getUserIdFromToken(accessToken);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"error\": \"Access Token이 아직 유효합니다.\"}");
-        } catch (ExpiredJwtException e) {
-            log.info("Access Token 만료됨, Refresh Token 검증 진행");
-        } catch (JwtException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"error\": \"유효하지 않은 Access Token입니다.\"}");
-        }
 
         try {
             Long userId = jwtUtil.getUserIdFromToken(refreshToken);
             Optional<User> user = userRepository.findById(userId);
-            if (user == null) {
+            if (user.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"error\": \"유효하지 않은 사용자입니다.\"}");
             }
 
             String newAccessToken = jwtUtil.generateAccessToken(user.get().getId());
-            log.info("Reissued Access Token: {}", newAccessToken);
+            log.info("new AccessToken: {}", newAccessToken);
 
-            LoginResponseDto tokenResponse = new LoginResponseDto(newAccessToken, refreshToken);
-            return ResponseEntity.ok().body(mapper.writeValueAsString(tokenResponse));
+            return ResponseEntity.ok()
+                    .body("{\"accessToken\": \"" + newAccessToken + "\"}");
         } catch (ExpiredJwtException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"error\": \"Refresh Token이 만료되었습니다. 다시 로그인해주세요.\"}");
         } catch (JwtException e) {
@@ -100,5 +90,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"error\": \"서버 내부 오류가 발생했습니다.\"}");
         }
     }
+
 }
 
