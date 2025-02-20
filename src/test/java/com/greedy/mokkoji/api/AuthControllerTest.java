@@ -3,29 +3,21 @@ package com.greedy.mokkoji.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greedy.mokkoji.api.auth.controller.AuthController;
 import com.greedy.mokkoji.api.auth.dto.LoginRequestDto;
-import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
 import com.greedy.mokkoji.api.auth.service.LoginService;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
-import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.service.UserService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.mock;
 
 @WebMvcTest(AuthController.class)
 @Import(AuthControllerTest.TestConfig.class)
@@ -55,6 +47,17 @@ class AuthControllerTest {
     @Value("${password}")
     private String password;
 
+    @Test
+    void 실제_로그인_성공시_200_응답코드가_반환되는지_확인() throws Exception {
+        //given
+        LoginRequestDto requestDto = new LoginRequestDto(id, password);
+
+        //when
+        ResponseEntity<String> responseEntity = authController.login(requestDto);
+
+        //then
+        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
+    }
 
     @TestConfiguration
     static class TestConfig {
@@ -72,20 +75,6 @@ class AuthControllerTest {
         public JwtUtil jwtUtil() {
             return mock(JwtUtil.class);
         }
-    }
-
-
-
-    @Test
-    void 실제_로그인_성공시_200_응답코드가_반환되는지_확인() throws Exception {
-        //given
-        LoginRequestDto requestDto = new LoginRequestDto(id, password);
-
-        //when
-        ResponseEntity<String> responseEntity = authController.login(requestDto);
-
-        //then
-        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(200);
     }
 
 //    @Test
@@ -106,7 +95,6 @@ class AuthControllerTest {
 //                        .content(objectMapper.writeValueAsString(requestDto)))
 //                .andExpect(status().isOk());
 //    }
-
 
 
 //    @Test

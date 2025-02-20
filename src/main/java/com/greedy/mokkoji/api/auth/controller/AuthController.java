@@ -1,11 +1,11 @@
 package com.greedy.mokkoji.api.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.greedy.mokkoji.api.auth.dto.LoginResponseDto;
-import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.auth.dto.LoginRequestDto;
+import com.greedy.mokkoji.api.auth.dto.LoginResponseDto;
 import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
 import com.greedy.mokkoji.api.auth.service.LoginService;
+import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.service.UserService;
 import lombok.RequiredArgsConstructor;
