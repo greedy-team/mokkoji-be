@@ -47,7 +47,15 @@ public class ClubService {
                 .map(club -> {
                     Recruitment recruitment = recruitmentRepository.findByClub(club);
                     boolean isFavorite = favoriteClubIds.contains(club.getId());
-                    return of(club, recruitment, isFavorite);
+                    return of(club.getId(),
+                            club.getName(),
+                            club.getClubCategory().getDescription(),
+                            club.getClubAffiliation().getDescription(),
+                            club.getDescription(),
+                            recruitment.getRecruitStart().toString(),
+                            recruitment.getRecruitEnd().toString(),
+                            club.getLogo(),
+                            isFavorite);
                 })
                 .collect(Collectors.toList());
     }
