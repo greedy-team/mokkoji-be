@@ -17,9 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.greedy.mokkoji.api.club.dto.club.ClubResponse.of;
-import static com.greedy.mokkoji.api.club.dto.page.PageResponse.of;
-
 @Service
 @RequiredArgsConstructor
 public class ClubService {
@@ -42,7 +39,7 @@ public class ClubService {
                 .map(club -> {
                     Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
                     boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(userId, club.getId());
-                    return of(club.getId(),
+                    return ClubResponse.of(club.getId(),
                             club.getName(),
                             club.getClubCategory().getDescription(),
                             club.getClubAffiliation().getDescription(),
@@ -56,6 +53,6 @@ public class ClubService {
     }
 
     private PageResponse createPageResponse(final Page<Club> clubPage) {
-        return of(clubPage.getNumber() + 1, clubPage.getSize(), clubPage.getTotalPages(), (int) clubPage.getTotalElements());
+        return PageResponse.of(clubPage.getNumber() + 1, clubPage.getSize(), clubPage.getTotalPages(), (int) clubPage.getTotalElements());
     }
 }
