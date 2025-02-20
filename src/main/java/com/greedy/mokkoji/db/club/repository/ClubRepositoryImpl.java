@@ -31,7 +31,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     @Override
     public Page<Club> findClubs(final ClubSearchCond cond, final Pageable pageable) {
 
-        List<Club> clubs = queryFactory.selectFrom(club)
+        final List<Club> clubs = queryFactory.selectFrom(club)
                 .leftJoin(recruitment).on(club.eq(recruitment.club))
                 .where(
                         likeClubName(cond.keyword()),
@@ -44,7 +44,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        long total = getTotalCount(cond);
+        final long total = getTotalCount(cond);
 
         return new PageImpl<>(clubs, pageable, total);
     }
@@ -71,7 +71,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     }
 
     private BooleanExpression filterByRecruitStatus(final RecruitStatus status) {
-        LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now();
         if (status == OPEN) {
             return recruitment.recruitStart.loe(now).and(recruitment.recruitEnd.gt(now));
         }

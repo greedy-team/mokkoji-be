@@ -26,10 +26,10 @@ public class ClubService {
     private final FavoriteRepository favoriteRepository;
 
     public ClubSearchResponse findClubsByConditions(final Long userId, final ClubSearchCond cond, final Pageable pageable) {
-        Page<Club> clubPage = clubRepository.findClubs(cond, pageable);
+        final Page<Club> clubPage = clubRepository.findClubs(cond, pageable);
 
-        List<ClubResponse> clubResponses = mapToClubResponses(clubPage.getContent(), userId);
-        PageResponse pageResponse = createPageResponse(clubPage);
+        final List<ClubResponse> clubResponses = mapToClubResponses(clubPage.getContent(), userId);
+        final PageResponse pageResponse = createPageResponse(clubPage);
 
         return new ClubSearchResponse(clubResponses, pageResponse);
     }
@@ -37,8 +37,8 @@ public class ClubService {
     private List<ClubResponse> mapToClubResponses(final List<Club> clubs, final Long userId) {
         return clubs.stream()
                 .map(club -> {
-                    Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
-                    boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(userId, club.getId());
+                    final Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
+                    final boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(userId, club.getId());
                     return ClubResponse.of(club.getId(),
                             club.getName(),
                             club.getClubCategory().getDescription(),
@@ -53,6 +53,8 @@ public class ClubService {
     }
 
     private PageResponse createPageResponse(final Page<Club> clubPage) {
-        return PageResponse.of(clubPage.getNumber() + 1, clubPage.getSize(), clubPage.getTotalPages(), (int) clubPage.getTotalElements());
+        return PageResponse.of(clubPage.getNumber() + 1,
+                clubPage.getSize(), clubPage.getTotalPages(),
+                (int) clubPage.getTotalElements());
     }
 }
