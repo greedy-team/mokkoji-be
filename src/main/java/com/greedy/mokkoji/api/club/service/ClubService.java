@@ -31,22 +31,17 @@ public class ClubService {
     public ClubSearchResponse findClubsByConditions(final Long userId, final ClubSearchCond cond, final Pageable pageable) {
         Page<Club> clubPage = clubRepository.findClubs(cond, pageable);
 
-        Set<Long> favoriteClubIds = getFavoriteClubIds(userId);
-        List<ClubResponse> clubResponses = mapToClubResponses(clubPage.getContent(), favoriteClubIds);
+        List<ClubResponse> clubResponses = mapToClubResponses(clubPage.getContent(), userId);
         PageResponse pageResponse = createPageResponse(clubPage);
 
         return new ClubSearchResponse(clubResponses, pageResponse);
     }
 
-    private Set<Long> getFavoriteClubIds(final Long userId) {
-        return userId != null ? new HashSet<>(favoriteRepository.findClubIdByUserId(userId)) : Collections.emptySet();
-    }
-
-    private List<ClubResponse> mapToClubResponses(final List<Club> clubs, final Set<Long> favoriteClubIds) {
+    private List<ClubResponse> mapToClubResponses(final List<Club> clubs, final Long userId) {
         return clubs.stream()
                 .map(club -> {
-                    Recruitment recruitment = recruitmentRepository.findByClub(club);
-                    boolean isFavorite = favoriteClubIds.contains(club.getId());
+                    Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
+                    boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(userId, club.getId());
                     return of(club.getId(),
                             club.getName(),
                             club.getClubCategory().getDescription(),
