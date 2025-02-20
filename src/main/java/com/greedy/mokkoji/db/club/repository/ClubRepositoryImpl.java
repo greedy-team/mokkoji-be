@@ -50,23 +50,35 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     }
 
     private BooleanExpression likeClubName(final String keyword) {
-        return StringUtils.hasText(keyword) ? club.name.like("%" + keyword + "%") : null;
+        if (StringUtils.hasText(keyword)) {
+            return club.name.like("%" + keyword + "%");
+        }
+        return null;
     }
 
     private BooleanExpression equalCategory(final ClubCategory category) {
-        return category != null ? club.clubCategory.eq(category) : null;
+        if (category != null) {
+            return club.clubCategory.eq(category);
+        }
+        return null;
     }
 
     private BooleanExpression equalAffiliation(final ClubAffiliation affiliation) {
-        return affiliation != null ? club.clubAffiliation.eq(affiliation) : null;
+        if (affiliation != null) {
+            return club.clubAffiliation.eq(affiliation);
+        }
+        return null;
     }
 
     private BooleanExpression filterByRecruitStatus(final RecruitStatus status) {
         LocalDateTime now = LocalDateTime.now();
-        return status == OPEN ? recruitment.recruitStart.loe(now).and(recruitment.recruitEnd.gt(now)) : null;
+        if (status == OPEN) {
+            return recruitment.recruitStart.loe(now).and(recruitment.recruitEnd.gt(now));
+        }
+        return null;
     }
 
-    private static NumberTemplate<Long> getRecruitmentDuration() {
+    private NumberTemplate<Long> getRecruitmentDuration() {
         return Expressions.numberTemplate(Long.class, "{0} - {1}", recruitment.recruitEnd, recruitment.recruitStart);
     }
 
