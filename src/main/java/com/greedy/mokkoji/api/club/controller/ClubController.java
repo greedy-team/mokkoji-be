@@ -25,7 +25,7 @@ public class ClubController {
             @RequestParam(value = "page") final int page,
             @RequestParam(value = "size") final int size
     ) {
-        Pageable pageable = PageRequest.of(page - 1, size);
+        final Pageable pageable = PageRequest.of(page - 1, size);
 
         return APISuccessResponse.of(
                 HttpStatus.OK,
