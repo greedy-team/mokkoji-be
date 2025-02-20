@@ -44,8 +44,8 @@ public class ClubService {
                             club.getClubCategory().getDescription(),
                             club.getClubAffiliation().getDescription(),
                             club.getDescription(),
-                            recruitment.getRecruitStart().toString(),
-                            recruitment.getRecruitEnd().toString(),
+                            recruitment.getRecruitStart(),
+                            recruitment.getRecruitEnd(),
                             club.getLogo(),
                             isFavorite);
                 })
