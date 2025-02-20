@@ -1,10 +1,6 @@
 package com.greedy.mokkoji.api.club.dto.club;
 
-import com.greedy.mokkoji.db.club.entity.Club;
-import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import lombok.Builder;
-
-import java.time.format.DateTimeFormatter;
 
 @Builder
 public record ClubResponse(
@@ -18,16 +14,26 @@ public record ClubResponse(
         String imageURL,
         Boolean isFavorite
 ) {
-    public static ClubResponse of(final Club club, final Recruitment recruitment, final Boolean isFavorite) {
+    public static ClubResponse of(
+            final Long id,
+            final String name,
+            final String category,
+            final String affiliation,
+            final String description,
+            final String recruitStartDate,
+            final String recruitEndDate,
+            final String imageURL,
+            final Boolean isFavorite) {
+
         return ClubResponse.builder()
-                .id(club.getId())
-                .name(club.getName())
-                .category(club.getClubCategory().getDescription().toString())
-                .affiliation(club.getClubAffiliation().getDescription().toString())
-                .description(club.getDescription())
-                .recruitStartDate(recruitment.getRecruitStart().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                .recruitEndDate(recruitment.getRecruitEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                .imageURL(club.getLogo())
+                .id(id)
+                .name(name)
+                .category(category)
+                .affiliation(affiliation)
+                .description(description)
+                .recruitStartDate(recruitStartDate)
+                .recruitEndDate(recruitEndDate)
+                .imageURL(imageURL)
                 .isFavorite(isFavorite)
                 .build();
     }
