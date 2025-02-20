@@ -1,7 +1,6 @@
 package com.greedy.mokkoji.api.jwt;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -43,6 +42,29 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String refreshAccessToken(String refreshToken) {
+        if (!isTokenValid(refreshToken)) {
+            throw new SecurityException("Refresh Token이 만료되었습니다. 다시 로그인해야 합니다.");
+        }
+
+        Long userId = getUserIdFromToken(refreshToken);
+        return generateAccessToken(userId);
+    }
+
+    private boolean isTokenValid(String token) {
+        try {
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return !claims.getBody().getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            return false;
+        } catch (JwtException e) {
+            return false;
+        }
     }
 
     public Long getUserIdFromToken(String token) {

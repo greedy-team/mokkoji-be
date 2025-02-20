@@ -96,7 +96,7 @@ public class LoginService {
     }
 
     @Transactional
-    public StudentInformationResponseDto getStudentInformation(String id, String password) throws Exception {
+    public StudentInformationResponseDto getStudentInformation(final String id, final String password) throws Exception {
         String loginUrl = "https://portal.sejong.ac.kr/jsp/login/login_action.jsp";
         String finalUrl = "https://classic.sejong.ac.kr/classic/reading/status.do";
 

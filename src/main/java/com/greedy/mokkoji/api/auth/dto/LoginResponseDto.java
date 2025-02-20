@@ -1,8 +1,11 @@
 package com.greedy.mokkoji.api.auth.dto;
 
+import lombok.Getter;
+
 import java.util.HashMap;
 import java.util.Map;
 
+@Getter
 public class LoginResponseDto {
     private Map<String, String> data;
 

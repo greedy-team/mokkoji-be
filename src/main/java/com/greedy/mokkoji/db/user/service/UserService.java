@@ -25,9 +25,9 @@ public class UserService {
             try {
                 User newUser = User.builder()
                         .studentId(studentId)
-                        .name(response.getName())
-                        .department(response.getDepartment())
-                        .grade(response.getGrade())
+                        .name(response.name())
+                        .department(response.department())
+                        .grade(response.grade())
                         .build();
                 return userRepository.save(newUser);
             } catch (Exception e) {
