@@ -10,6 +10,7 @@ import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.enums.ClubAffiliation;
 import com.greedy.mokkoji.enums.ClubCategory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,11 +19,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.greedy.mokkoji.db.club.entity.Club.builder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -43,14 +44,12 @@ class ClubSearchTest {
     @Mock
     private FavoriteRepository favoriteRepository;
 
-    @Test
-    @DisplayName("조건에 맞는 동아리를 검색할 수 있다.")
-    void findClubsByConditions() {
-        Long userId = 1L;
-        ClubSearchCond cond = ClubSearchCond.builder().build();
-        Pageable pageable = PageRequest.of(0, 10);
+    private Club club;
+    private Recruitment recruitment;
 
-        Club club = builder()
+    @BeforeEach
+    void setUp() {
+        club = Club.builder()
                 .name("testClub")
                 .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
                 .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
@@ -58,31 +57,45 @@ class ClubSearchTest {
                 .logo("testLogo")
                 .instagram("testInstagramURL")
                 .build();
+        ReflectionTestUtils.setField(club, "id", 1L);
 
-        Recruitment recruitment = Recruitment.builder()
+        recruitment = Recruitment.builder()
                 .club(club)
                 .content("testContent")
-                .recruitStart(LocalDateTime.of(25, 1, 1, 12, 0))
-                .recruitEnd(LocalDateTime.of(25, 2, 20, 12, 0))
+                .recruitStart(LocalDateTime.of(2025, 1, 1, 12, 0))
+                .recruitEnd(LocalDateTime.of(2025, 2, 20, 12, 0))
                 .build();
+    }
 
-        Page<Club> clubPage = new PageImpl<>(List.of(club), pageable, 1);
+    @Test
+    @DisplayName("조건에 맞는 동아리를 검색할 수 있다.")
+    void findClubsByConditions() {
+        final Long userId = 1L;
+        final Long clubId = club.getId();
+        final ClubSearchCond cond = ClubSearchCond.builder().build();
+        final Pageable pageable = PageRequest.of(0, 10);
+        final List<Club> clubs = List.of(club);
+        final Page<Club> clubPage = new PageImpl<>(clubs, pageable, clubs.size());
 
-        BDDMockito.given(clubRepository.findClubs(any(ClubSearchCond.class), any(Pageable.class)))
-                .willReturn(clubPage);
-        BDDMockito.given(favoriteRepository.findClubIdByUserId(userId))
-                .willReturn(List.of(1L));
-        BDDMockito.given(recruitmentRepository.findByClub(any(Club.class))).willReturn(recruitment)
-                .willReturn(recruitment);
+        BDDMockito.given(clubRepository.findClubs(cond, pageable)).willReturn(clubPage);
+        BDDMockito.given(recruitmentRepository.findByClubId(clubId)).willReturn(recruitment);
+        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId)).willReturn(true);
 
-        ClubSearchResponse response = clubService.findClubsByConditions(userId, cond, pageable);
+        final ClubSearchResponse response = clubService.findClubsByConditions(userId, cond, pageable);
 
-        assertThat(response.clubs()).isNotEmpty();
+        assertThat(response.clubs()).hasSize(1);
         assertThat(response.clubs().get(0).name()).isEqualTo("testClub");
+        assertThat(response.clubs().get(0).category()).isEqualTo("학술/교양");
+        assertThat(response.clubs().get(0).affiliation()).isEqualTo("중앙동아리");
+        assertThat(response.clubs().get(0).description()).isEqualTo("testDescription");
+        assertThat(response.clubs().get(0).recruitStartDate()).isEqualTo("2025-01-01");
+        assertThat(response.clubs().get(0).recruitEndDate()).isEqualTo("2025-02-20");
+        assertThat(response.clubs().get(0).imageURL()).isEqualTo("testLogo");
+        assertThat(response.clubs().get(0).isFavorite()).isEqualTo(true);
         assertThat(response.pagination().totalElements()).isEqualTo(1);
 
-        verify(clubRepository, times(1)).findClubs(any(ClubSearchCond.class), any(Pageable.class));
-        verify(favoriteRepository, times(1)).findClubIdByUserId(userId);
-        verify(recruitmentRepository, times(1)).findByClub(any(Club.class));
+        BDDMockito.verify(clubRepository, times(1)).findClubs(any(ClubSearchCond.class), any(Pageable.class));
+        BDDMockito.verify(recruitmentRepository, times(1)).findByClubId(anyLong());
+        BDDMockito.verify(favoriteRepository, times(1)).existsByUserIdAndClubId(anyLong(), anyLong());
     }
 }
