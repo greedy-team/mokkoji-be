@@ -2,6 +2,9 @@ package com.greedy.mokkoji.api.club.dto.club;
 
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Builder
 public record ClubResponse(
         Long id,
@@ -20,8 +23,8 @@ public record ClubResponse(
             final String category,
             final String affiliation,
             final String description,
-            final String recruitStartDate,
-            final String recruitEndDate,
+            final LocalDateTime recruitStartDate,
+            final LocalDateTime recruitEndDate,
             final String imageURL,
             final Boolean isFavorite) {
 
@@ -31,8 +34,8 @@ public record ClubResponse(
                 .category(category)
                 .affiliation(affiliation)
                 .description(description)
-                .recruitStartDate(recruitStartDate)
-                .recruitEndDate(recruitEndDate)
+                .recruitStartDate(recruitStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .recruitEndDate(recruitEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
                 .imageURL(imageURL)
                 .isFavorite(isFavorite)
                 .build();
