@@ -44,29 +44,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String refreshAccessToken(String refreshToken) {
-        if (!isTokenValid(refreshToken)) {
-            throw new SecurityException("Refresh Token이 만료되었습니다. 다시 로그인해야 합니다.");
-        }
-
-        Long userId = getUserIdFromToken(refreshToken);
-        return generateAccessToken(userId);
-    }
-
-    private boolean isTokenValid(String token) {
-        try {
-            Jws<Claims> claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch (ExpiredJwtException e) {
-            return false;
-        } catch (JwtException e) {
-            return false;
-        }
-    }
-
     public Long getUserIdFromToken(String token) {
         return Long.parseLong(Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -75,5 +52,4 @@ public class JwtUtil {
                 .getBody()
                 .getSubject());
     }
-
 }
