@@ -39,7 +39,10 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                         equalAffiliation(cond.affiliation()),
                         filterByRecruitStatus(cond.recruitStatus())
                 )
-                .orderBy(getRecruitmentDuration().asc())
+                .orderBy(
+                        getRecruitmentPriority().asc(),
+                        getRecruitmentDuration().asc()
+                )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -78,8 +81,15 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
         return null;
     }
 
+    private NumberExpression<Integer> getRecruitmentPriority() {
+        return new CaseBuilder()
+                .when(recruitment.recruitStart.loe(LocalDateTime.now()).and(recruitment.recruitEnd.gt(LocalDateTime.now())))
+                .then(0)
+                .otherwise(1);
+    }
+
     private NumberTemplate<Long> getRecruitmentDuration() {
-        return Expressions.numberTemplate(Long.class, "{0} - {1}", recruitment.recruitEnd, recruitment.recruitStart);
+        return Expressions.numberTemplate(Long.class, "TIMESTAMPDIFF(DAY, {0}, {1})", LocalDateTime.now(), recruitment.recruitEnd);
     }
 
     private Long getTotalCount(final ClubSearchCond cond) {
