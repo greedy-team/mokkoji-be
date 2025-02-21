@@ -61,8 +61,8 @@ public class FavoriteTest {
 
         final Club club = Club.builder()
                 .name("동아리 이름")
-                .clubAffiliation(ClubAffiliation.TEST)
-                .clubCategory(ClubCategory.TEST)
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.CULTURAL_ART)
                 .logo("동아리 로고")
                 .description("동아리 설명")
                 .instagram("동아리 인스타그램 링크")
@@ -98,8 +98,8 @@ public class FavoriteTest {
 
         final Club club = Club.builder()
                 .name("동아리 이름")
-                .clubAffiliation(ClubAffiliation.TEST)
-                .clubCategory(ClubCategory.TEST)
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.CULTURAL_ART)
                 .logo("동아리 로고")
                 .description("동아리 설명")
                 .instagram("동아리 인스타그램 링크")
@@ -134,8 +134,8 @@ public class FavoriteTest {
 
         final Club club = Club.builder()
                 .name("동아리 이름")
-                .clubAffiliation(ClubAffiliation.TEST)
-                .clubCategory(ClubCategory.TEST)
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.CULTURAL_ART)
                 .logo("동아리 로고")
                 .description("동아리 설명")
                 .instagram("동아리 인스타그램 링크")
@@ -168,8 +168,8 @@ public class FavoriteTest {
 
         final Club club = Club.builder()
                 .name("동아리 이름")
-                .clubAffiliation(ClubAffiliation.TEST)
-                .clubCategory(ClubCategory.TEST)
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.CULTURAL_ART)
                 .logo("동아리 로고")
                 .description("동아리 설명")
                 .instagram("동아리 인스타그램 링크")
