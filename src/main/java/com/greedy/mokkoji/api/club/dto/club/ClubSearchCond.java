@@ -1,8 +1,8 @@
 package com.greedy.mokkoji.api.club.dto.club;
 
-import com.greedy.mokkoji.enums.ClubAffiliation;
-import com.greedy.mokkoji.enums.ClubCategory;
 import com.greedy.mokkoji.enums.RecruitStatus;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
+import com.greedy.mokkoji.enums.club.ClubCategory;
 import lombok.Builder;
 
 @Builder

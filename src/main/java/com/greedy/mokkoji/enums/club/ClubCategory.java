@@ -1,18 +1,19 @@
 package com.greedy.mokkoji.enums.club;
 
-public enum ClubCategory {
-    // 문화/예술
-    CULTURE_ARTS,
-    // 체육
-    SPORTS,
-    // 봉사
-    VOLUNTEER,
-    // 종교
-    RELIGION,
-    // 학술/교양
-    ACADEMIC_CULTURE,
-    // 기타
-    ETC,
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-    TEST
+@Getter
+@AllArgsConstructor
+public enum ClubCategory {
+
+    CULTURAL_ART("문화/예술"),
+    ACADEMIC_CULTURAL("학술/교양"),
+    VOLUNTEER_SOCIAL("봉사/사회"),
+    SOCIAL("친목"),
+    SPORTS("체육"),
+    RELIGIOUS("종교"),
+    OTHER("기타");
+
+    private final String description;
 }

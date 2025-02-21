@@ -19,9 +19,9 @@ public class QClub extends EntityPathBase<Club> {
 
     public static final QClub club = new QClub("club");
 
-    public final EnumPath<com.greedy.mokkoji.enums.ClubAffiliation> clubAffiliation = createEnum("clubAffiliation", com.greedy.mokkoji.enums.ClubAffiliation.class);
+    public final EnumPath<com.greedy.mokkoji.enums.club.ClubAffiliation> clubAffiliation = createEnum("clubAffiliation", com.greedy.mokkoji.enums.club.ClubAffiliation.class);
 
-    public final EnumPath<com.greedy.mokkoji.enums.ClubCategory> clubCategory = createEnum("clubCategory", com.greedy.mokkoji.enums.ClubCategory.class);
+    public final EnumPath<com.greedy.mokkoji.enums.club.ClubCategory> clubCategory = createEnum("clubCategory", com.greedy.mokkoji.enums.club.ClubCategory.class);
 
     public final StringPath description = createString("description");
 

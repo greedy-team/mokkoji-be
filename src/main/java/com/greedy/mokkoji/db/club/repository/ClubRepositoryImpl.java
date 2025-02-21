@@ -2,9 +2,9 @@ package com.greedy.mokkoji.db.club.repository;
 
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchCond;
 import com.greedy.mokkoji.db.club.entity.Club;
-import com.greedy.mokkoji.enums.ClubAffiliation;
-import com.greedy.mokkoji.enums.ClubCategory;
 import com.greedy.mokkoji.enums.RecruitStatus;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
+import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
