@@ -14,8 +14,6 @@ import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.service.UserService;
 import com.greedy.mokkoji.enums.message.FailMessage;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -59,23 +57,19 @@ public class AuthController {
 
         refreshToken = refreshToken.replace("Bearer ", "");
 
-        try {
-            Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+        Long userId = jwtUtil.getUserIdFromToken(refreshToken);
 
-            String storedRefreshToken = tokenService.getRefreshToken(userId);
-            if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-                throw new MokkojiException(FailMessage.UNAUTHORIZED);
-            }
+        String storedRefreshToken = tokenService.getRefreshToken(userId);
+        log.info("storedRefreshToken: " + storedRefreshToken);
 
-            String newAccessToken = jwtUtil.generateAccessToken(userId);
-            RefreshResponseDto refreshResponseDto = new RefreshResponseDto(newAccessToken);
-
-            return APISuccessResponse.of(HttpStatus.OK, refreshResponseDto);
-        } catch (ExpiredJwtException e) {
-            throw new MokkojiException(FailMessage.UNAUTHORIZED_EXPIRED);
-        } catch (JwtException e) {
+        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
+
+        String newAccessToken = jwtUtil.generateAccessToken(userId);
+        RefreshResponseDto refreshResponseDto = new RefreshResponseDto(newAccessToken);
+
+        return APISuccessResponse.of(HttpStatus.OK, refreshResponseDto);
     }
 
     @PostMapping("/logout")
