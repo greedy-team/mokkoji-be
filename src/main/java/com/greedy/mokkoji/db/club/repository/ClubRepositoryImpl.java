@@ -1,6 +1,5 @@
 package com.greedy.mokkoji.db.club.repository;
 
-import com.greedy.mokkoji.api.club.dto.club.ClubSearchCond;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.enums.RecruitStatus;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
@@ -29,15 +28,19 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Club> findClubs(final ClubSearchCond cond, final Pageable pageable) {
+    public Page<Club> findClubs(final String keyword,
+                                final ClubCategory category,
+                                final ClubAffiliation affiliation,
+                                final RecruitStatus status,
+                                final Pageable pageable) {
 
         final List<Club> clubs = queryFactory.selectFrom(club)
                 .leftJoin(recruitment).on(club.eq(recruitment.club))
                 .where(
-                        likeClubName(cond.keyword()),
-                        equalCategory(cond.category()),
-                        equalAffiliation(cond.affiliation()),
-                        filterByRecruitStatus(cond.recruitStatus())
+                        likeClubName(keyword),
+                        equalCategory(category),
+                        equalAffiliation(affiliation),
+                        filterByRecruitStatus(status)
                 )
                 .orderBy(
                         getRecruitmentPriority().asc(),
@@ -47,7 +50,18 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        final long total = getTotalCount(cond);
+        final long total = Optional.ofNullable(
+                queryFactory.select(club.count())
+                        .from(club)
+                        .leftJoin(recruitment).on(club.eq(recruitment.club))
+                        .where(
+                                likeClubName(keyword),
+                                equalCategory(category),
+                                equalAffiliation(affiliation),
+                                filterByRecruitStatus(status)
+                        )
+                        .fetchOne()
+        ).orElse(0L);
 
         return new PageImpl<>(clubs, pageable, total);
     }
@@ -90,20 +104,5 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
 
     private NumberTemplate<Long> getRecruitmentDuration() {
         return Expressions.numberTemplate(Long.class, "TIMESTAMPDIFF(DAY, {0}, {1})", LocalDateTime.now(), recruitment.recruitEnd);
-    }
-
-    private Long getTotalCount(final ClubSearchCond cond) {
-        return Optional.ofNullable(
-                queryFactory.select(club.count())
-                        .from(club)
-                        .leftJoin(recruitment).on(club.eq(recruitment.club))
-                        .where(
-                                likeClubName(cond.keyword()),
-                                equalCategory(cond.category()),
-                                equalAffiliation(cond.affiliation()),
-                                filterByRecruitStatus(cond.recruitStatus())
-                        )
-                        .fetchOne()
-        ).orElse(0L);
     }
 }
