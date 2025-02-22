@@ -3,6 +3,7 @@ package com.greedy.mokkoji.api.auth.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.greedy.mokkoji.api.auth.dto.LoginRequestDto;
 import com.greedy.mokkoji.api.auth.dto.LoginResponseDto;
+import com.greedy.mokkoji.api.auth.dto.RefreshResponseDto;
 import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
 import com.greedy.mokkoji.api.auth.service.LoginService;
 import com.greedy.mokkoji.api.auth.service.TokenService;
@@ -55,10 +56,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<String> refresh(@RequestBody Map<String, String> request) {
-        log.info("Access Token 갱신 요청");
-
-        String refreshToken = request.get("refreshToken");
+    public ResponseEntity<APISuccessResponse<RefreshResponseDto>> refresh(@RequestHeader("Authorization") String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("{\"error\": \"Refresh Token이 제공되지 않았습니다.\"}");
@@ -73,17 +71,10 @@ public class AuthController {
                         .body("{\"error\": \"유효하지 않은 Refresh Token입니다.\"}");
             }
 
-            Optional<User> user = userService.findUser(userId);
-            if (user.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("{\"error\": \"유효하지 않은 사용자입니다.\"}");
-            }
+            String newAccessToken = jwtUtil.generateAccessToken(userId);
+            RefreshResponseDto refreshResponseDto = new RefreshResponseDto(newAccessToken);
 
-            String newAccessToken = jwtUtil.generateAccessToken(user.get().getId());
-            log.info("New Access Token: {}", newAccessToken);
-
-            return ResponseEntity.ok()
-                    .body("{\"accessToken\": \"" + newAccessToken + "\"}");
+            return APISuccessResponse.of(HttpStatus.OK, refreshResponseDto);
         } catch (ExpiredJwtException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("{\"error\": \"Refresh Token이 만료되었습니다. 다시 로그인해주세요.\"}");
@@ -98,8 +89,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestBody Map<String, String> request) {
-        String accessToken = request.get("accessToken");
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String accessToken) {
+        accessToken = accessToken.replace("Bearer ", "");
         try {
             Long userId = jwtUtil.getUserIdFromToken(accessToken);
 
