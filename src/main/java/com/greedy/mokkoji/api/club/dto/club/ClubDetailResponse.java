@@ -1,9 +1,8 @@
 package com.greedy.mokkoji.api.club.dto.club;
 
-import com.greedy.mokkoji.db.club.entity.Club;
-import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Builder
@@ -20,19 +19,31 @@ public record ClubDetailResponse(
         String instagramLink,
         String recruitPost
 ) {
-    public static ClubDetailResponse of(final Club club, final Recruitment recruitment, final Boolean isFavorite) {
+    public static ClubDetailResponse of(
+            final Long id,
+            final String name,
+            final String category,
+            final String affiliation,
+            final String description,
+            final LocalDateTime recruitStartDate,
+            final LocalDateTime recruitEndDate,
+            final String imageURL,
+            final Boolean isFavorite,
+            final String instagramLink,
+            final String recruitPost
+    ) {
         return ClubDetailResponse.builder()
-                .id(club.getId())
-                .name(club.getName())
-                .category(club.getClubCategory().getDescription().toString())
-                .affiliation(club.getClubAffiliation().getDescription().toString())
-                .description(club.getDescription())
-                .recruitStartDate(recruitment.getRecruitStart().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                .recruitEndDate(recruitment.getRecruitEnd().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                .imageURL(club.getLogo())
+                .id(id)
+                .name(name)
+                .category(category)
+                .affiliation(affiliation)
+                .description(description)
+                .recruitStartDate(recruitStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .recruitEndDate(recruitEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .imageURL(imageURL)
                 .isFavorite(isFavorite)
-                .instagramLink(club.getInstagram())
-                .recruitPost(recruitment.getContent())
+                .instagramLink(instagramLink)
+                .recruitPost(recruitPost)
                 .build();
     }
 }
