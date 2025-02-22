@@ -36,7 +36,19 @@ public class ClubService {
         Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
         Boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(userId, clubId);
 
-        return ClubDetailResponse.of(club, recruitment, isFavorite);
+        return ClubDetailResponse.of(
+                club.getId(),
+                club.getName(),
+                club.getClubCategory().getDescription(),
+                club.getClubAffiliation().getDescription(),
+                club.getDescription(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd(),
+                club.getLogo(),
+                isFavorite,
+                club.getInstagram(),
+                recruitment.getContent()
+        );
     }
 
     public ClubSearchResponse findClubsByConditions(final Long userId,
