@@ -34,21 +34,9 @@ public class ClubService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
         Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
-        Boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(userId, clubId);
+        Boolean isFavorite = getIsFavorite(userId, clubId);
 
-        return ClubDetailResponse.of(
-                club.getId(),
-                club.getName(),
-                club.getClubCategory().getDescription(),
-                club.getClubAffiliation().getDescription(),
-                club.getDescription(),
-                recruitment.getRecruitStart(),
-                recruitment.getRecruitEnd(),
-                club.getLogo(),
-                isFavorite,
-                club.getInstagram(),
-                recruitment.getContent()
-        );
+        return mapToClubDetailResponse(club, recruitment, isFavorite);
     }
 
     public ClubSearchResponse findClubsByConditions(final Long userId,
@@ -66,11 +54,34 @@ public class ClubService {
         return new ClubSearchResponse(clubResponses, pageResponse);
     }
 
+    private boolean getIsFavorite(Long userId, Long clubId) {
+        if (userId == null) {
+            return false;
+        }
+        return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
+    }
+
+    private ClubDetailResponse mapToClubDetailResponse(Club club, Recruitment recruitment, Boolean isFavorite) {
+        return ClubDetailResponse.of(
+                club.getId(),
+                club.getName(),
+                club.getClubCategory().getDescription(),
+                club.getClubAffiliation().getDescription(),
+                club.getDescription(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd(),
+                club.getLogo(),
+                isFavorite,
+                club.getInstagram(),
+                recruitment.getContent()
+        );
+    }
+
     private List<ClubResponse> mapToClubResponses(final Long userId, final List<Club> clubs) {
         return clubs.stream()
                 .map(club -> {
                     Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
-                    boolean isFavorite = favoriteRepository.existsByUserIdAndClubId(userId, club.getId());
+                    boolean isFavorite = getIsFavorite(userId, club.getId());
                     return ClubResponse.of(club.getId(),
                             club.getName(),
                             club.getClubCategory().getDescription(),
