@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
@@ -35,6 +37,11 @@ public class UserService {
                 throw new RuntimeException("사용자 정보 저장 실패: " + e.getMessage(), e);
             }
         });
+    }
+
+    @Transactional
+    public Optional<User> findUser(Long userId) {
+        return userRepository.findById(userId);
     }
 }
 
