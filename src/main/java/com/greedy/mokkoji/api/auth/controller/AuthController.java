@@ -1,3 +1,4 @@
+
 package com.greedy.mokkoji.api.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,19 +9,19 @@ import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
 import com.greedy.mokkoji.api.auth.service.LoginService;
 import com.greedy.mokkoji.api.auth.service.TokenService;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
+import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.service.UserService;
+import com.greedy.mokkoji.enums.message.FailMessage;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
@@ -58,17 +59,17 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<APISuccessResponse<RefreshResponseDto>> refresh(@RequestHeader("Authorization") String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("{\"error\": \"Refresh Token이 제공되지 않았습니다.\"}");
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
+
+        refreshToken = refreshToken.replace("Bearer ", "");
 
         try {
             Long userId = jwtUtil.getUserIdFromToken(refreshToken);
 
             String storedRefreshToken = tokenService.getRefreshToken(userId);
             if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("{\"error\": \"유효하지 않은 Refresh Token입니다.\"}");
+                throw new MokkojiException(FailMessage.UNAUTHORIZED);
             }
 
             String newAccessToken = jwtUtil.generateAccessToken(userId);
@@ -76,15 +77,9 @@ public class AuthController {
 
             return APISuccessResponse.of(HttpStatus.OK, refreshResponseDto);
         } catch (ExpiredJwtException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("{\"error\": \"Refresh Token이 만료되었습니다. 다시 로그인해주세요.\"}");
+            throw new MokkojiException(FailMessage.UNAUTHORIZED_EXPIRED);
         } catch (JwtException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("{\"error\": \"유효하지 않은 Refresh Token입니다.\"}");
-        } catch (Exception e) {
-            log.error("서버 내부 오류 발생: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"error\": \"서버 내부 오류가 발생했습니다.\"}");
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
     }
 

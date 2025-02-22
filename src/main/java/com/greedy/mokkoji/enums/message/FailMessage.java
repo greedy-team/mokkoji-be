@@ -17,6 +17,7 @@ public enum FailMessage {
 
     //401
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증이 필요합니다."),
+    UNAUTHORIZED_EXPIRED(HttpStatus.UNAUTHORIZED, 40101, "토큰 기간이 만료 되었습니다."),
 
     //403
     FORBIDDEN(HttpStatus.FORBIDDEN, 40300, "권한이 없습니다."),
