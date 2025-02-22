@@ -1,7 +1,6 @@
 package com.greedy.mokkoji.api.club.service;
 
 import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
-import com.greedy.mokkoji.api.club.dto.club.ClubSearchCond;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -9,6 +8,9 @@ import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
+import com.greedy.mokkoji.enums.RecruitStatus;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
+import com.greedy.mokkoji.enums.club.ClubCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,8 +27,14 @@ public class ClubService {
     private final RecruitmentRepository recruitmentRepository;
     private final FavoriteRepository favoriteRepository;
 
-    public ClubSearchResponse findClubsByConditions(final Long userId, final ClubSearchCond cond, final Pageable pageable) {
-        final Page<Club> clubPage = clubRepository.findClubs(cond, pageable);
+    public ClubSearchResponse findClubsByConditions(final Long userId,
+                                                    final String keyword,
+                                                    final ClubCategory category,
+                                                    final ClubAffiliation affiliation,
+                                                    final RecruitStatus status,
+                                                    final Pageable pageable) {
+
+        final Page<Club> clubPage = clubRepository.findClubs(keyword, category, affiliation, status, pageable);
 
         final List<ClubResponse> clubResponses = mapToClubResponses(clubPage.getContent(), userId);
         final PageResponse pageResponse = createPageResponse(clubPage);

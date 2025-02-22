@@ -29,6 +29,12 @@ public class ClubController {
 
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubService.findClubsByConditions(USER_ID, clubSearchCond, pageable));
+                clubService.findClubsByConditions(
+                        USER_ID,
+                        clubSearchCond.keyword(),
+                        clubSearchCond.category(),
+                        clubSearchCond.affiliation(),
+                        clubSearchCond.recruitStatus(),
+                        pageable));
     }
 }
