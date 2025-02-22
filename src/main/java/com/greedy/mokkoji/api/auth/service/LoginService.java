@@ -1,29 +1,31 @@
 package com.greedy.mokkoji.api.auth.service;
 
 import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
+import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.net.ssl.*;
+import java.io.IOException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 public class LoginService {
-    private static final Logger log = LoggerFactory.getLogger(LoginService.class);
 
     private static StudentInformationResponseDto parseStudentInformation(String html) {
-        Document doc = Jsoup.parse(html);
-        String selector = ".b-con-box:has(h4.b-h4-tit01:contains(사용자 정보)) table.b-board-table tbody tr";
-        List<String> rowLabels = new ArrayList<>();
+        final Document doc = Jsoup.parse(html);
+        final String selector = ".b-con-box:has(h4.b-h4-tit01:contains(사용자 정보)) table.b-board-table tbody tr";
+        final List<String> rowLabels = new ArrayList<>();
         List<String> rowValues = new ArrayList<>();
 
         doc.select(selector).forEach(row -> {
@@ -51,11 +53,10 @@ public class LoginService {
             }
         }
 
-        log.info("==== [사용자 정보] ====");
-        log.info("이름 = {}", name);
-        log.info("학과명 = {}", department);
-        log.info("학년 = {}", grade);
-        log.info("=== 모든 정보 로그 출력 완료 ===");
+        if (name == null || department == null || grade == null) {
+            log.warn("로그인 실패: 잘못된 아이디 또는 비밀번호. studentId={}");
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+        }
 
         return new StudentInformationResponseDto(name, department, grade);
     }
@@ -96,42 +97,66 @@ public class LoginService {
     }
 
     @Transactional
-    public StudentInformationResponseDto getStudentInformation(final String id, final String password) throws Exception {
-        String loginUrl = "https://portal.sejong.ac.kr/jsp/login/login_action.jsp";
-        String finalUrl = "https://classic.sejong.ac.kr/classic/reading/status.do";
+    public StudentInformationResponseDto getStudentInformation(final String id, final String password) {
+        final String loginUrl = "https://portal.sejong.ac.kr/jsp/login/login_action.jsp";
 
-        OkHttpClient client = buildClient();
+        try {
+            OkHttpClient client = buildClient();
 
-        FormBody formData = new FormBody.Builder()
-                .add("mainLogin", "N")
-                .add("rtUrl", "library.sejong.ac.kr")
-                .add("id", id)
-                .add("password", password)
-                .build();
+            FormBody formData = new FormBody.Builder()
+                    .add("mainLogin", "N")
+                    .add("rtUrl", "sjpt.sejong.ac.kr/main/view/Login/doSsoLogin.do?p=")
+                    .add("id", id)
+                    .add("password", password)
+                    .build();
 
-        Request loginRequest = new Request.Builder()
-                .url(loginUrl)
-                .post(formData)
-                .header("Referer", "https://portal.sejong.ac.kr")
-                .build();
+            Request loginRequest = new Request.Builder()
+                    .url(loginUrl)
+                    .post(formData)
+                    .header("Host", "portal.sejong.ac.kr")
+                    .header("Referer", "https://portal.sejong.ac.kr/jsp/login/loginSSL.jsp?rtUrl=sjpt.sejong.ac.kr/main/view/Login/doSsoLogin.do?p=")
+                    .header("Cookie", "chknos=false")
+                    .build();
 
-        try (Response loginResponse = client.newCall(loginRequest).execute()) {
-            if (loginResponse.body() == null) {
-                log.error("로그인 실패: 응답이 없음");
-                return new StudentInformationResponseDto(null, null, null);
+            //TODO::세종대학교 인증 처리 안됨
+            Response loginResponse = null;
+            try {
+                loginResponse = client.newCall(loginRequest).execute();
+            } catch (IOException e) {
+                log.error("로그인 요청 중 오류 발생: {}", e.getMessage());
+                throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
             }
-        }
 
-        Request finalRequest = new Request.Builder().url(finalUrl).get().build();
-        String finalHtml;
-        try (Response finalResponse = client.newCall(finalRequest).execute()) {
+            if (loginResponse == null || loginResponse.body() == null) {
+                log.error("로그인 요청 실패");
+                throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+            }
+
+            log.error("로그인 정보", loginResponse);
+
+            loginResponse.close();
+
+            // TODO:: 필요한 이유 찾기
+//        String redirectUrl = "http://classic.sejong.ac.kr/_custom/sejong/sso/sso-return.jsp?returnUrl=https://classic.sejong.ac.kr/classic/index.do";
+//
+//        Request redirectRequest = new Request.Builder().url(redirectUrl).get().build();
+//        try (Response redirectResponse = client.newCall(redirectRequest).execute()) {
+//            log.info("SSO 리다이렉트 요청 완료. 응답 코드: {}", redirectResponse.code());
+//        }
+
+            final String finalUrl = "https://classic.sejong.ac.kr/classic/reading/status.do";
+            Request finalRequest = new Request.Builder().url(finalUrl).get().build();
+
+            Response finalResponse = client.newCall(finalRequest).execute();
             if (finalResponse.body() == null) {
-                log.error("사용자 정보 페이지 로딩 실패");
-                return new StudentInformationResponseDto(null, null, null);
+                log.error("최종 페이지 응답 바디가 없습니다.");
+                throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
             }
-            finalHtml = finalResponse.body().string();
-        }
+            String finalHtml = finalResponse.body().string();
 
-        return parseStudentInformation(finalHtml);
+            return parseStudentInformation(finalHtml);
+        } catch (Exception e) {
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+        }
     }
 }

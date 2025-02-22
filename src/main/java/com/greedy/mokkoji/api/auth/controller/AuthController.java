@@ -15,7 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.Optional;
@@ -33,19 +36,13 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequestDto request) {
-        String id = request.getId();
+    public ResponseEntity<APISuccessResponse<LoginResponseDto>> login(@RequestBody LoginRequestDto request) {
+        String studentId = request.getStudentId();
         String password = request.getPassword();
 
-        try {
-            StudentInformationResponseDto response = loginService.getStudentInformation(id, password);
-            if (response.name() == null) {
-                log.warn("로그인 실패: 잘못된 아이디 또는 비밀번호. studentId={}", id);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("{\"error\": \"잘못된 아이디 또는 비밀번호입니다.\"}");
-            }
+        StudentInformationResponseDto response = loginService.getStudentInformation(studentId, password);
 
-            User user = userService.findOrCreateUser(response, id);
+        User user = userService.findOrCreateUser(response, studentId);
 
             String accessToken = jwtUtil.generateAccessToken(user.getId());
             String refreshToken = jwtUtil.generateRefreshToken(user.getId());
@@ -76,24 +73,20 @@ public class AuthController {
         }
 
         try {
-            // Refresh Token에서 userId 추출
             Long userId = jwtUtil.getUserIdFromToken(refreshToken);
 
-            // Redis에서 저장된 Refresh Token 가져오기
             String storedRefreshToken = tokenService.getRefreshToken(userId);
             if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body("{\"error\": \"유효하지 않은 Refresh Token입니다.\"}");
             }
 
-            // 유저 정보 확인
             Optional<User> user = userService.findUser(userId);
             if (user.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body("{\"error\": \"유효하지 않은 사용자입니다.\"}");
             }
 
-            // 새 Access Token 발급
             String newAccessToken = jwtUtil.generateAccessToken(user.get().getId());
             log.info("New Access Token: {}", newAccessToken);
 
@@ -111,7 +104,6 @@ public class AuthController {
                     .body("{\"error\": \"서버 내부 오류가 발생했습니다.\"}");
         }
     }
-
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestBody Map<String, String> request) {
