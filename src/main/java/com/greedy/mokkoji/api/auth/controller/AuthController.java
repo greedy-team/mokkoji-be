@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.api.auth.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.auth.dto.LoginRequestDto;
 import com.greedy.mokkoji.api.auth.dto.LoginResponseDto;
 import com.greedy.mokkoji.api.auth.dto.RefreshResponseDto;
@@ -30,7 +31,6 @@ public class AuthController {
     private final UserService userService;
     private final LoginService loginService;
     private final TokenService tokenService;
-    private final ObjectMapper mapper;
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
@@ -79,19 +79,14 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestHeader("Authorization") String accessToken) {
-        accessToken = accessToken.replace("Bearer ", "");
-        try {
-            Long userId = jwtUtil.getUserIdFromToken(accessToken);
+    public ResponseEntity<Void> logout(
+            @Authentication AuthCredential authCredential
+    ) {
+        Long userId = authCredential.userId();
 
-            tokenService.deleteRefreshToken(userId);
+        tokenService.deleteRefreshToken(userId);
 
-            return ResponseEntity.ok("{\"message\": \"로그아웃 성공\"}");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("{\"error\": \"유효하지 않은 토큰입니다.\"}");
-        }
+        return ResponseEntity.noContent().build();
     }
-
 }
 

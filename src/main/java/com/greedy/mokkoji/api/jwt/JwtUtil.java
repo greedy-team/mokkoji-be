@@ -1,5 +1,9 @@
 package com.greedy.mokkoji.api.jwt;
 
+import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.enums.message.FailMessage;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
@@ -50,11 +54,17 @@ public class JwtUtil {
             token = token.substring(7);
         }
 
-        return Long.parseLong(Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject());
+        try {
+            return Long.parseLong(Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject());
+        } catch (ExpiredJwtException e) {
+            throw new MokkojiException(FailMessage.UNAUTHORIZED_EXPIRED);
+        } catch (JwtException e) {
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        }
     }
 }
