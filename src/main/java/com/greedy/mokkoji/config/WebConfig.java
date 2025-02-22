@@ -3,8 +3,11 @@ package com.greedy.mokkoji.config;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.UserAuthArgumentResolver;
 import com.greedy.mokkoji.common.handler.JwtAuthInterceptor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
