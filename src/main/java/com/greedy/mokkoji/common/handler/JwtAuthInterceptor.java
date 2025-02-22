@@ -13,40 +13,26 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtAuthInterceptor implements HandlerInterceptor {
 
     private final JwtUtil jwtUtil;
 
-    public JwtAuthInterceptor(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
-    }
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String accessToken = request.getHeader("accessToken");
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         try {
             jwtUtil.getUserIdFromToken(accessToken);
             return true;
         } catch (ExpiredJwtException e) {
-            log.info("Access Token 만료됨");
+            log.warn("Access Token 만료됨");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            try {
-                response.getWriter().write("{\"error\": \"Access Token이 만료되었습니다.\"}");
-            } catch (IOException ex) {
-                log.error("IOException 발생", ex);
-            }
             return false;
         } catch (JwtException e) {
+            log.warn("유효하지 않은 Access Token이 입력됨");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            try {
-                response.getWriter().write("{\"error\": \"유효하지 않은 Access Token입니다.\"}");
-            } catch (IOException ex) {
-                log.error("IOException 발생", ex);
-            }
             return false;
         }
     }
-
 }
-

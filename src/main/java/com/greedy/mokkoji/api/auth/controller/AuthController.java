@@ -7,6 +7,7 @@ import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
 import com.greedy.mokkoji.api.auth.service.LoginService;
 import com.greedy.mokkoji.api.auth.service.TokenService;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
+import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -44,22 +45,13 @@ public class AuthController {
 
         User user = userService.findOrCreateUser(response, studentId);
 
-            String accessToken = jwtUtil.generateAccessToken(user.getId());
-            String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+        String accessToken = jwtUtil.generateAccessToken(user.getId());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getId());
 
-            tokenService.saveRefreshToken(user.getId(), refreshToken);
+        tokenService.saveRefreshToken(user.getId(), refreshToken);
 
-            log.info("Generated Access Token: {}", accessToken);
-            log.info("Generated Refresh Token: {}", refreshToken);
-
-            LoginResponseDto tokenResponse = new LoginResponseDto(accessToken, refreshToken);
-            return ResponseEntity.ok().body(mapper.writeValueAsString(tokenResponse));
-
-        } catch (Exception e) {
-            log.error("서버 내부 오류 발생: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"error\": \"서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.\"}");
-        }
+        LoginResponseDto tokenResponse = new LoginResponseDto(accessToken, refreshToken);
+        return APISuccessResponse.of(HttpStatus.OK, tokenResponse);
     }
 
     @PostMapping("/refresh")

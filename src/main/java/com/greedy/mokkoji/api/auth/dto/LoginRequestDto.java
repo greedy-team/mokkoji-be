@@ -1,16 +1,16 @@
 package com.greedy.mokkoji.api.auth.dto;
 
 public class LoginRequestDto {
-    private String id;
+    private String studentId;
     private String password;
 
-    public LoginRequestDto(String id, String password) {
-        this.id = id;
+    public LoginRequestDto(String studentId, String password) {
+        this.studentId = studentId;
         this.password = password;
     }
 
-    public String getId() {
-        return id;
+    public String getStudentId() {
+        return studentId;
     }
 
     public String getPassword() {
