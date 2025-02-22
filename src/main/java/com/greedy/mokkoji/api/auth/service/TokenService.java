@@ -1,4 +1,3 @@
-
 package com.greedy.mokkoji.api.auth.service;
 
 import lombok.RequiredArgsConstructor;
@@ -11,8 +10,8 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class TokenService {
 
-    private final StringRedisTemplate redisTemplate;
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+    private final StringRedisTemplate redisTemplate;
 
     public void saveRefreshToken(Long userId, String refreshToken) {
         redisTemplate.opsForValue().set(

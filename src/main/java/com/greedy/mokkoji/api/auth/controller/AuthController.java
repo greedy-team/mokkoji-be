@@ -1,4 +1,3 @@
-
 package com.greedy.mokkoji.api.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,13 +17,9 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
-import java.util.Optional;
 
 
 @Slf4j
