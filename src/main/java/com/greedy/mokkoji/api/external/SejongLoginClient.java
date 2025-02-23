@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.api.external;
 
-import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationExternalResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.transaction.Transactional;
@@ -40,7 +40,7 @@ public class SejongLoginClient {
     private String cookie;
 
     @Transactional
-    public StudentInformationResponse getStudentInformation(final String id, final String password) {
+    public StudentInformationExternalResponse getStudentInformation(final String id, final String password) {
         try {
             OkHttpClient client = buildClient();
             authenticate(client, id, password);
@@ -71,7 +71,7 @@ public class SejongLoginClient {
     }
 
     //학생정보 가져오기
-    private StudentInformationResponse fetchStudentInformation(OkHttpClient client) throws IOException {
+    private StudentInformationExternalResponse fetchStudentInformation(OkHttpClient client) throws IOException {
         Request request = new Request.Builder().url(finalUrl).get().build();
         try (Response response = executeRequest(client, request)) {
             String html = response.body().string();
@@ -112,7 +112,7 @@ public class SejongLoginClient {
     }
 
     //html에서 학생정보 추출
-    private static StudentInformationResponse parseStudentInformation(String html) {
+    private static StudentInformationExternalResponse parseStudentInformation(String html) {
         final Document doc = Jsoup.parse(html);
         final String selector = ".b-con-box:has(h4.b-h4-tit01:contains(사용자 정보)) table.b-board-table tbody tr";
         final List<String> rowLabels = new ArrayList<>();
@@ -127,7 +127,7 @@ public class SejongLoginClient {
     }
 
     //html에서 추출한 정보를 StudentInformationResponse 객체로 변환
-    private static StudentInformationResponse extractStudentInfo(List<String> labels, List<String> values) {
+    private static StudentInformationExternalResponse extractStudentInfo(List<String> labels, List<String> values) {
         String name = null, department = null, grade = null;
 
         for (int i = 0; i < labels.size(); i++) {
@@ -148,7 +148,7 @@ public class SejongLoginClient {
             throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
         }
 
-        return StudentInformationResponse.of(name, department, grade);
+        return StudentInformationExternalResponse.of(name, department, grade);
     }
 
     //모든 SSL 인증서를 신뢰하는 TrustManager 생성

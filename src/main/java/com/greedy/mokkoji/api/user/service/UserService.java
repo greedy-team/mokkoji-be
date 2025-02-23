@@ -2,7 +2,7 @@ package com.greedy.mokkoji.api.user.service;
 
 import com.greedy.mokkoji.api.external.SejongLoginClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
-import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationExternalResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
@@ -28,14 +28,14 @@ public class UserService {
     @Transactional
     public User login(final String studentId, final String password) {
 
-        final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId, password);
+        final StudentInformationExternalResponse studentInformationExternalResponse = sejongLoginClient.getStudentInformation(studentId, password);
 
         return userRepository.findByStudentId(studentId).orElseGet(() -> {
             final User newUser = User.builder()
                     .studentId(studentId)
-                    .name(studentInformationResponse.name())
-                    .department(studentInformationResponse.department())
-                    .grade(studentInformationResponse.grade())
+                    .name(studentInformationExternalResponse.name())
+                    .department(studentInformationExternalResponse.department())
+                    .grade(studentInformationExternalResponse.grade())
                     .build();
 
             return userRepository.save(newUser);
