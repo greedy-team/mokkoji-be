@@ -30,11 +30,11 @@ public class ClubService {
     private final RecruitmentRepository recruitmentRepository;
     private final FavoriteRepository favoriteRepository;
 
-    public ClubDetailResponse findClub(Long userId, Long clubId) {
-        Club club = clubRepository.findById(clubId)
+    public ClubDetailResponse findClub(final Long userId, final Long clubId) {
+        final Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
-        Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
-        Boolean isFavorite = getIsFavorite(userId, clubId);
+        final Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
+        final Boolean isFavorite = getIsFavorite(userId, clubId);
 
         return mapToClubDetailResponse(club, recruitment, isFavorite);
     }
@@ -48,14 +48,14 @@ public class ClubService {
 
         final Page<Club> clubPage = clubRepository.findClubs(keyword, category, affiliation, status, pageable);
 
-        final List<ClubResponse> clubResponses = mapToClubResponses(clubPage.getContent(), userId);
+        final List<ClubResponse> clubResponses = mapToClubResponses(userId, clubPage.getContent());
         final PageResponse pageResponse = createPageResponse(clubPage);
 
         return new ClubSearchResponse(clubResponses, pageResponse);
     }
 
     private boolean getIsFavorite(Long userId, Long clubId) {
-        if (userId == null) {
+        if (userId == null) { //회원 및 비회원 구별 로직
             return false;
         }
         return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
