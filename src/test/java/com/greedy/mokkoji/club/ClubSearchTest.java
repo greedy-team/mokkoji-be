@@ -88,7 +88,7 @@ class ClubSearchTest {
     }
 
     @Test
-    @DisplayName("검색 및 필터링을 적용하지 않을 경우, 전체 동아리 정보가 조회된다.")
+    @DisplayName("전체 동아리 정보를 조회한다.")
     void findClubsByNoConditions() {
         final Long userId = 1L;
         final Long clubId1 = club1.getId();
@@ -97,7 +97,7 @@ class ClubSearchTest {
         final List<Club> clubs = List.of(club1, club2);
         final Page<Club> clubPage = new PageImpl<>(clubs, pageable, clubs.size());
 
-        BDDMockito.given(clubRepository.findClubs(null, null, null, null, pageable)).willReturn(clubPage);
+        BDDMockito.given(clubRepository.findClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
         BDDMockito.given(recruitmentRepository.findByClubId(clubId1)).willReturn(recruitment1);
         BDDMockito.given(recruitmentRepository.findByClubId(clubId2)).willReturn(recruitment2);
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(true);
@@ -133,13 +133,13 @@ class ClubSearchTest {
     }
 
     @Test
-    @DisplayName("동아리 상세 정보를 조회할 수 있다.")
-    void findClub() {
+    @DisplayName("동아리 상세 정보를 조회한다.")
+    void findClubDetailInformation() {
         final Long userId = 1L;
         final Long clubId = club1.getId();
 
-        BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.ofNullable(club));
-        BDDMockito.given(recruitmentRepository.findByClubId(clubId)).willReturn(recruitment);
+        BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.ofNullable(club1));
+        BDDMockito.given(recruitmentRepository.findByClubId(clubId)).willReturn(recruitment1);
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId)).willReturn(true);
 
         ClubDetailResponse response = clubService.findClub(userId, clubId);

@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.db.club.repository;
 
 import com.greedy.mokkoji.db.club.entity.Club;
-import com.greedy.mokkoji.enums.RecruitStatus;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.querydsl.core.types.dsl.*;
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import static com.greedy.mokkoji.db.club.entity.QClub.*;
 import static com.greedy.mokkoji.db.recruitment.entity.QRecruitment.*;
-import static com.greedy.mokkoji.enums.RecruitStatus.OPEN;
+import static com.greedy.mokkoji.enums.recruitment.RecruitStatus.OPEN;
 
 @Repository
 @RequiredArgsConstructor
