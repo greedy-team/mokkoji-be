@@ -55,10 +55,15 @@ public class UserService {
     }
 
     @Transactional
+    public void updateEmail(Long userId, String email){
+        User user = findUser(userId);
+        user.updateEmail(email);
+    }
+
+    @Transactional
     public User findUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
-
 }
 

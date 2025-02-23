@@ -1,10 +1,7 @@
 package com.greedy.mokkoji.db.user.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
@@ -38,6 +35,10 @@ public class User {
         this.name = name;
         this.department = department;
         this.grade = grade;
+        this.email = email;
+    }
+
+    public void updateEmail(String email) {
         this.email = email;
     }
 }

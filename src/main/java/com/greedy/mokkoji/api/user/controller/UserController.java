@@ -72,4 +72,14 @@ public class UserController {
 
         return APISuccessResponse.of(HttpStatus.OK, userInformationResponse);
     }
+
+    @PutMapping
+    public ResponseEntity<Void> updateUserInformation(
+            @Authentication AuthCredential authCredential,
+            @RequestBody UpdateUserInformationRequest updateUserInformationRequest) {
+        Long userId = authCredential.userId();
+        userService.updateEmail(userId, updateUserInformationRequest.email());
+
+        return ResponseEntity.noContent().build();
+    }
 }
