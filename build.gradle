@@ -45,6 +45,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
+    testImplementation 'org.mockito:mockito-core'
 }
 
 

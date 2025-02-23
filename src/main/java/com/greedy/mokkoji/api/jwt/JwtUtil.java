@@ -26,7 +26,7 @@ public class JwtUtil {
     @PostConstruct
     public void init() {
         if (secretKey == null) {
-            throw new IllegalStateException("SECRET_KEY가 초기화되지 않았습니다.");
+            throw new MokkojiException(FailMessage.INTERNAL_TOKEN_INIT_ERROR);
         }
         key = new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS256.getJcaName());
     }

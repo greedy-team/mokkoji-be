@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.auth.service;
+package com.greedy.mokkoji.api.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -12,8 +12,16 @@ public class TokenService {
 
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
     private final StringRedisTemplate redisTemplate;
+    private final JwtUtil jwtUtil;
 
-    public void saveRefreshToken(Long userId, String refreshToken) {
+    public LoginResponse generateToken(final Long userId) {
+        final String accessToken = jwtUtil.generateAccessToken(userId);
+        final String refreshToken = jwtUtil.generateRefreshToken(userId);
+        saveRefreshToken(userId, refreshToken);
+        return LoginResponse.of(accessToken, refreshToken);
+    }
+
+    private void saveRefreshToken(Long userId, String refreshToken) {
         redisTemplate.opsForValue().set(
                 "refreshToken:" + userId,
                 refreshToken,
