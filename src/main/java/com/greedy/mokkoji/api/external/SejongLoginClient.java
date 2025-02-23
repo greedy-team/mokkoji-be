@@ -1,14 +1,13 @@
-package com.greedy.mokkoji.api.auth.service;
+package com.greedy.mokkoji.api.external;
 
-import com.greedy.mokkoji.api.auth.dto.StudentInformationResponseDto;
+import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -18,11 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Slf4j
-@Service
-public class LoginService {
+@Component
+public class SejongLoginClient {
 
-    private static StudentInformationResponseDto parseStudentInformation(String html) {
+    private static StudentInformationResponse parseStudentInformation(String html) {
         final Document doc = Jsoup.parse(html);
         final String selector = ".b-con-box:has(h4.b-h4-tit01:contains(사용자 정보)) table.b-board-table tbody tr";
         final List<String> rowLabels = new ArrayList<>();
@@ -54,11 +52,10 @@ public class LoginService {
         }
 
         if (name == null || department == null || grade == null) {
-            log.warn("로그인 실패: 잘못된 아이디 또는 비밀번호. studentId={}");
             throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
         }
 
-        return new StudentInformationResponseDto(name, department, grade);
+        return StudentInformationResponse.of(name, department, grade);
     }
 
     private static OkHttpClient buildClient() throws Exception {
@@ -97,7 +94,7 @@ public class LoginService {
     }
 
     @Transactional
-    public StudentInformationResponseDto getStudentInformation(final String id, final String password) {
+    public StudentInformationResponse getStudentInformation(final String id, final String password) {
         final String loginUrl = "https://portal.sejong.ac.kr/jsp/login/login_action.jsp";
 
         try {
@@ -123,16 +120,12 @@ public class LoginService {
             try {
                 loginResponse = client.newCall(loginRequest).execute();
             } catch (IOException e) {
-                log.error("로그인 요청 중 오류 발생: {}", e.getMessage());
                 throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
             }
 
             if (loginResponse == null || loginResponse.body() == null) {
-                log.error("로그인 요청 실패");
                 throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
             }
-
-            log.error("로그인 정보", loginResponse);
 
             loginResponse.close();
 
@@ -149,7 +142,6 @@ public class LoginService {
 
             Response finalResponse = client.newCall(finalRequest).execute();
             if (finalResponse.body() == null) {
-                log.error("최종 페이지 응답 바디가 없습니다.");
                 throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
             }
             String finalHtml = finalResponse.body().string();
