@@ -39,59 +39,6 @@ public class SejongLoginClient {
     @Value("${login.cookie}")
     private String cookie;
 
-    @Transactional
-    public StudentInformationResponse getStudentInformation(final String id, final String password) {
-        try {
-            OkHttpClient client = buildClient();
-            authenticate(client, id, password);
-            return fetchStudentInformation(client);
-        } catch (Exception e) {
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
-        }
-    }
-
-    //사용자 인증수행
-    private void authenticate(OkHttpClient client, String id, String password) {
-        FormBody formData = new FormBody.Builder()
-                .add("mainLogin", "N")
-                .add("rtUrl", rtUrl)
-                .add("id", id)
-                .add("password", password)
-                .build();
-
-        Request loginRequest = new Request.Builder()
-                .url(loginUrl)
-                .post(formData)
-                .header("Host", host)
-                .header("Referer", referer)
-                .header("Cookie", cookie)
-                .build();
-
-        executeRequest(client, loginRequest);
-    }
-
-    //학생정보 가져오기
-    private StudentInformationResponse fetchStudentInformation(OkHttpClient client) throws IOException {
-        Request request = new Request.Builder().url(finalUrl).get().build();
-        try (Response response = executeRequest(client, request)) {
-            String html = response.body().string();
-            return parseStudentInformation(html);
-        }
-    }
-
-    //http 요청수행
-    private Response executeRequest(OkHttpClient client, Request request) {
-        try {
-            Response response = client.newCall(request).execute();
-            if (response.body() == null) {
-                throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
-            }
-            return response;
-        } catch (IOException e) {
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
-        }
-    }
-
     //OkHttpClient 생성 (SSL 인증 무시 설정 포함)
     private static OkHttpClient buildClient() throws Exception {
         SSLContext sslContext = SSLContext.getInstance("SSL");
@@ -155,15 +102,70 @@ public class SejongLoginClient {
     private static X509TrustManager trustAllManager() {
         return new X509TrustManager() {
             @Override
-            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
+            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+            }
 
             @Override
-            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
+            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
+            }
 
             @Override
             public java.security.cert.X509Certificate[] getAcceptedIssuers() {
                 return new java.security.cert.X509Certificate[0];
             }
         };
+    }
+
+    @Transactional
+    public StudentInformationResponse getStudentInformation(final String id, final String password) {
+        try {
+            OkHttpClient client = buildClient();
+            authenticate(client, id, password);
+            return fetchStudentInformation(client);
+        } catch (Exception e) {
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+        }
+    }
+
+    //사용자 인증수행
+    private void authenticate(OkHttpClient client, String id, String password) {
+        FormBody formData = new FormBody.Builder()
+                .add("mainLogin", "N")
+                .add("rtUrl", rtUrl)
+                .add("id", id)
+                .add("password", password)
+                .build();
+
+        Request loginRequest = new Request.Builder()
+                .url(loginUrl)
+                .post(formData)
+                .header("Host", host)
+                .header("Referer", referer)
+                .header("Cookie", cookie)
+                .build();
+
+        executeRequest(client, loginRequest);
+    }
+
+    //학생정보 가져오기
+    private StudentInformationResponse fetchStudentInformation(OkHttpClient client) throws IOException {
+        Request request = new Request.Builder().url(finalUrl).get().build();
+        try (Response response = executeRequest(client, request)) {
+            String html = response.body().string();
+            return parseStudentInformation(html);
+        }
+    }
+
+    //http 요청수행
+    private Response executeRequest(OkHttpClient client, Request request) {
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.body() == null) {
+                throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+            }
+            return response;
+        } catch (IOException e) {
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+        }
     }
 }

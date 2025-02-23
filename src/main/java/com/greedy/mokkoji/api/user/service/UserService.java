@@ -1,6 +1,5 @@
 package com.greedy.mokkoji.api.user.service;
 
-import com.greedy.mokkoji.MokkojiApplication;
 import com.greedy.mokkoji.api.external.SejongLoginClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
@@ -12,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -55,7 +52,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateEmail(Long userId, String email){
+    public void updateEmail(Long userId, String email) {
         User user = findUser(userId);
         user.updateEmail(email);
     }

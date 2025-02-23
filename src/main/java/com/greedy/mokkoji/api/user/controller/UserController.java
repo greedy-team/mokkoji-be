@@ -19,8 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("${api.prefix}/users")
@@ -67,7 +65,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<APISuccessResponse<UserInformationResponse>> getUserInformation(@Authentication AuthCredential authCredential) {
         Long userId = authCredential.userId();
-        User user= userService.findUser(userId);
+        User user = userService.findUser(userId);
         UserInformationResponse userInformationResponse = UserInformationResponse.of(user);
 
         return APISuccessResponse.of(HttpStatus.OK, userInformationResponse);
