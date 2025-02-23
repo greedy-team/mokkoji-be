@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.db.user.service;
+package com.greedy.mokkoji.api.user.service;
 
 import com.greedy.mokkoji.api.external.SejongLoginClient;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
