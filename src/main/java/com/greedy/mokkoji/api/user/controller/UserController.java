@@ -42,19 +42,12 @@ public class UserController {
 
         refreshToken = refreshToken.replace("Bearer ", "");
 
-        Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+        String newAccessToken = userService.refreshAccessToken(refreshToken);
 
-        String storedRefreshToken = tokenService.getRefreshToken(userId);
-
-        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
-
-        String newAccessToken = jwtUtil.generateAccessToken(userId);
         RefreshResponse refreshResponse = RefreshResponse.of(newAccessToken);
-
         return APISuccessResponse.of(HttpStatus.OK, refreshResponse);
     }
+
 
     @PostMapping("/auth/logout")
     public ResponseEntity<Void> logout(
