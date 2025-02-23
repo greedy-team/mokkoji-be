@@ -40,8 +40,4 @@ public class User {
         this.grade = grade;
         this.email = email;
     }
-
-    public Long getId() {
-        return id;
-    }
 }
