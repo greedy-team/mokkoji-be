@@ -27,6 +27,9 @@ public class SejongLoginClient {
     @Value("${login.rtUrl}")
     private String rtUrl;
 
+    @Value("${login.finalUrl}")
+    private String finalUrl;
+
     @Value("${login.host}")
     private String host;
 
@@ -38,62 +41,58 @@ public class SejongLoginClient {
 
     @Transactional
     public StudentInformationResponse getStudentInformation(final String id, final String password) {
-
         try {
             OkHttpClient client = buildClient();
-
-            FormBody formData = new FormBody.Builder()
-                    .add("mainLogin", "N")
-                    .add("rtUrl", rtUrl)
-                    .add("id", id)
-                    .add("password", password)
-                    .build();
-
-            Request loginRequest = new Request.Builder()
-                    .url(loginUrl)
-                    .post(formData)
-                    .header("Host", host)
-                    .header("Referer", referer)
-                    .header("Cookie", cookie)
-                    .build();
-
-            //TODO::세종대학교 인증 처리 안됨
-            Response loginResponse = null;
-            try {
-                loginResponse = client.newCall(loginRequest).execute();
-            } catch (IOException e) {
-                throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
-            }
-
-            if (loginResponse == null || loginResponse.body() == null) {
-                throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
-            }
-
-            loginResponse.close();
-
-            // TODO:: 필요한 이유 찾기
-//        String redirectUrl = "http://classic.sejong.ac.kr/_custom/sejong/sso/sso-return.jsp?returnUrl=https://classic.sejong.ac.kr/classic/index.do";
-//
-//        Request redirectRequest = new Request.Builder().url(redirectUrl).get().build();
-//        try (Response redirectResponse = client.newCall(redirectRequest).execute()) {
-//            log.info("SSO 리다이렉트 요청 완료. 응답 코드: {}", redirectResponse.code());
-//        }
-
-            final String finalUrl = "https://classic.sejong.ac.kr/classic/reading/status.do";
-            Request finalRequest = new Request.Builder().url(finalUrl).get().build();
-
-            Response finalResponse = client.newCall(finalRequest).execute();
-            if (finalResponse.body() == null) {
-                throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
-            }
-            String finalHtml = finalResponse.body().string();
-
-            return parseStudentInformation(finalHtml);
+            authenticate(client, id, password);
+            return fetchStudentInformation(client);
         } catch (Exception e) {
             throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
         }
     }
 
+    //사용자 인증수행
+    private void authenticate(OkHttpClient client, String id, String password) {
+        FormBody formData = new FormBody.Builder()
+                .add("mainLogin", "N")
+                .add("rtUrl", rtUrl)
+                .add("id", id)
+                .add("password", password)
+                .build();
+
+        Request loginRequest = new Request.Builder()
+                .url(loginUrl)
+                .post(formData)
+                .header("Host", host)
+                .header("Referer", referer)
+                .header("Cookie", cookie)
+                .build();
+
+        executeRequest(client, loginRequest);
+    }
+
+    //학생정보 가져오기
+    private StudentInformationResponse fetchStudentInformation(OkHttpClient client) throws IOException {
+        Request request = new Request.Builder().url(finalUrl).get().build();
+        try (Response response = executeRequest(client, request)) {
+            String html = response.body().string();
+            return parseStudentInformation(html);
+        }
+    }
+
+    //http 요청수행
+    private Response executeRequest(OkHttpClient client, Request request) {
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.body() == null) {
+                throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+            }
+            return response;
+        } catch (IOException e) {
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+        }
+    }
+
+    //OkHttpClient 생성 (SSL 인증 무시 설정 포함)
     private static OkHttpClient buildClient() throws Exception {
         SSLContext sslContext = SSLContext.getInstance("SSL");
         sslContext.init(null, new TrustManager[]{trustAllManager()}, new java.security.SecureRandom());
@@ -112,6 +111,7 @@ public class SejongLoginClient {
                 .build();
     }
 
+    //html에서 학생정보 추출
     private static StudentInformationResponse parseStudentInformation(String html) {
         final Document doc = Jsoup.parse(html);
         final String selector = ".b-con-box:has(h4.b-h4-tit01:contains(사용자 정보)) table.b-board-table tbody tr";
@@ -119,26 +119,27 @@ public class SejongLoginClient {
         List<String> rowValues = new ArrayList<>();
 
         doc.select(selector).forEach(row -> {
-            String label = row.select("th").text().trim();
-            String value = row.select("td").text().trim();
-            rowLabels.add(label);
-            rowValues.add(value);
+            rowLabels.add(row.select("th").text().trim());
+            rowValues.add(row.select("td").text().trim());
         });
 
-        String name = null;
-        String department = null;
-        String grade = null;
+        return extractStudentInfo(rowLabels, rowValues);
+    }
 
-        for (int i = 0; i < rowLabels.size(); i++) {
-            switch (rowLabels.get(i)) {
+    //html에서 추출한 정보를 StudentInformationResponse 객체로 변환
+    private static StudentInformationResponse extractStudentInfo(List<String> labels, List<String> values) {
+        String name = null, department = null, grade = null;
+
+        for (int i = 0; i < labels.size(); i++) {
+            switch (labels.get(i)) {
                 case "이름":
-                    name = rowValues.get(i);
+                    name = values.get(i);
                     break;
                 case "학과명":
-                    department = rowValues.get(i);
+                    department = values.get(i);
                     break;
                 case "학년":
-                    grade = rowValues.get(i);
+                    grade = values.get(i);
                     break;
             }
         }
@@ -150,15 +151,14 @@ public class SejongLoginClient {
         return StudentInformationResponse.of(name, department, grade);
     }
 
+    //모든 SSL 인증서를 신뢰하는 TrustManager 생성
     private static X509TrustManager trustAllManager() {
         return new X509TrustManager() {
             @Override
-            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-            }
+            public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
 
             @Override
-            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {
-            }
+            public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
 
             @Override
             public java.security.cert.X509Certificate[] getAcceptedIssuers() {
