@@ -1,8 +1,9 @@
 package com.greedy.mokkoji.api.user.service;
 
+import com.greedy.mokkoji.MokkojiApplication;
 import com.greedy.mokkoji.api.external.SejongLoginClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
-import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationExternalResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
@@ -28,14 +29,14 @@ public class UserService {
     @Transactional
     public User login(final String studentId, final String password) {
 
-        final StudentInformationExternalResponse studentInformationExternalResponse = sejongLoginClient.getStudentInformation(studentId, password);
+        final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId, password);
 
         return userRepository.findByStudentId(studentId).orElseGet(() -> {
             final User newUser = User.builder()
                     .studentId(studentId)
-                    .name(studentInformationExternalResponse.name())
-                    .department(studentInformationExternalResponse.department())
-                    .grade(studentInformationExternalResponse.grade())
+                    .name(studentInformationResponse.name())
+                    .department(studentInformationResponse.department())
+                    .grade(studentInformationResponse.grade())
                     .build();
 
             return userRepository.save(newUser);
@@ -54,8 +55,10 @@ public class UserService {
     }
 
     @Transactional
-    public Optional<User> findUser(Long userId) {
-        return userRepository.findById(userId);
+    public User findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
+
 }
 

@@ -4,8 +4,10 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
+import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.RefreshResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserInformationResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -16,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -58,5 +62,14 @@ public class UserController {
         tokenService.deleteRefreshToken(userId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<APISuccessResponse<UserInformationResponse>> getUserInformation(@Authentication AuthCredential authCredential) {
+        Long userId = authCredential.userId();
+        User user= userService.findUser(userId);
+        UserInformationResponse userInformationResponse = UserInformationResponse.of(user);
+
+        return APISuccessResponse.of(HttpStatus.OK, userInformationResponse);
     }
 }

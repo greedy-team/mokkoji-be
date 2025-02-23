@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.user;
 
 import com.greedy.mokkoji.api.external.SejongLoginClient;
-import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationExternalResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
@@ -40,7 +40,7 @@ public class UserServiceTest {
         final String studentId = "학번";
         final String password = "비밀번호";
 
-        final StudentInformationExternalResponse studentInformationExternalResponse = StudentInformationExternalResponse.of("혜빈", "컴공과", "4");
+        final StudentInformationResponse studentInformationResponse = StudentInformationResponse.of("혜빈", "컴공과", "4");
 
         final User expected = User.builder()
                 .name("혜빈")
@@ -49,7 +49,7 @@ public class UserServiceTest {
                 .department("컴공과")
                 .build();
 
-        BDDMockito.given(sejongLoginClient.getStudentInformation(any(), any())).willReturn(studentInformationExternalResponse);
+        BDDMockito.given(sejongLoginClient.getStudentInformation(any(), any())).willReturn(studentInformationResponse);
         BDDMockito.given(userRepository.findByStudentId(any())).willReturn(Optional.ofNullable(expected));
 
         //when
@@ -65,7 +65,7 @@ public class UserServiceTest {
         final String studentId = "학번";
         final String password = "비밀번호";
 
-        final StudentInformationExternalResponse studentInformationExternalResponse = StudentInformationExternalResponse.of("혜빈", "컴공과", "4");
+        final StudentInformationResponse studentInformationResponse = StudentInformationResponse.of("혜빈", "컴공과", "4");
 
         final User expected = User.builder()
                 .name("혜빈")
@@ -74,7 +74,7 @@ public class UserServiceTest {
                 .department("컴공과")
                 .build();
 
-        BDDMockito.given(sejongLoginClient.getStudentInformation(any(), any())).willReturn(studentInformationExternalResponse);
+        BDDMockito.given(sejongLoginClient.getStudentInformation(any(), any())).willReturn(studentInformationResponse);
         BDDMockito.given(userRepository.findByStudentId(any())).willReturn(Optional.ofNullable(expected));
 
         //when
