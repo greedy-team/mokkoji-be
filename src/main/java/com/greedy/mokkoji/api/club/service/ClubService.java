@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.club.service;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
@@ -30,7 +31,10 @@ public class ClubService {
     private final RecruitmentRepository recruitmentRepository;
     private final FavoriteRepository favoriteRepository;
 
-    public ClubDetailResponse findClub(final Long userId, final Long clubId) {
+    public ClubDetailResponse findClub(AuthCredential authCredential, final Long clubId) {
+
+        Long userId = validateLoginUser(authCredential);
+
         final Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
         final Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
@@ -39,12 +43,15 @@ public class ClubService {
         return mapToClubDetailResponse(club, recruitment, isFavorite);
     }
 
-    public ClubSearchResponse findClubsByConditions(final Long userId,
+    public ClubSearchResponse findClubsByConditions(AuthCredential authCredential,
                                                     final String keyword,
                                                     final ClubCategory category,
                                                     final ClubAffiliation affiliation,
                                                     final RecruitStatus status,
                                                     final Pageable pageable) {
+
+        
+        Long userId = validateLoginUser(authCredential);
 
         final Page<Club> clubPage = clubRepository.findClubs(keyword, category, affiliation, status, pageable);
 
@@ -52,6 +59,13 @@ public class ClubService {
         final PageResponse pageResponse = createPageResponse(clubPage);
 
         return new ClubSearchResponse(clubResponses, pageResponse);
+    }
+
+    private  Long validateLoginUser(AuthCredential authCredential) {
+        if (authCredential == null) {
+            return null;
+        }
+        return authCredential.userId();
     }
 
     private boolean getIsFavorite(Long userId, Long clubId) {

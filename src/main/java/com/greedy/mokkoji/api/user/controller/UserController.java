@@ -44,7 +44,7 @@ public class UserController {
 
         refreshToken = refreshToken.replace("Bearer ", "");
 
-        String newAccessToken = userService.refreshAccessToken(refreshToken);
+        final String newAccessToken = userService.refreshAccessToken(refreshToken);
 
         RefreshResponse refreshResponse = RefreshResponse.of(newAccessToken);
         return APISuccessResponse.of(HttpStatus.OK, refreshResponse);
@@ -55,7 +55,7 @@ public class UserController {
     public ResponseEntity<Void> logout(
             @Authentication AuthCredential authCredential
     ) {
-        Long userId = authCredential.userId();
+        final Long userId = authCredential.userId();
 
         tokenService.deleteRefreshToken(userId);
 
@@ -64,9 +64,9 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<APISuccessResponse<UserInformationResponse>> getUserInformation(@Authentication AuthCredential authCredential) {
-        Long userId = authCredential.userId();
-        User user = userService.findUser(userId);
-        UserInformationResponse userInformationResponse = UserInformationResponse.of(user);
+        final Long userId = authCredential.userId();
+        final User user = userService.findUser(userId);
+        final UserInformationResponse userInformationResponse = UserInformationResponse.of(user);
 
         return APISuccessResponse.of(HttpStatus.OK, userInformationResponse);
     }
@@ -75,7 +75,7 @@ public class UserController {
     public ResponseEntity<Void> updateUserInformation(
             @Authentication AuthCredential authCredential,
             @RequestBody UpdateUserInformationRequest updateUserInformationRequest) {
-        Long userId = authCredential.userId();
+        final Long userId = authCredential.userId();
         userService.updateEmail(userId, updateUserInformationRequest.email());
 
         return ResponseEntity.noContent().build();
