@@ -35,7 +35,7 @@ public class UserServiceTest {
     SejongLoginClient sejongLoginClient;
 
     @Test
-    void 기존_유저는_로그인을_할_수_있다(){
+    void 기존_유저는_로그인을_할_수_있다() {
         //given
         final String studentId = "학번";
         final String password = "비밀번호";
@@ -60,7 +60,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void 토큰을_발급_받을_수_있다(){
+    void 토큰을_발급_받을_수_있다() {
         //given
         final String studentId = "학번";
         final String password = "비밀번호";
