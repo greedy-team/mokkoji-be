@@ -52,14 +52,14 @@ public class UserController {
 
 
     @PostMapping("/auth/logout")
-    public ResponseEntity<Void> logout(
+    public ResponseEntity<APISuccessResponse<Void>> logout(
             @Authentication AuthCredential authCredential
     ) {
         final Long userId = authCredential.userId();
 
         tokenService.deleteRefreshToken(userId);
 
-        return ResponseEntity.noContent().build();
+        return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
     @GetMapping
@@ -72,12 +72,12 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> updateUserInformation(
+    public ResponseEntity<APISuccessResponse<Void>> updateUserInformation(
             @Authentication AuthCredential authCredential,
             @RequestBody UpdateUserInformationRequest updateUserInformationRequest) {
         final Long userId = authCredential.userId();
         userService.updateEmail(userId, updateUserInformationRequest.email());
 
-        return ResponseEntity.noContent().build();
+        return APISuccessResponse.of(HttpStatus.OK, null);
     }
 }
