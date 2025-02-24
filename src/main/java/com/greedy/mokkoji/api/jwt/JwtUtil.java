@@ -50,11 +50,11 @@ public class JwtUtil {
     }
 
     public Long getUserIdFromToken(String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
-
         try {
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+
             return Long.parseLong(Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
@@ -65,6 +65,8 @@ public class JwtUtil {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_EXPIRED);
         } catch (JwtException e) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        } catch (NullPointerException e) {
+            return null;
         }
     }
 }

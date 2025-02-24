@@ -1,5 +1,7 @@
 package com.greedy.mokkoji.api.club.controller;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchCond;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
@@ -21,14 +23,15 @@ public class ClubController {
     private static final Long USER_ID = 1L;
 
     @GetMapping("/{clubId}")
-    public ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(@PathVariable("clubId") final Long clubId) {
+    public ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(@Authentication AuthCredential authCredential, @PathVariable("clubId") final Long clubId) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubService.findClub(USER_ID, clubId));
+                clubService.findClub(authCredential, clubId));
     }
 
     @GetMapping
     public ResponseEntity<APISuccessResponse<ClubSearchResponse>> getClubs(
+            @Authentication AuthCredential authCredential,
             @ModelAttribute(value = "clubSearchCond") final ClubSearchCond clubSearchCond,
             @RequestParam(value = "page") final int page,
             @RequestParam(value = "size") final int size
@@ -38,7 +41,7 @@ public class ClubController {
         return APISuccessResponse.of(
                 HttpStatus.OK,
                 clubService.findClubsByConditions(
-                        USER_ID,
+                        authCredential,
                         clubSearchCond.keyword(),
                         clubSearchCond.category(),
                         clubSearchCond.affiliation(),

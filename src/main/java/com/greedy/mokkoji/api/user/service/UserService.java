@@ -41,7 +41,7 @@ public class UserService {
     }
 
     public String refreshAccessToken(String refreshToken) {
-        Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+        final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
 
         String storedRefreshToken = tokenService.getRefreshToken(userId);
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
@@ -53,7 +53,7 @@ public class UserService {
 
     @Transactional
     public void updateEmail(Long userId, String email) {
-        User user = findUser(userId);
+        final User user = findUser(userId);
         user.updateEmail(email);
     }
 

@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.club;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
@@ -91,6 +92,7 @@ class ClubSearchTest {
     @DisplayName("전체 동아리 정보를 조회한다.")
     void findClubsByNoConditions() {
         final Long userId = 1L;
+        final AuthCredential authCredential = new AuthCredential(userId);
         final Long clubId1 = club1.getId();
         final Long clubId2 = club2.getId();
         final Pageable pageable = PageRequest.of(0, 10);
@@ -103,7 +105,7 @@ class ClubSearchTest {
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(true);
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId2)).willReturn(false);
 
-        final ClubSearchResponse response = clubService.findClubsByConditions(userId, null, null, null, null, pageable);
+        final ClubSearchResponse response = clubService.findClubsByConditions(authCredential, null, null, null, null, pageable);
 
         assertThat(response.clubs()).hasSize(2);
 
@@ -136,13 +138,14 @@ class ClubSearchTest {
     @DisplayName("동아리 상세 정보를 조회한다.")
     void findClubDetailInformation() {
         final Long userId = 1L;
+        final AuthCredential authCredential = new AuthCredential(userId);
         final Long clubId = club1.getId();
 
         BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.ofNullable(club1));
         BDDMockito.given(recruitmentRepository.findByClubId(clubId)).willReturn(recruitment1);
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId)).willReturn(true);
 
-        ClubDetailResponse response = clubService.findClub(userId, clubId);
+        ClubDetailResponse response = clubService.findClub(authCredential, clubId);
 
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo("testClub1");
