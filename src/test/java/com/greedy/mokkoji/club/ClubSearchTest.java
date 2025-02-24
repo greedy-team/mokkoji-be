@@ -4,6 +4,7 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
+import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
@@ -19,7 +20,10 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
@@ -45,6 +49,9 @@ class ClubSearchTest {
 
     @Mock
     private FavoriteRepository favoriteRepository;
+
+    @Mock
+    private AppDataS3Client appDataS3Client;
 
     private Club club1;
     private Club club2;
@@ -104,6 +111,8 @@ class ClubSearchTest {
         BDDMockito.given(recruitmentRepository.findByClubId(clubId2)).willReturn(recruitment2);
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(true);
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId2)).willReturn(false);
+        BDDMockito.given(appDataS3Client.getPresignedUrl(club1.getLogo())).willReturn("testLogo1");
+        BDDMockito.given(appDataS3Client.getPresignedUrl(club2.getLogo())).willReturn("testLogo2");
 
         final ClubSearchResponse response = clubService.findClubsByConditions(authCredential, null, null, null, null, pageable);
 
@@ -144,6 +153,7 @@ class ClubSearchTest {
         BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.ofNullable(club1));
         BDDMockito.given(recruitmentRepository.findByClubId(clubId)).willReturn(recruitment1);
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId)).willReturn(true);
+        BDDMockito.given(appDataS3Client.getPresignedUrl(club1.getLogo())).willReturn("testLogo1");
 
         ClubDetailResponse response = clubService.findClub(authCredential, clubId);
 
