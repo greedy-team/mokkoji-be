@@ -17,6 +17,7 @@ public enum FailMessage {
 
     //401
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증이 필요합니다."),
+    UNAUTHORIZED_EXPIRED(HttpStatus.UNAUTHORIZED, 40101, "토큰 기간이 만료 되었습니다."),
 
     //403
     FORBIDDEN(HttpStatus.FORBIDDEN, 40300, "권한이 없습니다."),
@@ -41,6 +42,8 @@ public enum FailMessage {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR_SMTP(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "SMTP 서버 내부 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR_SMTP_MAIL(HttpStatus.INTERNAL_SERVER_ERROR, 50002, "SMTP 메일 생성에 오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR_SEJONG_AUTH(HttpStatus.INTERNAL_SERVER_ERROR, 50005, "학생 인증 서버 내부 오류가 발생했습니다."),
+    INTERNAL_TOKEN_INIT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50010, "SECRET KEY가 초기화되지 않았습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;

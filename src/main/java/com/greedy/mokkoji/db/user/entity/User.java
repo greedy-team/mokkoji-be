@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "user")
 public class User {
@@ -27,17 +28,21 @@ public class User {
     private String department;
 
     @Column(name = "grade", columnDefinition = "int", nullable = false)
-    private int grade;
+    private String grade;
 
-    @Column(name = "email", columnDefinition = "varchar(50)", nullable = false)
+    @Column(name = "email", columnDefinition = "varchar(50)", nullable = true)
     private String email;
 
     @Builder
-    public User(final String studentId, final String name, final String department, final int grade, final String email) {
+    public User(final String studentId, final String name, final String department, final String grade, final String email) {
         this.studentId = studentId;
         this.name = name;
         this.department = department;
         this.grade = grade;
+        this.email = email;
+    }
+
+    public void updateEmail(String email) {
         this.email = email;
     }
 }
