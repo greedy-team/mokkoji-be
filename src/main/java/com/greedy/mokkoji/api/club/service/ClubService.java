@@ -5,22 +5,24 @@ import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
+import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
-import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +32,9 @@ public class ClubService {
     private final ClubRepository clubRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final FavoriteRepository favoriteRepository;
+    private final AppDataS3Client appDataS3Client;
 
+    @Transactional(readOnly = true)
     public ClubDetailResponse findClub(AuthCredential authCredential, final Long clubId) {
 
         Long userId = validateLoginUser(authCredential);
@@ -43,6 +47,7 @@ public class ClubService {
         return mapToClubDetailResponse(club, recruitment, isFavorite);
     }
 
+    @Transactional(readOnly = true)
     public ClubSearchResponse findClubsByConditions(AuthCredential authCredential,
                                                     final String keyword,
                                                     final ClubCategory category,
@@ -50,7 +55,7 @@ public class ClubService {
                                                     final RecruitStatus status,
                                                     final Pageable pageable) {
 
-        
+
         Long userId = validateLoginUser(authCredential);
 
         final Page<Club> clubPage = clubRepository.findClubs(keyword, category, affiliation, status, pageable);
@@ -61,7 +66,7 @@ public class ClubService {
         return new ClubSearchResponse(clubResponses, pageResponse);
     }
 
-    private  Long validateLoginUser(AuthCredential authCredential) {
+    private Long validateLoginUser(AuthCredential authCredential) {
         if (authCredential == null) {
             return null;
         }
@@ -84,7 +89,7 @@ public class ClubService {
                 club.getDescription(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
-                club.getLogo(),
+                appDataS3Client.getPresignedUrl(club.getLogo()),
                 isFavorite,
                 club.getInstagram(),
                 recruitment.getContent()
@@ -103,7 +108,7 @@ public class ClubService {
                             club.getDescription(),
                             recruitment.getRecruitStart(),
                             recruitment.getRecruitEnd(),
-                            club.getLogo(),
+                            appDataS3Client.getPresignedUrl(club.getLogo()),
                             isFavorite);
                 })
                 .collect(Collectors.toList());
