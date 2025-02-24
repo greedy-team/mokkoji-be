@@ -58,7 +58,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail:3.4.2'
 }
 
-
 tasks.named('test') {
     useJUnitPlatform()
 }
