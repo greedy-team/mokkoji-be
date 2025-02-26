@@ -16,6 +16,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final JwtAuthInterceptor jwtAuthInterceptor;
     private final UserAuthArgumentResolver userAuthArgumentResolver;
+
     @Value("${api.prefix}")
     private String prefixUrl;
 
@@ -31,7 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtAuthInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns(prefixUrl + "/users/auth/login", prefixUrl + "/users/auth/refresh");
+                .excludePathPatterns(prefixUrl + "/users/auth/login", prefixUrl + "/users/auth/refresh", prefixUrl + "/clubs/**");
     }
 
     @Override
