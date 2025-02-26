@@ -23,12 +23,19 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         try {
-            jwtUtil.getUserIdFromToken(accessToken);
+            Long userId = jwtUtil.getUserIdFromToken(accessToken);
+            if (userId == null) { //로그인 미인증 사용자
+                log.info("미인증 사용자 요청");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return false;
+            }
             return true;
+
         } catch (ExpiredJwtException e) {
             log.warn("Access Token 만료됨");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
+
         } catch (JwtException e) {
             log.warn("유효하지 않은 Access Token이 입력됨");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
