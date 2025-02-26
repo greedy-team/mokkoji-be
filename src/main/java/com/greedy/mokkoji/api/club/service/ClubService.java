@@ -1,6 +1,5 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
@@ -12,6 +11,7 @@ import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
@@ -35,9 +35,7 @@ public class ClubService {
     private final AppDataS3Client appDataS3Client;
 
     @Transactional(readOnly = true)
-    public ClubDetailResponse findClub(AuthCredential authCredential, final Long clubId) {
-
-        Long userId = validateLoginUser(authCredential);
+    public ClubDetailResponse findClub(final Long userId, final Long clubId) {
 
         final Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
@@ -48,15 +46,12 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubSearchResponse findClubsByConditions(AuthCredential authCredential,
+    public ClubSearchResponse findClubsByConditions(final Long userId,
                                                     final String keyword,
                                                     final ClubCategory category,
                                                     final ClubAffiliation affiliation,
                                                     final RecruitStatus status,
                                                     final Pageable pageable) {
-
-
-        Long userId = validateLoginUser(authCredential);
 
         final Page<Club> clubPage = clubRepository.findClubs(keyword, category, affiliation, status, pageable);
 
@@ -66,14 +61,7 @@ public class ClubService {
         return new ClubSearchResponse(clubResponses, pageResponse);
     }
 
-    private Long validateLoginUser(AuthCredential authCredential) {
-        if (authCredential == null) {
-            return null;
-        }
-        return authCredential.userId();
-    }
-
-    private boolean getIsFavorite(Long userId, Long clubId) {
+    private boolean getIsFavorite(final Long userId, final Long clubId) {
         if (userId == null) { //회원 및 비회원 구별 로직
             return false;
         }
