@@ -1,10 +1,14 @@
 package com.greedy.mokkoji.user;
 
 import com.greedy.mokkoji.api.external.SejongLoginClient;
+import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
+import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
+import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.message.FailMessage;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -18,7 +22,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("유저 서비스 테스트")
@@ -29,10 +36,16 @@ public class UserServiceTest {
     UserService userService;
 
     @Mock
+    TokenService tokenService;
+
+    @Mock
     UserRepository userRepository;
 
     @Mock
     SejongLoginClient sejongLoginClient;
+
+    @Mock
+    JwtUtil jwtUtil;
 
     @Test
     void 로그인을_할_수_있다() {
@@ -104,8 +117,41 @@ public class UserServiceTest {
         BDDMockito.verify(userRepository, BDDMockito.never()).save(any());
     }
 
-    //Todo : access토큰 재발급 테스트
-    //Todo : 로그아웃 테스트
+    @Test
+    void access토큰을_재발급_받을_수_있다() {
+        // given
+        Long userId = 1L;
+        String refreshToken = "refreshToken";
+        String newAccessToken = "newAccessToken";
+
+        when(jwtUtil.getUserIdFromToken(refreshToken)).thenReturn(userId);
+        when(tokenService.getRefreshToken(userId)).thenReturn(refreshToken);
+        when(jwtUtil.generateAccessToken(userId)).thenReturn(newAccessToken);
+
+        // when
+        String accessToken = userService.refreshAccessToken(refreshToken);
+
+        // then
+        assertThat(accessToken).isEqualTo(newAccessToken);
+    }
+
+    @Test
+    void access토큰_재발급_시_잘못된_refresh토큰이면_예외가_발생한다() {
+        // given
+        Long userId = 1L;
+        String invalidRefreshToken = "invalidRefreshToken";
+
+        when(jwtUtil.getUserIdFromToken(invalidRefreshToken)).thenReturn(userId);
+        when(tokenService.getRefreshToken(userId)).thenReturn("differentStoredToken");
+
+        // when & then
+        assertThatThrownBy(() -> userService.refreshAccessToken(invalidRefreshToken))
+                .isInstanceOf(MokkojiException.class)
+                .hasMessage(FailMessage.UNAUTHORIZED.getMessage());
+    }
+
+    //Todo : 기존에 있던 access 없애기
+    //Todo : refresh토큰 업데이트 하기
     //Todo : 유저정보 들고오기 테스트
     //Todo : 유저정보 업데이트 테스트
 }
