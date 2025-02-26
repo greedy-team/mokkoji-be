@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("${api.prefix}/clubs")
 public class ClubController {
 
-    private final ClubService clubService;
     private static final Long USER_ID = 1L;
+    private final ClubService clubService;
 
     @GetMapping("/{clubId}")
     public ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(@Authentication AuthCredential authCredential, @PathVariable("clubId") final Long clubId) {
