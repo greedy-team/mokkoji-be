@@ -20,4 +20,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     void deleteByUserAndClub(final User user, final Club club);
 
     boolean existsByUserIdAndClubId(final Long userId, final Long id);
+
+    List<Favorite> findByUserId(Long userId);
 }
