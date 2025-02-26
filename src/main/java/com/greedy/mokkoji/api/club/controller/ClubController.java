@@ -20,18 +20,19 @@ import org.springframework.web.bind.annotation.*;
 public class ClubController {
 
     private final ClubService clubService;
-    private static final Long USER_ID = 1L;
 
     @GetMapping("/{clubId}")
-    public ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(@Authentication AuthCredential authCredential, @PathVariable("clubId") final Long clubId) {
+    public ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(
+            @Authentication final AuthCredential authCredential,
+            @PathVariable("clubId") final Long clubId) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubService.findClub(authCredential, clubId));
+                clubService.findClub(authCredential.userId(), clubId));
     }
 
     @GetMapping
     public ResponseEntity<APISuccessResponse<ClubSearchResponse>> getClubs(
-            @Authentication AuthCredential authCredential,
+            @Authentication final AuthCredential authCredential,
             @ModelAttribute(value = "clubSearchCond") final ClubSearchCond clubSearchCond,
             @RequestParam(value = "page") final int page,
             @RequestParam(value = "size") final int size
@@ -41,7 +42,7 @@ public class ClubController {
         return APISuccessResponse.of(
                 HttpStatus.OK,
                 clubService.findClubsByConditions(
-                        authCredential,
+                        authCredential.userId(),
                         clubSearchCond.keyword(),
                         clubSearchCond.category(),
                         clubSearchCond.affiliation(),

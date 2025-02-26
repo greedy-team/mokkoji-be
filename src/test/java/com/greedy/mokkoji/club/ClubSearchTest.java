@@ -1,6 +1,5 @@
 package com.greedy.mokkoji.club;
 
-import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
@@ -98,8 +97,8 @@ class ClubSearchTest {
     @Test
     @DisplayName("전체 동아리 정보를 조회한다.")
     void findClubsByNoConditions() {
+        //given
         final Long userId = 1L;
-        final AuthCredential authCredential = new AuthCredential(userId);
         final Long clubId1 = club1.getId();
         final Long clubId2 = club2.getId();
         final Pageable pageable = PageRequest.of(0, 10);
@@ -114,8 +113,10 @@ class ClubSearchTest {
         BDDMockito.given(appDataS3Client.getPresignedUrl(club1.getLogo())).willReturn("testLogo1");
         BDDMockito.given(appDataS3Client.getPresignedUrl(club2.getLogo())).willReturn("testLogo2");
 
-        final ClubSearchResponse response = clubService.findClubsByConditions(authCredential, null, null, null, null, pageable);
+        //when
+        final ClubSearchResponse response = clubService.findClubsByConditions(userId, null, null, null, null, pageable);
 
+        //then
         assertThat(response.clubs()).hasSize(2);
 
         assertThat(response.clubs().get(0).name()).isEqualTo("testClub1");
@@ -146,8 +147,8 @@ class ClubSearchTest {
     @Test
     @DisplayName("동아리 상세 정보를 조회한다.")
     void findClubDetailInformation() {
+        //given
         final Long userId = 1L;
-        final AuthCredential authCredential = new AuthCredential(userId);
         final Long clubId = club1.getId();
 
         BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.ofNullable(club1));
@@ -155,8 +156,10 @@ class ClubSearchTest {
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId)).willReturn(true);
         BDDMockito.given(appDataS3Client.getPresignedUrl(club1.getLogo())).willReturn("testLogo1");
 
-        ClubDetailResponse response = clubService.findClub(authCredential, clubId);
+        //when
+        ClubDetailResponse response = clubService.findClub(userId, clubId);
 
+        //then
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo("testClub1");
         assertThat(response.category()).isEqualTo("학술/교양");
