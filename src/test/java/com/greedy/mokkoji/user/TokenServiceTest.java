@@ -36,7 +36,7 @@ public class TokenServiceTest {
     ValueOperations<String, String> valueOperations;
 
     @Test
-    void 토큰을_발급_받을_수_있다() {
+    void Login시_토큰을_발급_받을_수_있다() {
         // given
         final User expected = User.builder()
                 .name("세종")
