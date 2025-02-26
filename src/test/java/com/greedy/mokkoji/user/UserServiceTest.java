@@ -35,56 +35,77 @@ public class UserServiceTest {
     SejongLoginClient sejongLoginClient;
 
     @Test
-    void 기존_유저는_로그인을_할_수_있다() {
+    void 로그인을_할_수_있다() {
         //given
         final String studentId = "학번";
         final String password = "비밀번호";
 
-        final StudentInformationResponse studentInformationResponse = StudentInformationResponse.of("혜빈", "컴공과", "4");
-
-        final User expected = User.builder()
-                .name("혜빈")
+        final User expectedUser = User.builder()
+                .name("세종")
                 .grade("4")
                 .studentId("학번")
                 .department("컴공과")
                 .build();
 
-        BDDMockito.given(sejongLoginClient.getStudentInformation(any(), any())).willReturn(studentInformationResponse);
-        BDDMockito.given(userRepository.findByStudentId(any())).willReturn(Optional.ofNullable(expected));
+        BDDMockito.given(userRepository.findByStudentId(any())).willReturn(Optional.ofNullable(expectedUser));
 
         //when
-        final User actual = userService.login(studentId, password);
+        final User actualUser = userService.login(studentId, password);
 
         //then
-        Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+        Assertions.assertThat(actualUser).usingRecursiveComparison().isEqualTo(expectedUser);
     }
 
     @Test
-    void 토큰을_발급_받을_수_있다() {
-        //given
-        final String studentId = "학번";
-        final String password = "비밀번호";
+    void 처음_로그인_시_새로운_User로_등록된다() {
+        // given
+        String studentId = "학번";
+        String password = "비밀번호";
 
-        final StudentInformationResponse studentInformationResponse = StudentInformationResponse.of("혜빈", "컴공과", "4");
-
-        final User expected = User.builder()
-                .name("혜빈")
+        StudentInformationResponse studentInfo = StudentInformationResponse.of("세종", "컴공과", "4");
+        User expectedUser = User.builder()
+                .name("세종")
                 .grade("4")
-                .studentId("학번")
+                .studentId(studentId)
                 .department("컴공과")
                 .build();
 
-        BDDMockito.given(sejongLoginClient.getStudentInformation(any(), any())).willReturn(studentInformationResponse);
-        BDDMockito.given(userRepository.findByStudentId(any())).willReturn(Optional.ofNullable(expected));
+        BDDMockito.given(sejongLoginClient.getStudentInformation(any(), any())).willReturn(studentInfo);
+        BDDMockito.given(userRepository.findByStudentId(any())).willReturn(Optional.empty());
+        BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
 
-        //when
-        final User actual = userService.login(studentId, password);
+        // when
+        User newUser = userService.login(studentId, password);
 
-        //then
-        Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+        // then
+        Assertions.assertThat(newUser).usingRecursiveComparison().isEqualTo(expectedUser);
     }
-    //유저가 생성되는 지
-    //유저가 중복생성 안 되는 지
-    //토큰 재발급 가능한 지
-    //로그아웃 가능한지
+
+    @Test
+    void 이미_등록된_사용자가_로그인하면_기존_User_객체가_반환된다() {
+        // given
+        String studentId = "학번";
+        String password = "비밀번호";
+
+        User existingUser = User.builder()
+                .name("세종")
+                .grade("4")
+                .studentId(studentId)
+                .department("컴공과")
+                .build();
+
+        BDDMockito.given(userRepository.findByStudentId(any())).willReturn(Optional.of(existingUser));
+
+        // when
+        User returnedUser = userService.login(studentId, password);
+
+        // then
+        Assertions.assertThat(returnedUser).usingRecursiveComparison().isEqualTo(existingUser);
+        BDDMockito.verify(userRepository, BDDMockito.never()).save(any());
+    }
+
+    //Todo : access토큰 재발급 테스트
+    //Todo : 로그아웃 테스트
+    //Todo : 유저정보 들고오기 테스트
+    //Todo : 유저정보 업데이트 테스트
 }
