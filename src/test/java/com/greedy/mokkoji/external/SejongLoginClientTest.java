@@ -15,10 +15,10 @@ class SejongLoginClientTest {
     @Autowired
     private SejongLoginClient sejongLoginClient;
 
-    @Value("${id}")
+    @Value("${test.studentId}")
     private String studentId;
 
-    @Value("${password}")
+    @Value("${test.password}")
     private String password;
 
 
