@@ -1,9 +1,9 @@
 package com.greedy.mokkoji.db.club.repository;
 
 import com.greedy.mokkoji.db.club.entity.Club;
-import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static com.greedy.mokkoji.db.club.entity.QClub.*;
-import static com.greedy.mokkoji.db.recruitment.entity.QRecruitment.*;
+import static com.greedy.mokkoji.db.club.entity.QClub.club;
+import static com.greedy.mokkoji.db.recruitment.entity.QRecruitment.recruitment;
 import static com.greedy.mokkoji.enums.recruitment.RecruitStatus.OPEN;
 
 @Repository

@@ -2,7 +2,6 @@ package com.greedy.mokkoji.api.user.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
@@ -26,7 +25,6 @@ public class UserController {
 
     private final UserService userService;
     private final TokenService tokenService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping("/auth/login")
     public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody LoginRequest request) {

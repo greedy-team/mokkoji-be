@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/clubs")
 public class ClubController {
-
     private final ClubService clubService;
 
     @GetMapping("/{clubId}")

@@ -1,9 +1,9 @@
 package com.greedy.mokkoji.db.club.repository;
 
 import com.greedy.mokkoji.db.club.entity.Club;
-import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

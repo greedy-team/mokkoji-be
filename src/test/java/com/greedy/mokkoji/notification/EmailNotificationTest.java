@@ -1,7 +1,6 @@
 package com.greedy.mokkoji.notification;
 
 import com.greedy.mokkoji.api.notification.service.EmailNotificationChannel;
-import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.*;
@@ -16,7 +15,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("이메일 알림 채널 테스트")
