@@ -25,6 +25,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -150,8 +151,23 @@ public class UserServiceTest {
                 .hasMessage(FailMessage.UNAUTHORIZED.getMessage());
     }
 
-    //Todo : 기존에 있던 access 없애기
-    //Todo : refresh토큰 업데이트 하기
-    //Todo : 유저정보 들고오기 테스트
-    //Todo : 유저정보 업데이트 테스트
+    @Test
+    void User정보를_업데이트_할_수_있다() {
+        // given
+        final User user = User.builder()
+                .name("세종")
+                .grade("4")
+                .studentId("학번")
+                .department("컴공과")
+                .email("a@email.com")
+                .build();
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        // when
+        userService.updateEmail(1L, "b@email.com");
+
+        // then
+        assertThat(user.getEmail()).isEqualTo("b@email.com");
+    }
 }
