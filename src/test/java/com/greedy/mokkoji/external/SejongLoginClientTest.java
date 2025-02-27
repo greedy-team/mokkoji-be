@@ -32,7 +32,5 @@ class SejongLoginClientTest {
         assertThat(response.name()).isNotEmpty();
         assertThat(response.department()).isNotEmpty();
         assertThat(response.grade()).isNotEmpty();
-
-        System.out.println("회원정보 가져오기 성공: " + response);
     }
 }
