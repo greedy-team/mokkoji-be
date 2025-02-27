@@ -47,8 +47,6 @@ public class TokenServiceTest {
 
         when(jwtUtil.generateAccessToken(expected.getId())).thenReturn("mockAccessToken");
         when(jwtUtil.generateRefreshToken(expected.getId())).thenReturn("mockRefreshToken");
-
-        // RedisTemplate Mocking
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         doNothing().when(valueOperations).set(anyString(), anyString(), anyLong(), any());
 
@@ -59,5 +57,31 @@ public class TokenServiceTest {
         assertThat(loginResponse).isNotNull();
         assertThat(loginResponse.accessToken()).isNotBlank();
         assertThat(loginResponse.refreshToken()).isNotBlank();
+    }
+
+    @Test
+    void Logout시_refresh토큰을_없앨_수_있다() {
+        // given
+        final User user = User.builder()
+                .name("세종")
+                .grade("4")
+                .studentId("학번")
+                .department("컴공과")
+                .build();
+
+        Long userId = user.getId();
+
+        when(jwtUtil.generateAccessToken(userId)).thenReturn("mockAccessToken");
+        when(jwtUtil.generateRefreshToken(userId)).thenReturn("mockRefreshToken");
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        doNothing().when(valueOperations).set(anyString(), anyString(), anyLong(), any());
+
+        tokenService.generateToken(userId);
+
+        //when
+        tokenService.deleteRefreshToken(userId);
+
+        //then
+        assertThat(tokenService.getRefreshToken(user.getId())).isNull();
     }
 }
