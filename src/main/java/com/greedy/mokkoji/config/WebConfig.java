@@ -2,6 +2,7 @@ package com.greedy.mokkoji.config;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.UserAuthArgumentResolver;
 import com.greedy.mokkoji.common.handler.JwtAuthInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -16,6 +17,9 @@ public class WebConfig implements WebMvcConfigurer {
     private final JwtAuthInterceptor jwtAuthInterceptor;
     private final UserAuthArgumentResolver userAuthArgumentResolver;
 
+    @Value("${api.prefix}")
+    private String prefixUrl;
+
     public WebConfig(
             JwtAuthInterceptor jwtAuthInterceptor,
             UserAuthArgumentResolver userAuthArgumentResolver
@@ -28,7 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtAuthInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/auth/login", "/auth/refresh");
+                .excludePathPatterns(prefixUrl + "/users/auth/login", prefixUrl + "/users/auth/refresh", prefixUrl + "/clubs/**");
     }
 
     @Override
@@ -39,9 +43,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173/", "https://mokkoji.vercel.app/")
+                .allowedOrigins("http://localhost:5173", "https://mokkoji.vercel.app")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .allowCredentials(true);
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
 
