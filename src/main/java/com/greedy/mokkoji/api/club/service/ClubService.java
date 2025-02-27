@@ -15,7 +15,6 @@ import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
-import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,7 +67,7 @@ public class ClubService {
         return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
     }
 
-    private ClubDetailResponse mapToClubDetailResponse(Club club, Recruitment recruitment, Boolean isFavorite) {
+    private ClubDetailResponse mapToClubDetailResponse(final Club club, final Recruitment recruitment, final Boolean isFavorite) {
         return ClubDetailResponse.of(
                 club.getId(),
                 club.getName(),
