@@ -15,12 +15,11 @@ class SejongLoginClientTest {
     @Autowired
     private SejongLoginClient sejongLoginClient;
 
-    @Value("${id}")
+    @Value("${test.studentId}")
     private String studentId;
 
-    @Value("${password}")
+    @Value("${test.password}")
     private String password;
-
 
     @Test
     void 외부URL에서_회원정보_가져오기() {
