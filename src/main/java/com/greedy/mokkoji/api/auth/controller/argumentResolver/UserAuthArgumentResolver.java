@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.auth.controller.argumentResolver;
 
+import com.greedy.mokkoji.api.jwt.BearerAuthExtractor;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Slf4j
 @RequiredArgsConstructor
 public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
+
+    private final BearerAuthExtractor bearerAuthExtractor;
     private final JwtUtil jwtUtil;
 
     @Override
@@ -34,7 +37,9 @@ public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
             final WebDataBinderFactory binderFactory
     ) throws Exception {
         final HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        Long userId = jwtUtil.getUserIdFromToken(request.getHeader(HttpHeaders.AUTHORIZATION));
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String token = bearerAuthExtractor.extractTokenValue(authHeader);
+        final Long userId = jwtUtil.getUserIdFromToken(token);
         return new AuthCredential(userId);
     }
 }
