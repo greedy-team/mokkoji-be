@@ -52,15 +52,20 @@ public class UserService {
     }
 
     @Transactional
-    public void updateEmail(Long userId, String email) {
+    public void updateEmail(final Long userId, final String email) {
         final User user = findUser(userId);
         user.updateEmail(email);
     }
 
     @Transactional
-    public User findUser(Long userId) {
+    public User findUser(final Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+    }
+
+    @Transactional
+    public void logOut(final Long userId) {
+        tokenService.deleteRefreshToken(userId);
     }
 }
 
