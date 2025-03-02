@@ -25,7 +25,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String token = bearerAuthExtractor.extractTokenValue(header);
         final Long userId = jwtUtil.getUserIdFromToken(token);
         return userId != null;
