@@ -10,15 +10,15 @@ import org.springframework.stereotype.Component;
 public class BearerAuthExtractor {
     private static final String BEARER_TYPE = "Bearer";
 
-    public String extractTokenValue(final String header) {
-        if (header == null || header.isEmpty()) {
+    public String extractTokenValue(final String bearerToken) {
+        if (bearerToken == null || bearerToken.isEmpty()) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_EMPTY_HEADER);
         }
 
-        if (!header.toLowerCase().startsWith(BEARER_TYPE.toLowerCase())) {
+        if (!bearerToken.toLowerCase().startsWith(BEARER_TYPE.toLowerCase())) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_INVALID_TOKEN);
         }
 
-        return header.substring(BEARER_TYPE.length()).trim();
+        return bearerToken.substring(BEARER_TYPE.length()).trim();
     }
 }
