@@ -5,13 +5,11 @@ import com.greedy.mokkoji.api.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthInterceptor implements HandlerInterceptor {
@@ -30,5 +28,4 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
         final Long userId = jwtUtil.getUserIdFromToken(token);
         return userId != null;
     }
-
 }
