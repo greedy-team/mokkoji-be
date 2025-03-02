@@ -10,13 +10,15 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
+import java.util.Set;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    private final Set<String> excludedPaths = Set.of("/users/auth/login", "/users/auth/refresh", "/clubs/**");
+
     private final JwtAuthInterceptor jwtAuthInterceptor;
     private final UserAuthArgumentResolver userAuthArgumentResolver;
-
     @Value("${api.prefix}")
     private String prefixUrl;
 
@@ -30,9 +32,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        List<String> excludedFullPaths = excludedPaths.stream().map(path -> prefixUrl + path).toList();
+
         registry.addInterceptor(jwtAuthInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns(prefixUrl + "/users/auth/login", prefixUrl + "/users/auth/refresh", prefixUrl + "/clubs/**");
+                .excludePathPatterns(excludedFullPaths);
     }
 
     @Override
@@ -50,4 +54,3 @@ public class WebConfig implements WebMvcConfigurer {
                 .maxAge(3600);
     }
 }
-
