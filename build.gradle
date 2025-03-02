@@ -27,28 +27,34 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.mysql:mysql-connector-j'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // database
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    //lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+
+    //jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+
+    // HTTP 클라이언트 요청
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.3'
+
+    // HTML 파싱
     implementation 'org.jsoup:jsoup:1.15.3'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
-    testImplementation 'org.mockito:mockito-core'
-
+    // QueryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
@@ -57,8 +63,16 @@ dependencies {
     // 메일 전송
     implementation 'org.springframework.boot:spring-boot-starter-mail:3.4.2'
 
+    // AWS S3
     implementation 'software.amazon.awssdk:bom:2.21.0'
     implementation 'software.amazon.awssdk:s3:2.21.0'
+
+    // 테스트
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
+    testImplementation 'org.mockito:mockito-core'
 }
 
 tasks.named('test') {
