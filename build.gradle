@@ -59,6 +59,8 @@ dependencies {
 
     implementation 'software.amazon.awssdk:bom:2.21.0'
     implementation 'software.amazon.awssdk:s3:2.21.0'
+
+    testImplementation 'io.rest-assured:rest-assured:5.3.2'
 }
 
 tasks.named('test') {
