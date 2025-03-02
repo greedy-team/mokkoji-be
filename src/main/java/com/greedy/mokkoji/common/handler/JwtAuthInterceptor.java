@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Slf4j
@@ -20,10 +21,14 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if (CorsUtils.isPreFlightRequest(request)) {
+            return true;
+        }
+
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String token = bearerAuthExtractor.extractTokenValue(header);
         final Long userId = jwtUtil.getUserIdFromToken(token);
-
         return userId != null;
     }
+
 }
