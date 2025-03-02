@@ -57,7 +57,7 @@ public class UserService {
         user.updateEmail(email);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public User findUser(final Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
