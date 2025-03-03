@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.user;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,8 @@ public class UserControllerTest {
 
     @Test
     void 로그인_성공_테스트() {
+        RestAssured.baseURI = "https://www.mokkoji.o-r.kr/api/dev";
+
         Map<String, String> params = new HashMap<>();
         params.put("studentId", studentId);
         params.put("password", password);
@@ -34,7 +37,7 @@ public class UserControllerTest {
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
                 .contentType(ContentType.JSON)
                 .body(params)
-                .when().post("https://www.mokkoji.o-r.kr/api/dev/users/auth/login")
+                .when().post("/users/auth/login")
                 .then().log().all()
                 .statusCode(200)
                 .extract();
@@ -48,6 +51,7 @@ public class UserControllerTest {
 
     @Test
     void 로그인_실패_테스트() {
+        RestAssured.baseURI = "https://www.mokkoji.o-r.kr/api/dev";
         Map<String, String> params = new HashMap<>();
         params.put("studentId", "12345678");
         params.put("password", "password");
@@ -55,7 +59,7 @@ public class UserControllerTest {
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
                 .contentType(ContentType.JSON)
                 .body(params)
-                .when().post("https://www.mokkoji.o-r.kr/api/dev/users/auth/login")
+                .when().post("/users/auth/login")
                 .then().log().all()
                 .statusCode(500)
                 .extract();
