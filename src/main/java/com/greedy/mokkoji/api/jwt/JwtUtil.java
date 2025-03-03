@@ -61,8 +61,6 @@ public class JwtUtil {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_EXPIRED);
         } catch (JwtException e) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_INVALID_TOKEN);
-        } catch (NullPointerException e) {
-            return null;
         }
     }
 }
