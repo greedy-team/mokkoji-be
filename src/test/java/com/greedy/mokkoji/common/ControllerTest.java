@@ -3,7 +3,6 @@ package com.greedy.mokkoji.common;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.db.user.entity.User;
-import groovy.util.logging.Slf4j;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -48,5 +47,4 @@ public abstract class ControllerTest extends AbstractTest {
     protected <T> T getDataFromResponse(ExtractableResponse<Response> response, Class<T> clazz) {
         return response.jsonPath().getObject("data", clazz);
     }
-
 }
