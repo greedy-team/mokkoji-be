@@ -1,9 +1,13 @@
 package com.greedy.mokkoji.common.fixture;
 
 import com.greedy.mokkoji.db.club.entity.Club;
+import com.greedy.mokkoji.db.favorite.entity.Favorite;
+import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+
+import java.time.LocalDateTime;
 
 public class Fixture {
     public static User createUser() {
@@ -24,6 +28,22 @@ public class Fixture {
                 .logo("그리디 로고")
                 .description("세종대 최고의 코딩 동아리")
                 .instagram("www.그리디.com")
+                .build();
+    }
+
+    public static Recruitment createRecruitment(Club club) {
+        return Recruitment.builder()
+                .club(club)
+                .recruitStart(LocalDateTime.of(2025,01,01,12,00,00))
+                .recruitEnd(LocalDateTime.of(2025,02,02,12,00,00))
+                .content("그리디 모집글")
+                .build();
+    }
+
+    public static Favorite createFavorite(Club club, User user) {
+        return Favorite.builder()
+                .club(club)
+                .user(user)
                 .build();
     }
 }
