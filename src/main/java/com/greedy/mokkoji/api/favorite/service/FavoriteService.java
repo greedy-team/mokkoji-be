@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.api.favorite.service;
 
 import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
+import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -26,6 +27,7 @@ public class FavoriteService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final RecruitmentRepository recruitmentRepository;
+    private final AppDataS3Client appDataS3Client;
 
     @Transactional
     public Void addFavorite(final Long userId, final Long clubId) {
@@ -64,7 +66,7 @@ public class FavoriteService {
                             club.getDescription(),
                             recruitment.getRecruitStart(),
                             recruitment.getRecruitEnd(),
-                            club.getLogo(),
+                            appDataS3Client.getPresignedUrl(club.getLogo()),
                             true
                     );
                 }).collect(Collectors.toList());
