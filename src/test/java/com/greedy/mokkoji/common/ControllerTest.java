@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.common;
 
+import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.db.user.entity.User;
 import groovy.util.logging.Slf4j;
@@ -12,16 +13,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Slf4j
 public abstract class ControllerTest extends AbstractTest {
     @Autowired
     protected JwtUtil jwtUtil;
 
     @Value("${api.prefix}")
     protected String prefixUrl;
+
+    @MockitoBean
+    protected AppDataS3Client appDataS3Client;
 
     @LocalServerPort
     private int port;
