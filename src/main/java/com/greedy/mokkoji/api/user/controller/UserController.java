@@ -2,6 +2,7 @@ package com.greedy.mokkoji.api.user.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
+import com.greedy.mokkoji.api.jwt.BearerAuthExtractor;
 import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
@@ -9,10 +10,8 @@ import com.greedy.mokkoji.api.user.dto.resopnse.RefreshResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserInformationResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
-import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.db.user.entity.User;
-import com.greedy.mokkoji.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("${api.prefix}/users")
 public class UserController {
 
+    private final BearerAuthExtractor bearerAuthExtractor;
     private final UserService userService;
     private final TokenService tokenService;
 
@@ -35,16 +35,15 @@ public class UserController {
     }
 
     @PostMapping("/auth/refresh")
-    public ResponseEntity<APISuccessResponse<RefreshResponse>> refresh(@RequestHeader("Authorization") String refreshToken) {
-        if (refreshToken == null || refreshToken.isEmpty()) {
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
-
-        refreshToken = refreshToken.replace("Bearer ", "");
+    public ResponseEntity<APISuccessResponse<RefreshResponse>> refresh(
+            @RequestHeader("Authorization") String bearerToken
+    ) {
+        final String refreshToken = bearerAuthExtractor.extractTokenValue(bearerToken);
 
         final String newAccessToken = userService.refreshAccessToken(refreshToken);
 
         RefreshResponse refreshResponse = RefreshResponse.of(newAccessToken);
+
         return APISuccessResponse.of(HttpStatus.OK, refreshResponse);
     }
 
@@ -55,7 +54,7 @@ public class UserController {
     ) {
         final Long userId = authCredential.userId();
 
-        tokenService.deleteRefreshToken(userId);
+        userService.logOut(userId);
 
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
@@ -72,7 +71,8 @@ public class UserController {
     @PutMapping
     public ResponseEntity<APISuccessResponse<Void>> updateUserInformation(
             @Authentication AuthCredential authCredential,
-            @RequestBody UpdateUserInformationRequest updateUserInformationRequest) {
+            @RequestBody UpdateUserInformationRequest updateUserInformationRequest
+    ) {
         final Long userId = authCredential.userId();
         userService.updateEmail(userId, updateUserInformationRequest.email());
 

@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.user;
+package com.greedy.mokkoji.user.service;
 
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
