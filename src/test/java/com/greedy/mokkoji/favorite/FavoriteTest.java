@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.favorite;
 
 import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
+import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.favorite.service.FavoriteService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -53,6 +54,9 @@ public class FavoriteTest {
 
     @Mock
     RecruitmentRepository recruitmentRepository;
+
+    @Mock
+    private AppDataS3Client appDataS3Client;
 
     @Test
     @DisplayName("동아리를 즐겨찾기할 수 있다.")
@@ -227,6 +231,7 @@ public class FavoriteTest {
 
         BDDMockito.given(favoriteRepository.findByUserId(any())).willReturn(favorites);
         BDDMockito.given(recruitmentRepository.findByClubId(any())).willReturn(recruitment);
+        BDDMockito.given(appDataS3Client.getPresignedUrl(any())).willReturn("testLogo1");
 
         //when
         final List<ClubResponse> favoriteClubs = favoriteService.findFavoriteClubs(user.getId());
@@ -239,7 +244,7 @@ public class FavoriteTest {
         assertThat(favoriteClubs.get(0).description()).isEqualTo("동아리 설명");
         assertThat(favoriteClubs.get(0).recruitStartDate()).isEqualTo("2025-02-01");
         assertThat(favoriteClubs.get(0).recruitEndDate()).isEqualTo("2025-03-30");
-        assertThat(favoriteClubs.get(0).imageURL()).isEqualTo("동아리 로고");
+        assertThat(favoriteClubs.get(0).imageURL()).isEqualTo("testLogo1");
         assertThat(favoriteClubs.get(0).isFavorite()).isEqualTo(true);
 
         BDDMockito.verify(favoriteRepository, times(1)).findByUserId(user.getId());
