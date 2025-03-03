@@ -12,6 +12,7 @@ import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.user.entity.User;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,14 +36,13 @@ ClubControllerTest extends ControllerTest {
     private Recruitment recruitment;
     private Favorite favorite;
 
-
     @BeforeEach
     @Transactional
     void setUp() {
+        favoriteRepository.deleteAll();
         userRepository.deleteAll();
         recruitmentRepository.deleteAll();
         clubRepository.deleteAll();
-        favoriteRepository.deleteAll();
         prepareData();
     }
 
