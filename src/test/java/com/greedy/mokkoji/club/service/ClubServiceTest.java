@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.club;
+package com.greedy.mokkoji.club.service;
 
 import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 
 @DisplayName("동아리 검색 및 필터링 서비스 테스트")
 @ExtendWith(MockitoExtension.class)
-class ClubSearchTest {
+class ClubServiceTest {
 
     @InjectMocks
     private ClubService clubService;
