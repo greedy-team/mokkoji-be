@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum ClubAffiliation {
 
     CENTRAL_CLUB("중앙동아리"),
-    DEPARTMENT_CLUB("가인준동아리");
+    DEPARTMENT_CLUB("기타동아리");
 
     private final String description;
 }
