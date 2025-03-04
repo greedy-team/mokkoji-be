@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.favorite;
+package com.greedy.mokkoji.favorite.servcie;
 
 import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.times;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("즐겨찾기 서비스 테스트")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-public class FavoriteTest {
+public class FavoriteServiceTest {
 
     @InjectMocks
     FavoriteService favoriteService;
