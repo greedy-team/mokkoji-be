@@ -22,6 +22,7 @@ jobs:
 
       - name: application.yml 생성
         run: |
+          pwd
           mkdir -p ./mokkoji-be/src/main/resources
           cd ./mokkoji-be/src/main/resources
           touch ./application.yml
@@ -38,6 +39,7 @@ jobs:
 
       - name: application.yml 존재 여부 확인
         run: |
+          ls -al ./mokkoji-be/src/main/java/com/greedy/mokkoji
           ls -al ./mokkoji-be/src/main/resources
         working-directory: ${{ env.working-directory }}
 
