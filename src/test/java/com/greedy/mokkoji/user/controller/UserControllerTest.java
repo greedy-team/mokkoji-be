@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 public class UserControllerTest extends ControllerTest {
 
@@ -50,9 +52,16 @@ public class UserControllerTest extends ControllerTest {
     @DisplayName("로그인 성공 테스트")
     void loginSuccessful() {
         //given
-        Map<String, String> params = new HashMap<>();
+        final Map<String, String> params = new HashMap<>();
         params.put("studentId", studentId);
         params.put("password", password);
+
+        final String accessToken = jwtUtil.generateAccessToken(user.getId());
+        final String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+        when(tokenService.generateToken(any())).
+                thenReturn(LoginResponse.of(accessToken, refreshToken));
+
+        final LoginResponse expected = LoginResponse.of(accessToken, refreshToken);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
@@ -62,11 +71,11 @@ public class UserControllerTest extends ControllerTest {
                 .then().log().all()
                 .statusCode(200)
                 .extract();
+
         final LoginResponse actual = getDataFromResponse(response, LoginResponse.class);
 
         //then
-        assertThat(actual.accessToken()).isNotBlank();
-        assertThat(actual.refreshToken()).isNotBlank();
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
