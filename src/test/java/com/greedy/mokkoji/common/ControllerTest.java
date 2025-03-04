@@ -36,6 +36,11 @@ public abstract class ControllerTest extends AbstractTest {
         return "Bearer " + accessToken;
     }
 
+    protected String authorizationForBearerRefresh(final User user) {
+        final String accessToken = jwtUtil.generateAccessToken(user.getId());
+        return "Bearer " + accessToken;
+    }
+
     protected <T> T getDataFromResponse(ExtractableResponse<Response> response, Class<T> clazz) {
         return response.jsonPath().getObject("data", clazz);
     }

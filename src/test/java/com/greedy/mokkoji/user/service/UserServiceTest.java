@@ -71,7 +71,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void 처음_로그인_시_새로운_User로_등록된다() {
+    @DisplayName("처음 로그인 시 새로운 User로 등록된다.")
+    void SaveUserWhenFirstLogin() {
         // given
         String studentId = "학번";
         String password = "비밀번호";
@@ -96,7 +97,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void 이미_등록된_사용자가_로그인하면_기존_User_객체가_반환된다() {
+    @DisplayName("이미 등록된 사용자가 로그인하면 기존 User객체가 반환된다.")
+    void ReturnUserWhenNotFirstLogin() {
         // given
         String studentId = "학번";
         String password = "비밀번호";
@@ -119,7 +121,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void access토큰을_재발급_받을_수_있다() {
+    @DisplayName("access토큰을 재발급 받을 수 있다.")
+    void refreshAccessToken() {
         // given
         Long userId = 1L;
         String refreshToken = "refreshToken";
@@ -137,7 +140,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void access토큰_재발급_시_잘못된_refresh토큰이면_예외가_발생한다() {
+    @DisplayName("access토큰 재발급 시 잘못된 refresh토큰이면 예외가 발생한다.")
+    void wrongRefreshTokenWhenRefreshAccessToken() {
         // given
         Long userId = 1L;
         String invalidRefreshToken = "invalidRefreshToken";
@@ -152,7 +156,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void User정보를_업데이트_할_수_있다() {
+    @DisplayName("User정보를 업데이트 할 수 있다.")
+    void UpdateUser() {
         // given
         final User user = User.builder()
                 .name("세종")
