@@ -2,6 +2,7 @@ package com.greedy.mokkoji.common;
 
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
+import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.db.user.entity.User;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -25,6 +26,9 @@ public abstract class ControllerTest extends AbstractTest {
 
     @MockitoBean
     protected AppDataS3Client appDataS3Client;
+
+    @MockitoBean
+    protected TokenService tokenService;
 
     @LocalServerPort
     private int port;
