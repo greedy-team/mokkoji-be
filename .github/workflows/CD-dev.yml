@@ -26,6 +26,8 @@ jobs:
           cd ./mokkoji-be/src/main/resources
           touch ./application.yml
           echo "${{ secrets.CD_APPLICATION_DEV }}" > ./application.yml
+          pwd
+          ls
         working-directory: ${{ env.working-directory }}
 
       - name: application.yml 확인
