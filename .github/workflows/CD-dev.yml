@@ -58,7 +58,7 @@ jobs:
           username: ubuntu
           host: ${{ secrets.SERVER_IP  }}
           key: ${{ secrets.SERVER_KEY }}
-          source: "Docker-Compose-dev.yml"
+          source: "docker-compose.yml"
           target: "~"
 
   cd:
