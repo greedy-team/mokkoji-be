@@ -45,7 +45,7 @@ jobs:
           password: ${{ secrets.DOCKER_ACCESSTOKEN }}
 
       - name: 도커 이미지 빌드 및 푸시
-        uses: docker/build-push-actions@v4
+        uses: docker/build-push-action@v4
         with:
           context: .
           file: ./Dockerfile-dev
