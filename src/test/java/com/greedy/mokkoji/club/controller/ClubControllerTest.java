@@ -12,7 +12,6 @@ import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.user.entity.User;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,9 +26,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class
-
-ClubControllerTest extends ControllerTest {
+public class ClubControllerTest extends ControllerTest {
 
     private User user;
     private Club club;
