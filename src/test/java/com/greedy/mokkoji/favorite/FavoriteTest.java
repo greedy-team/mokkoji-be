@@ -239,7 +239,7 @@ public class FavoriteTest {
         //then
         assertThat(favoriteClubs.size()).isEqualTo(1);
         assertThat(favoriteClubs.get(0).name()).isEqualTo("동아리 이름");
-        assertThat(favoriteClubs.get(0).category()).isEqualTo("문화/예술");
+        assertThat(favoriteClubs.get(0).category()).isEqualTo("공연");
         assertThat(favoriteClubs.get(0).affiliation()).isEqualTo("중앙동아리");
         assertThat(favoriteClubs.get(0).description()).isEqualTo("동아리 설명");
         assertThat(favoriteClubs.get(0).recruitStartDate()).isEqualTo("2025-02-01");
