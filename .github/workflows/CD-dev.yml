@@ -28,6 +28,11 @@ jobs:
           echo "${{ secrets.CD_APPLICATION_DEV }}" > ./application.yml
         working-directory: ${{ env.working-directory }}
 
+      - name: application.yml 확인
+        run: |
+          cat ./mokkoji-be/src/main/resources/application.yml
+        working-directory: ${{ env.working-directory }}
+
       - name: 빌드
         run: |
           chmod +x gradlew
