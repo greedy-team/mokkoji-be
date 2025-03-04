@@ -90,8 +90,8 @@ jacoco {
 
 // 테스트 실행 후 자동으로 코드 커버리지 보고서를 생성하려면 다음과 같이 설정할 수 있습니다.
 test {
-    // test 실행 후 보고서 생성
-    finalizedBy(jacocoTestReport)
+    // test 실행 후 무조건 보고서 생성
+    // finalizedBy(jacocoTestReport)
 }
 
 jacocoTestReport {
@@ -105,6 +105,9 @@ jacocoTestReport {
         csv.required = false
         html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
     }
+
+    // jacocoTestReport후 실행
+    //finalizedBy(jacocoTestCoverageVerification)
 }
 
 
@@ -122,14 +125,19 @@ jacocoTestCoverageVerification {
     }
 }
 
-task testCoverage(type: Test) {
+// test, jacocoTestReport jacocoTestCoverageVerification를 함께 진행하려고 만듬
+// testCoverage라는 새로운 Gradle 태스크를 정의
+task testCoverage(type: Test /*type: Test를 지정하여 이 태스크가 Test 타입의 태스크임*/) {
+    // 태스크를 verification 그룹에 포함시킴. (verification은 테스트 및 검증 관련 태스크들이 모이는 그룹임)
     group 'verification'
     description 'Runs the tests with coverage'
 
+    // testCoverage 태스크를 실행하면 :test, :jacocoTestReport, :jacocoTestCoverageVerification 태스크도 실행됨.
     dependsOn(':test',
             ':jacocoTestReport',
             ':jacocoTestCoverageVerification')
 
+    // 실행 순서 지정
     tasks['jacocoTestReport'].mustRunAfter(tasks['test'])
     tasks['jacocoTestCoverageVerification'].mustRunAfter(tasks['jacocoTestReport'])
 }
