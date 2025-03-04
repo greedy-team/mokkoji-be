@@ -108,16 +108,28 @@ jacocoTestReport {
 }
 
 
-//jacocoTestCoverageVerification {
-//    violationRules {
-//        rule {
-//            element = 'CLASS'
-//
-//            limit {
-//                counter = 'BRANCH'
-//                value = 'COVEREDRATIO'
-//                minimum = 0.90
-//            }
-//        }
-//    }
-//}
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+task testCoverage(type: Test) {
+    group 'verification'
+    description 'Runs the tests with coverage'
+
+    dependsOn(':test',
+            ':jacocoTestReport',
+            ':jacocoTestCoverageVerification')
+
+    tasks['jacocoTestReport'].mustRunAfter(tasks['test'])
+    tasks['jacocoTestCoverageVerification'].mustRunAfter(tasks['jacocoTestReport'])
+}
