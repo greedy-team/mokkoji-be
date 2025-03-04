@@ -36,6 +36,11 @@ jobs:
           cat ./mokkoji-be/src/main/resources/application.yml
         working-directory: ${{ env.working-directory }}
 
+      - name: application.yml 존재 여부 확인
+        run: |
+          ls -al ./mokkoji-be/src/main/resources
+        working-directory: ${{ env.working-directory }}
+
       - name: 빌드
         run: |
           chmod +x gradlew
