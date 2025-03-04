@@ -20,17 +20,8 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-      - name: test용 application.yml 생성
-        run: |
-          mkdir -p ./mokkoji-be/src/test/resources
-          cd ./mokkoji-be/src/test/resources
-          touch ./application.yml
-          echo "${{ secrets.TEST_APPLICATION_DEV }}" > ./application.yml
-        working-directory: ${{ env.working-directory }}
-
       - name: application.yml 생성
         run: |
-          cd ~
           mkdir -p ./mokkoji-be/src/main/resources
           cd ./mokkoji-be/src/main/resources
           touch ./application.yml
