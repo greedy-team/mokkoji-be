@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.2'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.greedy'
@@ -80,3 +81,43 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+//JaCoCo 플러그인 설정
+jacoco {
+    toolVersion = '0.8.12'
+    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
+}
+
+// 테스트 실행 후 자동으로 코드 커버리지 보고서를 생성하려면 다음과 같이 설정할 수 있습니다.
+test {
+    // test 실행 후 보고서 생성
+    finalizedBy(jacocoTestReport)
+}
+
+jacocoTestReport {
+    // test가 실행된 후에만 보고서 생성
+    dependsOn(test)
+
+    // JaCoCo 보고서 구성
+    // XML 및 CSV 보고서는 생성되지 않고, HTML 보고서는 jacocoHtml 디렉터리에 저장
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+    }
+}
+
+
+//jacocoTestCoverageVerification {
+//    violationRules {
+//        rule {
+//            element = 'CLASS'
+//
+//            limit {
+//                counter = 'BRANCH'
+//                value = 'COVEREDRATIO'
+//                minimum = 0.90
+//            }
+//        }
+//    }
+//}
