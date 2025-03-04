@@ -36,7 +36,8 @@ public class TokenServiceTest {
     ValueOperations<String, String> valueOperations;
 
     @Test
-    void Login시_토큰을_발급_받을_수_있다() {
+    @DisplayName("로그인 시 토큰을 발급 받을 수 있다")
+    void generateToken() {
         // given
         final User expected = User.builder()
                 .name("세종")
@@ -60,7 +61,7 @@ public class TokenServiceTest {
     }
 
     @Test
-    void Logout시_refresh토큰을_없앨_수_있다() {
+    void deleteRefreshTokenWhenLogout() {
         // given
         final User user = User.builder()
                 .name("세종")
