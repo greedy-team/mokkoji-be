@@ -24,8 +24,8 @@ jobs:
         run: |
           pwd
           ls -al
-          mkdir -p ./mokkoji-be/src/main/resources
-          cd ./mokkoji-be/src/main/resources
+          mkdir -p ./src/main/resources
+          cd ./src/main/resources
           touch ./application.yml
           echo "${{ secrets.CD_APPLICATION_DEV }}" > ./application.yml
           pwd
@@ -35,13 +35,12 @@ jobs:
       - name: application.yml 확인
         run: |
           set -x
-          cat ./mokkoji-be/src/main/resources/application.yml
+          cat ./src/main/resources/application.yml
         working-directory: ${{ env.working-directory }}
 
       - name: application.yml 존재 여부 확인
         run: |
-          ls -al ./mokkoji-be/src/main/java/com/greedy/mokkoji
-          ls -al ./mokkoji-be/src/main/resources
+          ls -al ./src/main/resources
         working-directory: ${{ env.working-directory }}
 
       - name: 빌드
