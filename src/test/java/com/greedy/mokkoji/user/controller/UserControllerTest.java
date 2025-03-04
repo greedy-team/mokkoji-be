@@ -45,7 +45,8 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    void 로그인_성공_테스트() {
+    @DisplayName("로그인 성공 테스트")
+    void loginSuccessful() {
         //given
         Map<String, String> params = new HashMap<>();
         params.put("studentId", studentId);
@@ -67,7 +68,8 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    void 로그인_실패_테스트() {
+    @DisplayName("로그인 실패 테스트")
+    void loginFailed() {
         //given
         Map<String, String> params = new HashMap<>();
         params.put("studentId", "12345678");
@@ -84,7 +86,8 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    void 로그인_후_리프레시_토큰_성공_테스트() {
+    @DisplayName("액세스 토큰 재발급 테스트")
+    void refreshAccessToken() {
         // given
         // 1. 로그인하여 refreshToken 획득
         Map<String, String> loginParams = new HashMap<>();
@@ -118,7 +121,8 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    void 로그아웃_성공_테스트() {
+    @DisplayName("로그아웃 성공 테스트")
+    void logout() {
         // given
         // 1. 로그인하여 refreshToken 획득
         Map<String, String> loginParams = new HashMap<>();
