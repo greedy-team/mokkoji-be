@@ -30,6 +30,7 @@ jobs:
 
       - name: application.yml 확인
         run: |
+          echo "${{ secrets.CD_APPLICATION_DEV }}" | base64 --decode
           cat ./mokkoji-be/src/main/resources/application.yml
         working-directory: ${{ env.working-directory }}
 
