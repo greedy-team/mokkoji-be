@@ -38,14 +38,14 @@ public abstract class ControllerTest extends AbstractTest {
         RestAssured.port = port;
     }
 
-    protected String authorizationForBearer(final User user) {
+    protected String authorizationForBearerAccessToken(final User user) {
         final String accessToken = jwtUtil.generateAccessToken(user.getId());
         return "Bearer " + accessToken;
     }
 
-    protected String authorizationForBearerRefresh(final User user) {
-        final String accessToken = jwtUtil.generateAccessToken(user.getId());
-        return "Bearer " + accessToken;
+    protected String authorizationForBearerRefreshToken(final User user) {
+        final String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+        return "Bearer " + refreshToken;
     }
 
     protected <T> T getDataFromResponse(ExtractableResponse<Response> response, Class<T> clazz) {

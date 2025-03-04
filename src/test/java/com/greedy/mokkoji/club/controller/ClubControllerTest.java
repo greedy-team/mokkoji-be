@@ -54,7 +54,7 @@ public class ClubControllerTest extends ControllerTest {
     @DisplayName("동아리 상세 정보 조회를 할 수 있다.")
     void getClub() {
         //given
-        String authorizationForBearer = authorizationForBearer(user);
+        String authorizationForBearer = authorizationForBearerAccessToken(user);
         when(appDataS3Client.getPresignedUrl(any())).thenReturn("그리디 로고");
 
         //when
@@ -90,7 +90,7 @@ public class ClubControllerTest extends ControllerTest {
     @DisplayName("동아리 전체 정보를 조회할 수 있다.")
     void getClubs() {
         //given
-        String authorizationForBearer = authorizationForBearer(user);
+        String authorizationForBearer = authorizationForBearerAccessToken(user);
 
         final List<ClubResponse> clubResponses = List.of(ClubResponse.of(
                 club.getId(),
