@@ -129,7 +129,7 @@ class ClubServiceTest {
         assertThat(response.clubs().get(0).isFavorite()).isEqualTo(true);
 
         assertThat(response.clubs().get(1).name()).isEqualTo("testClub2");
-        assertThat(response.clubs().get(1).category()).isEqualTo("문화/예술");
+        assertThat(response.clubs().get(1).category()).isEqualTo("공연");
         assertThat(response.clubs().get(1).affiliation()).isEqualTo("가인준동아리");
         assertThat(response.clubs().get(1).description()).isEqualTo("testDescription2");
         assertThat(response.clubs().get(1).recruitStartDate()).isEqualTo("2025-01-01");
