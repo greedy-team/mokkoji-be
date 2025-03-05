@@ -22,25 +22,10 @@ jobs:
 
       - name: application.yml 생성
         run: |
-          pwd
-          ls -al
           mkdir -p ./src/main/resources
           cd ./src/main/resources
           touch ./application.yml
           echo "${{ secrets.CD_APPLICATION_DEV }}" > ./application.yml
-          pwd
-          ls
-        working-directory: ${{ env.working-directory }}
-
-      - name: application.yml 확인
-        run: |
-          set -x
-          cat ./src/main/resources/application.yml
-        working-directory: ${{ env.working-directory }}
-
-      - name: application.yml 존재 여부 확인
-        run: |
-          ls -al ./src/main/resources
         working-directory: ${{ env.working-directory }}
 
       - name: 빌드
