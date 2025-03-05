@@ -24,6 +24,8 @@ public class NotificationService {
                 .map(favorite -> favorite.getUser().getEmail())
                 .toList();
 
-        notificationChannel.sendNotification(userEmail, club.getName(), recruitment.getRecruitStart(), recruitment.getRecruitEnd());
+        notificationChannel.sendNotification(
+                userEmail, club.getId(), club.getName(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()
+        );
     }
 }

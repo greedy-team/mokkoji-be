@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -26,17 +27,35 @@ public class EmailNotificationChannel implements NotificationChannel {
     @Value("${spring.mail.username}")
     private String senderMail;
 
-    private String generateText(
+    private String generateHtmlText(
+            final Long clubId,
             final String clubName,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd
     ) {
-        return "모꼬지를 서비스에서 즐겨찾기 해주신 " + clubName + "이 동아리 모집을 시작했습니다!\n"
-                + "모집 기간은" + recruitStart + "부터 " + recruitEnd + "까지 입니다!.";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+
+        return "<!DOCTYPE html>" +
+                "<html>" +
+                "<head>" +
+                "<meta charset='UTF-8'>" +
+                "<title>동아리 모집 안내</title>" +
+                "</head>" +
+                "<body style='font-family: Arial, sans-serif; margin: 20px;'>" +
+                "<h2 style='color: #2E86C1;'>🎉 " + clubName + " 모집 시작! 🎉</h2>" +
+                "<p>안녕하세요!</p>" +
+                "<p>모꼬지에서 즐겨찾기하신 <strong>" + clubName + "</strong> 동아리가 신규 회원을 모집합니다.</p>" +
+                "<p>📅 <strong>모집 기간:</strong> " + recruitStart.format(formatter) + " ~ " + recruitEnd.format(formatter) + "</p>" +
+                "<p>지금 바로 지원하여 기회를 놓치지 마세요!</p>" +
+                "<a href='https://mokkoji.vercel.app/clubs/" + clubId + "' style='display: inline-block; padding: 10px 20px; margin-top: 20px; font-size: 16px; color: white; background-color: #2E86C1; text-decoration: none; border-radius: 5px;'>신청하러 가기</a>" +
+                "<p>감사합니다!<br>모꼬지 팀 드림</p>" +
+                "</body>" +
+                "</html>";
     }
 
     private MimeMessage generateNotification(
             final List<String> receiverMails,
+            final Long clubId,
             final String clubName,
             final LocalDateTime recruitStartTime,
             final LocalDateTime recruitEndTime
@@ -52,8 +71,8 @@ public class EmailNotificationChannel implements NotificationChannel {
 
             helper.setSubject(SUBJECT);
 
-            final String text = generateText(clubName, recruitStartTime, recruitEndTime);
-            helper.setText(text);
+            final String text = generateHtmlText(clubId, clubName, recruitStartTime, recruitEndTime);
+            helper.setText(text, true);
 
             return mimeMessage;
         } catch (MessagingException e) {
@@ -68,12 +87,13 @@ public class EmailNotificationChannel implements NotificationChannel {
     @Override
     public void sendNotification(
             final List<String> receiverMails,
+            final Long clubId,
             final String clubName,
             final LocalDateTime recruitStartTime,
             final LocalDateTime recruitEndTime
     ) {
         try {
-            final MimeMessage mimeMessage = generateNotification(receiverMails, clubName, recruitStartTime, recruitEndTime);
+            final MimeMessage mimeMessage = generateNotification(receiverMails, clubId, clubName, recruitStartTime, recruitEndTime);
 
             mailSender.send(mimeMessage);
         } catch (MailException e) {
