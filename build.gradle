@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.2'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.greedy'
@@ -79,4 +80,84 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+//JaCoCo 플러그인 설정
+jacoco {
+    toolVersion = '0.8.12'
+    reportsDirectory = layout.buildDirectory.dir("reports/jacoco")
+}
+
+// 테스트 실행 후 자동으로 코드 커버리지 보고서를 생성하려면 다음과 같이 설정할 수 있습니다.
+test {
+    // test 실행 후 무조건 보고서 생성
+    // finalizedBy(jacocoTestReport)
+}
+
+jacocoTestReport {
+    // test가 실행된 후에만 보고서 생성
+    dependsOn(test)
+
+    // JaCoCo 보고서 구성
+    // XML 및 CSV 보고서는 생성되지 않고, HTML 보고서는 jacocoHtml 디렉터리에 저장
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+    }
+
+    def Qdomains = []
+    for(qPattern in "**/QA" .. "**/QZ"){
+        Qdomains.add(qPattern+"*")
+    }
+
+    afterEvaluate {
+
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: [] + Qdomains)
+        }))
+    }
+
+    // jacocoTestReport후 실행
+    //finalizedBy(jacocoTestCoverageVerification)
+}
+
+
+jacocoTestCoverageVerification {
+    def Qdomains = []
+    for (qPattern in "*.QA".."*.QZ") {  // qPattern = "*.QA","*.QB","*.QC", ... "*.QZ"
+        Qdomains.add(qPattern + "*")
+    }
+
+    violationRules {
+        rule {
+            element = 'CLASS'
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.60
+            }
+
+            excludes = [] + Qdomains
+        }
+    }
+}
+
+// test, jacocoTestReport jacocoTestCoverageVerification를 함께 진행하려고 만듬
+// testCoverage라는 새로운 Gradle 태스크를 정의
+task testCoverage(type: Test /*type: Test를 지정하여 이 태스크가 Test 타입의 태스크임*/) {
+    // 태스크를 verification 그룹에 포함시킴. (verification은 테스트 및 검증 관련 태스크들이 모이는 그룹임)
+    group 'verification'
+    description 'Runs the tests with coverage'
+
+    // testCoverage 태스크를 실행하면 :test, :jacocoTestReport, :jacocoTestCoverageVerification 태스크도 실행됨.
+    dependsOn(':test',
+            ':jacocoTestReport',
+            ':jacocoTestCoverageVerification')
+
+    // 실행 순서 지정
+    tasks['jacocoTestReport'].mustRunAfter(tasks['test'])
+    tasks['jacocoTestCoverageVerification'].mustRunAfter(tasks['jacocoTestReport'])
 }

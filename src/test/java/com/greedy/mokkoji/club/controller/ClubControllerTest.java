@@ -12,7 +12,6 @@ import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.user.entity.User;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,9 +26,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class
-
-ClubControllerTest extends ControllerTest {
+public class ClubControllerTest extends ControllerTest {
 
     private User user;
     private Club club;
@@ -57,7 +54,7 @@ ClubControllerTest extends ControllerTest {
     @DisplayName("동아리 상세 정보 조회를 할 수 있다.")
     void getClub() {
         //given
-        String authorizationForBearer = authorizationForBearer(user);
+        String authorizationForBearer = authorizationForBearerAccessToken(user);
         when(appDataS3Client.getPresignedUrl(any())).thenReturn("그리디 로고");
 
         //when
@@ -93,7 +90,7 @@ ClubControllerTest extends ControllerTest {
     @DisplayName("동아리 전체 정보를 조회할 수 있다.")
     void getClubs() {
         //given
-        String authorizationForBearer = authorizationForBearer(user);
+        String authorizationForBearer = authorizationForBearerAccessToken(user);
 
         final List<ClubResponse> clubResponses = List.of(ClubResponse.of(
                 club.getId(),
