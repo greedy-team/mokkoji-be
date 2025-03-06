@@ -6,6 +6,7 @@ import java.util.List;
 public interface NotificationChannel {
     void sendNotification(
             List<String> receiverMails,
+            Long clubId,
             String clubName,
             LocalDateTime recruitStartTime,
             LocalDateTime recruitEndTime

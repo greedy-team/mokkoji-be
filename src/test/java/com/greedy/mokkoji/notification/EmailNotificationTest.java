@@ -39,6 +39,7 @@ public class EmailNotificationTest {
     void sendNotificationTest() {
         // given
         final List<String> receiverMails = List.of("test@test.com");
+        final Long clubId = 1L;
         final String clubName = "테스트";
         final LocalDateTime recruitStart = LocalDateTime.now();
         final LocalDateTime recruitEnd = LocalDateTime.now().plusDays(7);
@@ -48,7 +49,7 @@ public class EmailNotificationTest {
         BDDMockito.doNothing().when(mailSender).send(any(MimeMessage.class));
 
         // when
-        emailNotificationChannel.sendNotification(receiverMails, clubName, recruitStart, recruitEnd);
+        emailNotificationChannel.sendNotification(receiverMails, clubId, clubName, recruitStart, recruitEnd);
 
         // then
         BDDMockito.verify(mailSender, times(1)).send(any(MimeMessage.class));

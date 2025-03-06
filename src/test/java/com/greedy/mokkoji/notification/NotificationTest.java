@@ -89,7 +89,7 @@ public class NotificationTest {
                 .willReturn(List.of(favorite1, favorite2));
 
         BDDMockito.doNothing().when(notificationChannel)
-                .sendNotification(any(), any(), any(), any());
+                .sendNotification(any(), any(), any(), any(), any());
 
         // when
         notificationService.sendNotification(club, recruitment);
@@ -99,7 +99,7 @@ public class NotificationTest {
                 .findByClubIdWithFetchJoin(any());
 
         BDDMockito.verify(notificationChannel, times(1))
-                .sendNotification(any(), any(), any(), any());
+                .sendNotification(any(), any(), any(), any(), any());
 
     }
 }
