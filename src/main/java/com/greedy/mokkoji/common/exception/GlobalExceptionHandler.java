@@ -1,10 +1,9 @@
-package com.greedy.mokkoji.common.handler;
+package com.greedy.mokkoji.common.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.common.response.APIErrorResponse;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.servlet.http.HttpServletRequest;
