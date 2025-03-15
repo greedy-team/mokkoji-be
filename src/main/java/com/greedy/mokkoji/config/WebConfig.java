@@ -4,6 +4,7 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.UserAuthArgumentR
 import com.greedy.mokkoji.common.handler.JwtAuthInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -21,10 +22,12 @@ public class WebConfig implements WebMvcConfigurer {
     private final UserAuthArgumentResolver userAuthArgumentResolver;
     @Value("${api.prefix}")
     private String prefixUrl;
+    @Value("${cors.allowedOrigins}")
+    private String[] allowedOrigins;
 
     public WebConfig(
-            JwtAuthInterceptor jwtAuthInterceptor,
-            UserAuthArgumentResolver userAuthArgumentResolver
+            final JwtAuthInterceptor jwtAuthInterceptor,
+            final UserAuthArgumentResolver userAuthArgumentResolver
     ) {
         this.jwtAuthInterceptor = jwtAuthInterceptor;
         this.userAuthArgumentResolver = userAuthArgumentResolver;
@@ -32,7 +35,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        List<String> excludedFullPaths = excludedPaths.stream().map(path -> prefixUrl + path).toList();
+        final List<String> excludedFullPaths = excludedPaths.stream()
+                .map(path -> prefixUrl + path)
+                .toList();
 
         registry.addInterceptor(jwtAuthInterceptor)
                 .addPathPatterns("/**")
@@ -47,8 +52,15 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173", "https://mokkoji.vercel.app")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowedOrigins(allowedOrigins)
+                .allowedMethods(
+                        HttpMethod.OPTIONS.name(),
+                        HttpMethod.GET.name(),
+                        HttpMethod.POST.name(),
+                        HttpMethod.PUT.name(),
+                        HttpMethod.DELETE.name(),
+                        HttpMethod.PATCH.name()
+                )
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);
