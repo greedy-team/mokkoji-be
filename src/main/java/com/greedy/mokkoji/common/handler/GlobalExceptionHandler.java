@@ -1,9 +1,13 @@
 package com.greedy.mokkoji.common.handler;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.common.response.APIErrorResponse;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -12,21 +16,22 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MokkojiException.class)
-    public ResponseEntity<APIErrorResponse> handleMokkojiException(final MokkojiException exception) {
+    public ResponseEntity<APIErrorResponse> handleMokkojiException(final HttpServletRequest request, final MokkojiException exception) {
 
         final FailMessage failMessage = exception.getFailMessage();
+
+        log.info("잘못된 요청이 들어왔습니다. URI: {}, 실패 메세지 {}", request.getRequestURI(), failMessage);
 
         return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.getCode(), failMessage.getMessage());
     }
@@ -47,6 +52,8 @@ public class GlobalExceptionHandler {
 
         final String customMessage = "누락된 파라미터 : " + exception.getParameterName();
         final FailMessage failMessage = FailMessage.BAD_REQUEST_MISSING_PARAM;
+
+        log.info("잘못된 요청이 들어왔습니다. 내용:  {}", customMessage);
 
         return APIErrorResponse.of(failMessage.getHttpStatus(), failMessage.getCode(), customMessage);
     }
@@ -120,7 +127,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<APIErrorResponse> handleGeneralException(final Exception exception) {
+    public ResponseEntity<APIErrorResponse> handleGeneralException(final HttpServletRequest request, final Exception exception) {
+
+        log.error("예상하지 못한 예외가 발생했습니다. URI: {}", request.getRequestURI(), exception);
 
         final FailMessage failMessage = FailMessage.INTERNAL_SERVER_ERROR;
 
