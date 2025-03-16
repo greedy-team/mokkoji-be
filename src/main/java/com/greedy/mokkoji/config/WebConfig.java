@@ -21,7 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final JwtAuthInterceptor jwtAuthInterceptor;
     private final UserAuthArgumentResolver userAuthArgumentResolver;
-    private final RequestLogInterceptor loggingInterceptor;
+    private final RequestLogInterceptor requestLogInterceptor;
     @Value("${api.prefix}")
     private String prefixUrl;
     @Value("${cors.allowedOrigins}")
@@ -29,12 +29,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     public WebConfig(
             final JwtAuthInterceptor jwtAuthInterceptor,
-            final RequestLogInterceptor loggingInterceptor,
+            final RequestLogInterceptor requestLogInterceptor,
             final UserAuthArgumentResolver userAuthArgumentResolver
     ) {
         this.jwtAuthInterceptor = jwtAuthInterceptor;
         this.userAuthArgumentResolver = userAuthArgumentResolver;
-        this.loggingInterceptor = loggingInterceptor;
+        this.requestLogInterceptor = requestLogInterceptor;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(excludedFullPaths);
 
-        registry.addInterceptor(loggingInterceptor);
+        registry.addInterceptor(requestLogInterceptor);
     }
 
     @Override
