@@ -8,7 +8,7 @@
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>info</level>
             <onMatch>ACCEPT</onMatch>
-            <onMismatch>NEUTRAL</onMismatch>
+            <onMismatch>DENY</onMismatch>
         </filter>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>warn</level>
