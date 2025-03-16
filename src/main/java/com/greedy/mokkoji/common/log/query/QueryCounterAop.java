@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.common.log;
+package com.greedy.mokkoji.common.log.query;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
