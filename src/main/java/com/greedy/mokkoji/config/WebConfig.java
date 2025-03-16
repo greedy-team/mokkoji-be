@@ -2,6 +2,7 @@ package com.greedy.mokkoji.config;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.UserAuthArgumentResolver;
 import com.greedy.mokkoji.common.handler.JwtAuthInterceptor;
+import com.greedy.mokkoji.common.handler.RequestLogInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,6 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final JwtAuthInterceptor jwtAuthInterceptor;
     private final UserAuthArgumentResolver userAuthArgumentResolver;
+    private final RequestLogInterceptor loggingInterceptor;
     @Value("${api.prefix}")
     private String prefixUrl;
     @Value("${cors.allowedOrigins}")
@@ -27,10 +29,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     public WebConfig(
             final JwtAuthInterceptor jwtAuthInterceptor,
+            final RequestLogInterceptor loggingInterceptor,
             final UserAuthArgumentResolver userAuthArgumentResolver
     ) {
         this.jwtAuthInterceptor = jwtAuthInterceptor;
         this.userAuthArgumentResolver = userAuthArgumentResolver;
+        this.loggingInterceptor = loggingInterceptor;
     }
 
     @Override
@@ -42,6 +46,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtAuthInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(excludedFullPaths);
+
+        registry.addInterceptor(loggingInterceptor);
     }
 
     @Override

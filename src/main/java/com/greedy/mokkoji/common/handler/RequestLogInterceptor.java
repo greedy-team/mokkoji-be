@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.common.handler;
 
-import com.greedy.mokkoji.common.log.QueryCounter;
+import com.greedy.mokkoji.common.log.query.QueryCounter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.common.log;
+package com.greedy.mokkoji.common.log.query;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.context.request.RequestContextHolder;
