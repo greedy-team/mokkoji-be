@@ -75,6 +75,9 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'io.rest-assured:rest-assured:5.1.1'
+
+    // 모니터링
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {
