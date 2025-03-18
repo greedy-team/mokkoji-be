@@ -23,7 +23,7 @@ services:
     image: mokkojiteam/mokkoji
     expose:
       - 8080
-      - -9292
+      - 9292
     ports:
       - "8082:8080"
       - "9292:9292"
