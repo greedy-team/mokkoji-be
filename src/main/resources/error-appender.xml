@@ -1,0 +1,19 @@
+<included>
+    <property name="fileLogPattern"
+              value="[%date{yyyy-MM-dd HH:mm:ss.SSS}] %clr(%-5level) %clr(%-40.40logger{36}){cyan} - %message %n"/>
+    <appender name="errorFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/home/ubuntu/logs/error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>warn</level>
+        </filter>
+        <encoder>
+            <charset>utf8</charset>
+            <pattern>${consoleLogPattern}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>error-history.log.%d{yyyy-MM-dd}.txt</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+</included>
