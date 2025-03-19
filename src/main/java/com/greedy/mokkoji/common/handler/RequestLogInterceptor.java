@@ -16,7 +16,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class RequestLogInterceptor implements HandlerInterceptor {
 
     private static final int QUERY_COUNT_WARNING_STANDARD = 10;
-    private static final int TOTAL_TIME_WARNING_STANDARD_MS = 2500;
+    private static final double TOTAL_TIME_WARNING_STANDARD_MS = 0.25;
     private static final double TIME_CONVERSION_MS_TO_SEC = 1000.0;
 
     private final QueryCounter queryCounter;
