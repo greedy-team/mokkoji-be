@@ -45,6 +45,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                         filterByRecruitStatus(status, now)
                 )
                 .orderBy(
+                        // TODO:: 정렬 방식: 페이지 마다 다른 시간을 넘겨주는 문제(원자성을 잃을 수 있기에) 이야기 해봐야됨
                         getRecruitmentPriority(now).asc(),
                         getRecruitmentDuration(now).asc(),
                         club.id.asc()
