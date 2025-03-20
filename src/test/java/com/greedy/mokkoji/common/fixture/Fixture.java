@@ -10,6 +10,8 @@ import com.greedy.mokkoji.enums.club.ClubCategory;
 import java.time.LocalDateTime;
 
 public class Fixture {
+    public static final String FIXTURE_CLUB_LOGO = "그리디_로고";
+
     public static User createUser() {
         return User.builder()
                 .name("모꼬지")
@@ -25,7 +27,7 @@ public class Fixture {
                 .name("그리디")
                 .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
                 .clubAffiliation(ClubAffiliation.DEPARTMENT_CLUB)
-                .logo("그리디 로고")
+                .logo(FIXTURE_CLUB_LOGO)
                 .description("세종대 최고의 코딩 동아리")
                 .instagram("www.그리디.com")
                 .build();
@@ -47,3 +49,4 @@ public class Fixture {
                 .build();
     }
 }
+
