@@ -34,17 +34,20 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                                 final RecruitStatus status,
                                 final Pageable pageable) {
 
+        final LocalDateTime now = LocalDateTime.now();
+
         final List<Club> clubs = queryFactory.selectFrom(club)
                 .leftJoin(recruitment).on(club.eq(recruitment.club))
                 .where(
                         likeClubName(keyword),
                         equalCategory(category),
                         equalAffiliation(affiliation),
-                        filterByRecruitStatus(status)
+                        filterByRecruitStatus(status, now)
                 )
                 .orderBy(
-                        getRecruitmentPriority().asc(),
-                        getRecruitmentDuration().asc()
+                        getRecruitmentPriority(now).asc(),
+                        getRecruitmentDuration(now).asc(),
+                        club.id.asc()
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -58,7 +61,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                                 likeClubName(keyword),
                                 equalCategory(category),
                                 equalAffiliation(affiliation),
-                                filterByRecruitStatus(status)
+                                filterByRecruitStatus(status, now)
                         )
                         .fetchOne()
         ).orElse(0L);
@@ -87,22 +90,21 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
         return null;
     }
 
-    private BooleanExpression filterByRecruitStatus(final RecruitStatus status) {
-        final LocalDateTime now = LocalDateTime.now();
+    private BooleanExpression filterByRecruitStatus(final RecruitStatus status, final LocalDateTime now) {
         if (status == OPEN) {
             return recruitment.recruitStart.loe(now).and(recruitment.recruitEnd.gt(now));
         }
         return null;
     }
 
-    private NumberExpression<Integer> getRecruitmentPriority() {
+    private NumberExpression<Integer> getRecruitmentPriority(final LocalDateTime now) {
         return new CaseBuilder()
-                .when(recruitment.recruitStart.loe(LocalDateTime.now()).and(recruitment.recruitEnd.gt(LocalDateTime.now())))
+                .when(recruitment.recruitStart.loe(now).and(recruitment.recruitEnd.gt(now)))
                 .then(0)
                 .otherwise(1);
     }
 
-    private NumberTemplate<Long> getRecruitmentDuration() {
-        return Expressions.numberTemplate(Long.class, "TIMESTAMPDIFF(DAY, {0}, {1})", LocalDateTime.now(), recruitment.recruitEnd);
+    private NumberTemplate<Long> getRecruitmentDuration(final LocalDateTime now) {
+        return Expressions.numberTemplate(Long.class, "TIMESTAMPDIFF(MINUTE, {0}, {1})", recruitment.recruitEnd, now);
     }
 }
