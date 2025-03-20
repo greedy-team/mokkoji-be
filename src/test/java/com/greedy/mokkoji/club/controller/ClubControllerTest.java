@@ -55,7 +55,7 @@ public class ClubControllerTest extends ControllerTest {
     void getClub() {
         //given
         String authorizationForBearer = authorizationForBearerAccessToken(user);
-        when(appDataS3Client.getPresignedUrl(any())).thenReturn("그리디 로고");
+        when(appDataS3Client.getPresignedUrl(any())).thenReturn(Fixture.FIXTURE_CLUB_LOGO);
 
         //when
         final ExtractableResponse<Response> response = given().log().all()
@@ -113,7 +113,7 @@ public class ClubControllerTest extends ControllerTest {
                 1
         );
 
-        when(appDataS3Client.getPresignedUrl(any())).thenReturn("그리디 로고");
+        when(appDataS3Client.getPresignedUrl(any())).thenReturn(Fixture.FIXTURE_CLUB_LOGO);
 
         final ExtractableResponse<Response> response = given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
