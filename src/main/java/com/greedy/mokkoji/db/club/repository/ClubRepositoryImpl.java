@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.db.club.repository;
 
-import com.greedy.mokkoji.db.club.entity.Club;
+import com.greedy.mokkoji.db.club.dto.ClubRecruitmentDto;
+import com.greedy.mokkoji.db.club.dto.QClubRecruitmentDto;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
@@ -28,7 +29,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Club> findClubs(final String keyword,
+    public Page<ClubRecruitmentDto> findClubs(final String keyword,
                                 final ClubCategory category,
                                 final ClubAffiliation affiliation,
                                 final RecruitStatus status,
@@ -36,7 +37,19 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
 
         final LocalDateTime now = LocalDateTime.now();
 
-        final List<Club> clubs = queryFactory.selectFrom(club)
+        final List<ClubRecruitmentDto> clubs = queryFactory.select(
+                new QClubRecruitmentDto(
+                        club.id,
+                        club.name,
+                        club.clubCategory,
+                        club.clubAffiliation,
+                        club.description,
+                        club.logo,
+                        club.instagram,
+                        recruitment.recruitStart,
+                        recruitment.recruitEnd
+                ))
+                .from(club)
                 .leftJoin(recruitment).on(club.eq(recruitment.club))
                 .where(
                         likeClubName(keyword),

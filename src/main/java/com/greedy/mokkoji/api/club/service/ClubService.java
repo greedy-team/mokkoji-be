@@ -6,6 +6,7 @@ import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.db.club.dto.ClubRecruitmentDto;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
@@ -52,7 +53,7 @@ public class ClubService {
                                                     final RecruitStatus status,
                                                     final Pageable pageable) {
 
-        final Page<Club> clubPage = clubRepository.findClubs(keyword, category, affiliation, status, pageable);
+        final Page<ClubRecruitmentDto> clubPage = clubRepository.findClubs(keyword, category, affiliation, status, pageable);
 
         final List<ClubResponse> clubResponses = mapToClubResponses(userId, clubPage.getContent());
         final PageResponse pageResponse = createPageResponse(clubPage);
@@ -83,25 +84,25 @@ public class ClubService {
         );
     }
 
-    private List<ClubResponse> mapToClubResponses(final Long userId, final List<Club> clubs) {
-        return clubs.stream()
-                .map(club -> {
-                    Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
-                    boolean isFavorite = getIsFavorite(userId, club.getId());
-                    return ClubResponse.of(club.getId(),
-                            club.getName(),
-                            club.getClubCategory().getDescription(),
-                            club.getClubAffiliation().getDescription(),
-                            club.getDescription(),
-                            recruitment.getRecruitStart(),
-                            recruitment.getRecruitEnd(),
-                            appDataS3Client.getPresignedUrl(club.getLogo()),
-                            isFavorite);
+    private List<ClubResponse> mapToClubResponses(final Long userId, final List<ClubRecruitmentDto> clubRecruitmentsDto) {
+        return clubRecruitmentsDto.stream()
+                .map(clubRecruitmentDto -> {
+                    boolean isFavorite = getIsFavorite(userId, clubRecruitmentDto.id());
+                    return ClubResponse.of(clubRecruitmentDto.id(),
+                            clubRecruitmentDto.name(),
+                            clubRecruitmentDto.clubCategory().getDescription(),
+                            clubRecruitmentDto.clubAffiliation().getDescription(),
+                            clubRecruitmentDto.description(),
+                            clubRecruitmentDto.recruitStart(),
+                            clubRecruitmentDto.recruitEnd(),
+                            appDataS3Client.getPresignedUrl(clubRecruitmentDto.logo()),
+                            isFavorite
+                    );
                 })
                 .collect(Collectors.toList());
     }
 
-    private PageResponse createPageResponse(final Page<Club> clubPage) {
+    private PageResponse createPageResponse(final Page<ClubRecruitmentDto> clubPage) {
         return PageResponse.of(
                 clubPage.getNumber() + 1,
                 clubPage.getSize(),
