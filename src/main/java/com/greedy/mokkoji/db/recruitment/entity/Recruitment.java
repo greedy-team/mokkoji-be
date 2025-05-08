@@ -22,7 +22,7 @@ public class Recruitment extends BaseTime {
     private Long id;
 
     @JoinColumn(name = "club_id", columnDefinition = "bigint", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Club club;
 
     @Column(name = "title", columnDefinition = "text")
