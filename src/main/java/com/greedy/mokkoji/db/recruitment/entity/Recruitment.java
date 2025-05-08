@@ -25,6 +25,9 @@ public class Recruitment extends BaseTime {
     @OneToOne(fetch = FetchType.LAZY)
     private Club club;
 
+    @Column(name = "title", columnDefinition = "text")
+    private String title;
+
     @Column(name = "content", columnDefinition = "text")
     private String content;
 
@@ -34,11 +37,16 @@ public class Recruitment extends BaseTime {
     @Column(name = "recruit_end", columnDefinition = "timestamp")
     private LocalDateTime recruitEnd;
 
+    @Column(name = "recruit_form", columnDefinition = "text")
+    private String recruitForm;
+
     @Builder
-    public Recruitment(Club club, String content, LocalDateTime recruitStart, LocalDateTime recruitEnd) {
+    public Recruitment(final Club club, final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm) {
         this.club = club;
+        this.title = title;
         this.content = content;
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
+        this.recruitForm = recruitForm;
     }
 }
