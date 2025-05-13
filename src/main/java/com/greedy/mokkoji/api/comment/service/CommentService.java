@@ -72,7 +72,7 @@ public class CommentService {
         return comment.getUser().getId().equals(userId);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void updateComment(final Long userId, final Long commentId, final Double rate, final String content) {
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
@@ -91,6 +91,27 @@ public class CommentService {
         }
 
         comment.updateComment(rate, content);
+    }
+
+    @Transactional
+    public void deleteComment(final Long userId, final Long commentId) {
+        if (userId == null) {
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        }
+
+        final Comment comment = commentRepository.findById(commentId).orElseThrow(
+                () -> new MokkojiException(FailMessage.NOT_FOUND_COMMENT)
+        );
+
+        final User user = userRepository.findById(userId).orElseThrow(
+                () -> new MokkojiException(FailMessage.NOT_FOUND_USER)
+        );
+
+        if (!user.equals(comment.getUser())) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_NOT_COMMENT_WRITER);
+        }
+
+        commentRepository.deleteById(commentId);
     }
 
 }
