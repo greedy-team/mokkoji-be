@@ -26,6 +26,10 @@ public class CommentService {
 
     @Transactional
     public void createComment(final Long userId, final Long clubId, final Double rate, final String content) {
+        if (userId == null) {
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        }
+
         final User user = userRepository.findById(userId).orElseThrow(
                 () -> new MokkojiException(FailMessage.NOT_FOUND_USER)
         );
@@ -72,6 +76,7 @@ public class CommentService {
         return comment.getUser().getId().equals(userId);
     }
 
+    //ToDo: 비슷한 로직이 많아 이를 리팩토링 할 예정
     @Transactional
     public void updateComment(final Long userId, final Long commentId, final Double rate, final String content) {
         if (userId == null) {
