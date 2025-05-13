@@ -23,8 +23,9 @@ public enum FailMessage {
 
     //403
     FORBIDDEN(HttpStatus.FORBIDDEN, 40300, "권한이 없습니다."),
-    FORBIDDEN_REGISTER_CLUB(HttpStatus.FORBIDDEN, 40301, "동아리를 등록할 수 있는 권한이 없습니다."),
-    FORBIDDEN_MANAGE_CLUB(HttpStatus.FORBIDDEN, 40302, "동아리를 관리할 수 있는 권한이 없습니다."),
+    FORBIDDEN_ALREADY_EXIST_COMMENT(HttpStatus.FORBIDDEN, 40301, "이미 댓글이 존재합니다."),
+    FORBIDDEN_REGISTER_CLUB(HttpStatus.FORBIDDEN, 40302, "동아리를 등록할 수 있는 권한이 없습니다."),
+    FORBIDDEN_MANAGE_CLUB(HttpStatus.FORBIDDEN, 40303, "동아리를 관리할 수 있는 권한이 없습니다."),
 
     //404
     NOT_FOUND(HttpStatus.NOT_FOUND, 40400, "리소스를 찾을 수 없습니다."),
