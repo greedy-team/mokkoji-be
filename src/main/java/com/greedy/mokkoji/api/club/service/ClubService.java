@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.api.club.service;
 
 import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.club.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
 import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
@@ -74,7 +75,7 @@ public class ClubService {
         User adminUser = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
-        if (!adminUser.getRole().name().equals("GREEDY_ADMIN")) {
+        if (!adminUser.getRole().equals(UserRole.GREEDY_ADMIN)) {
             throw new MokkojiException(FailMessage.FORBIDDEN_REGISTER_CLUB);
         }
 
@@ -93,6 +94,33 @@ public class ClubService {
                         .clubAffiliation(affiliation)
                         .clubMasterStudentId(validStudentId)
                         .build()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public ClubManageDetailResponse getClubManageDetail(final Long userId, final Long clubId) {
+        if (userId == null) {
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+
+        boolean isClubMaster = user.getRole().equals(UserRole.CLUB_MASTER);
+        boolean isOwnerOfThisClub = user.getStudentId().equals(club.getClubMasterStudentId());
+
+        if (!(isClubMaster && isOwnerOfThisClub)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_MODIFY_CLUB);
+        }
+
+        return ClubManageDetailResponse.of(
+                club.getName(),
+                club.getClubCategory().name(),
+                club.getClubAffiliation().name(),
+                club.getDescription(),
+                club.getLogo(),
+                club.getInstagram()
         );
     }
 
