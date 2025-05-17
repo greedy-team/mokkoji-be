@@ -23,6 +23,7 @@ public enum FailMessage {
 
     //403
     FORBIDDEN(HttpStatus.FORBIDDEN, 40300, "권한이 없습니다."),
+    FORBIDDEN_REGISTER_CLUB(HttpStatus.FORBIDDEN, 40300, "동아리를 등록할 수 있는 권한이 없습니다."),
     FORBIDDEN_ALREADY_EXIST_COMMENT(HttpStatus.FORBIDDEN, 40301, "이미 댓글이 존재합니다."),
     FORBIDDEN_NOT_COMMENT_WRITER(HttpStatus.FORBIDDEN, 40302, "댓글을 작성한 사용자가 아닙니다."),
     FORBIDDEN_REGISTER_CLUB(HttpStatus.FORBIDDEN, 40303, "동아리를 등록할 수 있는 권한이 없습니다."),
@@ -36,7 +37,6 @@ public enum FailMessage {
     NOT_FOUND_FAVORITE(HttpStatus.NOT_FOUND, 40404, "즐겨찾기 한 동아리를 찾을 수 없습니다."),
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, 40405, "댓글을 찾을 수 없습니다."),
     NOT_FOUNT_RECRUITMENT(HttpStatus.NOT_FOUND, 40406, "모집글을 찾을 수 없습니다."),
-
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 40500, "잘못된 HTTP 메소드 요청입니다."),
