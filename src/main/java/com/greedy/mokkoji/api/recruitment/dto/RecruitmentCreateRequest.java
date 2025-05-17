@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-public record RecruitmentRequest (
+public record RecruitmentCreateRequest(
         String title,
         List<String> images,
         String content,
