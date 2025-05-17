@@ -25,7 +25,7 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void createComment(final Long userId, final Long clubId, final Double rate, final String content) {
+    public void createComment(final Long userId, final Long clubId, final Integer rate, final String content) {
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
@@ -78,7 +78,7 @@ public class CommentService {
 
     //ToDo: 비슷한 로직이 많아 이를 리팩토링 할 예정
     @Transactional
-    public void updateComment(final Long userId, final Long commentId, final Double rate, final String content) {
+    public void updateComment(final Long userId, final Long commentId, final Integer rate, final String content) {
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
