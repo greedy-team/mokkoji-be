@@ -7,6 +7,7 @@ import com.greedy.mokkoji.api.comment.dto.request.CommentUpdateRequest;
 import com.greedy.mokkoji.api.comment.dto.response.CommentListResponse;
 import com.greedy.mokkoji.api.comment.service.CommentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class CommentController {
     @PostMapping("/{clubId}")
     public ResponseEntity<APISuccessResponse<Void>> createComment(
             @PathVariable(name = "clubId") final Long clubId,
-            @RequestBody final CommentCreateRequest commentCreateRequest,
+            @RequestBody @Valid final CommentCreateRequest commentCreateRequest,
             @Authentication final AuthCredential authCredential) {
         commentService.createComment(authCredential.userId(), clubId, commentCreateRequest.rate(), commentCreateRequest.content());
         return APISuccessResponse.of(HttpStatus.CREATED, null);
@@ -39,7 +40,7 @@ public class CommentController {
     @PatchMapping("/{commentId}")
     public ResponseEntity<APISuccessResponse<Void>> updateComment(
             @PathVariable(name = "commentId") final Long commentId,
-            @RequestBody final CommentUpdateRequest commentUpdateRequest,
+            @RequestBody @Valid final CommentUpdateRequest commentUpdateRequest,
             @Authentication final AuthCredential authCredential
     ) {
         commentService.updateComment(authCredential.userId(), commentId, commentUpdateRequest.rate(), commentUpdateRequest.content());
