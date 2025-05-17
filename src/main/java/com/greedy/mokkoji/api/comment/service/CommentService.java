@@ -38,6 +38,10 @@ public class CommentService {
                 () -> new MokkojiException(FailMessage.NOT_FOUND_CLUB)
         );
 
+        if (commentRepository.existsByClubAndUser(club, user)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_ALREADY_EXIST_COMMENT);
+        }
+
         commentRepository.save(
                 Comment.builder()
                         .user(user)
