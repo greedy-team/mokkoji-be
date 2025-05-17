@@ -21,7 +21,7 @@ public class Comment extends BaseTime {
     private Long id;
 
     @Column(name = "rate", columnDefinition = "double", nullable = false)
-    private Double rate;
+    private Integer rate;
 
     @Column(name = "content", columnDefinition = "text", nullable = false)
     private String content;
@@ -35,14 +35,14 @@ public class Comment extends BaseTime {
     private User user;
 
     @Builder
-    public Comment(final Double rate, final String content, final Club club, final User user) {
+    public Comment(final Integer rate, final String content, final Club club, final User user) {
         this.rate = rate;
         this.content = content;
         this.club = club;
         this.user = user;
     }
 
-    public void updateComment(final Double rate, final String content) {
+    public void updateComment(final Integer rate, final String content) {
         this.rate = rate;
         this.content = content;
     }
