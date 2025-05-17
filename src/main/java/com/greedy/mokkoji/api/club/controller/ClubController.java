@@ -10,6 +10,8 @@ import com.greedy.mokkoji.api.club.dto.club.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.response.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.dto.club.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
+import com.greedy.mokkoji.api.recruitment.dto.RecruitmentCreateResponse;
+import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
