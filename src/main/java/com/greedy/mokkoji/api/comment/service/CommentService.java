@@ -62,8 +62,8 @@ public class CommentService {
                                 comment.getId(),
                                 comment.getContent(),
                                 comment.getRate(),
-                                comment.getCreatedAt() == comment.getUpdatedAt(),
-                                comment.getCreatedAt() != comment.getUpdatedAt() ? comment.getUpdatedAt() : comment.getCreatedAt(),
+                                !comment.getCreatedAt().equals(comment.getUpdatedAt()),
+                                !comment.getCreatedAt().equals(comment.getUpdatedAt()) ? comment.getUpdatedAt() : comment.getCreatedAt(),
                                 isCommentWriter(userId, comment)
                         )).toList()
         );
