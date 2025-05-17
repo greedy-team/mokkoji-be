@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.db.commenmt.entity;
+package com.greedy.mokkoji.db.comment.entity;
 
 import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.club.entity.Club;
