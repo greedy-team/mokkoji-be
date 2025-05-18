@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> {
     //TODO:: query dsl로 변경
-
     @Query("SELECT r FROM Recruitment r WHERE FUNCTION('DATE', r.recruitStart) = :currentDate")
     List<Recruitment> findTodayRecruitStartDate(LocalDate currentDate);
 

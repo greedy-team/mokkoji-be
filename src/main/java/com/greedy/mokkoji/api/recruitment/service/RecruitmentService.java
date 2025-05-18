@@ -2,6 +2,7 @@ package com.greedy.mokkoji.api.recruitment.service;
 
 import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentOfClubResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.RecruitmentCreateResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -20,7 +21,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
@@ -96,7 +96,9 @@ public class RecruitmentService {
         Recruitment recruitment = recruitmentRepository.findRecruitmentById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
-        List<String> imageUrls = recruitment.getImages().stream()
+        List<RecruitmentImage> recruitmentImages = recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitmentId);
+
+        List<String> imageUrls = recruitmentImages.stream()
                 .map(RecruitmentImage::getImage)
                 .toList();
 
@@ -108,6 +110,11 @@ public class RecruitmentService {
                 recruitment.getRecruitStart().toLocalDate(),
                 recruitment.getRecruitEnd().toLocalDate()
         );
+    }
+
+    @Transactional
+    public AllRecruitmentResponse getAllRecruitment(final Long userId){
+        
     }
 
 
