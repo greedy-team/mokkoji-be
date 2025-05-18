@@ -7,6 +7,7 @@ import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class UserService {
                     .name(studentInformationResponse.name())
                     .department(studentInformationResponse.department())
                     .grade(studentInformationResponse.grade())
+                    .role(UserRole.NORMAL)
                     .build();
 
             return userRepository.save(newUser);

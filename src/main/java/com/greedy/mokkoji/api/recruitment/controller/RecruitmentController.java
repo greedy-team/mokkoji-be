@@ -2,8 +2,9 @@ package com.greedy.mokkoji.api.recruitment.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.recruitment.dto.RecruitmentCreateRequest;
-import com.greedy.mokkoji.api.recruitment.dto.RecruitmentCreateResponse;
+import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
+import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentOfClubResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.RecruitmentCreateResponse;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +23,21 @@ public class RecruitmentController {
             @Authentication final AuthCredential authCredential,
             @PathVariable("clubId") final Long clubId,
             @RequestBody RecruitmentCreateRequest recruitmentCreateRequest
-            ){
+    ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.createResponse(authCredential.userId(),clubId,recruitmentCreateRequest)
+                recruitmentService.createResponse(authCredential.userId(), clubId, recruitmentCreateRequest)
+        );
+    }
+
+    @GetMapping("/{clubId}")
+    public ResponseEntity<APISuccessResponse<AllRecruitmentOfClubResponse>> getAllRecruitment(
+            @Authentication final AuthCredential authCredential,
+            @PathVariable("clubId") final Long clubId
+    ) {
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                recruitmentService.getAllRecruitmentOfClub(authCredential.userId(), clubId)
         );
     }
 }

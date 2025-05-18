@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> {
@@ -16,4 +17,9 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
     List<Recruitment> findTodayRecruitStartDate(LocalDate currentDate);
 
     Recruitment findByClubId(final Long id);
+
+    Optional<Recruitment> findRecruitmentById(Long id);
+
+    List<Recruitment> findAllByClubId(final Long id);
+
 }

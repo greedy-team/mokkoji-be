@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Entity
@@ -40,13 +41,17 @@ public class Recruitment extends BaseTime {
     @Column(name = "recruit_form", columnDefinition = "text")
     private String recruitForm;
 
+    @OneToMany(mappedBy = "recruitment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<String> images;
+
     @Builder
-    public Recruitment(final Club club, final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm) {
+    public Recruitment(final Club club, final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm, final  List<String> images) {
         this.club = club;
         this.title = title;
         this.content = content;
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
         this.recruitForm = recruitForm;
+        this.images = images;
     }
 }
