@@ -73,10 +73,11 @@ public class RecruitmentService {
 
     @Transactional
     public AllRecruitmentOfClubResponse getAllRecruitmentOfClub(final Long userId, final Long clubId) {
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
-
         List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
+
+        if (recruitments.isEmpty()) {
+            throw new MokkojiException(FailMessage.NOT_FOUND_USER);
+        }
 
         List<AllRecruitmentOfClubResponse.Recruitment> recruitmentList = recruitments.stream()
                 .sorted(Comparator.comparing(Recruitment::getRecruitEnd).reversed())
@@ -113,9 +114,21 @@ public class RecruitmentService {
     }
 
     @Transactional
-    public AllRecruitmentResponse getAllRecruitment(final Long userId){
-        
+    public AllRecruitmentResponse getAllRecruitment(final Long userId) {
+        List<Recruitment> recruitments = recruitmentRepository.findAll();
+
+        List<AllRecruitmentResponse.Recruitment> responseList = recruitments.stream()
+                .map(r -> new AllRecruitmentResponse.Recruitment(
+                        r.getClub().getId(),
+                        r.getId(),
+                        r.getTitle(),
+                        RecruitStatus.from(r.getRecruitStart(), r.getRecruitEnd()),
+                        r.getRecruitStart().toLocalDate(),
+                        r.getRecruitEnd().toLocalDate(),
+                        r.getClub().getName()
+                ))
+                .toList();
+
+        return AllRecruitmentResponse.of(responseList);
     }
-
-
 }
