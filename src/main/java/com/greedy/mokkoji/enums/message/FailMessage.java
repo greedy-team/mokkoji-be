@@ -30,6 +30,7 @@ public enum FailMessage {
     NOT_FOUND_USER(HttpStatus.NOT_FOUND, 40402, "유저를 찾을 수 없습니다."),
     NOT_FOUND_CLUB(HttpStatus.NOT_FOUND, 40403, "동아리를 찾을 수 없습니다."),
     NOT_FOUND_FAVORITE(HttpStatus.NOT_FOUND, 40404, "즐겨찾기 한 동아리를 찾을 수 없습니다."),
+    NOT_FOUNT_RECRUITMENT(HttpStatus.NOT_FOUND, 40405, "모집글을 찾을 수 없습니다."),
 
 
     //405
