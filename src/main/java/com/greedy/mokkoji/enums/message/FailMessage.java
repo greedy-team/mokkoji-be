@@ -35,6 +35,8 @@ public enum FailMessage {
     NOT_FOUND_CLUB(HttpStatus.NOT_FOUND, 40403, "동아리를 찾을 수 없습니다."),
     NOT_FOUND_FAVORITE(HttpStatus.NOT_FOUND, 40404, "즐겨찾기 한 동아리를 찾을 수 없습니다."),
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, 40405, "댓글을 찾을 수 없습니다."),
+    NOT_FOUNT_RECRUITMENT(HttpStatus.NOT_FOUND, 40406, "모집글을 찾을 수 없습니다."),
+
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 40500, "잘못된 HTTP 메소드 요청입니다."),

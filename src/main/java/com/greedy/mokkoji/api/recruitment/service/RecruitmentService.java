@@ -1,7 +1,9 @@
 package com.greedy.mokkoji.api.recruitment.service;
 
-import com.greedy.mokkoji.api.recruitment.dto.RecruitmentCreateRequest;
-import com.greedy.mokkoji.api.recruitment.dto.RecruitmentCreateResponse;
+import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
+import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentOfClubResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.RecruitmentCreateResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -12,11 +14,14 @@ import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -46,7 +51,6 @@ public class RecruitmentService {
                 .content(request.content())
                 .recruitStart(request.startDate())
                 .recruitEnd(request.endDate())
-                .recruitForm("기본폼") // recruitForm 필드 채워주세요
                 .build();
 
         recruitmentRepository.save(recruitment);
@@ -64,10 +68,47 @@ public class RecruitmentService {
                 .map(RecruitmentImage::getImage)
                 .toList();
 
-        return RecruitmentCreateResponse.builder()
-                .recruitment(recruitment)
-                .images(savedImageUrls)
-                .build();
+        return RecruitmentCreateResponse.of(recruitment, savedImageUrls);
     }
+
+    @Transactional
+    public AllRecruitmentOfClubResponse getAllRecruitmentOfClub(final Long userId, final Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+
+        List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
+
+        List<AllRecruitmentOfClubResponse.Recruitment> recruitmentList = recruitments.stream()
+                .sorted(Comparator.comparing(Recruitment::getRecruitEnd).reversed())
+                .map(recruitment -> new AllRecruitmentOfClubResponse.Recruitment(
+                        recruitment.getId(),
+                        recruitment.getTitle(),
+                        RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                        recruitment.getCreatedAt()
+                ))
+                .toList();
+
+        return AllRecruitmentOfClubResponse.of(recruitmentList);
+    }
+
+    @Transactional
+    public SpecificRecruitmentResponse getSpecificRecruitment(final Long userId, final Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findRecruitmentById(recruitmentId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+
+        List<String> imageUrls = recruitment.getImages().stream()
+                .map(RecruitmentImage::getImage)
+                .toList();
+
+        return SpecificRecruitmentResponse.of(
+                recruitment.getId(),
+                recruitment.getTitle(),
+                imageUrls,
+                recruitment.getContent(),
+                recruitment.getRecruitStart().toLocalDate(),
+                recruitment.getRecruitEnd().toLocalDate()
+        );
+    }
+
 
 }
