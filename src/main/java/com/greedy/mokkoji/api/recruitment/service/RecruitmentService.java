@@ -38,7 +38,7 @@ public class RecruitmentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
-        if (user.getRole() == UserRole.NORMAL) {
+        if (user.getRole().equals(UserRole.NORMAL)) {
             throw new MokkojiException(FailMessage.FORBIDDEN);
         }
 
