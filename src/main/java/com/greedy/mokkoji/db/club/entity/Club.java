@@ -53,4 +53,14 @@ public class Club extends BaseTime {
         this.instagram = instagram;
         this.clubMasterStudentId = clubMasterStudentId;
     }
+
+    public void updateIfPresent(String name, ClubCategory category, ClubAffiliation affiliation,
+                                String description, String logo, String instagram) {
+        if (name != null && !name.isBlank()) this.name = name;
+        if (category != null) this.clubCategory = category;
+        if (affiliation != null) this.clubAffiliation = affiliation;
+        if (description != null && !description.isBlank()) this.description = description;
+        if (logo != null && !logo.isBlank()) this.logo = logo;
+        if (instagram != null && !instagram.isBlank()) this.instagram = instagram;
+    }
 }

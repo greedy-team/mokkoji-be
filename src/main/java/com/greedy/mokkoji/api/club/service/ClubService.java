@@ -1,9 +1,6 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.club.ClubManageDetailResponse;
-import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
-import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
+import com.greedy.mokkoji.api.club.dto.club.*;
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -122,6 +119,36 @@ public class ClubService {
                 club.getLogo(),
                 club.getInstagram()
         );
+    }
+
+    //TODO: 중복 로직 리팩토링 예정.
+    @Transactional
+    public ClubUpdateResponse updateClub(
+            final Long userId, final Long clubId, final String name, final ClubCategory category, final ClubAffiliation affiliation, final String description, final String logo, final String instagram) {
+        if (userId == null) {
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+
+        boolean isClubMaster = user.getRole().equals(UserRole.CLUB_MASTER);
+        boolean isOwnerOfThisClub = user.getStudentId().equals(club.getClubMasterStudentId());
+
+        if (!(isClubMaster && isOwnerOfThisClub)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_MODIFY_CLUB);
+        }
+
+        String oldLogoKey = club.getLogo();
+        String newLogoKey = (logo != null && !logo.isBlank()) ? logo : null;
+
+        club.updateIfPresent(name, category, affiliation, description, logo, instagram);
+
+        String updateUrl = (newLogoKey != null) ? appDataS3Client.getPresignedPutUrl(newLogoKey) : null;
+        String deleteUrl = (newLogoKey != null && oldLogoKey != null && !oldLogoKey.equals(newLogoKey)) ? appDataS3Client.getPresignedDeleteUrl(oldLogoKey) : null;
+
+        return ClubUpdateResponse.of(updateUrl, deleteUrl);
     }
 
     private boolean getIsFavorite(final Long userId, final Long clubId) {
