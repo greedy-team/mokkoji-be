@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.club.dto.club;
+package com.greedy.mokkoji.api.club.dto.club.response;
 
 public record ClubUpdateResponse(
         String updateLogo,

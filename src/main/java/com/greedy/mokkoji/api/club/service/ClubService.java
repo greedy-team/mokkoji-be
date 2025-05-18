@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.club.dto.club.*;
+import com.greedy.mokkoji.api.club.dto.club.response.*;
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.common.exception.MokkojiException;

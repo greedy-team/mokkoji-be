@@ -2,7 +2,13 @@ package com.greedy.mokkoji.api.club.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.club.dto.club.*;
+import com.greedy.mokkoji.api.club.dto.club.request.ClubCreateRequest;
+import com.greedy.mokkoji.api.club.dto.club.request.ClubSearchCond;
+import com.greedy.mokkoji.api.club.dto.club.request.ClubUpdateRequest;
+import com.greedy.mokkoji.api.club.dto.club.response.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.club.response.ClubManageDetailResponse;
+import com.greedy.mokkoji.api.club.dto.club.response.ClubSearchResponse;
+import com.greedy.mokkoji.api.club.dto.club.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
