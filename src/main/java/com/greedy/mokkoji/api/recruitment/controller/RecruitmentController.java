@@ -4,6 +4,7 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentOfClubResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.RecruitmentCreateResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
@@ -52,4 +53,15 @@ public class RecruitmentController {
                 recruitmentService.getSpecificRecruitment(authCredential.userId(), recruitmentId)
         );
     }
+
+    @GetMapping
+    public ResponseEntity<APISuccessResponse<AllRecruitmentResponse>> getAllRecruitment(
+            @Authentication final AuthCredential authCredential
+    ) {
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                recruitmentService.getAllRecruitment(authCredential.userId())
+        );
+    }
+
 }
