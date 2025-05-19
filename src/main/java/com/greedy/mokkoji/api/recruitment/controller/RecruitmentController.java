@@ -44,12 +44,11 @@ public class RecruitmentController {
 
     @GetMapping("/{recruitmentId}")
     public ResponseEntity<APISuccessResponse<SpecificRecruitmentResponse>> getSpecificRecruitment(
-            @Authentication final AuthCredential authCredential,
             @PathVariable("recruitmentId") final Long recruitmentId
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getSpecificRecruitment(authCredential.userId(), recruitmentId)
+                recruitmentService.getSpecificRecruitment(recruitmentId)
         );
     }
 

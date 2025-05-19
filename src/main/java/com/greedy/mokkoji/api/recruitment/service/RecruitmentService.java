@@ -22,6 +22,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -59,20 +60,20 @@ public class RecruitmentService {
                 .club(club)
                 .title(request.title())
                 .content(request.content())
-                .recruitStart(request.startDate())
-                .recruitEnd(request.endDate())
+                .recruitStart(request.recruitStart())
+                .recruitEnd(request.recruitEnd())
                 .build();
 
         recruitmentRepository.save(recruitment);
 
         List<String> imageKeys = request.images();
-        List<String> presignedPutUrls = new ArrayList<>();
+        List<String> imageUrls = new ArrayList<>();
 
         if (imageKeys != null && !imageKeys.isEmpty()) {
             List<RecruitmentImage> recruitmentImages = imageKeys.stream()
                     .map(imageKey -> {
                         String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
-                        presignedPutUrls.add(presignedPutUrl);
+                        imageUrls.add(presignedPutUrl);
 
                         return RecruitmentImage.builder()
                                 .recruitment(recruitment)
@@ -84,7 +85,7 @@ public class RecruitmentService {
             recruitmentImageRepository.saveAll(recruitmentImages);
         }
 
-        return RecruitmentCreateResponse.of(recruitment.getId(), presignedPutUrls);
+        return RecruitmentCreateResponse.of(recruitment.getId(), imageUrls);
     }
 
     @Transactional
@@ -120,27 +121,30 @@ public class RecruitmentService {
         return AllRecruitmentOfClubResponse.of(recruitmentList);
     }
 
-
     @Transactional
-    public SpecificRecruitmentResponse getSpecificRecruitment(final Long userId, final Long recruitmentId) {
+    public SpecificRecruitmentResponse getSpecificRecruitment(final Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findRecruitmentById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
         List<RecruitmentImage> recruitmentImages = recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitmentId);
 
         List<String> imageUrls = recruitmentImages.stream()
-                .map(RecruitmentImage::getImage)
+                .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
                 .toList();
 
         return SpecificRecruitmentResponse.of(
                 recruitment.getId(),
                 recruitment.getTitle(),
-                imageUrls,
                 recruitment.getContent(),
-                recruitment.getRecruitStart().toLocalDate(),
-                recruitment.getRecruitEnd().toLocalDate()
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd(),
+                RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                recruitment.getCreatedAt(),
+                imageUrls,
+                recruitment.getRecruitForm()
         );
     }
+
 
     @Transactional
     public AllRecruitmentResponse getAllRecruitment(final Long userId) {
