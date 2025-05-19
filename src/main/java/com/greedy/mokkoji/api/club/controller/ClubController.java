@@ -55,10 +55,10 @@ public class ClubController {
 
     @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createClub(
-            @RequestBody final ClubCreateRequest request,
+            @RequestBody final ClubCreateRequest clubCreateRequest,
             @Authentication final AuthCredential authCredential
     ) {
-        clubService.createClub(authCredential.userId(), request.name(), request.category(), request.affiliation(), request.clubMasterStudentId());
+        clubService.createClub(authCredential.userId(), clubCreateRequest.name(), clubCreateRequest.category(), clubCreateRequest.affiliation(), clubCreateRequest.clubMasterStudentId());
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
