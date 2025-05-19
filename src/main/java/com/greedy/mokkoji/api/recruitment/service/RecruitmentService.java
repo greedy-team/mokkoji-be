@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.recruitment.service;
 
+import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentResponse;
@@ -8,6 +9,8 @@ import com.greedy.mokkoji.api.recruitment.dto.response.SpecificRecruitmentRespon
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.favorite.entity.Favorite;
+import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
@@ -19,8 +22,10 @@ import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -31,10 +36,18 @@ public class RecruitmentService {
     private final ClubRepository clubRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final RecruitmentImageRepository recruitmentImageRepository;
-
+    private final AppDataS3Client appDataS3Client;
 
     @Transactional
-    public RecruitmentCreateResponse createResponse(final Long userId, final Long clubId, final RecruitmentCreateRequest request) {
+    public RecruitmentCreateResponse createResponse(
+            final Long userId,
+            final Long clubId,
+            final RecruitmentCreateRequest request) {
+        
+        if (userId == null) {
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
@@ -55,24 +68,30 @@ public class RecruitmentService {
 
         recruitmentRepository.save(recruitment);
 
-        List<RecruitmentImage> recruitmentImages = request.images().stream()
-                .map(image -> RecruitmentImage.builder()
-                        .recruitment(recruitment)
-                        .image(image)
-                        .build())
-                .toList();
+        List<String> imageKeys = request.images();
+        List<String> presignedPutUrls = new ArrayList<>();
 
-        recruitmentImageRepository.saveAll(recruitmentImages);
+        if (imageKeys != null && !imageKeys.isEmpty()) {
+            List<RecruitmentImage> recruitmentImages = imageKeys.stream()
+                    .map(imageKey -> {
+                        String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
+                        presignedPutUrls.add(presignedPutUrl);
 
-        List<String> savedImageUrls = recruitmentImages.stream()
-                .map(RecruitmentImage::getImage)
-                .toList();
+                        return RecruitmentImage.builder()
+                                .recruitment(recruitment)
+                                .image(imageKey)
+                                .build();
+                    })
+                    .toList();
 
-        return RecruitmentCreateResponse.of(recruitment, savedImageUrls);
+            recruitmentImageRepository.saveAll(recruitmentImages);
+        }
+
+        return RecruitmentCreateResponse.of(recruitment.getId(), presignedPutUrls);
     }
 
     @Transactional
-    public AllRecruitmentOfClubResponse getAllRecruitmentOfClub(final Long userId, final Long clubId) {
+    public AllRecruitmentOfClubResponse getAllRecruitmentOfClub(final Long clubId) {
         List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
 
         if (recruitments.isEmpty()) {
@@ -81,16 +100,29 @@ public class RecruitmentService {
 
         List<AllRecruitmentOfClubResponse.Recruitment> recruitmentList = recruitments.stream()
                 .sorted(Comparator.comparing(Recruitment::getRecruitEnd).reversed())
-                .map(recruitment -> new AllRecruitmentOfClubResponse.Recruitment(
-                        recruitment.getId(),
-                        recruitment.getTitle(),
-                        RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
-                        recruitment.getCreatedAt()
-                ))
+                .map(recruitment -> {
+                    // 모집글의 이미지 목록 중 첫 번째 이미지 가져오기
+                    List<RecruitmentImage> images = recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitment.getId());
+                    String firstImageKey = images.isEmpty() ? null : images.get(0).getImage();
+
+                    String firstImageUrl = (firstImageKey != null) ? appDataS3Client.getPresignedUrl(firstImageKey) : null;
+
+                    return new AllRecruitmentOfClubResponse.Recruitment(
+                            recruitment.getId(),
+                            recruitment.getTitle(),
+                            recruitment.getContent(),
+                            recruitment.getRecruitStart(),
+                            recruitment.getRecruitEnd(),
+                            RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                            recruitment.getCreatedAt(),
+                            firstImageUrl
+                    );
+                })
                 .toList();
 
         return AllRecruitmentOfClubResponse.of(recruitmentList);
     }
+
 
     @Transactional
     public SpecificRecruitmentResponse getSpecificRecruitment(final Long userId, final Long recruitmentId) {
