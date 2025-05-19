@@ -3,7 +3,6 @@ package com.greedy.mokkoji.api.recruitment.dto.response;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import lombok.Builder;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,6 +29,6 @@ public record SpecificRecruitmentResponse(
             List<String> imageUrls,
             String recruitForm
     ) {
-        return new SpecificRecruitmentResponse(id,title, content, recruitStart, recruitEnd, status, createdAt, imageUrls, recruitForm);
+        return new SpecificRecruitmentResponse(id, title, content, recruitStart, recruitEnd, status, createdAt, imageUrls, recruitForm);
     }
 }
