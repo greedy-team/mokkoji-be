@@ -103,10 +103,10 @@ public class ClubService {
 
         club.updateIfPresent(name, category, affiliation, description, logo, instagram);
 
-        String updateUrl = (newLogoKey != null) ? appDataS3Client.getPresignedPutUrl(newLogoKey) : null;
-        String deleteUrl = (newLogoKey != null && oldLogoKey != null && !oldLogoKey.equals(newLogoKey)) ? appDataS3Client.getPresignedDeleteUrl(oldLogoKey) : null;
+        String updateLogo = (newLogoKey != null) ? appDataS3Client.getPresignedPutUrl(newLogoKey) : null;
+        String deleteLogo = (newLogoKey != null && oldLogoKey != null && !oldLogoKey.equals(newLogoKey)) ? appDataS3Client.getPresignedDeleteUrl(oldLogoKey) : null;
 
-        return ClubUpdateResponse.of(updateUrl, deleteUrl);
+        return ClubUpdateResponse.of(updateLogo, deleteLogo);
     }
 
     private boolean getIsFavorite(final Long userId, final Long clubId) {
