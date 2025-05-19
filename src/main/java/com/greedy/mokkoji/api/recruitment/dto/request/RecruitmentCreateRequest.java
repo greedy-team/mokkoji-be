@@ -10,7 +10,7 @@ public record RecruitmentCreateRequest(
         String title,
         List<String> images,
         String content,
-        LocalDateTime startDate,
-        LocalDateTime endDate
+        LocalDateTime recruitStart,
+        LocalDateTime recruitEnd
 ) {
 }

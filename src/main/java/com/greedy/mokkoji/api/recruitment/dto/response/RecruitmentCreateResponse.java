@@ -7,10 +7,10 @@ import java.util.List;
 @Builder
 public record RecruitmentCreateResponse(
         Long id,
-        List<String> presignedPutUrls
+        List<String> imageUrls
 ) {
-    public static RecruitmentCreateResponse of(Long id, List<String> presignedPutUrls) {
-        return new RecruitmentCreateResponse(id, presignedPutUrls);
+    public static RecruitmentCreateResponse of(Long id, List<String> imageUrls) {
+        return new RecruitmentCreateResponse(id, imageUrls);
     }
 }
 
