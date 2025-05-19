@@ -9,8 +9,6 @@ import com.greedy.mokkoji.api.recruitment.dto.response.SpecificRecruitmentRespon
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
-import com.greedy.mokkoji.db.favorite.entity.Favorite;
-import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
@@ -22,7 +20,6 @@ import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.aop.scope.ScopedProxyUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -43,7 +40,7 @@ public class RecruitmentService {
             final Long userId,
             final Long clubId,
             final RecruitmentCreateRequest request) {
-        
+
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }

@@ -10,8 +10,8 @@ import java.util.UUID;
 @Component
 @RequestScope
 public class CommonLogInformation {
-    private String uri;
     private final String requestIdentifier;
+    private String uri;
 
     public CommonLogInformation() {
         this.requestIdentifier = UUID.randomUUID().toString();
