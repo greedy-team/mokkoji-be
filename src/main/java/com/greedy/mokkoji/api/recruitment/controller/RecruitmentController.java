@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/recruiments")
+@RequestMapping("${api.prefix}/recruitments")
 public class RecruitmentController {
     private final RecruitmentService recruitmentService;
 
@@ -32,14 +32,13 @@ public class RecruitmentController {
         );
     }
 
-    @GetMapping("/{clubId}")
-    public ResponseEntity<APISuccessResponse<AllRecruitmentOfClubResponse>> getAllRecruitment(
-            @Authentication final AuthCredential authCredential,
+    @GetMapping("/club/{clubId}")
+    public ResponseEntity<APISuccessResponse<AllRecruitmentOfClubResponse>> getAllRecruitmentOfClub(
             @PathVariable("clubId") final Long clubId
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getAllRecruitmentOfClub(authCredential.userId(), clubId)
+                recruitmentService.getAllRecruitmentOfClub(clubId)
         );
     }
 

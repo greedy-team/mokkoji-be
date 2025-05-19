@@ -17,7 +17,7 @@ import java.util.Set;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private final Set<String> excludedPaths = Set.of("/users/auth/login", "/users/auth/refresh", "/clubs/**", "/test/health-check/**");
+    private final Set<String> excludedPaths = Set.of("/users/auth/login", "/users/auth/refresh", "/clubs/**", "/test/health-check/**","/recruitments/**");
 
     private final JwtAuthInterceptor jwtAuthInterceptor;
     private final UserAuthArgumentResolver userAuthArgumentResolver;
