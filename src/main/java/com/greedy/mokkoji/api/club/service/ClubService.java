@@ -165,7 +165,7 @@ public class ClubService {
         }
     }
 
-    private String getValidClubMasterStudentId(final String clubMasterStudentId) {
+    private String getValidClubMasterStudentId(String clubMasterStudentId) {
         if (clubMasterStudentId == null || clubMasterStudentId.isBlank()) {
             return null;
         }
