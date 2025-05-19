@@ -33,6 +33,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RecruitmentService {
+
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final RecruitmentRepository recruitmentRepository;
@@ -41,7 +42,7 @@ public class RecruitmentService {
     private final AppDataS3Client appDataS3Client;
 
     @Transactional
-    public RecruitmentCreateResponse createResponse(
+    public RecruitmentCreateResponse createRecruitment(
             final Long userId,
             final Long clubId,
             final RecruitmentCreateRequest request) {
@@ -60,6 +61,13 @@ public class RecruitmentService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
 
+        Recruitment recruitment = buildAndSaveRecruitment(club, request);
+        List<String> imageUrls = uploadRecruitmentImages(recruitment, request.images());
+
+        return RecruitmentCreateResponse.of(recruitment.getId(), imageUrls);
+    }
+
+    private Recruitment buildAndSaveRecruitment(Club club, RecruitmentCreateRequest request) {
         Recruitment recruitment = Recruitment.builder()
                 .club(club)
                 .title(request.title())
@@ -69,8 +77,10 @@ public class RecruitmentService {
                 .build();
 
         recruitmentRepository.save(recruitment);
+        return recruitment;
+    }
 
-        List<String> imageKeys = request.images();
+    private List<String> uploadRecruitmentImages(Recruitment recruitment, List<String> imageKeys) {
         List<String> imageUrls = new ArrayList<>();
 
         if (imageKeys != null && !imageKeys.isEmpty()) {
@@ -89,40 +99,7 @@ public class RecruitmentService {
             recruitmentImageRepository.saveAll(recruitmentImages);
         }
 
-        return RecruitmentCreateResponse.of(recruitment.getId(), imageUrls);
-    }
-
-    @Transactional
-    public AllRecruitmentOfClubResponse getAllRecruitmentOfClub(final Long clubId) {
-        List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
-
-        if (recruitments.isEmpty()) {
-            throw new MokkojiException(FailMessage.NOT_FOUND_USER);
-        }
-
-        List<AllRecruitmentOfClubResponse.Recruitment> recruitmentList = recruitments.stream()
-                .sorted(Comparator.comparing(Recruitment::getRecruitEnd).reversed())
-                .map(recruitment -> {
-                    // 모집글의 이미지 목록 중 첫 번째 이미지 가져오기
-                    List<RecruitmentImage> images = recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitment.getId());
-                    String firstImageKey = images.isEmpty() ? null : images.get(0).getImage();
-
-                    String firstImageUrl = (firstImageKey != null) ? appDataS3Client.getPresignedUrl(firstImageKey) : null;
-
-                    return new AllRecruitmentOfClubResponse.Recruitment(
-                            recruitment.getId(),
-                            recruitment.getTitle(),
-                            recruitment.getContent(),
-                            recruitment.getRecruitStart(),
-                            recruitment.getRecruitEnd(),
-                            RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
-                            recruitment.getCreatedAt(),
-                            firstImageUrl
-                    );
-                })
-                .toList();
-
-        return AllRecruitmentOfClubResponse.of(recruitmentList);
+        return imageUrls;
     }
 
     @Transactional
@@ -150,6 +127,31 @@ public class RecruitmentService {
     }
 
     @Transactional
+    public AllRecruitmentOfClubResponse getAllRecruitmentOfClub(final Long clubId) {
+        List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
+
+        if (recruitments.isEmpty()) {
+            throw new MokkojiException(FailMessage.NOT_FOUND_USER);
+        }
+
+        List<AllRecruitmentOfClubResponse.Recruitment> recruitmentList = recruitments.stream()
+                .sorted(Comparator.comparing(Recruitment::getRecruitEnd).reversed())
+                .map(recruitment -> new AllRecruitmentOfClubResponse.Recruitment(
+                        recruitment.getId(),
+                        recruitment.getTitle(),
+                        recruitment.getContent(),
+                        recruitment.getRecruitStart(),
+                        recruitment.getRecruitEnd(),
+                        RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                        recruitment.getCreatedAt(),
+                        getFirstImageUrl(recruitment.getId())
+                ))
+                .toList();
+
+        return AllRecruitmentOfClubResponse.of(recruitmentList);
+    }
+
+    @Transactional
     public AllRecruitmentResponse getAllRecruitment(final Long userId, final Pageable pageable) {
         Page<Recruitment> recruitments = recruitmentRepository.findAll(pageable);
 
@@ -168,11 +170,8 @@ public class RecruitmentService {
     }
 
     private AllRecruitmentResponse.Recruitment mapToRecruitmentDetailResponse(Long userId, Recruitment recruitment) {
-        List<RecruitmentImage> images = recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitment.getId());
-        String firstImageKey = images.isEmpty() ? null : images.get(0).getImage();
-        String firstImageUrl = (firstImageKey != null) ? appDataS3Client.getPresignedUrl(firstImageKey) : null;
-
-        boolean isFavorite = getIsFavorite(userId, recruitment.getClub().getId());
+        String firstImageUrl = getFirstImageUrl(recruitment.getId());
+        boolean isFavorite = isFavorite(userId, recruitment.getClub().getId());
 
         return new AllRecruitmentResponse.Recruitment(
                 recruitment.getClub().getId(),
@@ -187,13 +186,14 @@ public class RecruitmentService {
         );
     }
 
-    private boolean getIsFavorite(final Long userId, final Long clubId) {
-        if (userId == null) {
-            return false;
-        }
-        return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
+    private String getFirstImageUrl(Long recruitmentId) {
+        return recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitmentId).stream()
+                .findFirst()
+                .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
+                .orElse(null);
     }
 
-
-
+    private boolean isFavorite(final Long userId, final Long clubId) {
+        return userId != null && favoriteRepository.existsByUserIdAndClubId(userId, clubId);
+    }
 }

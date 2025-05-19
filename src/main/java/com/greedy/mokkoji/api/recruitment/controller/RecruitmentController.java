@@ -32,7 +32,7 @@ public class RecruitmentController {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.createResponse(authCredential.userId(), clubId, recruitmentCreateRequest)
+                recruitmentService.createRecruitment(authCredential.userId(), clubId, recruitmentCreateRequest)
         );
     }
 
