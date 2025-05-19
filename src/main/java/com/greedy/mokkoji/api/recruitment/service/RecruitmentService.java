@@ -157,20 +157,8 @@ public class RecruitmentService {
 
         List<AllRecruitmentResponse.Recruitment> recruitmentResponses = recruitments.stream()
                 .map(recruitment -> mapToRecruitmentDetailResponse(userId, recruitment))
+                .sorted(getFinalComparator(userId))
                 .toList();
-
-        if (userId != null) {
-            recruitmentResponses = recruitmentResponses.stream()
-                    .sorted(
-                            Comparator.comparing(AllRecruitmentResponse.Recruitment::isFavorite).reversed()
-                                    .thenComparing(AllRecruitmentResponse.Recruitment::recruitEnd)
-                    )
-                    .toList();
-        } else {
-            recruitmentResponses = recruitmentResponses.stream()
-                    .sorted(Comparator.comparing(AllRecruitmentResponse.Recruitment::recruitEnd))
-                    .toList();
-        }
 
         PageResponse pageResponse = PageResponse.of(
                 recruitments.getNumber() + 1,
@@ -181,6 +169,34 @@ public class RecruitmentService {
 
         return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
     }
+
+    // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
+    private Comparator<AllRecruitmentResponse.Recruitment> getFinalComparator(Long userId) {
+        Comparator<AllRecruitmentResponse.Recruitment> comparator =
+                Comparator.comparing(
+                        (AllRecruitmentResponse.Recruitment r) ->
+                                getRecruitStatusOrder(RecruitStatus.from(r.recruitStart(), r.recruitEnd()))
+                ).thenComparing(AllRecruitmentResponse.Recruitment::recruitEnd);
+
+        if (userId != null) {
+            comparator = Comparator.comparing(AllRecruitmentResponse.Recruitment::isFavorite).reversed()
+                    .thenComparing(comparator);
+        }
+
+        return comparator;
+    }
+
+
+    // 모집 상태를 숫자로 매핑하여 우선순위 정렬에 사용
+    private int getRecruitStatusOrder(RecruitStatus status) {
+        return switch (status) {
+            case IMMINENT -> 0;
+            case OPEN     -> 1;
+            case BEFORE   -> 2;
+            case CLOSED   -> 3;
+        };
+    }
+
 
 
     private AllRecruitmentResponse.Recruitment mapToRecruitmentDetailResponse(Long userId, Recruitment recruitment) {
