@@ -29,12 +29,12 @@ public record AllRecruitmentResponse(
     }
 
     public record Club(
-                               Long id,
-                               String name,
-                               String description,
-                               ClubCategory clubCategory,
-                               ClubAffiliation clubAffiliation,
-                               String imageURL
+            Long id,
+            String name,
+            String description,
+            ClubCategory clubCategory,
+            ClubAffiliation clubAffiliation,
+            String imageURL
     ) {
     }
 }

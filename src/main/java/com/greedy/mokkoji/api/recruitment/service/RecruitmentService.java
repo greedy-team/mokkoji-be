@@ -198,9 +198,9 @@ public class RecruitmentService {
     private int getRecruitStatusOrder(RecruitStatus status) {
         return switch (status) {
             case IMMINENT -> 0;
-            case OPEN     -> 1;
-            case BEFORE   -> 2;
-            case CLOSED   -> 3;
+            case OPEN -> 1;
+            case BEFORE -> 2;
+            case CLOSED -> 3;
         };
     }
 
