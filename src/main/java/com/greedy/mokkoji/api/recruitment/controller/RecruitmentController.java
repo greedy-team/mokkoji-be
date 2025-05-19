@@ -2,8 +2,6 @@ package com.greedy.mokkoji.api.recruitment.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.club.dto.club.ClubSearchCond;
-import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentResponse;
@@ -65,7 +63,7 @@ public class RecruitmentController {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getAllRecruitment(authCredential.userId(),pageable)
+                recruitmentService.getAllRecruitment(authCredential.userId(), pageable)
         );
     }
 }

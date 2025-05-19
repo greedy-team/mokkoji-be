@@ -159,6 +159,19 @@ public class RecruitmentService {
                 .map(recruitment -> mapToRecruitmentDetailResponse(userId, recruitment))
                 .toList();
 
+        if (userId != null) {
+            recruitmentResponses = recruitmentResponses.stream()
+                    .sorted(
+                            Comparator.comparing(AllRecruitmentResponse.Recruitment::isFavorite).reversed()
+                                    .thenComparing(AllRecruitmentResponse.Recruitment::recruitEnd)
+                    )
+                    .toList();
+        } else {
+            recruitmentResponses = recruitmentResponses.stream()
+                    .sorted(Comparator.comparing(AllRecruitmentResponse.Recruitment::recruitEnd))
+                    .toList();
+        }
+
         PageResponse pageResponse = PageResponse.of(
                 recruitments.getNumber() + 1,
                 recruitments.getSize(),
@@ -168,6 +181,7 @@ public class RecruitmentService {
 
         return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
     }
+
 
     private AllRecruitmentResponse.Recruitment mapToRecruitmentDetailResponse(Long userId, Recruitment recruitment) {
         String firstImageUrl = getFirstImageUrl(recruitment.getId());
@@ -194,6 +208,9 @@ public class RecruitmentService {
     }
 
     private boolean isFavorite(final Long userId, final Long clubId) {
-        return userId != null && favoriteRepository.existsByUserIdAndClubId(userId, clubId);
+        if (userId == null) {
+            return false;
+        }
+        return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
     }
 }
