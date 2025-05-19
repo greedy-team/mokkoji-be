@@ -151,6 +151,13 @@ public class RecruitmentService {
         return AllRecruitmentOfClubResponse.of(recruitmentList);
     }
 
+    private String getFirstImageUrl(Long recruitmentId) {
+        return recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitmentId).stream()
+                .findFirst()
+                .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
+                .orElse(null);
+    }
+
     @Transactional
     public AllRecruitmentResponse getAllRecruitment(final Long userId, final Pageable pageable) {
         Page<Recruitment> recruitments = recruitmentRepository.findAll(pageable);
@@ -197,30 +204,27 @@ public class RecruitmentService {
         };
     }
 
-
-
     private AllRecruitmentResponse.Recruitment mapToRecruitmentDetailResponse(Long userId, Recruitment recruitment) {
-        String firstImageUrl = getFirstImageUrl(recruitment.getId());
         boolean isFavorite = isFavorite(userId, recruitment.getClub().getId());
 
-        return new AllRecruitmentResponse.Recruitment(
+        AllRecruitmentResponse.Club clubSummary = new AllRecruitmentResponse.Club(
                 recruitment.getClub().getId(),
                 recruitment.getClub().getName(),
+                recruitment.getClub().getDescription(),
+                recruitment.getClub().getClubCategory(),
+                recruitment.getClub().getClubAffiliation(),
+                appDataS3Client.getPresignedUrl(recruitment.getClub().getLogo())
+        );
+
+        return new AllRecruitmentResponse.Recruitment(
+                clubSummary,
                 recruitment.getId(),
                 recruitment.getTitle(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
                 RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
-                firstImageUrl,
                 isFavorite
         );
-    }
-
-    private String getFirstImageUrl(Long recruitmentId) {
-        return recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitmentId).stream()
-                .findFirst()
-                .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
-                .orElse(null);
     }
 
     private boolean isFavorite(final Long userId, final Long clubId) {
