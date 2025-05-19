@@ -2,6 +2,8 @@ package com.greedy.mokkoji.api.recruitment.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
+import com.greedy.mokkoji.api.club.dto.club.ClubSearchCond;
+import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
 import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentResponse;
@@ -10,6 +12,8 @@ import com.greedy.mokkoji.api.recruitment.dto.response.SpecificRecruitmentRespon
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,12 +58,14 @@ public class RecruitmentController {
 
     @GetMapping
     public ResponseEntity<APISuccessResponse<AllRecruitmentResponse>> getAllRecruitment(
-            @Authentication final AuthCredential authCredential
+            @Authentication final AuthCredential authCredential,
+            @RequestParam(value = "page") final int page,
+            @RequestParam(value = "size") final int size
     ) {
+        final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getAllRecruitment(authCredential.userId())
+                recruitmentService.getAllRecruitment(authCredential.userId(),pageable)
         );
     }
-
 }
