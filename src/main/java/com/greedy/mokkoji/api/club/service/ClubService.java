@@ -18,6 +18,7 @@ import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -99,12 +100,12 @@ public class ClubService {
         Club club = validateAuthorizedClubMaster(userId, clubId);
 
         String oldLogoKey = club.getLogo();
-        String newLogoKey = (logo != null && !logo.isBlank()) ? logo : null;
+        String newLogoKey = extractNewLogoKey(logo);
 
         club.updateIfPresent(name, category, affiliation, description, logo, instagram);
 
-        String updateLogo = (newLogoKey != null) ? appDataS3Client.getPresignedPutUrl(newLogoKey) : null;
-        String deleteLogo = (newLogoKey != null && oldLogoKey != null && !oldLogoKey.equals(newLogoKey)) ? appDataS3Client.getPresignedDeleteUrl(oldLogoKey) : null;
+        String updateLogo = generatePresignedPutUrl(newLogoKey);
+        String deleteLogo = generatePresignedDeleteUrl(newLogoKey, oldLogoKey);
 
         return ClubUpdateResponse.of(updateLogo, deleteLogo);
     }
@@ -159,7 +160,7 @@ public class ClubService {
         );
     }
 
-    private void validateAdmin(Long userId) {
+    private void validateAdmin(final Long userId) {
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
@@ -171,7 +172,7 @@ public class ClubService {
         }
     }
 
-    private String getValidClubMasterStudentId(String clubMasterStudentId) {
+    private String getValidClubMasterStudentId(final String clubMasterStudentId) {
         if (clubMasterStudentId == null || clubMasterStudentId.isBlank()) {
             return null;
         }
@@ -182,7 +183,7 @@ public class ClubService {
         return masterUser.getStudentId();
     }
 
-    private Club validateAuthorizedClubMaster(Long userId, Long clubId) {
+    private Club validateAuthorizedClubMaster(final Long userId, final Long clubId) {
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
@@ -198,5 +199,26 @@ public class ClubService {
             throw new MokkojiException(FailMessage.FORBIDDEN_MODIFY_CLUB);
         }
         return club;
+    }
+
+    @Nullable
+    private static String extractNewLogoKey(String logo) {
+        return (logo != null && !logo.isBlank())
+                ? logo
+                : null;
+    }
+
+    @Nullable
+    private String generatePresignedPutUrl(final String newLogoKey) {
+        return (newLogoKey != null)
+                ? appDataS3Client.getPresignedPutUrl(newLogoKey)
+                : null;
+    }
+
+    @Nullable
+    private String generatePresignedDeleteUrl(String newLogoKey, String oldLogoKey) {
+        return (newLogoKey != null && oldLogoKey != null && !oldLogoKey.equals(newLogoKey))
+                ? appDataS3Client.getPresignedDeleteUrl(oldLogoKey)
+                : null;
     }
 }
