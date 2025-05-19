@@ -1,27 +1,35 @@
 package com.greedy.mokkoji.api.recruitment.dto.response;
 
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
 public record SpecificRecruitmentResponse(
         Long id,
         String title,
-        List<String> images,
         String content,
-        LocalDate startDate,
-        LocalDate endDate
+        LocalDateTime recruitStart,
+        LocalDateTime recruitEnd,
+        RecruitStatus status,
+        LocalDateTime createdAt,
+        List<String> imageUrls,
+        String recruitForm
 ) {
     public static SpecificRecruitmentResponse of(
             Long id,
             String title,
-            List<String> images,
             String content,
-            LocalDate startDate,
-            LocalDate endDate
+            LocalDateTime recruitStart,
+            LocalDateTime recruitEnd,
+            RecruitStatus status,
+            LocalDateTime createdAt,
+            List<String> imageUrls,
+            String recruitForm
     ) {
-        return new SpecificRecruitmentResponse(id, title, images, content, startDate, endDate);
+        return new SpecificRecruitmentResponse(id,title, content, recruitStart, recruitEnd, status, createdAt, imageUrls, recruitForm);
     }
 }
