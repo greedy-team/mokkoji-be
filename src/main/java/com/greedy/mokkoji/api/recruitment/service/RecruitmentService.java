@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.recruitment.service;
 
+import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentOfClubResponse;
@@ -9,6 +10,7 @@ import com.greedy.mokkoji.api.recruitment.dto.response.SpecificRecruitmentRespon
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
@@ -20,6 +22,8 @@ import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,6 +37,7 @@ public class RecruitmentService {
     private final ClubRepository clubRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final RecruitmentImageRepository recruitmentImageRepository;
+    private final FavoriteRepository favoriteRepository;
     private final AppDataS3Client appDataS3Client;
 
     @Transactional
@@ -145,29 +150,50 @@ public class RecruitmentService {
     }
 
     @Transactional
-    public AllRecruitmentResponse getAllRecruitment(final Long userId) {
-        List<Recruitment> recruitments = recruitmentRepository.findAll();
+    public AllRecruitmentResponse getAllRecruitment(final Long userId, final Pageable pageable) {
+        Page<Recruitment> recruitments = recruitmentRepository.findAll(pageable);
 
-        List<AllRecruitmentResponse.Recruitment> responseList = recruitments.stream()
-                .map(recruitment -> {
-                    List<RecruitmentImage> images = recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitment.getId());
-                    String firstImageKey = images.isEmpty() ? null : images.get(0).getImage();
-                    String firstImageUrl = (firstImageKey != null) ? appDataS3Client.getPresignedUrl(firstImageKey) : null;
-
-                    return new AllRecruitmentResponse.Recruitment(
-                            recruitment.getClub().getId(),
-                            recruitment.getClub().getName(),
-                            recruitment.getId(),
-                            recruitment.getTitle(),
-                            recruitment.getRecruitStart(),
-                            recruitment.getRecruitEnd(),
-                            RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
-                            firstImageUrl
-                    );
-                })
+        List<AllRecruitmentResponse.Recruitment> recruitmentResponses = recruitments.stream()
+                .map(recruitment -> mapToRecruitmentDetailResponse(userId, recruitment))
                 .toList();
 
-        return AllRecruitmentResponse.of(responseList);
+        PageResponse pageResponse = PageResponse.of(
+                recruitments.getNumber() + 1,
+                recruitments.getSize(),
+                recruitments.getTotalPages(),
+                (int) recruitments.getTotalElements()
+        );
+
+        return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
     }
+
+    private AllRecruitmentResponse.Recruitment mapToRecruitmentDetailResponse(Long userId, Recruitment recruitment) {
+        List<RecruitmentImage> images = recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitment.getId());
+        String firstImageKey = images.isEmpty() ? null : images.get(0).getImage();
+        String firstImageUrl = (firstImageKey != null) ? appDataS3Client.getPresignedUrl(firstImageKey) : null;
+
+        boolean isFavorite = getIsFavorite(userId, recruitment.getClub().getId());
+
+        return new AllRecruitmentResponse.Recruitment(
+                recruitment.getClub().getId(),
+                recruitment.getClub().getName(),
+                recruitment.getId(),
+                recruitment.getTitle(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd(),
+                RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                firstImageUrl,
+                isFavorite
+        );
+    }
+
+    private boolean getIsFavorite(final Long userId, final Long clubId) {
+        if (userId == null) {
+            return false;
+        }
+        return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
+    }
+
+
 
 }

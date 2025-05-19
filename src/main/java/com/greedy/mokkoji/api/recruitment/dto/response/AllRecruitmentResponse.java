@@ -1,16 +1,17 @@
 package com.greedy.mokkoji.api.recruitment.dto.response;
 
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
+import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public record AllRecruitmentResponse(
-        List<AllRecruitmentResponse.Recruitment> recruitments
+        List<AllRecruitmentResponse.Recruitment> recruitments,
+        PageResponse page
 ) {
-    public static AllRecruitmentResponse of(List<Recruitment> recruitments) {
-        return new AllRecruitmentResponse(recruitments);
+    public static AllRecruitmentResponse of(List<Recruitment> recruitments, PageResponse page) {
+        return new AllRecruitmentResponse(recruitments, page);
     }
 
     public record Recruitment(
@@ -21,8 +22,8 @@ public record AllRecruitmentResponse(
             LocalDateTime recruitStart,
             LocalDateTime recruitEnd,
             RecruitStatus status,
-            String firstImage
+            String firstImage,
+            boolean isFavorite
     ) {
     }
 }
-
