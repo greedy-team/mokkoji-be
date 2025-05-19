@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.db.recruitment.entity;
 
+
 import com.greedy.mokkoji.db.BaseTime;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
