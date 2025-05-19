@@ -22,7 +22,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -145,23 +144,30 @@ public class RecruitmentService {
         );
     }
 
-
     @Transactional
     public AllRecruitmentResponse getAllRecruitment(final Long userId) {
         List<Recruitment> recruitments = recruitmentRepository.findAll();
 
         List<AllRecruitmentResponse.Recruitment> responseList = recruitments.stream()
-                .map(r -> new AllRecruitmentResponse.Recruitment(
-                        r.getClub().getId(),
-                        r.getId(),
-                        r.getTitle(),
-                        RecruitStatus.from(r.getRecruitStart(), r.getRecruitEnd()),
-                        r.getRecruitStart().toLocalDate(),
-                        r.getRecruitEnd().toLocalDate(),
-                        r.getClub().getName()
-                ))
+                .map(recruitment -> {
+                    List<RecruitmentImage> images = recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitment.getId());
+                    String firstImageKey = images.isEmpty() ? null : images.get(0).getImage();
+                    String firstImageUrl = (firstImageKey != null) ? appDataS3Client.getPresignedUrl(firstImageKey) : null;
+
+                    return new AllRecruitmentResponse.Recruitment(
+                            recruitment.getClub().getId(),
+                            recruitment.getClub().getName(),
+                            recruitment.getId(),
+                            recruitment.getTitle(),
+                            recruitment.getRecruitStart(),
+                            recruitment.getRecruitEnd(),
+                            RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                            firstImageUrl
+                    );
+                })
                 .toList();
 
         return AllRecruitmentResponse.of(responseList);
     }
+
 }
