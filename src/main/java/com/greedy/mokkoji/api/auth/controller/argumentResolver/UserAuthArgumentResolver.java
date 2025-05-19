@@ -18,7 +18,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private static final Set<String> EXCLUDE_PATTERNS = Set.of("/clubs");
+    private static final Set<String> EXCLUDE_PATTERNS = Set.of("/clubs", "/recruitments");
     private final BearerAuthExtractor bearerAuthExtractor;
     private final JwtUtil jwtUtil;
 

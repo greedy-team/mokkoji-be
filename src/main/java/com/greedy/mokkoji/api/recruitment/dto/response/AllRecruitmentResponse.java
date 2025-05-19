@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.api.recruitment.dto.response;
 
-import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
