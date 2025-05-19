@@ -166,7 +166,7 @@ public class ClubService {
         User adminUser = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
-        if (!(adminUser.getRole().equals(UserRole.GREEDY_ADMIN) || adminUser.getRole().equals(UserRole.CLUB_ADMIN))) {
+        if (adminUser.getRole().equals(UserRole.NORMAL) || adminUser.getRole().equals(UserRole.CLUB_MASTER)) {
             throw new MokkojiException(FailMessage.FORBIDDEN_REGISTER_CLUB);
         }
     }
