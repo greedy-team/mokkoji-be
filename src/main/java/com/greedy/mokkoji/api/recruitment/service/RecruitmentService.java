@@ -215,16 +215,6 @@ public class RecruitmentService {
         return comparator;
     }
 
-    // 모집 상태를 숫자로 매핑하여 우선순위 정렬에 사용
-    private int getRecruitStatusOrder(RecruitStatus status) {
-        return switch (status) {
-            case IMMINENT -> 0;
-            case OPEN -> 1;
-            case BEFORE -> 2;
-            case CLOSED -> 3;
-        };
-    }
-
     private RecruitmentPreviewResponse mapToRecruitmentPreviewResponse(Long userId, Recruitment recruitment) {
         boolean isFavorite = isFavorite(userId, recruitment.getClub().getId());
 
