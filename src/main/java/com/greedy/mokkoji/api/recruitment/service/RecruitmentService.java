@@ -3,10 +3,10 @@ package com.greedy.mokkoji.api.recruitment.service;
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentOfClubResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitmentResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.RecruitmentCreateResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.SpecificRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.*;
+import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -134,22 +134,24 @@ public class RecruitmentService {
             throw new MokkojiException(FailMessage.NOT_FOUND_USER);
         }
 
-        List<AllRecruitmentOfClubResponse.Recruitment> recruitmentList = recruitments.stream()
+        List<RecruitmentOfClubResponse> recruitmentList = recruitments.stream()
                 .sorted(Comparator.comparing(Recruitment::getRecruitEnd).reversed())
-                .map(recruitment -> new AllRecruitmentOfClubResponse.Recruitment(
-                        recruitment.getId(),
-                        recruitment.getTitle(),
-                        recruitment.getContent(),
-                        recruitment.getRecruitStart(),
-                        recruitment.getRecruitEnd(),
-                        RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
-                        recruitment.getCreatedAt(),
-                        getFirstImageUrl(recruitment.getId())
-                ))
+                .map(recruitment -> RecruitmentOfClubResponse.builder()
+                        .id(recruitment.getId())
+                        .title(recruitment.getTitle())
+                        .content(recruitment.getContent())
+                        .recruitStart(recruitment.getRecruitStart())
+                        .recruitEnd(recruitment.getRecruitEnd())
+                        .status(RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()))
+                        .createdAt(recruitment.getCreatedAt())
+                        .firstImage(getFirstImageUrl(recruitment.getId()))
+                        .build()
+                )
                 .toList();
 
         return AllRecruitmentOfClubResponse.of(recruitmentList);
     }
+
 
     private String getFirstImageUrl(Long recruitmentId) {
         return recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitmentId).stream()
