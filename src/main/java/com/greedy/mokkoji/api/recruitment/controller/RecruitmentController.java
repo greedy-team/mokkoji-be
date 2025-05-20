@@ -26,11 +26,19 @@ public class RecruitmentController {
     public ResponseEntity<APISuccessResponse<RecruitmentCreateResponse>> createRecruitment(
             @Authentication final AuthCredential authCredential,
             @PathVariable("clubId") final Long clubId,
-            @RequestBody RecruitmentCreateRequest recruitmentCreateRequest
+            @RequestBody RecruitmentCreateRequest request
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.createRecruitment(authCredential.userId(), clubId, recruitmentCreateRequest)
+                recruitmentService.createRecruitment(
+                        authCredential.userId(),
+                        clubId,
+                        request.title(),
+                        request.content(),
+                        request.recruitStart(),
+                        request.recruitEnd(),
+                        request.images()
+                )
         );
     }
 

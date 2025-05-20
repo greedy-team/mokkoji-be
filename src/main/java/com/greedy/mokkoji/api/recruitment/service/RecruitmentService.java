@@ -2,7 +2,6 @@ package com.greedy.mokkoji.api.recruitment.service;
 
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
-import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.ClubPreviewResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.RecruitmentPreviewResponse;
@@ -29,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -48,7 +48,11 @@ public class RecruitmentService {
     public RecruitmentCreateResponse createRecruitment(
             final Long userId,
             final Long clubId,
-            final RecruitmentCreateRequest request) {
+            final String title,
+            final String content,
+            final LocalDateTime recruitStart,
+            final LocalDateTime recruitEnd,
+            final List<String> images) {
 
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
@@ -64,19 +68,20 @@ public class RecruitmentService {
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
 
-        Recruitment recruitment = buildAndSaveRecruitment(club, request);
-        List<String> imageUrls = uploadRecruitmentImages(recruitment, request.images());
+        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd);
+        List<String> imageUrls = uploadRecruitmentImages(recruitment, images);
 
         return RecruitmentCreateResponse.of(recruitment.getId(), imageUrls);
     }
 
-    private Recruitment buildAndSaveRecruitment(Club club, RecruitmentCreateRequest request) {
+    private Recruitment buildAndSaveRecruitment(Club club, String title, String content,
+                                                LocalDateTime recruitStart, LocalDateTime recruitEnd) {
         Recruitment recruitment = Recruitment.builder()
                 .club(club)
-                .title(request.title())
-                .content(request.content())
-                .recruitStart(request.recruitStart())
-                .recruitEnd(request.recruitEnd())
+                .title(title)
+                .content(content)
+                .recruitStart(recruitStart)
+                .recruitEnd(recruitEnd)
                 .build();
 
         recruitmentRepository.save(recruitment);
