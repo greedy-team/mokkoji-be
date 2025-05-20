@@ -5,6 +5,8 @@ import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.*;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.ClubPreviewResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.RecruitmentPreviewResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -164,8 +166,8 @@ public class RecruitmentService {
     public AllRecruitmentResponse getAllRecruitment(final Long userId, final Pageable pageable) {
         Page<Recruitment> recruitments = recruitmentRepository.findAll(pageable);
 
-        List<AllRecruitmentResponse.Recruitment> recruitmentResponses = recruitments.stream()
-                .map(recruitment -> mapToRecruitmentDetailResponse(userId, recruitment))
+        List<RecruitmentPreviewResponse> recruitmentResponses = recruitments.stream()
+                .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
                 .sorted(getFinalComparator(userId))
                 .toList();
 
@@ -180,21 +182,20 @@ public class RecruitmentService {
     }
 
     // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
-    private Comparator<AllRecruitmentResponse.Recruitment> getFinalComparator(Long userId) {
-        Comparator<AllRecruitmentResponse.Recruitment> comparator =
+    private Comparator<RecruitmentPreviewResponse> getFinalComparator(Long userId) {
+        Comparator<RecruitmentPreviewResponse> comparator =
                 Comparator.comparing(
-                        (AllRecruitmentResponse.Recruitment r) ->
+                        (RecruitmentPreviewResponse r) ->
                                 getRecruitStatusOrder(RecruitStatus.from(r.recruitStart(), r.recruitEnd()))
-                ).thenComparing(AllRecruitmentResponse.Recruitment::recruitEnd);
+                ).thenComparing(RecruitmentPreviewResponse::recruitEnd);
 
         if (userId != null) {
-            comparator = Comparator.comparing(AllRecruitmentResponse.Recruitment::isFavorite).reversed()
+            comparator = Comparator.comparing(RecruitmentPreviewResponse::isFavorite).reversed()
                     .thenComparing(comparator);
         }
 
         return comparator;
     }
-
 
     // 모집 상태를 숫자로 매핑하여 우선순위 정렬에 사용
     private int getRecruitStatusOrder(RecruitStatus status) {
@@ -206,10 +207,10 @@ public class RecruitmentService {
         };
     }
 
-    private AllRecruitmentResponse.Recruitment mapToRecruitmentDetailResponse(Long userId, Recruitment recruitment) {
+    private RecruitmentPreviewResponse mapToRecruitmentPreviewResponse(Long userId, Recruitment recruitment) {
         boolean isFavorite = isFavorite(userId, recruitment.getClub().getId());
 
-        AllRecruitmentResponse.Club clubSummary = new AllRecruitmentResponse.Club(
+        ClubPreviewResponse clubPreview = new ClubPreviewResponse(
                 recruitment.getClub().getId(),
                 recruitment.getClub().getName(),
                 recruitment.getClub().getDescription(),
@@ -218,8 +219,8 @@ public class RecruitmentService {
                 appDataS3Client.getPresignedUrl(recruitment.getClub().getLogo())
         );
 
-        return new AllRecruitmentResponse.Recruitment(
-                clubSummary,
+        return new RecruitmentPreviewResponse(
+                clubPreview,
                 recruitment.getId(),
                 recruitment.getTitle(),
                 recruitment.getRecruitStart(),
