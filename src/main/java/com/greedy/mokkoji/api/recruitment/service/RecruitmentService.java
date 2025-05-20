@@ -204,7 +204,7 @@ public class RecruitmentService {
         Comparator<RecruitmentPreviewResponse> comparator =
                 Comparator.comparing(
                         (RecruitmentPreviewResponse r) ->
-                                getRecruitStatusOrder(RecruitStatus.from(r.recruitStart(), r.recruitEnd()))
+                                RecruitStatus.from(r.recruitStart(), r.recruitEnd()).getPriority()
                 ).thenComparing(RecruitmentPreviewResponse::recruitEnd);
 
         if (userId != null) {
