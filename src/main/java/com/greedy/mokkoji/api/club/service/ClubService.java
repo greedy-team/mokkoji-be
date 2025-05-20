@@ -67,7 +67,7 @@ public class ClubService {
 
     @Transactional
     public void createClub(final Long userId, final String name, final ClubCategory category, final ClubAffiliation affiliation, final String clubMasterStudentId) {
-        validateAdmin(userId);
+        validateClubRegistrar(userId);
         String validStudentId = getValidClubMasterStudentId(clubMasterStudentId);
 
         clubRepository.save(
@@ -82,7 +82,7 @@ public class ClubService {
 
     @Transactional(readOnly = true)
     public ClubManageDetailResponse getClubManageDetail(final Long userId, final Long clubId) {
-        Club club = validateAuthorizedClubMaster(userId, clubId);
+        Club club = validateClubManagerAuthority(userId, clubId);
 
         return ClubManageDetailResponse.of(
                 club.getName(),
@@ -97,7 +97,7 @@ public class ClubService {
     @Transactional
     public ClubUpdateResponse updateClub(
             final Long userId, final Long clubId, final String name, final ClubCategory category, final ClubAffiliation affiliation, final String description, final String logo, final String instagram) {
-        Club club = validateAuthorizedClubMaster(userId, clubId);
+        Club club = validateClubManagerAuthority(userId, clubId);
 
         String oldLogoKey = club.getLogo();
         String newLogoKey = extractNewLogoKey(logo);
@@ -160,14 +160,9 @@ public class ClubService {
         );
     }
 
-    private void validateAdmin(final Long userId) {
-        if (userId == null) {
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
-        User adminUser = userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-
-        if (adminUser.getRole().equals(UserRole.NORMAL) || adminUser.getRole().equals(UserRole.CLUB_MASTER)) {
+    private void validateClubRegistrar(final Long userId) { //권한 부여: GREEDY_ADMIN, CLUB_ADMIN
+        User adminUser = findUserOrThrow(userId);
+        if (!adminUser.getRole().canRegisterClub()) {
             throw new MokkojiException(FailMessage.FORBIDDEN_REGISTER_CLUB);
         }
     }
@@ -183,22 +178,26 @@ public class ClubService {
         return masterUser.getStudentId();
     }
 
-    private Club validateAuthorizedClubMaster(final Long userId, final Long clubId) {
-        if (userId == null) {
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+    private Club validateClubManagerAuthority(final Long userId, final Long clubId) { //권한 부여: CLUB_MASTER, CLUB_ADMIN
+        User user = findUserOrThrow(userId);
+        Club club = findClubOrThrow(clubId);
 
-        boolean isClubMaster = user.getRole().equals(UserRole.CLUB_MASTER);
-        boolean isOwnerOfThisClub = user.getStudentId().equals(club.getClubMasterStudentId());
-
-        if (!(isClubMaster && isOwnerOfThisClub)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN_MODIFY_CLUB);
+        if (!user.getRole().canManageClub(user, club)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
         }
+
         return club;
+    }
+
+    private User findUserOrThrow(Long userId) {
+        if (userId == null) throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+    }
+
+    private Club findClubOrThrow(Long clubId) {
+        return clubRepository.findById(clubId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
     }
 
     @Nullable
