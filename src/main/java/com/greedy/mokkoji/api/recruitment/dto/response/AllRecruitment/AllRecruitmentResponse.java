@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.recruitment.dto.response;
+package com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment;
 
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
