@@ -201,7 +201,7 @@ public class ClubService {
     }
 
     @Nullable
-    private static String extractNewLogoKey(String logo) {
+    private String extractNewLogoKey(String logo) {
         return (logo != null && !logo.isBlank())
                 ? logo
                 : null;
