@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.recruitment.dto.response;
+package com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment;
 
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 
