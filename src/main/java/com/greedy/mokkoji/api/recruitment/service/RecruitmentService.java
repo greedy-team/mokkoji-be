@@ -9,6 +9,7 @@ import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.ClubPrevie
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.RecruitmentPreviewResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.recruitmentCreate.RecruitmentCreateResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
