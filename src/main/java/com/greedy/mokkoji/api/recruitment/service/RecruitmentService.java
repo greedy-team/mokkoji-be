@@ -32,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -92,16 +93,31 @@ public class RecruitmentService {
         List<String> imageUrls = new ArrayList<>();
 
         if (imageKeys != null && !imageKeys.isEmpty()) {
+            //ex) "Greedy Club" -> "greedy-club"
+            String clubName = recruitment.getClub().getName().replaceAll("\\s+", "-").toLowerCase();
+
             List<RecruitmentImage> recruitmentImages = imageKeys.stream()
-                    .map(imageKey -> {
-                        String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
+                    .map(originalName -> {
+
+                        //확장자 추출
+                        String extension = "";
+                        int dotIndex = originalName.lastIndexOf('.');
+                        if (dotIndex != -1 && dotIndex < originalName.length() - 1) {
+                            extension = originalName.substring(dotIndex);
+                        }
+
+                        //uniqueKey 생성
+                        String uniqueKey = "recruitment/" + clubName + "/" + UUID.randomUUID() + extension;
+
+                        String presignedPutUrl = appDataS3Client.getPresignedPutUrl(uniqueKey);
                         imageUrls.add(presignedPutUrl);
 
                         return RecruitmentImage.builder()
                                 .recruitment(recruitment)
-                                .image(imageKey)
+                                .image(uniqueKey)
                                 .build();
                     })
+
                     .toList();
 
             recruitmentImageRepository.saveAll(recruitmentImages);
