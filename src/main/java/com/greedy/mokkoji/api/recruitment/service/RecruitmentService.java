@@ -154,10 +154,6 @@ public class RecruitmentService {
     public AllRecruitmentOfClubResponse getAllRecruitmentOfClub(final Long clubId) {
         List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
 
-        if (recruitments.isEmpty()) {
-            throw new MokkojiException(FailMessage.NOT_FOUND_USER);
-        }
-
         List<RecruitmentOfClubResponse> recruitmentList = recruitments.stream()
                 .sorted(Comparator.comparing(Recruitment::getRecruitEnd).reversed())
                 .map(recruitment -> RecruitmentOfClubResponse.builder()
