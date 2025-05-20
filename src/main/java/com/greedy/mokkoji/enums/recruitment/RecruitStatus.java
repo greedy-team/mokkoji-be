@@ -1,12 +1,21 @@
 package com.greedy.mokkoji.enums.recruitment;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 
+@Getter
 public enum RecruitStatus {
-    BEFORE,
-    OPEN,
-    IMMINENT,
-    CLOSED;
+    IMMINENT(0),
+    OPEN(1),
+    BEFORE(2),
+    CLOSED(3);
+
+    private final int priority;
+
+    RecruitStatus(int priority) {
+        this.priority = priority;
+    }
 
     public static RecruitStatus from(LocalDateTime start, LocalDateTime end) {
         LocalDateTime now = LocalDateTime.now();
@@ -22,4 +31,5 @@ public enum RecruitStatus {
         }
     }
 }
+
 
