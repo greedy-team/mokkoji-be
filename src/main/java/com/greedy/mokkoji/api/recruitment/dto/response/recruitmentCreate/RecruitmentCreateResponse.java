@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.recruitment.dto.response;
+package com.greedy.mokkoji.api.recruitment.dto.response.recruitmentCreate;
 
 import lombok.Builder;
 

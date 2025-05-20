@@ -6,7 +6,7 @@ import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.recruitmentCreate.RecruitmentCreateResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.SpecificRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
