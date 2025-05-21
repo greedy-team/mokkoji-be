@@ -8,6 +8,7 @@ public record CreateRecruitmentRequest(
         List<String> images,
         String content,
         LocalDateTime recruitStart,
-        LocalDateTime recruitEnd
+        LocalDateTime recruitEnd,
+        String recruitForm
 ) {
 }
