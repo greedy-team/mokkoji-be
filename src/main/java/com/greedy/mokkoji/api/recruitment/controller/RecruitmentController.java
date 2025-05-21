@@ -2,10 +2,10 @@ package com.greedy.mokkoji.api.recruitment.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.recruitment.dto.request.RecruitmentCreateRequest;
+import com.greedy.mokkoji.api.recruitment.dto.request.CreateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.recruitmentCreate.RecruitmentCreateResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
@@ -23,10 +23,10 @@ public class RecruitmentController {
     private final RecruitmentService recruitmentService;
 
     @PostMapping("/{clubId}")
-    public ResponseEntity<APISuccessResponse<RecruitmentCreateResponse>> createRecruitment(
+    public ResponseEntity<APISuccessResponse<CreateRecruitmentResponse>> createRecruitment(
             @Authentication final AuthCredential authCredential,
             @PathVariable("clubId") final Long clubId,
-            @RequestBody RecruitmentCreateRequest request
+            @RequestBody CreateRecruitmentRequest request
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,

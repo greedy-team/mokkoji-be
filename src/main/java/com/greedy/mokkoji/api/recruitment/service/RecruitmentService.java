@@ -7,7 +7,7 @@ import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.ClubPrevie
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.RecruitmentPreviewResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.recruitmentCreate.RecruitmentCreateResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -46,7 +46,7 @@ public class RecruitmentService {
     private final AppDataS3Client appDataS3Client;
 
     @Transactional
-    public RecruitmentCreateResponse createRecruitment(
+    public CreateRecruitmentResponse createRecruitment(
             final Long userId,
             final Long clubId,
             final String title,
@@ -62,6 +62,7 @@ public class RecruitmentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
+        //Todo: 권한 설정에 대해서 추가적으로 이야기 해보기
         if (user.getRole().equals(UserRole.NORMAL)) {
             throw new MokkojiException(FailMessage.FORBIDDEN);
         }
@@ -72,7 +73,7 @@ public class RecruitmentService {
         Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd);
         List<String> imageUrls = uploadRecruitmentImages(recruitment, images);
 
-        return RecruitmentCreateResponse.of(recruitment.getId(), imageUrls);
+        return CreateRecruitmentResponse.of(recruitment.getId(), imageUrls);
     }
 
     private Recruitment buildAndSaveRecruitment(Club club, String title, String content,
