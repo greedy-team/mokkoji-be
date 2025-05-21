@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record RecruitmentOfClubResponse (
+public record RecruitmentOfClubResponse(
         Long id,
         String title,
         String content,
@@ -15,5 +15,5 @@ public record RecruitmentOfClubResponse (
         RecruitStatus status,
         LocalDateTime createdAt,
         String firstImage
-){
+) {
 }
