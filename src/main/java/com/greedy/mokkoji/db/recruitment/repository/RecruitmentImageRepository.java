@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface RecruitmentImageRepository extends JpaRepository<RecruitmentImage, Long> {
     List<RecruitmentImage> findByRecruitmentIdOrderByIdAsc(Long recruitmentId);
+    List<RecruitmentImage> findByRecruitmentId(Long recruitmentId);
 }

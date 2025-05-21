@@ -9,6 +9,7 @@ import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllR
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -53,8 +54,21 @@ public class RecruitmentService {
             final String content,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
-            final List<String> images) {
+            final List<String> images,
+            final String recruitForm) {
 
+        validateAdmin(userId);
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+
+        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm);
+        List<String> imageUrls = uploadRecruitmentImages(recruitment, images);
+
+        return CreateRecruitmentResponse.of(recruitment.getId(), imageUrls);
+    }
+
+    private void validateAdmin(Long userId) {
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
@@ -66,24 +80,17 @@ public class RecruitmentService {
         if (user.getRole().equals(UserRole.NORMAL)) {
             throw new MokkojiException(FailMessage.FORBIDDEN);
         }
-
-        Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
-
-        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd);
-        List<String> imageUrls = uploadRecruitmentImages(recruitment, images);
-
-        return CreateRecruitmentResponse.of(recruitment.getId(), imageUrls);
     }
 
     private Recruitment buildAndSaveRecruitment(Club club, String title, String content,
-                                                LocalDateTime recruitStart, LocalDateTime recruitEnd) {
+                                                LocalDateTime recruitStart, LocalDateTime recruitEnd, String recruitForm) {
         Recruitment recruitment = Recruitment.builder()
                 .club(club)
                 .title(title)
                 .content(content)
                 .recruitStart(recruitStart)
                 .recruitEnd(recruitEnd)
+                .recruitForm(recruitForm)
                 .build();
 
         recruitmentRepository.save(recruitment);
@@ -126,6 +133,68 @@ public class RecruitmentService {
 
         return imageUrls;
     }
+
+//    @Transactional
+//    public UpdateRecruitmentResponse updateRecruitment(
+//            final Long userId,
+//            final Long recruitmentId,
+//            final String title,
+//            final String content,
+//            final LocalDateTime recruitStart,
+//            final LocalDateTime recruitEnd,
+//            final List<String> newImages
+//    ) {
+//        validateAdmin(userId);
+//
+//        // 기존 이미지 삭제 (S3에서)
+//        List<RecruitmentImage> oldImages = recruitmentImageRepository.findByRecruitmentId(recruitmentId);
+//        for (RecruitmentImage image : oldImages) {
+//            appDataS3Client.getPresignedDeleteUrl(image.getImageKey()); // Presigned URL로 삭제 요청 필요 시 사용
+//            recruitmentImageRepository.delete(image);
+//        }
+//
+//        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+//                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_RECRUITMENT));
+//
+//        recruitment.updateRecruitment(final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm);
+//
+//        // 새 이미지 업로드
+//        List<String> newImageUrls = uploadRecruitmentImages(recruitment, newImages);
+//
+//        return UpdateRecruitmentResponse.of(recruitment.getId(), newImageUrls);
+//    }
+
+//    @Transactional
+//    public RecruitmentDeleteResponse deleteRecruitment(final Long userId, final Long recruitmentId) {
+//        validateAdmin(userId);
+//
+//        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+//                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_RECRUITMENT));
+//
+//        // 이미지 S3에서 삭제
+//        List<RecruitmentImage> images = recruitmentImageRepository.findByRecruitmentId(recruitmentId);
+//        for (RecruitmentImage image : images) {
+//            appDataS3Client.getPresignedDeleteUrl(image.getImageKey()); // 삭제 presigned URL 사용
+//            recruitmentImageRepository.delete(image);
+//        }
+//
+//        recruitmentRepository.delete(recruitment);
+//        return RecruitmentDeleteResponse.of(recruitmentId);
+//    }
+//
+//    private void validateAdmin(Long userId) {
+//        if (userId == null) {
+//            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+//        }
+//
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+//
+//        if (user.getRole().equals(UserRole.NORMAL)) {
+//            throw new MokkojiException(FailMessage.FORBIDDEN);
+//        }
+//    }
+
 
     @Transactional
     public SpecificRecruitmentResponse getSpecificRecruitment(final Long recruitmentId) {
