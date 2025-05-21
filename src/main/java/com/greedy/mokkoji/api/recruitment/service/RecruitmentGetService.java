@@ -19,11 +19,13 @@ import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,21 +92,43 @@ public class RecruitmentGetService {
 
     @Transactional
     public AllRecruitmentResponse getAllRecruitment(final Long userId, final Pageable pageable) {
-        Page<Recruitment> recruitments = recruitmentRepository.findAll(pageable);
+        List<Recruitment> allRecruitments = recruitmentRepository.findAll();
 
-        List<RecruitmentPreviewResponse> recruitmentResponses = recruitments.stream()
+        // 마감기한 가장 늦은 글만 필터링 (동아리별 하나씩)
+        List<Recruitment> filteredRecruitments = filterLatestRecruitmentPerClub(allRecruitments);
+
+        // 페이징 처리
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), filteredRecruitments.size());
+        List<Recruitment> pagedRecruitments = filteredRecruitments.subList(start, end);
+        Page<Recruitment> paged = new PageImpl<>(pagedRecruitments, pageable, filteredRecruitments.size());
+
+        // DTO 변환 및 정렬
+        List<RecruitmentPreviewResponse> recruitmentResponses = paged.stream()
                 .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
                 .sorted(getFinalComparator(userId))
                 .toList();
 
+        // 페이징 정보 생성
         PageResponse pageResponse = PageResponse.of(
-                recruitments.getNumber() + 1,
-                recruitments.getSize(),
-                recruitments.getTotalPages(),
-                (int) recruitments.getTotalElements()
+                paged.getNumber() + 1,
+                paged.getSize(),
+                paged.getTotalPages(),
+                (int) paged.getTotalElements()
         );
 
         return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
+    }
+
+    private List<Recruitment> filterLatestRecruitmentPerClub(List<Recruitment> recruitments) {
+        return recruitments.stream()
+                .collect(Collectors.toMap(
+                        r -> r.getClub().getId(), r -> r,
+                        (r1, r2) -> r1.getRecruitEnd().isAfter(r2.getRecruitEnd()) ? r1 : r2
+                ))
+                .values()
+                .stream()
+                .toList();
     }
 
     private RecruitmentPreviewResponse mapToRecruitmentPreviewResponse(Long userId, Recruitment recruitment) {
