@@ -92,9 +92,8 @@ public class RecruitmentGetService {
 
     @Transactional
     public AllRecruitmentResponse getAllRecruitment(final Long userId, final Pageable pageable) {
-        List<Recruitment> allRecruitments = recruitmentRepository.findAll();
 
-        // 마감기한 가장 늦은 글만 필터링 (동아리별 하나씩)
+        List<Recruitment> allRecruitments = recruitmentRepository.findAll();
         List<Recruitment> filteredRecruitments = filterLatestRecruitmentPerClub(allRecruitments);
 
         // 페이징 처리
