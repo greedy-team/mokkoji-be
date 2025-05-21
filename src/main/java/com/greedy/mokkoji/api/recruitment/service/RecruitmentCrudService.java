@@ -56,21 +56,6 @@ public class RecruitmentCrudService {
         return CreateRecruitmentResponse.of(recruitment.getId(), uploadImageUrls);
     }
 
-    private Recruitment buildAndSaveRecruitment(Club club, String title, String content,
-                                                LocalDateTime recruitStart, LocalDateTime recruitEnd, String recruitForm) {
-        Recruitment recruitment = Recruitment.builder()
-                .club(club)
-                .title(title)
-                .content(content)
-                .recruitStart(recruitStart)
-                .recruitEnd(recruitEnd)
-                .recruitForm(recruitForm)
-                .build();
-
-        recruitmentRepository.save(recruitment);
-        return recruitment;
-    }
-
     @Transactional
     public UpdateRecruitmentResponse updateRecruitment(
             final Long userId,
@@ -109,6 +94,21 @@ public class RecruitmentCrudService {
         return DeleteRecruitmentResponse.of(recruitmentId, deleteImageUrls);
     }
 
+    private Recruitment buildAndSaveRecruitment(Club club, String title, String content,
+                                                LocalDateTime recruitStart, LocalDateTime recruitEnd, String recruitForm) {
+        Recruitment recruitment = Recruitment.builder()
+                .club(club)
+                .title(title)
+                .content(content)
+                .recruitStart(recruitStart)
+                .recruitEnd(recruitEnd)
+                .recruitForm(recruitForm)
+                .build();
+
+        recruitmentRepository.save(recruitment);
+        return recruitment;
+    }
+
     private List<String> deleteImages(Long recruitmentId) {
         List<RecruitmentImage> oldImages = recruitmentImageRepository.findByRecruitmentId(recruitmentId);
 
@@ -130,15 +130,7 @@ public class RecruitmentCrudService {
 
             List<RecruitmentImage> recruitmentImages = imageKeys.stream()
                     .map(originalName -> {
-
-                        //확장자 추출
-                        String extension = "";
-                        int dotIndex = originalName.lastIndexOf('.');
-                        if (dotIndex != -1 && dotIndex < originalName.length() - 1) {
-                            extension = originalName.substring(dotIndex);
-                        }
-
-                        //uniqueKey 생성
+                        String extension = extractExtension(originalName);
                         String uniqueKey = "recruitment/" + clubName + "/" + UUID.randomUUID() + extension;
 
                         String presignedPutUrl = appDataS3Client.getPresignedPutUrl(uniqueKey);
@@ -149,13 +141,19 @@ public class RecruitmentCrudService {
                                 .image(uniqueKey)
                                 .build();
                     })
-
                     .toList();
 
             recruitmentImageRepository.saveAll(recruitmentImages);
         }
-
         return imageUrls;
+    }
+
+    private String extractExtension(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
+            return fileName.substring(dotIndex);
+        }
+        return "";
     }
 
     private void validateAdmin(Long userId) {
@@ -171,4 +169,5 @@ public class RecruitmentCrudService {
             throw new MokkojiException(FailMessage.FORBIDDEN);
         }
     }
+
 }
