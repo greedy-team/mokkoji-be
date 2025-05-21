@@ -8,7 +8,8 @@ public record UpdateRecruitmentRequest(
         List<String> images,
         String content,
         LocalDateTime recruitStart,
-        LocalDateTime recruitEnd
+        LocalDateTime recruitEnd,
+        String recruitForm
 ) {
 }
 

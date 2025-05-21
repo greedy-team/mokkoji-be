@@ -9,7 +9,8 @@ import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruit
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
-import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
+import com.greedy.mokkoji.api.recruitment.service.RecruitmentCrudService;
+import com.greedy.mokkoji.api.recruitment.service.RecruitmentGetService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +23,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/recruitments")
 public class RecruitmentController {
-    private final RecruitmentService recruitmentService;
+    private final RecruitmentCrudService recruitmentCrudService;
+    private final RecruitmentGetService recruitmentService;
 
     @PostMapping("/{clubId}")
     public ResponseEntity<APISuccessResponse<CreateRecruitmentResponse>> createRecruitment(
@@ -32,7 +34,7 @@ public class RecruitmentController {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.createRecruitment(
+                recruitmentCrudService.createRecruitment(
                         authCredential.userId(),
                         clubId,
                         request.title(),
@@ -45,23 +47,24 @@ public class RecruitmentController {
         );
     }
 
-//    @PutMapping("/{recruitmentId}")
-//    public ResponseEntity<APISuccessResponse<UpdateRecruitmentResponse>> updateRecruitment(
-//            @Authentication final AuthCredential authCredential,
-//            @PathVariable("recruitmentId") final Long recruitmentId,
-//            @RequestBody UpdateRecruitmentRequest request
-//    ) {
-//        UpdateRecruitmentResponse response = recruitmentService.updateRecruitment(
-//                authCredential.userId(),
-//                recruitmentId,
-//                request.title(),
-//                request.content(),
-//                request.recruitStart(),
-//                request.recruitEnd(),
-//                request.images()
-//        );
-//        return APISuccessResponse.of(HttpStatus.OK, response);
-//    }
+    @PutMapping("/{recruitmentId}")
+    public ResponseEntity<APISuccessResponse<UpdateRecruitmentResponse>> updateRecruitment(
+            @Authentication final AuthCredential authCredential,
+            @PathVariable("recruitmentId") final Long recruitmentId,
+            @RequestBody UpdateRecruitmentRequest request
+    ) {
+        UpdateRecruitmentResponse response = recruitmentCrudService.updateRecruitment(
+                authCredential.userId(),
+                recruitmentId,
+                request.title(),
+                request.content(),
+                request.recruitStart(),
+                request.recruitEnd(),
+                request.images(),
+                request.recruitForm()
+        );
+        return APISuccessResponse.of(HttpStatus.OK, response);
+    }
 
 //    @DeleteMapping("/{recruitmentId}")
 //    public ResponseEntity<APISuccessResponse<DeleteRecruitmentResponse>> deleteRecruitment(
