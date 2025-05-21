@@ -2,6 +2,7 @@ package com.greedy.mokkoji.api.recruitment.service;
 
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -19,7 +20,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -86,51 +89,37 @@ public class RecruitmentCrudService {
 
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm);
 
-        List<RecruitmentImage> oldImages = recruitmentImageRepository.findByRecruitmentId(recruitmentId);
-        List<String> deleteImageUrls = oldImages.stream()
-                .map(image -> appDataS3Client.getPresignedDeleteUrl(image.getImage()))
-                .toList();
-
-        recruitmentImageRepository.deleteAll(oldImages);
+        List<String> deleteImageUrls = deleteImages(recruitment.getId());
 
         List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, newImages);
 
         return UpdateRecruitmentResponse.of(recruitment.getId(), deleteImageUrls, uploadImageUrls);
     }
 
+    @Transactional
+    public DeleteRecruitmentResponse deleteRecruitment(final Long userId, final Long recruitmentId) {
+        validateAdmin(userId);
 
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
+        List<String> deleteImageUrls = deleteImages(recruitmentId);
+        recruitmentRepository.delete(recruitment);
 
-//    @Transactional
-//    public RecruitmentDeleteResponse deleteRecruitment(final Long userId, final Long recruitmentId) {
-//        validateAdmin(userId);
-//
-//        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
-//                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_RECRUITMENT));
-//
-//        // 이미지 S3에서 삭제
-//        List<RecruitmentImage> images = recruitmentImageRepository.findByRecruitmentId(recruitmentId);
-//        for (RecruitmentImage image : images) {
-//            appDataS3Client.getPresignedDeleteUrl(image.getImageKey()); // 삭제 presigned URL 사용
-//            recruitmentImageRepository.delete(image);
-//        }
-//
-//        recruitmentRepository.delete(recruitment);
-//        return RecruitmentDeleteResponse.of(recruitmentId);
-//    }
-//
-//    private void validateAdmin(Long userId) {
-//        if (userId == null) {
-//            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-//        }
-//
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-//
-//        if (user.getRole().equals(UserRole.NORMAL)) {
-//            throw new MokkojiException(FailMessage.FORBIDDEN);
-//        }
-//    }
+        return DeleteRecruitmentResponse.of(recruitmentId, deleteImageUrls);
+    }
+
+    private List<String> deleteImages(Long recruitmentId) {
+        List<RecruitmentImage> oldImages = recruitmentImageRepository.findByRecruitmentId(recruitmentId);
+
+        List<String> deleteImageUrls = oldImages.stream()
+                .map(image -> appDataS3Client.getPresignedDeleteUrl(image.getImage()))
+                .toList();
+
+        recruitmentImageRepository.deleteAll(oldImages);
+
+        return deleteImageUrls;
+    }
 
     private List<String> uploadRecruitmentImages(Recruitment recruitment, List<String> imageKeys) {
         List<String> imageUrls = new ArrayList<>();

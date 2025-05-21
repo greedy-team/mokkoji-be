@@ -4,9 +4,10 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.recruitment.dto.request.CreateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.request.UpdateRecruitmentRequest;
-import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentCrudService;
@@ -47,7 +48,7 @@ public class RecruitmentController {
         );
     }
 
-    @PutMapping("/{recruitmentId}")
+    @PatchMapping("/{recruitmentId}")
     public ResponseEntity<APISuccessResponse<UpdateRecruitmentResponse>> updateRecruitment(
             @Authentication final AuthCredential authCredential,
             @PathVariable("recruitmentId") final Long recruitmentId,
@@ -66,14 +67,14 @@ public class RecruitmentController {
         return APISuccessResponse.of(HttpStatus.OK, response);
     }
 
-//    @DeleteMapping("/{recruitmentId}")
-//    public ResponseEntity<APISuccessResponse<DeleteRecruitmentResponse>> deleteRecruitment(
-//            @Authentication final AuthCredential authCredential,
-//            @PathVariable("recruitmentId") final Long recruitmentId
-//    ) {
-//        RecruitmentDeleteResponse response = recruitmentService.deleteRecruitment(authCredential.userId(), recruitmentId);
-//        return APISuccessResponse.of(HttpStatus.OK, response);
-//    }
+    @DeleteMapping("/{recruitmentId}")
+    public ResponseEntity<APISuccessResponse<DeleteRecruitmentResponse>> deleteRecruitment(
+            @Authentication final AuthCredential authCredential,
+            @PathVariable("recruitmentId") final Long recruitmentId
+    ) {
+        DeleteRecruitmentResponse response = recruitmentCrudService.deleteRecruitment(authCredential.userId(), recruitmentId);
+        return APISuccessResponse.of(HttpStatus.OK, response);
+    }
 
 
     @GetMapping("/club/{clubId}")
