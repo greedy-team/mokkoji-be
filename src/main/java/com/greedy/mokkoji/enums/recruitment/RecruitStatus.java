@@ -1,10 +1,12 @@
 package com.greedy.mokkoji.enums.recruitment;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
+@AllArgsConstructor
 public enum RecruitStatus {
     IMMINENT(0),
     OPEN(1),
@@ -12,10 +14,6 @@ public enum RecruitStatus {
     CLOSED(3);
 
     private final int priority;
-
-    RecruitStatus(int priority) {
-        this.priority = priority;
-    }
 
     public static RecruitStatus from(LocalDateTime start, LocalDateTime end) {
         LocalDateTime now = LocalDateTime.now();

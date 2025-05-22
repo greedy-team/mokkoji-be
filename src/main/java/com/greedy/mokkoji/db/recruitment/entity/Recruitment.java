@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Entity
@@ -51,7 +50,7 @@ public class Recruitment extends BaseTime {
         this.recruitForm = recruitForm;
     }
 
-    public void updateRecruitment(final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm){
+    public void updateRecruitment(final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm) {
         this.title = title;
         this.content = content;
         this.recruitStart = recruitStart;
