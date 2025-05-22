@@ -1,10 +1,7 @@
 package com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment;
 
-import lombok.Builder;
-
 import java.util.List;
 
-@Builder
 public record CreateRecruitmentResponse(
         Long id,
         List<String> uploadImageUrls
