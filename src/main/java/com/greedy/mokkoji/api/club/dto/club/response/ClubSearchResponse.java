@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.club.dto.club;
+package com.greedy.mokkoji.api.club.dto.club.response;
 
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 import lombok.Builder;

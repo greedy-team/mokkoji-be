@@ -1,8 +1,8 @@
 package com.greedy.mokkoji.club.controller;
 
-import com.greedy.mokkoji.api.club.dto.club.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
-import com.greedy.mokkoji.api.club.dto.club.ClubSearchResponse;
+import com.greedy.mokkoji.api.club.dto.club.response.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.club.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.club.response.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.dto.page.PageResponse;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;

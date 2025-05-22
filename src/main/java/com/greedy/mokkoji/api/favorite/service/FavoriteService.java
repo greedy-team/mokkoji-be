@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.api.favorite.service;
 
-import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.club.response.ClubResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;

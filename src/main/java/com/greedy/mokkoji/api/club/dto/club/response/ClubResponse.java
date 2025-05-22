@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.club.dto.club;
+package com.greedy.mokkoji.api.club.dto.club.response;
 
 import lombok.Builder;
 
@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Builder
-public record ClubDetailResponse(
+public record ClubResponse(
         Long id,
         String name,
         String category,
@@ -15,11 +15,9 @@ public record ClubDetailResponse(
         String recruitStartDate,
         String recruitEndDate,
         String imageURL,
-        Boolean isFavorite,
-        String instagramLink,
-        String recruitPost
+        Boolean isFavorite
 ) {
-    public static ClubDetailResponse of(
+    public static ClubResponse of(
             final Long id,
             final String name,
             final String category,
@@ -28,11 +26,9 @@ public record ClubDetailResponse(
             final LocalDateTime recruitStartDate,
             final LocalDateTime recruitEndDate,
             final String imageURL,
-            final Boolean isFavorite,
-            final String instagramLink,
-            final String recruitPost
-    ) {
-        return ClubDetailResponse.builder()
+            final Boolean isFavorite) {
+
+        return ClubResponse.builder()
                 .id(id)
                 .name(name)
                 .category(category)
@@ -42,8 +38,6 @@ public record ClubDetailResponse(
                 .recruitEndDate(recruitEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
                 .imageURL(imageURL)
                 .isFavorite(isFavorite)
-                .instagramLink(instagramLink)
-                .recruitPost(recruitPost)
                 .build();
     }
 }
