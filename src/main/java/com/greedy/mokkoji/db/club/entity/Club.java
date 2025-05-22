@@ -31,10 +31,10 @@ public class Club extends BaseTime {
     @Enumerated(value = EnumType.STRING)
     private ClubAffiliation clubAffiliation;
 
-    @Column(name = "description", columnDefinition = "text", nullable = false)
+    @Column(name = "description", columnDefinition = "text")
     private String description;
 
-    @Column(name = "logo", columnDefinition = "text", nullable = false)
+    @Column(name = "logo", columnDefinition = "text")
     private String logo;
 
     @Column(name = "instagram", columnDefinition = "text")
@@ -44,12 +44,23 @@ public class Club extends BaseTime {
     private String clubMasterStudentId;
 
     @Builder
-    public Club(final String name, final ClubCategory clubCategory, final ClubAffiliation clubAffiliation, final String description, final String logo, final String instagram) {
+    public Club(final String name, final ClubCategory clubCategory, final ClubAffiliation clubAffiliation, final String description, final String logo, final String instagram, final String clubMasterStudentId) {
         this.name = name;
         this.clubCategory = clubCategory;
         this.clubAffiliation = clubAffiliation;
         this.description = description;
         this.logo = logo;
         this.instagram = instagram;
+        this.clubMasterStudentId = clubMasterStudentId;
+    }
+
+    public void updateIfPresent(String name, ClubCategory category, ClubAffiliation affiliation,
+                                String description, String logo, String instagram) {
+        if (name != null && !name.isBlank()) this.name = name;
+        if (category != null) this.clubCategory = category;
+        if (affiliation != null) this.clubAffiliation = affiliation;
+        if (description != null && !description.isBlank()) this.description = description;
+        if (logo != null && !logo.isBlank()) this.logo = logo;
+        if (instagram != null && !instagram.isBlank()) this.instagram = instagram;
     }
 }

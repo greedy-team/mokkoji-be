@@ -2,7 +2,7 @@ package com.greedy.mokkoji.api.favorite.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.club.response.ClubResponse;
 import com.greedy.mokkoji.api.favorite.service.FavoriteService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
