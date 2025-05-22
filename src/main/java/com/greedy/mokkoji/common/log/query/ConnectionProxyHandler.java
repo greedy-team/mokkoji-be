@@ -20,7 +20,7 @@ public class ConnectionProxyHandler implements InvocationHandler {
         Object proxyTarget = method.invoke(connection, args);
 
         if (proxyTarget instanceof PreparedStatement && method.getName().equals(QUERY_PREPARE_STATEMENT)) {
-            return  Proxy.newProxyInstance(
+            return Proxy.newProxyInstance(
                     proxyTarget.getClass().getClassLoader(),
                     proxyTarget.getClass().getInterfaces(),
                     new PreparedStatementProxyHandler((PreparedStatement) proxyTarget, queryCounter)

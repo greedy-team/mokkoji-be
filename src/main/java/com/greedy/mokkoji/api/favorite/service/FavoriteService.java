@@ -31,7 +31,6 @@ public class FavoriteService {
 
     @Transactional
     public Void addFavorite(final Long userId, final Long clubId) {
-
         final User user = getUserById(userId);
         final Club club = getClubById(clubId);
 
