@@ -63,7 +63,6 @@ public class CommentService {
                                 isCommentWriter(userId, comment)
                         )).toList()
         );
-
     }
 
     private boolean isCommentWriter(final Long userId, final Comment comment) {
@@ -71,6 +70,27 @@ public class CommentService {
             return false;
         }
         return comment.getUser().getId().equals(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public void updateComment(final Long userId, final Long commentId, final Double rate, final String content) {
+        if (userId == null) {
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        }
+
+        final Comment comment = commentRepository.findById(commentId).orElseThrow(
+                () -> new MokkojiException(FailMessage.NOT_FOUND_COMMENT)
+        );
+
+        final User user = userRepository.findById(userId).orElseThrow(
+                () -> new MokkojiException(FailMessage.NOT_FOUND_USER)
+        );
+
+        if (!user.equals(comment.getUser())) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_NOT_COMMENT_WRITER);
+        }
+
+        comment.updateComment(rate, content);
     }
 
 }

@@ -41,4 +41,9 @@ public class Comment extends BaseTime {
         this.club = club;
         this.user = user;
     }
+
+    public void updateComment(final Double rate, final String content) {
+        this.rate = rate;
+        this.content = content;
+    }
 }
