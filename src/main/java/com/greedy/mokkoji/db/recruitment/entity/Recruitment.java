@@ -49,4 +49,12 @@ public class Recruitment extends BaseTime {
         this.recruitEnd = recruitEnd;
         this.recruitForm = recruitForm;
     }
+
+    public void updateRecruitment(final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm) {
+        this.title = title;
+        this.content = content;
+        this.recruitStart = recruitStart;
+        this.recruitEnd = recruitEnd;
+        this.recruitForm = recruitForm;
+    }
 }
