@@ -3,10 +3,11 @@ package com.greedy.mokkoji.api.external;
 import com.greedy.mokkoji.config.AwsConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.*;
 
 import java.time.Duration;
 
@@ -44,5 +45,48 @@ public class AppDataS3Client {
 
         s3Presigner.close();
         return url;
+    }
+
+    //TODO: UUID 사용하여 filename 중복 문제 해결하기
+    public String getPresignedPutUrl(final String filename) {
+        if (filename == null || filename.isBlank()) {
+            return null;
+        }
+
+        final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(filename)
+                .build();
+
+        final PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(5))
+                .putObjectRequest(putObjectRequest)
+                .build();
+
+        final PresignedPutObjectRequest presignedPutObjectRequest = s3Presigner
+                .presignPutObject(presignRequest);
+
+        return presignedPutObjectRequest.url().toString();
+    }
+
+    public String getPresignedDeleteUrl(final String filename) {
+        if (filename == null || filename.isBlank()) {
+            return null;
+        }
+
+        final DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(filename)
+                .build();
+
+        final DeleteObjectPresignRequest presignRequest = DeleteObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(5))
+                .deleteObjectRequest(deleteObjectRequest)
+                .build();
+
+        final PresignedDeleteObjectRequest presignedDeleteObjectRequest = s3Presigner
+                .presignDeleteObject(presignRequest);
+
+        return presignedDeleteObjectRequest.url().toString();
     }
 }

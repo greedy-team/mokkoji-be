@@ -1,11 +1,9 @@
 package com.greedy.mokkoji.favorite.controller;
 
-import com.greedy.mokkoji.api.club.dto.club.ClubResponse;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.common.response.APIErrorResponse;
 import com.greedy.mokkoji.db.club.entity.Club;
-import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import io.restassured.RestAssured;
