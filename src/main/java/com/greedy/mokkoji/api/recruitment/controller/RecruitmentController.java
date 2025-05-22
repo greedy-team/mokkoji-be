@@ -10,8 +10,7 @@ import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateR
 import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
-import com.greedy.mokkoji.api.recruitment.service.RecruitmentCrudService;
-import com.greedy.mokkoji.api.recruitment.service.RecruitmentGetService;
+import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -24,8 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/recruitments")
 public class RecruitmentController {
-    private final RecruitmentCrudService recruitmentCrudService;
-    private final RecruitmentGetService recruitmentService;
+    private final RecruitmentService recruitmentService;
 
     @PostMapping("/{clubId}")
     public ResponseEntity<APISuccessResponse<CreateRecruitmentResponse>> createRecruitment(
@@ -35,7 +33,7 @@ public class RecruitmentController {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentCrudService.createRecruitment(
+                recruitmentService.createRecruitment(
                         authCredential.userId(),
                         clubId,
                         request.title(),
@@ -54,7 +52,7 @@ public class RecruitmentController {
             @PathVariable("recruitmentId") final Long recruitmentId,
             @RequestBody UpdateRecruitmentRequest request
     ) {
-        UpdateRecruitmentResponse response = recruitmentCrudService.updateRecruitment(
+        UpdateRecruitmentResponse response = recruitmentService.updateRecruitment(
                 authCredential.userId(),
                 recruitmentId,
                 request.title(),
@@ -72,7 +70,7 @@ public class RecruitmentController {
             @Authentication final AuthCredential authCredential,
             @PathVariable("recruitmentId") final Long recruitmentId
     ) {
-        DeleteRecruitmentResponse response = recruitmentCrudService.deleteRecruitment(authCredential.userId(), recruitmentId);
+        DeleteRecruitmentResponse response = recruitmentService.deleteRecruitment(authCredential.userId(), recruitmentId);
         return APISuccessResponse.of(HttpStatus.OK, response);
     }
 
