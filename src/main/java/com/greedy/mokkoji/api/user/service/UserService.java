@@ -3,6 +3,7 @@ package com.greedy.mokkoji.api.user.service;
 import com.greedy.mokkoji.api.external.SejongLoginClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
@@ -68,6 +69,16 @@ public class UserService {
     @Transactional
     public void logOut(final Long userId) {
         tokenService.deleteRefreshToken(userId);
+    }
+
+    @Transactional
+    public UserRoleResponse getUserRole(final Long userId) {
+        final User user = userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+
+        return UserRoleResponse.of(
+                user.getRole().toString()
+        );
     }
 }
 
