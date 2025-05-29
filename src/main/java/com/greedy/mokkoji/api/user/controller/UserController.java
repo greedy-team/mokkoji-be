@@ -8,6 +8,7 @@ import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.RefreshResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
@@ -78,4 +79,12 @@ public class UserController {
 
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
+
+    @GetMapping("/roles")
+    public ResponseEntity<APISuccessResponse<UserRoleResponse>> getUserRole(
+            @Authentication AuthCredential authCredential
+    ) {
+        return APISuccessResponse.of(HttpStatus.OK, userService.getUserRole(authCredential.userId()));
+    }
+
 }
