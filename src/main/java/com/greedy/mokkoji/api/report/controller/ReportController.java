@@ -18,7 +18,7 @@ public class ReportController {
 
     private final ReportService reportService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createReport(
             @Authentication final AuthCredential authCredential,
             @RequestParam(name = "reportType") final ReportType reportType,
