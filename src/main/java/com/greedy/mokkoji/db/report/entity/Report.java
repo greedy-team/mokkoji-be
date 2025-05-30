@@ -23,7 +23,7 @@ public class Report {
     @Column(name = "user_id", columnDefinition = "bigint", nullable = false)
     private Long userId;
 
-    @Column(name = "club_category", columnDefinition = "varchar(20)", nullable = false)
+    @Column(name = "report_type", columnDefinition = "varchar(20)", nullable = false)
     @Enumerated(value = EnumType.STRING)
     private ReportType reportType;
 
