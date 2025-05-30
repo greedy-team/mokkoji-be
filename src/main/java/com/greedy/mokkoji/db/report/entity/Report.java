@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.db.report.entity;
 
+import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.enums.report.ReportType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "report")
-public class Report {
+public class Report extends BaseTime {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "bigint", nullable = false)
@@ -29,9 +30,6 @@ public class Report {
 
     @Column(name = "content", columnDefinition = "text", nullable = false)
     private String content;
-
-    @CreationTimestamp
-    private LocalDateTime created_at;
 
     @Builder
     public Report(Long userId, ReportType reportType, String content) {
