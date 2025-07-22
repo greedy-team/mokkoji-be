@@ -14,7 +14,8 @@ public record KakaoUserInfoResponse(
         public record Profile(
                 String nickname,
                 boolean isDefaultNickname
-        ) {}
+        ) {
+        }
     }
 }
 

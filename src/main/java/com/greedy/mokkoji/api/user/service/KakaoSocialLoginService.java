@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KakaoSocialLoginService {
 
+    private static final String TOKEN_TYPE = "Bearer ";
+    private final KakaoAccessTokenClient kakaoAccessTokenClient;
+    private final KakaoUserInfoClient kakaoUserInfoClient;
     @Value("${kakao.client-id}")
     private String kakaoClientId;
     @Value("${kakao.redirect-uri}")
@@ -21,23 +24,18 @@ public class KakaoSocialLoginService {
     @Value("${kakao.grant-type}")
     private String kakaoGrantType;
 
-    private static final String TOKEN_TYPE = "Bearer ";
-
-    private final KakaoAccessTokenClient kakaoAccessTokenClient;
-    private final KakaoUserInfoClient kakaoUserInfoClient;
-
     public KakaoUserInfoResponse login(final String code) {
         final KakaoAccessTokenResponse kakaoAccessTokenResponse = kakaoAccessTokenClient.kakaoAuth(
-            kakaoContentType,
-            code,
-            kakaoClientId,
-            kakaoRedirectUri,
-            kakaoGrantType
+                kakaoContentType,
+                code,
+                kakaoClientId,
+                kakaoRedirectUri,
+                kakaoGrantType
         );
 
         return kakaoUserInfoClient.kakaoUserInfo(
-            TOKEN_TYPE + kakaoAccessTokenResponse.accessToken(),
-            kakaoContentType
+                TOKEN_TYPE + kakaoAccessTokenResponse.accessToken(),
+                kakaoContentType
         );
     }
 }

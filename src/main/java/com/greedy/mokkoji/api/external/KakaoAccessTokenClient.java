@@ -11,9 +11,9 @@ public interface KakaoAccessTokenClient {
 
     @PostMapping
     KakaoAccessTokenResponse kakaoAuth(
-        @RequestHeader(name = "Content-type") final String contentType,
-        @RequestParam(name = "code") final String code,
-        @RequestParam(name = "client_id") final String clientId,
-        @RequestParam(name = "redirect_uri") final String redirectUri,
-        @RequestParam(name = "grant_type") final String grantType);
+            @RequestHeader(name = "Content-type") final String contentType,
+            @RequestParam(name = "code") final String code,
+            @RequestParam(name = "client_id") final String clientId,
+            @RequestParam(name = "redirect_uri") final String redirectUri,
+            @RequestParam(name = "grant_type") final String grantType);
 }

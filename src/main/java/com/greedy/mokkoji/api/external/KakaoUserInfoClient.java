@@ -10,7 +10,7 @@ public interface KakaoUserInfoClient {
 
     @GetMapping
     KakaoUserInfoResponse kakaoUserInfo(
-        @RequestHeader("Authorization") final String token,
-        @RequestHeader(name = "Content-type") final String contentType
+            @RequestHeader("Authorization") final String token,
+            @RequestHeader(name = "Content-type") final String contentType
     );
 }
