@@ -1,7 +1,5 @@
 package com.greedy.mokkoji.external;
 
-import com.greedy.mokkoji.api.external.SejongLoginClient;
-import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

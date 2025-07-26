@@ -1,6 +1,5 @@
 package com.greedy.mokkoji.common;
 
-import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.db.user.entity.User;

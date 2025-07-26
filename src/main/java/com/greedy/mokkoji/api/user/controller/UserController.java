@@ -3,7 +3,7 @@ package com.greedy.mokkoji.api.user.controller;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.jwt.BearerAuthExtractor;
-import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
+import com.greedy.mokkoji.api.user.dto.request.KakaoSocialLoginRequest;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.RefreshResponse;
@@ -27,8 +27,8 @@ public class UserController {
     private final TokenService tokenService;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
-        final User user = userService.login(request.studentId(), request.password());
+    public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody KakaoSocialLoginRequest kakaoSocialLoginRequest) {
+        final User user = userService.login(kakaoSocialLoginRequest.code());
         final LoginResponse loginResponse = tokenService.generateToken(user.getId());
 
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
