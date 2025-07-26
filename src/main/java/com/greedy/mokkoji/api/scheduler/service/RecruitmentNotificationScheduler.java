@@ -27,6 +27,8 @@ public class RecruitmentNotificationScheduler {
 
         List<Recruitment> recruitments = recruitmentRepository.findTodayRecruitStartDate(currentDate);
 
+        recruitments.addAll(recruitmentRepository.findAllByRecruitmentDeadlineTodayOrInThreeDays(currentDate));
+
         recruitments.forEach(
                 recruitment -> {
                     Club club = recruitment.getClub();
