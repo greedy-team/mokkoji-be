@@ -58,7 +58,9 @@ public class ClubController {
             @RequestBody final ClubCreateRequest clubCreateRequest,
             @Authentication final AuthCredential authCredential
     ) {
-        clubService.createClub(authCredential.userId(), clubCreateRequest.name(), clubCreateRequest.category(), clubCreateRequest.affiliation(), clubCreateRequest.clubMasterStudentId());
+        clubService.createClub(authCredential.userId(), clubCreateRequest.name(), clubCreateRequest.category(),
+                clubCreateRequest.affiliation(), clubCreateRequest.clubMasterStudentId(),
+                clubCreateRequest.image(), clubCreateRequest.instagram(), clubCreateRequest.description());
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
