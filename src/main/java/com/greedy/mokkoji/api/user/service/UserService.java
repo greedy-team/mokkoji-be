@@ -30,7 +30,7 @@ public class UserService {
         return userRepository.findByUniqueId(userInfo.id()).orElseGet(() -> {
             final User newUser = User.builder()
                     .uniqueId(userInfo.id())
-                    .nickname(userInfo.kakaoProfileResponse().nickname())
+                    .nickname(userInfo.kakaoAccountResponse().kakaoProfileResponse().nickname())
                     .role(UserRole.NORMAL)
                     .build();
             return userRepository.save(newUser);
