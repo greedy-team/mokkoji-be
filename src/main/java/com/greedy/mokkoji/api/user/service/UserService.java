@@ -29,10 +29,10 @@ public class UserService {
 
         return userRepository.findByUniqueId(userInfo.id()).orElseGet(() -> {
             final User newUser = User.builder()
-                    .uniqueId(userInfo.id())
-                    .nickname(userInfo.kakaoAccountResponse().kakaoProfileResponse().nickname())
-                    .role(UserRole.NORMAL)
-                    .build();
+                .uniqueId(userInfo.id())
+                .nickname(userInfo.kakaoAccount().profile().nickname())
+                .role(UserRole.NORMAL)
+                .build();
             return userRepository.save(newUser);
         });
     }
@@ -57,7 +57,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findUser(final Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
     @Transactional
