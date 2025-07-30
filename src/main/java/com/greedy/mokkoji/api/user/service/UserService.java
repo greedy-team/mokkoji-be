@@ -1,6 +1,9 @@
 package com.greedy.mokkoji.api.user.service;
 
+import com.greedy.mokkoji.api.external.SejongLoginClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
+import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -20,7 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
-    private final KakaoSocialLoginService kakaoSocialLoginService;
+    private final SejongLoginClient sejongLoginClient;
 
     //ToDo: 생 유저 정보를 넘기는 게 아니라 DTO처리해서 넘기는 것도 좋아보임
     @Transactional
