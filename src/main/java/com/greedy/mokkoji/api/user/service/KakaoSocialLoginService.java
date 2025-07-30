@@ -2,8 +2,8 @@ package com.greedy.mokkoji.api.user.service;
 
 import com.greedy.mokkoji.api.external.KakaoAccessTokenClient;
 import com.greedy.mokkoji.api.external.KakaoUserInfoClient;
-import com.greedy.mokkoji.api.user.dto.resopnse.KakaoAccessTokenResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.KakaoUserInfoResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoAccessTokenResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

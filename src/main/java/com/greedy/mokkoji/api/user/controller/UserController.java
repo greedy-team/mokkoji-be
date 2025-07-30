@@ -3,7 +3,6 @@ package com.greedy.mokkoji.api.user.controller;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.jwt.BearerAuthExtractor;
-import com.greedy.mokkoji.api.user.dto.request.KakaoSocialLoginRequest;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.RefreshResponse;

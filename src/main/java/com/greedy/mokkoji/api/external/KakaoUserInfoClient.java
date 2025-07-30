@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.api.external;
 
-import com.greedy.mokkoji.api.user.dto.resopnse.KakaoUserInfoResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
