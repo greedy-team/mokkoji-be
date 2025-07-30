@@ -24,15 +24,19 @@ public class UserService {
 
     //ToDo: 생 유저 정보를 넘기는 게 아니라 DTO처리해서 넘기는 것도 좋아보임
     @Transactional
-    public User login(final String code) {
-        final KakaoUserInfoResponse userInfo = kakaoSocialLoginService.login(code);
+    public User login(final String studentId, final String password) {
 
-        return userRepository.findByUniqueId(userInfo.id()).orElseGet(() -> {
+        final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId, password);
+
+        return userRepository.findByStudentId(studentId).orElseGet(() -> {
             final User newUser = User.builder()
-                .uniqueId(userInfo.id())
-                .nickname(userInfo.kakaoAccount().profile().nickname())
-                .role(UserRole.NORMAL)
-                .build();
+                    .studentId(studentId)
+                    .name(studentInformationResponse.name())
+                    .department(studentInformationResponse.department())
+                    .grade(studentInformationResponse.grade())
+                    .role(UserRole.NORMAL)
+                    .build();
+
             return userRepository.save(newUser);
         });
     }
