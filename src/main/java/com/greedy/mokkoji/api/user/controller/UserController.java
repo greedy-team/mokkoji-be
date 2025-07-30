@@ -28,8 +28,8 @@ public class UserController {
     private final TokenService tokenService;
 
     @PostMapping("/auth/login")
-    public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody KakaoSocialLoginRequest kakaoSocialLoginRequest) {
-        final User user = userService.login(kakaoSocialLoginRequest.code());
+    public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
+        final User user = userService.login(request.studentId(), request.password());
         final LoginResponse loginResponse = tokenService.generateToken(user.getId());
 
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
