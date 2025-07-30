@@ -64,5 +64,15 @@ public class UserService {
     public void logOut(final Long userId) {
         tokenService.deleteRefreshToken(userId);
     }
+
+    @Transactional
+    public UserRoleResponse getUserRole(final Long userId) {
+        final User user = userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+
+        return UserRoleResponse.of(
+                user.getRole().toString()
+        );
+    }
 }
 
