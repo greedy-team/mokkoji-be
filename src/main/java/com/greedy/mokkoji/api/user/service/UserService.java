@@ -1,9 +1,7 @@
 package com.greedy.mokkoji.api.user.service;
 
-import com.greedy.mokkoji.api.external.SejongLoginClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
-import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.KakaoUserInfoResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
@@ -20,25 +18,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final SejongLoginClient sejongLoginClient;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
+    private final KakaoSocialLoginService kakaoSocialLoginService;
 
     //ToDo: 생 유저 정보를 넘기는 게 아니라 DTO처리해서 넘기는 것도 좋아보임
     @Transactional
-    public User login(final String studentId, final String password) {
+    public User login(final String code) {
+        final KakaoUserInfoResponse userInfo = kakaoSocialLoginService.login(code);
 
-        final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId, password);
-
-        return userRepository.findByStudentId(studentId).orElseGet(() -> {
+        return userRepository.findByUniqueId(userInfo.id()).orElseGet(() -> {
             final User newUser = User.builder()
-                    .studentId(studentId)
-                    .name(studentInformationResponse.name())
-                    .department(studentInformationResponse.department())
-                    .grade(studentInformationResponse.grade())
-                    .role(UserRole.NORMAL)
-                    .build();
-
+                .uniqueId(userInfo.id())
+                .nickname(userInfo.kakaoAccount().profile().nickname())
+                .role(UserRole.NORMAL)
+                .build();
             return userRepository.save(newUser);
         });
     }
@@ -63,7 +57,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findUser(final Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
     @Transactional

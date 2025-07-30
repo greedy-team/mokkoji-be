@@ -53,6 +53,9 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
     implementation 'com.squareup.okhttp3:okhttp-urlconnection:4.9.3'
 
+    //openfeign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
     // HTML 파싱
     implementation 'org.jsoup:jsoup:1.15.3'
 
@@ -163,4 +166,10 @@ task testCoverage(type: Test /*type: Test를 지정하여 이 태스크가 Test 
     // 실행 순서 지정
     tasks['jacocoTestReport'].mustRunAfter(tasks['test'])
     tasks['jacocoTestCoverageVerification'].mustRunAfter(tasks['jacocoTestReport'])
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2024.0.1" // Spring Boot 3.4.x 에 호환되는 버전
+    }
 }
