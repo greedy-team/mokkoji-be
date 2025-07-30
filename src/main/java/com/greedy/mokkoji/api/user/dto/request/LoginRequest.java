@@ -1,4 +1,8 @@
 package com.greedy.mokkoji.api.user.dto.request;
 
-public class LoginRequest {
+public record LoginRequest(
+        String studentId,
+        String password
+) {
 }
+
