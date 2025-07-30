@@ -18,7 +18,7 @@ public class User {
     @Column(name = "id", columnDefinition = "bigint", nullable = false)
     private Long id;
 
-    @Column(name = "unique_id", columnDefinition = "varchar(20)", nullable = false)
+    @Column(name = "unique_id", columnDefinition = "varchar(20)", nullable = true)
     private String uniqueId;
 
     @Column(name = "student_id", columnDefinition = "varchar(20)", nullable = true)
@@ -27,7 +27,7 @@ public class User {
     @Column(name = "name", columnDefinition = "varchar(50)", nullable = true)
     private String name;
 
-    @Column(name = "nickname", columnDefinition = "varchar(50)", nullable = false)
+    @Column(name = "nickname", columnDefinition = "varchar(50)", nullable = true)
     private String nickname;
 
     @Column(name = "department", columnDefinition = "varchar(50)", nullable = true)

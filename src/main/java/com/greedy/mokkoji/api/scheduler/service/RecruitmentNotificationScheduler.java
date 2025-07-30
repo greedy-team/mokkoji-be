@@ -17,23 +17,25 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RecruitmentNotificationScheduler {
+
     private final RecruitmentRepository recruitmentRepository;
     private final NotificationService notificationService;
 
     @Scheduled(cron = "${schedules.cron.reward.publish}", zone = "${schedules.cron.reward.zone}")
     @Transactional
     public void sendDailyRecruitmentNotifications() {
-        final LocalDate currentDate = LocalDate.now();
+        final LocalDate today = LocalDate.now();
+        final LocalDate threeDaysLater = today.plusDays(3);
 
-        List<Recruitment> recruitments = recruitmentRepository.findTodayRecruitStartDate(currentDate);
+        List<Recruitment> recruitments = recruitmentRepository.findAllByRecruitStartToday(today);
 
-        recruitments.addAll(recruitmentRepository.findAllByRecruitmentDeadlineTodayOrInThreeDays(currentDate));
+        recruitments.addAll(recruitmentRepository.findAllByRecruitEndToday(today));
+        recruitments.addAll(recruitmentRepository.findAllByRecruitEndInThreeDays(threeDaysLater));
 
-        recruitments.forEach(
-                recruitment -> {
-                    Club club = recruitment.getClub();
-                    notificationService.sendNotification(club, recruitment);
-                }
-        );
+        recruitments.forEach(recruitment -> {
+            Club club = recruitment.getClub();
+            notificationService.sendNotification(club, recruitment);
+        });
     }
 }
+

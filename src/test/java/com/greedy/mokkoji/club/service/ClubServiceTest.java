@@ -3,6 +3,7 @@ package com.greedy.mokkoji.club.service;
 import com.greedy.mokkoji.api.club.dto.club.response.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.club.response.ClubSearchResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
+import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
