@@ -66,7 +66,9 @@ public class ClubService {
     }
 
     @Transactional
-    public void createClub(final Long userId, final String name, final ClubCategory category, final ClubAffiliation affiliation, final String clubMasterStudentId) {
+    public void createClub(final Long userId, final String name, final ClubCategory category,
+                           final ClubAffiliation affiliation, final String clubMasterStudentId,
+                           String image, String instagram, String description) {
         validateClubRegistrar(userId);
         String validStudentId = getValidClubMasterStudentId(clubMasterStudentId);
 
@@ -76,6 +78,9 @@ public class ClubService {
                         .clubCategory(category)
                         .clubAffiliation(affiliation)
                         .clubMasterStudentId(validStudentId)
+                        .logo(image)
+                        .instagram(instagram)
+                        .description(description)
                         .build()
         );
     }
@@ -96,7 +101,8 @@ public class ClubService {
 
     @Transactional
     public ClubUpdateResponse updateClub(
-            final Long userId, final Long clubId, final String name, final ClubCategory category, final ClubAffiliation affiliation, final String description, final String logo, final String instagram) {
+            final Long userId, final Long clubId, final String name, final ClubCategory category,
+            final ClubAffiliation affiliation, final String description, final String logo, final String instagram) {
         Club club = validateClubManagerAuthority(userId, clubId);
 
         String oldLogoKey = club.getLogo();
@@ -117,7 +123,8 @@ public class ClubService {
         return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
     }
 
-    private ClubDetailResponse mapToClubDetailResponse(final Club club, final Recruitment recruitment, final Boolean isFavorite) {
+    private ClubDetailResponse mapToClubDetailResponse(final Club club, final Recruitment recruitment,
+                                                       final Boolean isFavorite) {
         return ClubDetailResponse.of(
                 club.getId(),
                 club.getName(),
@@ -190,7 +197,9 @@ public class ClubService {
     }
 
     private User findUserOrThrow(Long userId) {
-        if (userId == null) throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        if (userId == null) {
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        }
         return userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
