@@ -4,7 +4,6 @@ import com.greedy.mokkoji.api.external.SejongLoginClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
@@ -64,7 +63,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findUser(final Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
     @Transactional

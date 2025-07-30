@@ -23,7 +23,7 @@ public class ReportController {
             @Authentication final AuthCredential authCredential,
             @RequestParam(name = "reportType") final ReportType reportType,
             @RequestBody final ReportRequest reportRequest
-            ) {
+    ) {
         return APISuccessResponse.of(
                 HttpStatus.CREATED,
                 reportService.createReport(authCredential.userId(), reportType, reportRequest.content())
