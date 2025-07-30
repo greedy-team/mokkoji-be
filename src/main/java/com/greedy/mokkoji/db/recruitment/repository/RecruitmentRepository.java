@@ -21,4 +21,6 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
 
     List<Recruitment> findAllByClubId(final Long id);
 
+    @Query("SELECT r FROM Recruitment r WHERE FUNCTION('DATE', r.recruitEnd) = :currentDate OR FUNCTION('DATE', r.recruitEnd) = :currentDate - 3")
+    List<Recruitment> findAllByRecruitmentDeadlineTodayOrInThreeDays(LocalDate currentDate);
 }
