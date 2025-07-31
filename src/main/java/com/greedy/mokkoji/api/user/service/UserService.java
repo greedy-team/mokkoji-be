@@ -9,7 +9,6 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
-import com.greedy.mokkoji.util.PasswordDecoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,13 +23,12 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
     private final SejongLoginClient sejongLoginClient;
-    private final PasswordDecoder passwordDecoder;
 
     //ToDo: 생 유저 정보를 넘기는 게 아니라 DTO처리해서 넘기는 것도 좋아보임
     @Transactional
     public User login(final String studentId, final String password) {
 
-        final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId, passwordDecoder.decode(password));
+        final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId, password);
 
         return userRepository.findByStudentId(studentId).orElseGet(() -> {
             final User newUser = User.builder()
