@@ -18,17 +18,11 @@ public class User {
     @Column(name = "id", columnDefinition = "bigint", nullable = false)
     private Long id;
 
-    @Column(name = "unique_id", columnDefinition = "varchar(20)", nullable = true)
-    private String uniqueId;
-
     @Column(name = "student_id", columnDefinition = "varchar(20)", nullable = true)
     private String studentId;
 
     @Column(name = "name", columnDefinition = "varchar(50)", nullable = true)
     private String name;
-
-    @Column(name = "nickname", columnDefinition = "varchar(50)", nullable = true)
-    private String nickname;
 
     @Column(name = "department", columnDefinition = "varchar(50)", nullable = true)
     private String department;
@@ -44,11 +38,9 @@ public class User {
     private UserRole role;
 
     @Builder
-    public User(String uniqueId, String studentId, String name, String nickname, String department, String grade, String email, UserRole role) {
-        this.uniqueId = uniqueId;
+    public User(String studentId, String name, String department, String grade, String email, UserRole role) {
         this.studentId = studentId;
         this.name = name;
-        this.nickname = nickname;
         this.department = department;
         this.grade = grade;
         this.email = email;
