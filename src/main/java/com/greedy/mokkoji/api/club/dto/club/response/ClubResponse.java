@@ -14,7 +14,7 @@ public record ClubResponse(
         String description,
         String recruitStartDate,
         String recruitEndDate,
-        String imageURL,
+        String logo,
         Boolean isFavorite
 ) {
     public static ClubResponse of(
@@ -25,7 +25,7 @@ public record ClubResponse(
             final String description,
             final LocalDateTime recruitStartDate,
             final LocalDateTime recruitEndDate,
-            final String imageURL,
+            final String logo,
             final Boolean isFavorite) {
 
         return ClubResponse.builder()
@@ -36,7 +36,7 @@ public record ClubResponse(
                 .description(description)
                 .recruitStartDate(recruitStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
                 .recruitEndDate(recruitEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
-                .imageURL(imageURL)
+                .logo(logo)
                 .isFavorite(isFavorite)
                 .build();
     }
