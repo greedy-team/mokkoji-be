@@ -67,8 +67,7 @@ public class ClubService {
 
     @Transactional
     public void createClub(final Long userId, final String name, final ClubCategory category,
-                           final ClubAffiliation affiliation, final String clubMasterStudentId,
-                           String image, String instagram, String description) {
+                           final ClubAffiliation affiliation, final String clubMasterStudentId) {
         validateClubRegistrar(userId);
         String validStudentId = getValidClubMasterStudentId(clubMasterStudentId);
 
@@ -78,9 +77,6 @@ public class ClubService {
                         .clubCategory(category)
                         .clubAffiliation(affiliation)
                         .clubMasterStudentId(validStudentId)
-                        .logo(image)
-                        .instagram(instagram)
-                        .description(description)
                         .build()
         );
     }
@@ -101,14 +97,15 @@ public class ClubService {
 
     @Transactional
     public ClubUpdateResponse updateClub(
-            final Long userId, final Long clubId, final String name, final ClubCategory category,
-            final ClubAffiliation affiliation, final String description, final String logo, final String instagram) {
+            final Long userId, final Long clubId, final String name, final ClubCategory category, final ClubAffiliation affiliation,
+            final String description, final String clubMasterStudentId, final String logo, final String instagram
+    ) {
         Club club = validateClubManagerAuthority(userId, clubId);
 
         String oldLogoKey = club.getLogo();
         String newLogoKey = extractNewLogoKey(logo);
 
-        club.updateIfPresent(name, category, affiliation, description, logo, instagram);
+        club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, logo, instagram);
 
         String updateLogo = generatePresignedPutUrl(newLogoKey);
         String deleteLogo = generatePresignedDeleteUrl(newLogoKey, oldLogoKey);
