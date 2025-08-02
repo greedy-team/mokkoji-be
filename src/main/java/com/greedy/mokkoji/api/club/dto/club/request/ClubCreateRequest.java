@@ -7,9 +7,6 @@ public record ClubCreateRequest(
         String name,
         ClubCategory category,
         ClubAffiliation affiliation,
-        String clubMasterStudentId,
-        String image,
-        String instagram,
-        String description
+        String clubMasterStudentId
 ) {
 }

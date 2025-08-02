@@ -14,9 +14,9 @@ public record ClubDetailResponse(
         String description,
         String recruitStartDate,
         String recruitEndDate,
-        String imageURL,
+        String logo,
         Boolean isFavorite,
-        String instagramLink,
+        String instagram,
         String recruitPost
 ) {
     public static ClubDetailResponse of(
@@ -27,9 +27,9 @@ public record ClubDetailResponse(
             final String description,
             final LocalDateTime recruitStartDate,
             final LocalDateTime recruitEndDate,
-            final String imageURL,
+            final String logo,
             final Boolean isFavorite,
-            final String instagramLink,
+            final String instagram,
             final String recruitPost
     ) {
         return ClubDetailResponse.builder()
@@ -40,9 +40,9 @@ public record ClubDetailResponse(
                 .description(description)
                 .recruitStartDate(recruitStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
                 .recruitEndDate(recruitEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
-                .imageURL(imageURL)
+                .logo(logo)
                 .isFavorite(isFavorite)
-                .instagramLink(instagramLink)
+                .instagram(instagram)
                 .recruitPost(recruitPost)
                 .build();
     }

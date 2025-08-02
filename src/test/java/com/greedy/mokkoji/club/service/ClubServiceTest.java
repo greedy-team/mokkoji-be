@@ -125,7 +125,7 @@ class ClubServiceTest {
         assertThat(response.clubs().get(0).description()).isEqualTo("testDescription1");
         assertThat(response.clubs().get(0).recruitStartDate()).isEqualTo("2025-01-01");
         assertThat(response.clubs().get(0).recruitEndDate()).isEqualTo("2025-03-30");
-        assertThat(response.clubs().get(0).imageURL()).isEqualTo("testLogo1");
+        assertThat(response.clubs().get(0).logo()).isEqualTo("testLogo1");
         assertThat(response.clubs().get(0).isFavorite()).isEqualTo(true);
 
         assertThat(response.clubs().get(1).name()).isEqualTo("testClub2");
@@ -134,7 +134,7 @@ class ClubServiceTest {
         assertThat(response.clubs().get(1).description()).isEqualTo("testDescription2");
         assertThat(response.clubs().get(1).recruitStartDate()).isEqualTo("2025-01-01");
         assertThat(response.clubs().get(1).recruitEndDate()).isEqualTo("2025-01-30");
-        assertThat(response.clubs().get(1).imageURL()).isEqualTo("testLogo2");
+        assertThat(response.clubs().get(1).logo()).isEqualTo("testLogo2");
         assertThat(response.clubs().get(1).isFavorite()).isEqualTo(false);
 
         assertThat(response.pagination().totalElements()).isEqualTo(2);
@@ -167,9 +167,9 @@ class ClubServiceTest {
         assertThat(response.description()).isEqualTo("testDescription1");
         assertThat(response.recruitStartDate()).isEqualTo("2025-01-01");
         assertThat(response.recruitEndDate()).isEqualTo("2025-03-30");
-        assertThat(response.imageURL()).isEqualTo("testLogo1");
+        assertThat(response.logo()).isEqualTo("testLogo1");
         assertThat(response.isFavorite()).isEqualTo(true);
-        assertThat(response.instagramLink()).isEqualTo("testInstagramURL1");
+        assertThat(response.instagram()).isEqualTo("testInstagramURL1");
         assertThat(response.recruitPost()).isEqualTo("testContent1");
 
         verify(clubRepository, times(1)).findById(anyLong());

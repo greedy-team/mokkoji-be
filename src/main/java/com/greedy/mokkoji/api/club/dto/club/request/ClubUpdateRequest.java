@@ -8,6 +8,7 @@ public record ClubUpdateRequest(
         ClubCategory category,
         ClubAffiliation affiliation,
         String description,
+        String clubMasterStudentId,
         String logo,
         String instagram
 ) {
