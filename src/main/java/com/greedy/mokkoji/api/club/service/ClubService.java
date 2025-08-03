@@ -90,7 +90,7 @@ public class ClubService {
                 club.getClubCategory().name(),
                 club.getClubAffiliation().name(),
                 club.getDescription(),
-                club.getLogo(),
+                appDataS3Client.getPresignedUrl(club.getLogo()),
                 club.getInstagram()
         );
     }
