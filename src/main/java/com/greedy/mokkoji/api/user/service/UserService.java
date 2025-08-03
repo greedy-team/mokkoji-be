@@ -3,8 +3,11 @@ package com.greedy.mokkoji.api.user.service;
 import com.greedy.mokkoji.api.external.SejongLoginClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
@@ -14,12 +17,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ClubRepository clubRepository;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
     private final SejongLoginClient sejongLoginClient;
@@ -43,6 +49,7 @@ public class UserService {
         });
     }
 
+    @Transactional
     public String refreshAccessToken(String refreshToken) {
         final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
 
@@ -71,7 +78,7 @@ public class UserService {
         tokenService.deleteRefreshToken(userId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserRoleResponse getUserRole(final Long userId) {
         final User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
@@ -79,6 +86,20 @@ public class UserService {
         return UserRoleResponse.of(
                 user.getRole().toString()
         );
+    }
+
+    @Transactional
+    public UserManageClubsResponse getUserManageClubs(final Long userId) {
+        final User user = userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+
+        String studentId = user.getStudentId();
+
+        List<UserManageClubResponse> clubs = clubRepository.findByClubMasterStudentId(studentId).stream()
+            .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
+            .toList();
+
+        return UserManageClubsResponse.of(clubs);
     }
 }
 
