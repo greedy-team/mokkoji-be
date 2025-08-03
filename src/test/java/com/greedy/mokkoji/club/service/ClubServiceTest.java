@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.club.service;
 
-import com.greedy.mokkoji.api.club.dto.club.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.club.response.ClubSearchResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -114,7 +114,7 @@ class ClubServiceTest {
         BDDMockito.given(appDataS3Client.getPresignedUrl(club2.getLogo())).willReturn("testLogo2");
 
         //when
-        final ClubSearchResponse response = clubService.findClubsByConditions(userId, null, null, null, null, pageable);
+        final ClubsPaginationResponse response = clubService.findClubsByConditions(userId, null, null, null, null, pageable);
 
         //then
         assertThat(response.clubs()).hasSize(2);
