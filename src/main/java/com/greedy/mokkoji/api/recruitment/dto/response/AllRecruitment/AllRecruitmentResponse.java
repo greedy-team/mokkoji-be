@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment;
 
-import com.greedy.mokkoji.api.club.dto.page.PageResponse;
+import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 
 import java.util.List;
 

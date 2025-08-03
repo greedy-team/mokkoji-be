@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.club.dto.page;
+package com.greedy.mokkoji.api.pagination.dto;
 
 import lombok.Builder;
 
