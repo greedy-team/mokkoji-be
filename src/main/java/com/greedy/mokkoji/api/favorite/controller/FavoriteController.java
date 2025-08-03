@@ -2,15 +2,16 @@ package com.greedy.mokkoji.api.favorite.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.club.dto.club.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.favorite.service.FavoriteService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,9 +29,14 @@ public class FavoriteController {
     }
 
     @GetMapping
-    public ResponseEntity<APISuccessResponse<List<ClubResponse>>> getFavoriteClubs(
-            @Authentication final AuthCredential authCredential) {
-        return APISuccessResponse.of(HttpStatus.OK, favoriteService.findFavoriteClubs(authCredential.userId()));
+    public ResponseEntity<APISuccessResponse<ClubsPaginationResponse>> getFavoriteClubs(
+            @Authentication final AuthCredential authCredential,
+            @RequestParam(value = "page") final int page,
+            @RequestParam(value = "size") final int size
+        ) {
+        final Pageable pageable = PageRequest.of(page - 1, size);
+
+        return APISuccessResponse.of(HttpStatus.OK, favoriteService.findFavoriteClubs(authCredential.userId(), pageable));
     }
 
     @DeleteMapping("/{clubId}")

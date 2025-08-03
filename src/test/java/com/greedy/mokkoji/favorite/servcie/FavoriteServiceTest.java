@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.favorite.servcie;
 
-import com.greedy.mokkoji.api.club.dto.club.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.favorite.service.FavoriteService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -25,6 +25,9 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
@@ -229,25 +232,28 @@ public class FavoriteServiceTest {
                         user(user).build()
         );
 
-        BDDMockito.given(favoriteRepository.findByUserId(any())).willReturn(favorites);
+        final Favorite favorite = Favorite.builder().club(club).user(user).build();
+        final Page<Favorite> favoritePage = new PageImpl<>(List.of(favorite));
+
+        BDDMockito.given(favoriteRepository.findByUserId(any(), any())).willReturn(favoritePage);
         BDDMockito.given(recruitmentRepository.findByClubId(any())).willReturn(recruitment);
         BDDMockito.given(appDataS3Client.getPresignedUrl(any())).willReturn("testLogo1");
 
         //when
-        final List<ClubResponse> favoriteClubs = favoriteService.findFavoriteClubs(user.getId());
+        final ClubsPaginationResponse favoriteClubs = favoriteService.findFavoriteClubs(user.getId(), PageRequest.of(0, 10));
 
         //then
-        assertThat(favoriteClubs.size()).isEqualTo(1);
-        assertThat(favoriteClubs.get(0).name()).isEqualTo("동아리 이름");
-        assertThat(favoriteClubs.get(0).category()).isEqualTo("공연");
-        assertThat(favoriteClubs.get(0).affiliation()).isEqualTo("중앙동아리");
-        assertThat(favoriteClubs.get(0).description()).isEqualTo("동아리 설명");
-        assertThat(favoriteClubs.get(0).recruitStartDate()).isEqualTo("2025-02-01");
-        assertThat(favoriteClubs.get(0).recruitEndDate()).isEqualTo("2025-03-30");
-        assertThat(favoriteClubs.get(0).logo()).isEqualTo("testLogo1");
-        assertThat(favoriteClubs.get(0).isFavorite()).isEqualTo(true);
+        assertThat(favoriteClubs.clubs().size()).isEqualTo(1);
+        assertThat(favoriteClubs.clubs().get(0).name()).isEqualTo("동아리 이름");
+        assertThat(favoriteClubs.clubs().get(0).category()).isEqualTo("공연");
+        assertThat(favoriteClubs.clubs().get(0).affiliation()).isEqualTo("중앙동아리");
+        assertThat(favoriteClubs.clubs().get(0).description()).isEqualTo("동아리 설명");
+        assertThat(favoriteClubs.clubs().get(0).recruitStartDate()).isEqualTo("2025-02-01");
+        assertThat(favoriteClubs.clubs().get(0).recruitEndDate()).isEqualTo("2025-03-30");
+        assertThat(favoriteClubs.clubs().get(0).logo()).isEqualTo("testLogo1");
+        assertThat(favoriteClubs.clubs().get(0).isFavorite()).isEqualTo(true);
 
-        BDDMockito.verify(favoriteRepository, times(1)).findByUserId(user.getId());
+        BDDMockito.verify(favoriteRepository, times(1)).findByUserId(user.getId(), PageRequest.of(0, 10));
         BDDMockito.verify(recruitmentRepository, times(1)).findByClubId(club.getId());
     }
 }

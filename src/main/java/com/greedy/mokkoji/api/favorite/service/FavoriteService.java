@@ -1,7 +1,9 @@
 package com.greedy.mokkoji.api.favorite.service;
 
-import com.greedy.mokkoji.api.club.dto.club.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
+import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -13,11 +15,12 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,26 +52,31 @@ public class FavoriteService {
     }
 
     @Transactional(readOnly = true)
-    public List<ClubResponse> findFavoriteClubs(final Long userId) {
-        final List<Favorite> favorites = favoriteRepository.findByUserId(userId);
+    public ClubsPaginationResponse findFavoriteClubs(final Long userId, final Pageable pageable) {
+        final Page<Favorite> favoritePage = favoriteRepository.findByUserId(userId, pageable);
 
-        return favorites.stream()
-                .map(favorite -> {
-                    final Club club = favorite.getClub();
-                    final Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
+        final List<Favorite> favorites = favoritePage.getContent();
+        List<ClubResponse> clubResponses = favorites.stream()
+            .map(favorite -> {
+                final Club club = favorite.getClub();
+                final Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
 
-                    return ClubResponse.of(
-                            club.getId(),
-                            club.getName(),
-                            club.getClubCategory().getDescription(),
-                            club.getClubAffiliation().getDescription(),
-                            club.getDescription(),
-                            recruitment.getRecruitStart(),
-                            recruitment.getRecruitEnd(),
-                            appDataS3Client.getPresignedUrl(club.getLogo()),
-                            true
-                    );
-                }).collect(Collectors.toList());
+                return ClubResponse.of(
+                    club.getId(),
+                    club.getName(),
+                    club.getClubCategory().getDescription(),
+                    club.getClubAffiliation().getDescription(),
+                    club.getDescription(),
+                    recruitment.getRecruitStart(),
+                    recruitment.getRecruitEnd(),
+                    appDataS3Client.getPresignedUrl(club.getLogo()),
+                    true
+                );
+            }).toList();
+
+        final PageResponse pageResponse = createPageResponse(favoritePage);
+
+        return new ClubsPaginationResponse(clubResponses, pageResponse);
     }
 
     @Transactional
@@ -95,6 +103,15 @@ public class FavoriteService {
     private Club getClubById(final Long clubId) {
         return clubRepository.findById(clubId).orElseThrow(
                 () -> new MokkojiException(FailMessage.NOT_FOUND_CLUB)
+        );
+    }
+
+    private PageResponse createPageResponse(final Page<Favorite> clubPage) {
+        return PageResponse.of(
+            clubPage.getNumber() + 1,
+            clubPage.getSize(),
+            clubPage.getTotalPages(),
+            (int) clubPage.getTotalElements()
         );
     }
 }
