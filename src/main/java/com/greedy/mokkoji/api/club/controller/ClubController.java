@@ -59,8 +59,7 @@ public class ClubController {
             @Authentication final AuthCredential authCredential
     ) {
         clubService.createClub(authCredential.userId(), clubCreateRequest.name(), clubCreateRequest.category(),
-                clubCreateRequest.affiliation(), clubCreateRequest.clubMasterStudentId(),
-                clubCreateRequest.image(), clubCreateRequest.instagram(), clubCreateRequest.description());
+                clubCreateRequest.affiliation(), clubCreateRequest.clubMasterStudentId());
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
@@ -87,8 +86,10 @@ public class ClubController {
                         clubUpdateRequest.category(),
                         clubUpdateRequest.affiliation(),
                         clubUpdateRequest.description(),
+                        clubUpdateRequest.clubMasterStudentId(),
                         clubUpdateRequest.logo(),
-                        clubUpdateRequest.instagram())
+                        clubUpdateRequest.instagram()
+                )
         );
     }
 }

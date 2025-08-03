@@ -44,7 +44,15 @@ public class Club extends BaseTime {
     private String clubMasterStudentId;
 
     @Builder
-    public Club(final String name, final ClubCategory clubCategory, final ClubAffiliation clubAffiliation, final String description, final String logo, final String instagram, final String clubMasterStudentId) {
+    public Club(
+        final String name,
+        final ClubCategory clubCategory,
+        final ClubAffiliation clubAffiliation,
+        final String description,
+        final String logo,
+        final String instagram,
+        final String clubMasterStudentId
+    ) {
         this.name = name;
         this.clubCategory = clubCategory;
         this.clubAffiliation = clubAffiliation;
@@ -54,12 +62,20 @@ public class Club extends BaseTime {
         this.clubMasterStudentId = clubMasterStudentId;
     }
 
-    public void updateIfPresent(String name, ClubCategory category, ClubAffiliation affiliation,
-                                String description, String logo, String instagram) {
+    public void updateIfPresent(
+        String name,
+        ClubCategory category,
+        ClubAffiliation affiliation,
+        String description,
+        String clubMasterStudentId,
+        String logo,
+        String instagram
+    ) {
         if (name != null && !name.isBlank()) this.name = name;
         if (category != null) this.clubCategory = category;
         if (affiliation != null) this.clubAffiliation = affiliation;
         if (description != null && !description.isBlank()) this.description = description;
+        if (clubMasterStudentId != null) this.clubMasterStudentId = clubMasterStudentId;
         if (logo != null && !logo.isBlank()) this.logo = logo;
         if (instagram != null && !instagram.isBlank()) this.instagram = instagram;
     }

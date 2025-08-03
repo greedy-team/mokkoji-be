@@ -244,7 +244,7 @@ public class FavoriteServiceTest {
         assertThat(favoriteClubs.get(0).description()).isEqualTo("동아리 설명");
         assertThat(favoriteClubs.get(0).recruitStartDate()).isEqualTo("2025-02-01");
         assertThat(favoriteClubs.get(0).recruitEndDate()).isEqualTo("2025-03-30");
-        assertThat(favoriteClubs.get(0).imageURL()).isEqualTo("testLogo1");
+        assertThat(favoriteClubs.get(0).logo()).isEqualTo("testLogo1");
         assertThat(favoriteClubs.get(0).isFavorite()).isEqualTo(true);
 
         BDDMockito.verify(favoriteRepository, times(1)).findByUserId(user.getId());
