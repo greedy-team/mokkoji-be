@@ -1,9 +1,9 @@
 package com.greedy.mokkoji.club.controller;
 
-import com.greedy.mokkoji.api.club.dto.club.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.club.response.ClubResponse;
-import com.greedy.mokkoji.api.club.dto.club.response.ClubSearchResponse;
-import com.greedy.mokkoji.api.club.dto.page.PageResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -126,8 +126,8 @@ public class ClubControllerTest extends ControllerTest {
 
         //when
         final int statusCode = response.statusCode();
-        final ClubSearchResponse actual = getDataFromResponse(response, ClubSearchResponse.class);
-        final ClubSearchResponse expected = ClubSearchResponse.of(clubResponses, pageResponse);
+        final ClubsPaginationResponse actual = getDataFromResponse(response, ClubsPaginationResponse.class);
+        final ClubsPaginationResponse expected = ClubsPaginationResponse.of(clubResponses, pageResponse);
 
         assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
         assertThat(expected).usingRecursiveComparison().isEqualTo(actual);

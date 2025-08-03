@@ -1,7 +1,11 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.club.dto.club.response.*;
-import com.greedy.mokkoji.api.club.dto.page.PageResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
+import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -50,7 +54,7 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubSearchResponse findClubsByConditions(final Long userId,
+    public ClubsPaginationResponse findClubsByConditions(final Long userId,
                                                     final String keyword,
                                                     final ClubCategory category,
                                                     final ClubAffiliation affiliation,
@@ -59,10 +63,12 @@ public class ClubService {
 
         final Page<Club> clubPage = clubRepository.findClubs(keyword, category, affiliation, status, pageable);
 
-        final List<ClubResponse> clubResponses = mapToClubResponses(userId, clubPage.getContent());
+        final List<Club> clubs = clubPage.getContent();
+        final List<ClubResponse> clubResponses = mapToClubResponses(userId, clubs);
+
         final PageResponse pageResponse = createPageResponse(clubPage);
 
-        return new ClubSearchResponse(clubResponses, pageResponse);
+        return new ClubsPaginationResponse(clubResponses, pageResponse);
     }
 
     @Transactional
@@ -152,7 +158,7 @@ public class ClubService {
                             appDataS3Client.getPresignedUrl(club.getLogo()),
                             isFavorite);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private PageResponse createPageResponse(final Page<Club> clubPage) {
