@@ -3,6 +3,7 @@ package com.greedy.mokkoji.api.user.service;
 import com.greedy.mokkoji.api.external.SejongLoginClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -48,6 +49,7 @@ public class UserService {
         });
     }
 
+    @Transactional
     public String refreshAccessToken(String refreshToken) {
         final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
 
@@ -76,7 +78,7 @@ public class UserService {
         tokenService.deleteRefreshToken(userId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserRoleResponse getUserRole(final Long userId) {
         final User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
@@ -93,11 +95,11 @@ public class UserService {
 
         String studentId = user.getStudentId();
 
-        List<Long> clubIds = clubRepository.findByClubMasterStudentId(studentId).stream()
-                .map(club -> club.getId())
-                .toList();
+        List<UserManageClubResponse> clubs = clubRepository.findByClubMasterStudentId(studentId).stream()
+            .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
+            .toList();
 
-        return UserManageClubsResponse.of(clubIds);
+        return UserManageClubsResponse.of(clubs);
     }
 }
 
