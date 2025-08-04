@@ -2,6 +2,7 @@ package com.greedy.mokkoji.api.favorite.service;
 
 import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.favorite.dto.response.RecruitClubsResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -92,6 +94,36 @@ public class FavoriteService {
         favoriteRepository.deleteByUserAndClub(user, club);
 
         return null;
+    }
+
+    @Transactional
+    public List<RecruitClubsResponse> getRecruitClubs(final Long userId, final YearMonth yearMonth) {
+        List<Long> favoriteClubIds = favoriteRepository.findClubIdsByUserId(userId);
+
+        if (favoriteClubIds.isEmpty()) {
+            return null;
+        }
+
+        List<Recruitment> recruitments = recruitmentRepository.findByClubIdIn(favoriteClubIds);
+
+        return recruitments.stream()
+                .filter(r -> isSameMonth(r, yearMonth))
+                .map(r -> RecruitClubsResponse.of(
+                        r.getClub().getName(),
+                        r.getRecruitStart(),
+                        r.getRecruitEnd()
+                ))
+                .toList();
+    }
+
+    private boolean isSameMonth(Recruitment r, YearMonth yearMonth) {
+        YearMonth startMonth = YearMonth.from(r.getRecruitStart());
+        if (startMonth.equals(yearMonth)) return true;
+
+        YearMonth endMonth = YearMonth.from(r.getRecruitEnd());
+        if (endMonth.equals(yearMonth)) return true;
+
+        return false;
     }
 
     private User getUserById(final Long userId) {

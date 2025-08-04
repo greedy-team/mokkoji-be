@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.club.dto.request;
+package com.greedy.mokkoji.api.favorite.dto.request;
 
 import java.time.YearMonth;
 

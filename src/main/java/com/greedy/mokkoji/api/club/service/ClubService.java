@@ -115,36 +115,6 @@ public class ClubService {
         return ClubUpdateResponse.of(updateLogo, deleteLogo);
     }
 
-    @Transactional
-    public List<RecruitClubsResponse> getRecruitClubs(final Long userId, final YearMonth yearMonth) {
-        List<Long> favoriteClubIds = favoriteRepository.findClubIdsByUserId(userId);
-
-        if (favoriteClubIds.isEmpty()) {
-            return null;
-        }
-
-        List<Recruitment> recruitments = recruitmentRepository.findByClubIdIn(favoriteClubIds);
-
-        return recruitments.stream()
-                .filter(r -> isSameMonth(r, yearMonth))
-                .map(r -> RecruitClubsResponse.of(
-                        r.getClub().getName(),
-                        r.getRecruitStart(),
-                        r.getRecruitEnd()
-                ))
-                .toList();
-    }
-
-    private boolean isSameMonth(Recruitment r, YearMonth yearMonth) {
-        YearMonth startMonth = YearMonth.from(r.getRecruitStart());
-        if (startMonth.equals(yearMonth)) return true;
-
-        YearMonth endMonth = YearMonth.from(r.getRecruitEnd());
-        if (endMonth.equals(yearMonth)) return true;
-
-        return false;
-    }
-
 
     private boolean getIsFavorite(final Long userId, final Long clubId) {
         if (userId == null) { //회원 및 비회원 구별 로직

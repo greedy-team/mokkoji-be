@@ -5,7 +5,6 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.club.dto.request.ClubCreateRequest;
 import com.greedy.mokkoji.api.club.dto.request.ClubSearchCond;
 import com.greedy.mokkoji.api.club.dto.request.ClubUpdateRequest;
-import com.greedy.mokkoji.api.club.dto.request.RecruitClubsRequest;
 import com.greedy.mokkoji.api.club.dto.response.*;
 import com.greedy.mokkoji.api.club.service.ClubService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
@@ -15,8 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -91,13 +88,5 @@ public class ClubController {
                         clubUpdateRequest.instagram()
                 )
         );
-    }
-
-    @GetMapping("/recruit")
-    public ResponseEntity<APISuccessResponse<List<RecruitClubsResponse>>> getRecruitClubs(
-            @Authentication final AuthCredential authCredential,
-            @RequestBody RecruitClubsRequest recruitClubsRequest
-    ) {
-        return APISuccessResponse.of(HttpStatus.OK, clubService.getRecruitClubs(authCredential.userId(), recruitClubsRequest.yearMonth()));
     }
 }

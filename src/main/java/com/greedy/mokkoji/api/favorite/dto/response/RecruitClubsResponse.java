@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.club.dto.response;
+package com.greedy.mokkoji.api.favorite.dto.response;
 
 import java.time.LocalDateTime;
 
