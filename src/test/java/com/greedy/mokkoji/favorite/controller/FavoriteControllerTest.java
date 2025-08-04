@@ -18,7 +18,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("NonAsciiCharacters")
-public class FavoriteControllerTest extends ControllerTest  {
+public class FavoriteControllerTest extends ControllerTest {
 
     private User user;
     private Club favoriteClub;

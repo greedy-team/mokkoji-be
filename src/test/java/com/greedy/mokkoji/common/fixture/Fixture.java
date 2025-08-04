@@ -36,8 +36,8 @@ public class Fixture {
     public static Recruitment createRecruitment(Club club) {
         return Recruitment.builder()
                 .club(club)
-                .recruitStart(LocalDateTime.of(2025,01,01,12,00,00))
-                .recruitEnd(LocalDateTime.of(2025,02,02,12,00,00))
+                .recruitStart(LocalDateTime.of(2025, 01, 01, 12, 00, 00))
+                .recruitEnd(LocalDateTime.of(2025, 02, 02, 12, 00, 00))
                 .content("그리디 모집글")
                 .build();
     }
