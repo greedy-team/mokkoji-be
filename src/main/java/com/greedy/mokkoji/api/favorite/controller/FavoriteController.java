@@ -7,6 +7,7 @@ import com.greedy.mokkoji.api.favorite.dto.request.RecruitClubsRequest;
 import com.greedy.mokkoji.api.favorite.dto.response.RecruitClubsResponse;
 import com.greedy.mokkoji.api.favorite.service.FavoriteService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import java.time.YearMonth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,8 +55,8 @@ public class FavoriteController {
     @GetMapping("/recruit")
     public ResponseEntity<APISuccessResponse<List<RecruitClubsResponse>>> getRecruitClubs(
             @Authentication final AuthCredential authCredential,
-            @RequestBody RecruitClubsRequest recruitClubsRequest
+            @RequestParam(name = "yearMonth") YearMonth yearMonth
     ) {
-        return APISuccessResponse.of(HttpStatus.OK, favoriteService.getRecruitClubs(authCredential.userId(), recruitClubsRequest.yearMonth()));
+        return APISuccessResponse.of(HttpStatus.OK, favoriteService.getRecruitClubs(authCredential.userId(), yearMonth));
     }
 }
