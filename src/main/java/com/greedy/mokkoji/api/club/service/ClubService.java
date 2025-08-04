@@ -130,12 +130,12 @@ public class ClubService {
                 club.getClubCategory().getDescription(),
                 club.getClubAffiliation().getDescription(),
                 club.getDescription(),
-                recruitment == null ? null : recruitment.getRecruitStart(),
-                recruitment == null ? null : recruitment.getRecruitEnd(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd(),
                 appDataS3Client.getPresignedUrl(club.getLogo()),
                 isFavorite,
                 club.getInstagram(),
-                recruitment == null ? null : recruitment.getContent()
+                recruitment.getContent()
         );
     }
 
