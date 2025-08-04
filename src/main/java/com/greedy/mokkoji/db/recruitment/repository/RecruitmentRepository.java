@@ -29,4 +29,6 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
     Optional<Recruitment> findRecruitmentById(Long id);
 
     List<Recruitment> findAllByClubId(final Long id);
+
+    List<Recruitment> findByClubIdIn(List<Long> clubIds);
 }
