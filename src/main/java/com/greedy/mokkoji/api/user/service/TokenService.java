@@ -26,10 +26,10 @@ public class TokenService {
     }
 
     public String getRefreshToken(Long userId) {
-        return redisRepository.find("refreshToken:" + userId);
+        return redisRepository.find("refreshToken" + userId);
     }
 
     public void deleteRefreshToken(Long userId) {
-        redisRepository.delete("refreshToken:" + userId);
+        redisRepository.delete("refreshToken" + userId);
     }
 }
