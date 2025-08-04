@@ -1,12 +1,8 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
-import com.greedy.mokkoji.api.pagination.dto.PageResponse;
+import com.greedy.mokkoji.api.club.dto.response.*;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
+import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -28,8 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.YearMonth;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -55,11 +51,11 @@ public class ClubService {
 
     @Transactional(readOnly = true)
     public ClubsPaginationResponse findClubsByConditions(final Long userId,
-                                                    final String keyword,
-                                                    final ClubCategory category,
-                                                    final ClubAffiliation affiliation,
-                                                    final RecruitStatus status,
-                                                    final Pageable pageable) {
+                                                         final String keyword,
+                                                         final ClubCategory category,
+                                                         final ClubAffiliation affiliation,
+                                                         final RecruitStatus status,
+                                                         final Pageable pageable) {
 
         final Page<Club> clubPage = clubRepository.findClubs(keyword, category, affiliation, status, pageable);
 
@@ -98,7 +94,7 @@ public class ClubService {
                 club.getDescription(),
                 appDataS3Client.getPresignedUrl(club.getLogo()),
                 club.getInstagram()
-        );
+                );
     }
 
     @Transactional
@@ -119,6 +115,38 @@ public class ClubService {
         return ClubUpdateResponse.of(updateLogo, deleteLogo);
     }
 
+    @Transactional
+    public List<RecruitClubsResponse> getRecruitClubs(final Long userId, final YearMonth yearMonth) {
+        List<Long> favoriteClubIds = favoriteRepository.findClubIdsByUserId(userId);
+
+        if (favoriteClubIds.isEmpty()) {
+            return null;
+        }
+
+        List<Recruitment> recruitments = recruitmentRepository.findByClubIdIn(favoriteClubIds);
+
+        return recruitments.stream()
+                .filter(r -> isSameMonth(r, yearMonth))
+                .map(r -> RecruitClubsResponse.of(
+                        r.getClub().getName(),
+                        r.getRecruitStart(),
+                        r.getRecruitEnd()
+                ))
+                .toList();
+    }
+
+    private boolean isSameMonth(Recruitment r, YearMonth yearMonth) {
+        YearMonth startMonth = YearMonth.from(r.getRecruitStart());
+        if (startMonth.equals(yearMonth)) return true;
+
+        YearMonth endMonth = YearMonth.from(r.getRecruitEnd());
+        if(endMonth.equals(yearMonth)) return true;
+
+        return false;
+    }
+
+
+
     private boolean getIsFavorite(final Long userId, final Long clubId) {
         if (userId == null) { //회원 및 비회원 구별 로직
             return false;
@@ -134,12 +162,12 @@ public class ClubService {
                 club.getClubCategory().getDescription(),
                 club.getClubAffiliation().getDescription(),
                 club.getDescription(),
-                recruitment.getRecruitStart(),
-                recruitment.getRecruitEnd(),
+                recruitment == null ? null : recruitment.getRecruitStart(),
+                recruitment == null ? null : recruitment.getRecruitEnd(),
                 appDataS3Client.getPresignedUrl(club.getLogo()),
                 isFavorite,
                 club.getInstagram(),
-                recruitment.getContent()
+                recruitment == null ? null : recruitment.getContent()
         );
     }
 
