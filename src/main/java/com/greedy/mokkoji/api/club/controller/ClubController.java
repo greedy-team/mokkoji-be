@@ -8,7 +8,6 @@ import com.greedy.mokkoji.api.club.dto.request.ClubUpdateRequest;
 import com.greedy.mokkoji.api.club.dto.request.RecruitClubsRequest;
 import com.greedy.mokkoji.api.club.dto.response.*;
 import com.greedy.mokkoji.api.club.service.ClubService;
-import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -98,7 +97,7 @@ public class ClubController {
     public ResponseEntity<APISuccessResponse<List<RecruitClubsResponse>>> getRecruitClubs(
             @Authentication final AuthCredential authCredential,
             @RequestBody RecruitClubsRequest recruitClubsRequest
-            ) {
-        return APISuccessResponse.of(HttpStatus.OK, clubService.getRecruitClubs(authCredential.userId(),recruitClubsRequest.yearMonth()));
+    ) {
+        return APISuccessResponse.of(HttpStatus.OK, clubService.getRecruitClubs(authCredential.userId(), recruitClubsRequest.yearMonth()));
     }
 }

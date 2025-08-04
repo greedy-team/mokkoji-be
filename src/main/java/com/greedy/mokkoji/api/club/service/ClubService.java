@@ -94,7 +94,7 @@ public class ClubService {
                 club.getDescription(),
                 appDataS3Client.getPresignedUrl(club.getLogo()),
                 club.getInstagram()
-                );
+        );
     }
 
     @Transactional
@@ -140,11 +140,10 @@ public class ClubService {
         if (startMonth.equals(yearMonth)) return true;
 
         YearMonth endMonth = YearMonth.from(r.getRecruitEnd());
-        if(endMonth.equals(yearMonth)) return true;
+        if (endMonth.equals(yearMonth)) return true;
 
         return false;
     }
-
 
 
     private boolean getIsFavorite(final Long userId, final Long clubId) {

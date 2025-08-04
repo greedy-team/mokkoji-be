@@ -33,7 +33,7 @@ public class FavoriteController {
             @Authentication final AuthCredential authCredential,
             @RequestParam(value = "page") final int page,
             @RequestParam(value = "size") final int size
-        ) {
+    ) {
         final Pageable pageable = PageRequest.of(page - 1, size);
 
         return APISuccessResponse.of(HttpStatus.OK, favoriteService.findFavoriteClubs(authCredential.userId(), pageable));

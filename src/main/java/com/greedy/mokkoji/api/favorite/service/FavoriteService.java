@@ -57,22 +57,22 @@ public class FavoriteService {
 
         final List<Favorite> favorites = favoritePage.getContent();
         List<ClubResponse> clubResponses = favorites.stream()
-            .map(favorite -> {
-                final Club club = favorite.getClub();
-                final Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
+                .map(favorite -> {
+                    final Club club = favorite.getClub();
+                    final Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
 
-                return ClubResponse.of(
-                    club.getId(),
-                    club.getName(),
-                    club.getClubCategory().getDescription(),
-                    club.getClubAffiliation().getDescription(),
-                    club.getDescription(),
-                    recruitment.getRecruitStart(),
-                    recruitment.getRecruitEnd(),
-                    appDataS3Client.getPresignedUrl(club.getLogo()),
-                    true
-                );
-            }).toList();
+                    return ClubResponse.of(
+                            club.getId(),
+                            club.getName(),
+                            club.getClubCategory().getDescription(),
+                            club.getClubAffiliation().getDescription(),
+                            club.getDescription(),
+                            recruitment.getRecruitStart(),
+                            recruitment.getRecruitEnd(),
+                            appDataS3Client.getPresignedUrl(club.getLogo()),
+                            true
+                    );
+                }).toList();
 
         final PageResponse pageResponse = createPageResponse(favoritePage);
 
@@ -108,10 +108,10 @@ public class FavoriteService {
 
     private PageResponse createPageResponse(final Page<Favorite> clubPage) {
         return PageResponse.of(
-            clubPage.getNumber() + 1,
-            clubPage.getSize(),
-            clubPage.getTotalPages(),
-            (int) clubPage.getTotalElements()
+                clubPage.getNumber() + 1,
+                clubPage.getSize(),
+                clubPage.getTotalPages(),
+                (int) clubPage.getTotalElements()
         );
     }
 }
