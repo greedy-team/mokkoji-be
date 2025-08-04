@@ -2,15 +2,15 @@
 <configuration>
     <springProfile name="local, dev, test">
         <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
-        <include resource="console.xml" />
+        <include resource="console.xml"/>
         <root level="info">
             <appender-ref ref="console"/>
         </root>
     </springProfile>
     <springProfile name="prod">
         <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
-        <include resource="error-appender.xml" />
-        <include resource="warn-appender.xml" />
+        <include resource="error-appender.xml"/>
+        <include resource="warn-appender.xml"/>
         <root level="warn">
             <appender-ref ref="errorFile"/>
             <appender-ref ref="warnFile"/>

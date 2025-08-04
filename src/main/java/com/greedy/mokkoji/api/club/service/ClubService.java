@@ -1,12 +1,8 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
-import com.greedy.mokkoji.api.pagination.dto.PageResponse;
+import com.greedy.mokkoji.api.club.dto.response.*;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
+import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -29,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -55,11 +50,11 @@ public class ClubService {
 
     @Transactional(readOnly = true)
     public ClubsPaginationResponse findClubsByConditions(final Long userId,
-                                                    final String keyword,
-                                                    final ClubCategory category,
-                                                    final ClubAffiliation affiliation,
-                                                    final RecruitStatus status,
-                                                    final Pageable pageable) {
+                                                         final String keyword,
+                                                         final ClubCategory category,
+                                                         final ClubAffiliation affiliation,
+                                                         final RecruitStatus status,
+                                                         final Pageable pageable) {
 
         final Page<Club> clubPage = clubRepository.findClubs(keyword, category, affiliation, status, pageable);
 
@@ -118,6 +113,7 @@ public class ClubService {
 
         return ClubUpdateResponse.of(updateLogo, deleteLogo);
     }
+
 
     private boolean getIsFavorite(final Long userId, final Long clubId) {
         if (userId == null) { //회원 및 비회원 구별 로직

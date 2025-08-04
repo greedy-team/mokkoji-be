@@ -96,8 +96,8 @@ public class UserService {
         String studentId = user.getStudentId();
 
         List<UserManageClubResponse> clubs = clubRepository.findByClubMasterStudentId(studentId).stream()
-            .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
-            .toList();
+                .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
+                .toList();
 
         return UserManageClubsResponse.of(clubs);
     }

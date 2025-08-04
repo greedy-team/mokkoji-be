@@ -3,6 +3,8 @@ package com.greedy.mokkoji.api.favorite.controller;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.favorite.dto.request.RecruitClubsRequest;
+import com.greedy.mokkoji.api.favorite.dto.response.RecruitClubsResponse;
 import com.greedy.mokkoji.api.favorite.service.FavoriteService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -33,7 +37,7 @@ public class FavoriteController {
             @Authentication final AuthCredential authCredential,
             @RequestParam(value = "page") final int page,
             @RequestParam(value = "size") final int size
-        ) {
+    ) {
         final Pageable pageable = PageRequest.of(page - 1, size);
 
         return APISuccessResponse.of(HttpStatus.OK, favoriteService.findFavoriteClubs(authCredential.userId(), pageable));
@@ -45,5 +49,13 @@ public class FavoriteController {
             @PathVariable(name = "clubId") final Long clubId
     ) {
         return APISuccessResponse.of(HttpStatus.NO_CONTENT, favoriteService.deleteFavorite(authCredential.userId(), clubId));
+    }
+
+    @GetMapping("/recruit")
+    public ResponseEntity<APISuccessResponse<List<RecruitClubsResponse>>> getRecruitClubs(
+            @Authentication final AuthCredential authCredential,
+            @RequestBody RecruitClubsRequest recruitClubsRequest
+    ) {
+        return APISuccessResponse.of(HttpStatus.OK, favoriteService.getRecruitClubs(authCredential.userId(), recruitClubsRequest.yearMonth()));
     }
 }

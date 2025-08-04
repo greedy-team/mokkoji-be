@@ -45,13 +45,13 @@ public class Club extends BaseTime {
 
     @Builder
     public Club(
-        final String name,
-        final ClubCategory clubCategory,
-        final ClubAffiliation clubAffiliation,
-        final String description,
-        final String logo,
-        final String instagram,
-        final String clubMasterStudentId
+            final String name,
+            final ClubCategory clubCategory,
+            final ClubAffiliation clubAffiliation,
+            final String description,
+            final String logo,
+            final String instagram,
+            final String clubMasterStudentId
     ) {
         this.name = name;
         this.clubCategory = clubCategory;
@@ -63,13 +63,13 @@ public class Club extends BaseTime {
     }
 
     public void updateIfPresent(
-        String name,
-        ClubCategory category,
-        ClubAffiliation affiliation,
-        String description,
-        String clubMasterStudentId,
-        String logo,
-        String instagram
+            String name,
+            ClubCategory category,
+            ClubAffiliation affiliation,
+            String description,
+            String clubMasterStudentId,
+            String logo,
+            String instagram
     ) {
         if (name != null && !name.isBlank()) this.name = name;
         if (category != null) this.clubCategory = category;

@@ -131,7 +131,7 @@ public class UserControllerTest extends ControllerTest {
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
                 .contentType(ContentType.JSON)
                 .header("Authorization", authorizationForBearerAccessToken(user))
-                .when().post(prefixUrl +"/users/auth/logout")
+                .when().post(prefixUrl + "/users/auth/logout")
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract();
