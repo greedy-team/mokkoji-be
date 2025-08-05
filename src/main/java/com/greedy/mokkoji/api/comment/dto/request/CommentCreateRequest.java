@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Min;
 public record CommentCreateRequest(
         @Min(0)
         @Max(5)
-        Integer rate,
+        Double rate,
         String content
 ) {
 }
