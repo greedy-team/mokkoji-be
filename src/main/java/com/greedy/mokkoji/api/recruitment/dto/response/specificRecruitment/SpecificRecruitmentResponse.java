@@ -8,6 +8,7 @@ import java.util.List;
 public record SpecificRecruitmentResponse(
         Long id,
         String title,
+        String clubName,
         String content,
         LocalDateTime recruitStart,
         LocalDateTime recruitEnd,
@@ -22,6 +23,7 @@ public record SpecificRecruitmentResponse(
     public static SpecificRecruitmentResponse of(
             Long id,
             String title,
+            String clubName,
             String content,
             LocalDateTime recruitStart,
             LocalDateTime recruitEnd,
@@ -34,7 +36,7 @@ public record SpecificRecruitmentResponse(
             String category
     ) {
         return new SpecificRecruitmentResponse(
-                id, title, content, recruitStart, recruitEnd,
+                id, title, clubName, content, recruitStart, recruitEnd,
                 status, createdAt, imageUrls, recruitForm,
                 isFavorite, instagramUrl, category
         );
