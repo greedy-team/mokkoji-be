@@ -201,6 +201,7 @@ public class RecruitmentService {
         return SpecificRecruitmentResponse.of(
                 recruitment.getId(),
                 recruitment.getTitle(),
+                club.getName(),
                 recruitment.getContent(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
