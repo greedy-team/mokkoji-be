@@ -42,7 +42,9 @@ public class ClubService {
 
         final Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
-        final Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
+        final Recruitment recruitment = recruitmentRepository
+            .findTopByClubIdOrderByRecruitStartDesc(club.getId())
+            .orElse(null);
         final Boolean isFavorite = getIsFavorite(userId, clubId);
 
         return mapToClubDetailResponse(club, recruitment, isFavorite);
@@ -130,27 +132,28 @@ public class ClubService {
                 club.getClubCategory().getDescription(),
                 club.getClubAffiliation().getDescription(),
                 club.getDescription(),
-                recruitment.getRecruitStart(),
-                recruitment.getRecruitEnd(),
+                recruitment != null ? recruitment.getRecruitStart() : null,
+                recruitment != null ? recruitment.getRecruitEnd() : null,
                 appDataS3Client.getPresignedUrl(club.getLogo()),
                 isFavorite,
                 club.getInstagram(),
-                recruitment.getContent()
+                recruitment != null ? recruitment.getContent() : null
         );
     }
 
     private List<ClubResponse> mapToClubResponses(final Long userId, final List<Club> clubs) {
         return clubs.stream()
                 .map(club -> {
-                    Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
+                    Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByRecruitStartDesc(club.getId())
+                        .orElse(null);
                     boolean isFavorite = getIsFavorite(userId, club.getId());
                     return ClubResponse.of(club.getId(),
                             club.getName(),
                             club.getClubCategory().getDescription(),
                             club.getClubAffiliation().getDescription(),
                             club.getDescription(),
-                            recruitment.getRecruitStart(),
-                            recruitment.getRecruitEnd(),
+                            recruitment != null ? recruitment.getRecruitStart() : null,
+                            recruitment != null ? recruitment.getRecruitEnd() : null,
                             appDataS3Client.getPresignedUrl(club.getLogo()),
                             isFavorite);
                 })
