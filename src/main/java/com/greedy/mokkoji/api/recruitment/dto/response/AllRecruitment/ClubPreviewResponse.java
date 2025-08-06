@@ -11,6 +11,6 @@ public record ClubPreviewResponse(
         String description,
         ClubCategory clubCategory,
         ClubAffiliation clubAffiliation,
-        String imageURL
+        String logo
 ) {
 }
