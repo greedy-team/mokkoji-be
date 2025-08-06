@@ -22,10 +22,16 @@ public class NotificationService {
 
         List<String> userEmail = favorites.stream()
                 .map(favorite -> favorite.getUser().getEmail())
+                .filter(email -> email != null)
                 .toList();
+
+        if (userEmail.isEmpty()) {
+            return;
+        }
 
         notificationChannel.sendNotification(
                 userEmail, club.getId(), club.getName(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()
         );
     }
+
 }
