@@ -186,7 +186,7 @@ public class RecruitmentService {
     }
 
     @Transactional
-    public SpecificRecruitmentResponse getSpecificRecruitment(final Long recruitmentId) {
+    public SpecificRecruitmentResponse getSpecificRecruitment(final Long userId, final Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findRecruitmentById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
@@ -195,6 +195,8 @@ public class RecruitmentService {
         List<String> imageUrls = recruitmentImages.stream()
                 .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
                 .toList();
+
+        Club club = recruitment.getClub();
 
         return SpecificRecruitmentResponse.of(
                 recruitment.getId(),
@@ -205,7 +207,10 @@ public class RecruitmentService {
                 RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
                 recruitment.getCreatedAt(),
                 imageUrls,
-                recruitment.getRecruitForm()
+                recruitment.getRecruitForm(),
+                isFavorite(userId, club.getId()),
+                club.getInstagram(),
+                club.getClubCategory().getDescription()
         );
     }
 

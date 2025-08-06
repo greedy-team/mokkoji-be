@@ -14,7 +14,10 @@ public record SpecificRecruitmentResponse(
         RecruitStatus status,
         LocalDateTime createdAt,
         List<String> imageUrls,
-        String recruitForm
+        String recruitForm,
+        Boolean isFavorite,
+        String instagramUrl,
+        String category
 ) {
     public static SpecificRecruitmentResponse of(
             Long id,
@@ -25,8 +28,15 @@ public record SpecificRecruitmentResponse(
             RecruitStatus status,
             LocalDateTime createdAt,
             List<String> imageUrls,
-            String recruitForm
+            String recruitForm,
+            Boolean isFavorite,
+            String instagramUrl,
+            String category
     ) {
-        return new SpecificRecruitmentResponse(id, title, content, recruitStart, recruitEnd, status, createdAt, imageUrls, recruitForm);
+        return new SpecificRecruitmentResponse(
+                id, title, content, recruitStart, recruitEnd,
+                status, createdAt, imageUrls, recruitForm,
+                isFavorite, instagramUrl, category
+        );
     }
 }
