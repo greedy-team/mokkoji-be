@@ -3,8 +3,10 @@
               value="[%date{yyyy-MM-dd HH:mm:ss.SSS}] %clr(%-5level) %clr(%-40.40logger{36}){cyan} - %message %n"/>
     <appender name="errorFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/home/ubuntu/logs/error.log</file>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>warn</level>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
         </filter>
         <encoder>
             <charset>utf8</charset>
