@@ -99,7 +99,7 @@ public class RecruitmentController {
     @GetMapping
     public ResponseEntity<APISuccessResponse<AllRecruitmentResponse>> getAllRecruitment(
             @Authentication final AuthCredential authCredential,
-            @RequestParam(value = "affiliation") final ClubAffiliation affiliation,
+            @RequestParam(value = "affiliation", required = false) final ClubAffiliation affiliation,
             @RequestParam(value = "page") final int page,
             @RequestParam(value = "size") final int size
     ) {
