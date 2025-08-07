@@ -12,6 +12,7 @@ import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.Speci
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -99,13 +100,14 @@ public class RecruitmentController {
     @GetMapping
     public ResponseEntity<APISuccessResponse<AllRecruitmentResponse>> getAllRecruitment(
             @Authentication final AuthCredential authCredential,
+            @RequestParam(value = "affiliation") final ClubAffiliation affiliation,
             @RequestParam(value = "page") final int page,
             @RequestParam(value = "size") final int size
     ) {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getAllRecruitment(authCredential.userId(), pageable)
+                recruitmentService.getAllRecruitment(authCredential.userId(), affiliation, pageable)
         );
     }
 }

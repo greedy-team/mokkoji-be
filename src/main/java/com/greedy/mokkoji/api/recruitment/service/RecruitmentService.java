@@ -21,6 +21,7 @@ import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
@@ -36,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -246,10 +246,10 @@ public class RecruitmentService {
     }
 
     @Transactional
-    public AllRecruitmentResponse getAllRecruitment(final Long userId, final Pageable pageable) {
+    public AllRecruitmentResponse getAllRecruitment(final Long userId, final ClubAffiliation affiliation, final Pageable pageable) {
 
-        List<Recruitment> allRecruitments = recruitmentRepository.findAll();
-        List<Recruitment> filteredRecruitments = filterLatestRecruitmentPerClub(allRecruitments);
+        Page<Recruitment> recruitmentPage = recruitmentRepository.findRecruitments(affiliation, pageable);
+        List<Recruitment> filteredRecruitments = recruitmentPage.getContent();
 
         // 페이징 처리
         int start = (int) pageable.getOffset();
@@ -272,17 +272,6 @@ public class RecruitmentService {
         );
 
         return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
-    }
-
-    private List<Recruitment> filterLatestRecruitmentPerClub(List<Recruitment> recruitments) {
-        return recruitments.stream()
-                .collect(Collectors.toMap(
-                        r -> r.getClub().getId(), r -> r,
-                        (r1, r2) -> r1.getRecruitEnd().isAfter(r2.getRecruitEnd()) ? r1 : r2
-                ))
-                .values()
-                .stream()
-                .toList();
     }
 
     private RecruitmentPreviewResponse mapToRecruitmentPreviewResponse(Long userId, Recruitment recruitment) {
