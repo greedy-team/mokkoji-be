@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> {
+public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>, RecruitmentRepositoryCustom {
     @Query("SELECT r FROM Recruitment r WHERE FUNCTION('DATE', r.recruitStart) = :currentDate")
     List<Recruitment> findAllByRecruitStartToday(LocalDate currentDate);
 
