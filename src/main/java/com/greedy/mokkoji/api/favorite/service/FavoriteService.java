@@ -109,6 +109,7 @@ public class FavoriteService {
         return recruitments.stream()
                 .filter(r -> isSameMonth(r, yearMonth))
                 .map(r -> RecruitClubsResponse.of(
+                        r.getClub().getId(),
                         r.getClub().getName(),
                         r.getRecruitStart(),
                         r.getRecruitEnd()
