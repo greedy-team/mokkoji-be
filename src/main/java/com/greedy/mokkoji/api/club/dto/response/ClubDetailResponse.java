@@ -32,14 +32,15 @@ public record ClubDetailResponse(
             final String instagram,
             final String recruitPost
     ) {
+
         return ClubDetailResponse.builder()
                 .id(id)
                 .name(name)
                 .category(category)
                 .affiliation(affiliation)
                 .description(description)
-                .recruitStartDate(recruitStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
-                .recruitEndDate(recruitEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+                .recruitStartDate(recruitStartDate != null ? recruitStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE) : null)
+                .recruitEndDate(recruitEndDate != null ? recruitEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE) : null)
                 .logo(logo)
                 .isFavorite(isFavorite)
                 .instagram(instagram)
