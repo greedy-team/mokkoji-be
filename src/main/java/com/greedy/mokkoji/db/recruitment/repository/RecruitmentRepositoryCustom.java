@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface RecruitmentRepositoryCustom {
     Page<Recruitment> findRecruitments(
-        final ClubAffiliation affiliation,
-        final Pageable pageable
+            final ClubAffiliation affiliation,
+            final Pageable pageable
     );
 }
