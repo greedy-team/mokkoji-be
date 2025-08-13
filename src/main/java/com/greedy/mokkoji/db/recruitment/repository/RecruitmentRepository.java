@@ -32,5 +32,5 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
 
     List<Recruitment> findByClubIdIn(List<Long> clubIds);
 
-    Optional<Recruitment> findTopByClubIdOrderByRecruitStartDesc(Long clubId);
+    Optional<Recruitment> findTopByClubIdOrderByUpdatedAtDesc(Long clubId);
 }
