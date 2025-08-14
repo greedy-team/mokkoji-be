@@ -2,7 +2,7 @@ package com.greedy.mokkoji.api.user.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.jwt.BearerAuthExtractor;
+import com.greedy.mokkoji.api.jwt.AuthExtractor;
 import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.*;
@@ -10,6 +10,7 @@ import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.db.user.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("${api.prefix}/users")
 public class UserController {
 
-    private final BearerAuthExtractor bearerAuthExtractor;
+    private final AuthExtractor authExtractor;
     private final UserService userService;
     private final TokenService tokenService;
 
@@ -34,9 +35,9 @@ public class UserController {
 
     @PostMapping("/auth/refresh")
     public ResponseEntity<APISuccessResponse<RefreshResponse>> refresh(
-            @RequestHeader("Authorization") String bearerToken
+        HttpServletRequest request
     ) {
-        final String refreshToken = bearerAuthExtractor.extractTokenValue(bearerToken);
+        final String refreshToken = authExtractor.extractRefreshToken(request);
 
         final String newAccessToken = userService.refreshAccessToken(refreshToken);
 
