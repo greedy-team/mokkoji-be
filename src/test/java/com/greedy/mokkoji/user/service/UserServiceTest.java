@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.user.service;
 
-import com.greedy.mokkoji.api.external.SejongLoginClient;
+import com.greedy.mokkoji.api.external.sejong.SejongLoginClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;

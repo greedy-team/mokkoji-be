@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.external;
+package com.greedy.mokkoji.api.external.sejong;
 
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;

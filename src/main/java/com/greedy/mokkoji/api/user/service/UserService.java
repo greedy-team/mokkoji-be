@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.api.user.service;
 
-import com.greedy.mokkoji.api.external.SejongLoginClient;
+import com.greedy.mokkoji.api.external.sejong.SejongLoginRestClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
@@ -12,12 +12,11 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -28,7 +27,7 @@ public class UserService {
     private final ClubRepository clubRepository;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
-    private final SejongLoginClient sejongLoginClient;
+    private final SejongLoginRestClient sejongLoginClient;
 
     //ToDo: 생 유저 정보를 넘기는 게 아니라 DTO처리해서 넘기는 것도 좋아보임
     @Transactional
