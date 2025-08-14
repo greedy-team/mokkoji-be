@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
         final int failCode = failMessage.getCode();
         final String failMessageMessage = failMessage.getMessage();
 
-        infoLog(failCode, failMessageMessage);
+        errorLog(failCode, failMessageMessage);
 
         return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
     }
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
         final FailMessage failMessage = FailMessage.BAD_REQUEST_REQUEST_BODY_VALID;
         final int failCode = failMessage.getCode();
 
-        infoLog(failCode, customMessage);
+        errorLog(failCode, customMessage);
 
         return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, customMessage);
     }
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
         final FailMessage failMessage = FailMessage.BAD_REQUEST_MISSING_PARAM;
         final int failCode = failMessage.getCode();
 
-        infoLog(failCode, customMessage);
+        errorLog(failCode, customMessage);
 
         return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, customMessage);
     }
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
         final FailMessage failMessage = FailMessage.BAD_REQUEST_METHOD_ARGUMENT_TYPE;
         final int failCode = failMessage.getCode();
 
-        infoLog(failCode, customMessage);
+        errorLog(failCode, customMessage);
 
         return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, customMessage);
     }
@@ -91,14 +91,14 @@ public class GlobalExceptionHandler {
                     .map(ref -> String.format("잘못된 필드 값 : '%s'", ref.getFieldName()))
                     .collect(Collectors.joining("\n"));
 
-            infoLog(failCode, customMessage);
+            errorLog(failCode, customMessage);
 
             return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, customMessage);
         } else {
 
             final String failMessageMessage = failMessage.getMessage();
 
-            infoLog(failCode, failMessageMessage);
+            errorLog(failCode, failMessageMessage);
 
             return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
         }
@@ -109,9 +109,9 @@ public class GlobalExceptionHandler {
 
         final FailMessage failMessage = FailMessage.NOT_FOUND_API;
         final int failCode = failMessage.getCode();
-        final String failMessageMessage = failMessage.getMessage();
+        final String failMessageMessage = exception.getMessage();
 
-        infoLog(failCode, failMessageMessage);
+        errorLog(failCode, failMessageMessage);
 
 
         return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
@@ -122,9 +122,9 @@ public class GlobalExceptionHandler {
 
         final FailMessage failMessage = FailMessage.NOT_FOUND_API;
         final int failCode = failMessage.getCode();
-        final String failMessageMessage = failMessage.getMessage();
+        final String failMessageMessage = exception.getMessage();
 
-        infoLog(failCode, failMessageMessage);
+        errorLog(failCode, failMessageMessage);
 
 
         return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
@@ -135,9 +135,9 @@ public class GlobalExceptionHandler {
 
         final FailMessage failMessage = FailMessage.METHOD_NOT_ALLOWED;
         final int failCode = failMessage.getCode();
-        final String failMessageMessage = failMessage.getMessage();
+        final String failMessageMessage = exception.getMessage();
 
-        infoLog(failCode, failMessageMessage);
+        errorLog(failCode, failMessageMessage);
 
         return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
     }
@@ -153,14 +153,14 @@ public class GlobalExceptionHandler {
             final String constraintName = constraintViolationException.getConstraintViolations().toString();
             final String customMessage = String.format("제약 조건 '%s' 위반이 발생했습니다.", constraintName);
 
-            infoLog(failCode, customMessage);
+            errorLog(failCode, customMessage);
 
             return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, customMessage);
         } else {
 
             final String failMessageMessage = failMessage.getMessage();
 
-            infoLog(failCode, failMessageMessage);
+            errorLog(failCode, failMessageMessage);
 
             return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
         }
@@ -171,17 +171,13 @@ public class GlobalExceptionHandler {
 
         final FailMessage failMessage = FailMessage.INTERNAL_SERVER_ERROR;
         final int failCode = failMessage.getCode();
-        final String failMessageMessage = failMessage.getMessage();
-
-        log.error("[{}] URI: {}, 실패 코드: {}, 실패 메세지: {}",
-                commonLogInformation.getRequestIdentifier(), commonLogInformation.getUri(), failCode, exception.getMessage(), exception
-        );
-
+        final String failMessageMessage = exception.getMessage();
+        errorLog(failCode, failMessageMessage);
         return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
     }
 
-    private void infoLog(final int failCode, final String failMessage) {
-        log.info("[{}] URI: {}, 실패 코드: {}, 실패 메세지: {}",
+    private void errorLog(final int failCode, final String failMessage) {
+        log.error("[{}] URI: {}, 실패 코드: {}, 실패 메세지: {}",
                 commonLogInformation.getRequestIdentifier(), commonLogInformation.getUri(), failCode, failMessage
         );
     }

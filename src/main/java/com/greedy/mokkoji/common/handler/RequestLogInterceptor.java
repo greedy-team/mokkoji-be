@@ -31,7 +31,6 @@ public class RequestLogInterceptor implements HandlerInterceptor {
         if (CorsUtils.isPreFlightRequest(request)) {
             return true;
         }
-
         commonLogInformation.setUri(request.getRequestURI());
         return true;
     }
@@ -45,10 +44,16 @@ public class RequestLogInterceptor implements HandlerInterceptor {
     ) {
         final Long queryCount = queryCounter.getCount();
         final double duration = (System.currentTimeMillis() - queryCounter.getTime()) / TIME_CONVERSION_MS_TO_SEC;
+        final int status = response.getStatus();
 
-        log.info("[{}] URI: {} statusCode: {}",
-                commonLogInformation.getRequestIdentifier(), commonLogInformation.getUri(), response.getStatus()
-        );
+        if (status >= 400) {
+            log.error("[❌ 요청 실패] - 요청 : [{}] {} | 요청자 : {} | 상태 코드 : {} | 시간 : {} ms", request.getMethod(),
+                    request.getRequestURI(), commonLogInformation.getRequestIdentifier(), status, duration);
+        } else {
+            log.info("[✅ 요청 성공] - 요청 : [{}] {} | 요청자 : {} | 상태 코드 : {} | 시간 : {} ms", request.getMethod(),
+                    request.getRequestURI(), commonLogInformation.getRequestIdentifier(),
+                    status, duration);
+        }
         warnAboutQuery(queryCount, duration);
     }
 
