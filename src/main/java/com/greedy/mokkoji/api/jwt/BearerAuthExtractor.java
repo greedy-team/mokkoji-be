@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class BearerAuthExtractor {
+
     private static final String BEARER_TYPE = "Bearer";
 
     public String extractTokenValue(final String bearerToken) {
