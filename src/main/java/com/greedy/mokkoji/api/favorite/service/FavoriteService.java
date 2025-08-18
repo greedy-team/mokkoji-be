@@ -61,7 +61,8 @@ public class FavoriteService {
         List<ClubResponse> clubResponses = favorites.stream()
                 .map(favorite -> {
                     final Club club = favorite.getClub();
-                    final Recruitment recruitment = recruitmentRepository.findByClubId(club.getId());
+                    Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(club.getId())
+                            .orElse(null);
 
                     return ClubResponse.of(
                             club.getId(),
@@ -69,8 +70,8 @@ public class FavoriteService {
                             club.getClubCategory().getDescription(),
                             club.getClubAffiliation().getDescription(),
                             club.getDescription(),
-                            recruitment.getRecruitStart(),
-                            recruitment.getRecruitEnd(),
+                            recruitment != null ? recruitment.getRecruitStart() : null,
+                            recruitment != null ? recruitment.getRecruitEnd() : null,
                             appDataS3Client.getPresignedUrl(club.getLogo()),
                             true
                     );
