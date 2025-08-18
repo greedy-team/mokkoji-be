@@ -9,6 +9,7 @@
     </springProfile>
     <springProfile name="prod">
         <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+        <include resource="console.xml"/>
         <include resource="error-appender.xml"/>
         <include resource="warn-appender.xml"/>
         <root level="info">
