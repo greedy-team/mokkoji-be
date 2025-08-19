@@ -25,7 +25,7 @@ public class Recruitment extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     private Club club;
 
-    @Column(name = "title", columnDefinition = "text")
+    @Column(name = "title", columnDefinition = "text", nullable = false)
     private String title;
 
     @Column(name = "content", columnDefinition = "text")
