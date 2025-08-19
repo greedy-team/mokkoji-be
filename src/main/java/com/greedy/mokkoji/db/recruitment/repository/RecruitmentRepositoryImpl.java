@@ -33,14 +33,14 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom {
                 .join(recruitment.club, club).fetchJoin()
                 .where(
                         equalAffiliation(affiliation),
-                        recruitment.recruitEnd.eq(
+                        recruitment.updatedAt.eq(
                                 JPAExpressions
-                                        .select(subRecruitment.recruitEnd.max())
+                                        .select(subRecruitment.updatedAt.max())
                                         .from(subRecruitment)
                                         .where(subRecruitment.club.id.eq(recruitment.club.id))
                         )
                 )
-                .orderBy(recruitment.recruitEnd.desc())
+                .orderBy(recruitment.updatedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -51,9 +51,9 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom {
                 .join(recruitment.club, club)
                 .where(
                         equalAffiliation(affiliation),
-                        recruitment.recruitEnd.eq(
+                        recruitment.updatedAt.eq(
                                 JPAExpressions
-                                        .select(subRecruitment.recruitEnd.max())
+                                        .select(subRecruitment.updatedAt.max())
                                         .from(subRecruitment)
                                         .where(subRecruitment.club.id.eq(recruitment.club.id))
                         )
