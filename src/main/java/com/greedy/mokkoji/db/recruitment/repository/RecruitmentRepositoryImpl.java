@@ -1,4 +1,5 @@
 package com.greedy.mokkoji.db.recruitment.repository;
+
 import com.greedy.mokkoji.db.recruitment.entity.QRecruitment;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
