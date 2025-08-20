@@ -228,20 +228,14 @@ public class RecruitmentService {
         List<String> imageUrls = new ArrayList<>();
 
         if (imageKeys != null && !imageKeys.isEmpty()) {
-            //ex) "Greedy Club" -> "greedy-club"
-            String clubName = recruitment.getClub().getName().replaceAll("\\s+", "-").toLowerCase();
-
             List<RecruitmentImage> recruitmentImages = imageKeys.stream()
-                    .map(originalName -> {
-                        String extension = extractExtension(originalName);
-                        String uniqueKey = "recruitment/" + clubName + "/" + UUID.randomUUID() + extension;
-
-                        String presignedPutUrl = appDataS3Client.getPresignedPutUrl(uniqueKey);
+                    .map(imageKey -> {
+                        String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
                         imageUrls.add(presignedPutUrl);
 
                         return RecruitmentImage.builder()
                                 .recruitment(recruitment)
-                                .image(uniqueKey)
+                                .image(imageKey)
                                 .build();
                     })
                     .toList();
