@@ -16,6 +16,7 @@ import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
+import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -157,6 +158,7 @@ public class ClubService {
                             appDataS3Client.getPresignedUrl(club.getLogo()),
                             isFavorite);
                 })
+                .sorted(getFavoriteComparator())
                 .toList();
     }
 
@@ -230,5 +232,9 @@ public class ClubService {
         return (newLogoKey != null && oldLogoKey != null && !oldLogoKey.equals(newLogoKey))
                 ? appDataS3Client.getPresignedDeleteUrl(oldLogoKey)
                 : null;
+    }
+
+    private Comparator<ClubResponse> getFavoriteComparator() {
+        return Comparator.comparing(ClubResponse::isFavorite).reversed();
     }
 }
