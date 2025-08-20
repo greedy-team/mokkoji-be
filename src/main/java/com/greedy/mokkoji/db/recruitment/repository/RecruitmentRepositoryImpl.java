@@ -1,23 +1,23 @@
 package com.greedy.mokkoji.db.recruitment.repository;
 
+import static com.greedy.mokkoji.db.club.entity.QClub.club;
+import static com.greedy.mokkoji.db.recruitment.entity.QRecruitment.recruitment;
+
 import com.greedy.mokkoji.db.recruitment.entity.QRecruitment;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
+import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Optional;
-
-import static com.greedy.mokkoji.db.club.entity.QClub.club;
-import static com.greedy.mokkoji.db.recruitment.entity.QRecruitment.recruitment;
 
 @Repository
 @RequiredArgsConstructor
@@ -26,7 +26,7 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Recruitment> findRecruitments(ClubAffiliation affiliation, Pageable pageable) {
+    public Page<Recruitment> findRecruitments(ClubAffiliation affiliation, ClubCategory category, Pageable pageable) {
 
         QRecruitment subRecruitment = new QRecruitment("subRecruitment");
 
@@ -34,6 +34,7 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom {
                 .join(recruitment.club, club).fetchJoin()
                 .where(
                         equalAffiliation(affiliation),
+                        equalCategory(category),
                         recruitment.updatedAt.eq(
                                 JPAExpressions
                                         .select(subRecruitment.updatedAt.max())
@@ -67,5 +68,9 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom {
 
     private BooleanExpression equalAffiliation(ClubAffiliation affiliation) {
         return affiliation != null ? club.clubAffiliation.eq(affiliation) : null;
+    }
+
+    private BooleanExpression equalCategory(ClubCategory category) {
+        return category != null ? club.clubCategory.eq(category) : null;
     }
 }
