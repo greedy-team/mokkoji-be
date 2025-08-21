@@ -149,6 +149,7 @@ public class RecruitmentService {
                 recruitment.getId(),
                 recruitment.getTitle(),
                 club.getName(),
+                appDataS3Client.getPresignedUrl(club.getLogo()),
                 club.getId(),
                 recruitment.getContent(),
                 recruitment.getRecruitStart(),
