@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface ClubRepository extends JpaRepository<Club, Long>, ClubRepositoryCustom {
     List<Club> findByClubMasterStudentId(String studentId);
+    boolean existsByClubMasterStudentId(String studentId);
 }
