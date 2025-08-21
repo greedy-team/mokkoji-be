@@ -42,11 +42,18 @@ public class UserService {
                     .name(studentInformationResponse.name())
                     .department(studentInformationResponse.department())
                     .grade(studentInformationResponse.grade())
-                    .role(UserRole.NORMAL)
+                    .role(determineUserRole(studentId))
                     .build();
 
             return userRepository.save(newUser);
         });
+    }
+
+    private UserRole determineUserRole(final String studentId) {
+        if (clubRepository.existsByClubMasterStudentId(studentId)) {
+            return UserRole.CLUB_MASTER;
+        }
+        return UserRole.NORMAL;
     }
 
     @Transactional
