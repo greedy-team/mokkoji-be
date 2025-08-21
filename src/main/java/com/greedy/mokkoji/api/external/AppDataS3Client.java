@@ -33,7 +33,7 @@ public class AppDataS3Client {
                 .build();
 
         final GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(5)) // 5분간 접근 허용
+                .signatureDuration(Duration.ofMinutes(15)) // 15분간 접근 허용
                 .getObjectRequest(getObjectRequest)
                 .build();
 
