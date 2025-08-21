@@ -8,7 +8,7 @@ public record SpecificRecruitmentResponse(
     Long id,
     String title,
     String clubName,
-    String clubLogo,
+    String logo,
     Long clubId,
     String content,
     LocalDateTime recruitStart,
@@ -26,7 +26,7 @@ public record SpecificRecruitmentResponse(
         Long id,
         String title,
         String clubName,
-        String clubLogo,
+        String logo,
         Long clubId,
         String content,
         LocalDateTime recruitStart,
@@ -40,7 +40,7 @@ public record SpecificRecruitmentResponse(
         String category
     ) {
         return new SpecificRecruitmentResponse(
-            id, title, clubName, clubLogo, clubId, content, recruitStart, recruitEnd,
+            id, title, clubName, logo, clubId, content, recruitStart, recruitEnd,
             status, createdAt, imageUrls, recruitForm,
             isFavorite, instagramUrl, category
         );
