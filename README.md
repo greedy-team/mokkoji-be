@@ -1,16 +1,17 @@
 <img width="1928" height="1066" alt="image" src="https://github.com/user-attachments/assets/9093719e-21f6-4e28-b183-0911a72a6345" />
+
 # 🍀 Mokkoji (모꼬지) 🍀
 
-## 📌 프로젝트 개요  
-세종대학교에는 전체 동아리를 한눈에 볼 수 있는 동아리 웹사이트가 존재하지 않았습니다.  
-학생들이 다양한 동아리를 쉽게 찾고 참여할 수 있도록 돕기 위해 **Mokkoji** 프로젝트를 기획하게 되었습니다.  
-이 웹사이트를 통해 **동아리 검색, 필터링, 즐겨찾기 기능**을 제공하여 학생들의 동아리 활동을 지원합니다.
+**모꼬지** 팀은 동아리 홍보 및 정보 탐색의 불편함을 인지하고, 이를 해결하고자 동아리 통합 서비스를 만들었어요. 
+동아리 입장에서는 에브리타임에 동아리 홍보글을 올려도 글이 계속 묻혀 동아리를 홍보하기 어렵다는 문제가 있어요. 
+학우분들 입장에서도 어떤 동아리가 있는지 한 번에 확인하기 어렵다는 문제가 있죠. 
+이러한 학우분들의 불편함을 조금이라도 덜어드리고자 열심히 개발했습니다.
 
 ---
 
-## 🛠 Technology Stack (기술 스택)
+## 🖥️ Technology Stack (기술 스택)
 
-### 🖥 Frontend  
+### 🟢 Frontend  
 <p align="left">
   <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" alt="React" width="50" height="50"/>
   <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" alt="TypeScript" width="50" height="50"/>
@@ -18,7 +19,7 @@
   <img src="https://github.com/user-attachments/assets/c42e1189-b47e-4121-88d6-e51ac6c8ecff" width="50" height="50"/>
 </p>
 
-### 🔧 Backend  
+### 🟢 Backend  
 <p align="left">
   <img src="https://github.com/user-attachments/assets/f04fb377-ca6c-4078-be40-277d474fccc3" width="50" height="50"/>
   <img src="https://github.com/user-attachments/assets/241ec7bc-9f52-4144-b36d-36f0224bba53" width="50" height="50"/>  
@@ -26,7 +27,7 @@
   <img src="https://github.com/user-attachments/assets/106a82ed-f425-44a9-a2bd-ca9b06c7e9a0" width="50" height="50"/>
 </p>
 
-### 🤝 Cooperation (협업 도구)  
+### 🟢 Cooperation (협업 도구)  
 <p align="left">
   <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/github/github-original.svg" alt="GitHub" width="50" height="50"/>
   <img src="https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png" alt="Notion" width="50" height="50"/>
@@ -36,7 +37,7 @@
 ---
 ## 👥 Team Members
 
-### 🖥️ Front-End Team  
+### 🟢 Front-End Team  
 <table>
   <tr>
     <th><a href="https://github.com/sins051301">신혁수</a></th>
@@ -66,7 +67,7 @@
   </tr>
 </table>
 
-### 🖥️ Back-End Team  
+### 🟢 Back-End Team  
 <table>
   <tr>
     <th><a href="https://github.com/shin378378">신혜빈</a></th>
@@ -79,7 +80,7 @@
       <img src="https://github.com/user-attachments/assets/30288ae1-f8f9-4409-a483-b9244a3df618" width="120px" height="120px"/>
     </td>
     <td>
-      <img src="https://github.com/user-attachments/assets/d37a0305-9402-4252-bc86-80a297edc4f8" width="120px" height="120px"/>
+      <img width="120" height="120" alt="image" src="https://github.com/user-attachments/assets/eb9e4c67-0548-4d0e-804f-95497091ac45" />
     </td>
     <td>
       <img src="https://github.com/user-attachments/assets/53ff6d2f-1cb6-47f4-87dd-e3a929c1add3" width="120px" height="120px"/>
@@ -104,49 +105,82 @@
 
 </div>
 
+### 🟢 Design Team  
+<table>
+  <tr>
+    <th><a href="https://github.com/shin378378">김성림</a></th>
+  </tr>
+  <tr>
+    <td>
+      <img width="120" height="120" alt="image" src="https://github.com/user-attachments/assets/0fc0a723-87ef-4d90-ba8a-461fc888d879" />
+    </td>
+  </tr>
+  <tr>
+    <td>Designer</td>
+  </tr>
+  <tr>
+    <td>경영학과</td>
+  </tr>
+</table>
 
-## 🚀 주요 기능
+</div>
 
-### ✅ **홈 화면**
-Mokkoji의 첫 화면으로, 간단한 서비스 소개와 동아리 목록으로 이동할 수 있는 카테고리를 제공합니다.  
-![홈 화면](<img width="1622" height="800" alt="image" src="https://github.com/user-attachments/assets/c04fad78-e5b0-490b-8ddb-1207eee7c622" />)
+## 주요 기능 소개
 
-### ✅ **전체 동아리 목록 조회**
-모든 동아리를 한눈에 확인할 수 있으며, 원하는 동아리를 쉽게 찾을 수 있습니다.  
-![동아리 목록](https://github.com/user-attachments/assets/e7835e03-ab2f-4fcc-8415-9181107a9861)
-
-### ✅ **카테고리별 동아리 필터링**
-중앙 동아리 및 기타 동아리로 나누어 원하는 동아리를 카테고리별로 필터링할 수 있습니다.
-
-#### 🏛 중앙 동아리  
-![중앙 동아리](https://github.com/user-attachments/assets/bc110736-b13b-4989-8b61-af7e199cd8cc)  
-
-#### 🎭 기타 동아리  
-![기타 동아리](https://github.com/user-attachments/assets/bae317d2-433a-4a48-84cc-96763fe81bcf)
+### ✅ **세종대 모든 동아리를 한 곳애서!**
+- 학술, 공연, 체육, 봉사, 종교 등 다양한 분야의 동아리 정보를 한 눈에 볼 수 있어요.
+  
+<img width="1699" height="964" alt="스크린샷 2025-08-21 오후 10 29 34" src="https://github.com/user-attachments/assets/6e780c0b-aad6-486b-81d3-b3a4a301637e" />
 
 ### ✅ **동아리 검색 기능**
-동아리 이름이나 키워드를 입력하면 원하는 동아리를 빠르게 검색할 수 있습니다.  
+동아리 이름이나 키워드를 입력하면 원하는 동아리를 빠르게 검색할 수 있어요!
 
-![검색 기능](https://github.com/user-attachments/assets/fc96bdad-92db-4425-b4f4-584b710aa43b)
+<img width="1620" height="979" alt="스크린샷 2025-08-21 오후 10 45 27" src="https://github.com/user-attachments/assets/dc2934b9-10c6-4ec6-b58c-30a68daabce9" />
+
+### ✅ **동아리 별 최신 모집 공고 제공**
+- 활동 내용, 모집 일정, 가입 방법까지 한 페이지에서 확인할 수 있어요.
+- 실시간 모집 현황을 확인할 수 있어요.
+
+<img width="1547" height="972" alt="스크린샷 2025-08-21 오후 10 40 40" src="https://github.com/user-attachments/assets/85e4ab0c-ce87-4885-8af0-2e4a1aac6b31" />
 
 ### ✅ **동아리 상세 페이지**
-선택한 동아리에 대한 상세 정보(모집기간, 인스타 링크, 모집공고 등)를 확인할 수 있습니다.  
-![동아리 상세](https://github.com/user-attachments/assets/09f75624-3777-4d22-9eeb-6e7bdaefc85f)
+- 선택한 동아리에 대한 상세 정보(모집기간, 인스타 링크, 모집공고 등)를 확인할 수 있어요. 
 
-### ✅ **동아리 모집공고 페이지**
-동아리 모집 공고를 마감임박한 순으로 확인할 수 있습니다.  
-![모집공고](https://github.com/user-attachments/assets/64cc593a-3e54-4120-83d4-81ecc776589c)
+<img width="1550" height="978" alt="스크린샷 2025-08-21 오후 11 01 59" src="https://github.com/user-attachments/assets/00f3e0ea-3373-46c5-a317-70704bd37495" />
 
-### ✅ **즐겨찾기한 동아리 모집기간 확인**
-즐겨찾기에 추가한 동아리의 모집 기간을 한눈에 확인할 수 있습니다.  
-![즐겨찾기](https://github.com/user-attachments/assets/204a030d-3448-4ece-be73-e369d9cc699e)
 
-### ✅ **회원가입 및 로그인 기능**
-사용자는 회원가입 후 로그인을 통해 즐겨찾기를 할 수 있습니다.  
-![회원가입](https://github.com/user-attachments/assets/af2669e6-5e9b-4c31-8d7b-664d94e9d011)  
-![로그인](https://github.com/user-attachments/assets/1172cb8a-1377-4030-9bab-30f5b68e68fd)
+### ✅ **모집 공고 상세 페이지**
+- 선택한 동아리에 대한 상세 정보(모집기간, 인스타 링크, 모집공고 등)를 확인할 수 있어요.
+  
+<img width="1568" height="981" alt="스크린샷 2025-08-21 오후 11 01 27" src="https://github.com/user-attachments/assets/00e34ee0-384a-4739-8969-eca9560eba99" />
 
-### ✅ **사용자 정보 불러오기 및 저장**
-사용자의 정보를 불러와 저장하고, 이메일 정보를 수정할 수 있습니다.  
-![사용자 정보](https://github.com/user-attachments/assets/8d0bb361-eb68-493d-9f69-4b23990d16e5)  
-![정보 저장](https://github.com/user-attachments/assets/8ad73e2e-8f04-4ab8-b1f0-098849eae9e4)
+### ✅ **동아리 즐겨찾기 기능**
+- 즐겨찾기를 통해 관심 있는 동아리를 한 눈에 확인할 수 있어요.
+- 캘린더에서 즐겨찾기한 동아리의 모집 기한을 확인하고 모집 기한을 놓치지 마세요!
+  
+<img width="1427" height="780" alt="스크린샷 2025-08-21 오후 10 43 50" src="https://github.com/user-attachments/assets/565d8fa3-f817-4d9c-90b7-e445c3b28698" />
+
+### ✅ **동아리 모집 알림 메일 기능**
+- 즐겨찾기 해둔 동아리의 모집 기한을 잊지 않도록, 메일로 알림을 보내드려요.
+
+---
+### ✅ **로그인 기능**
+- 사용자는 학사정보시스템 로그인을을 통해 다양한 기능을 사용할 수 있어요.
+- 로그인 안내사항 확인 및 동의 후 로그인이 가능해요.
+
+<img width="813" height="710" alt="스크린샷 2025-08-21 오후 10 56 56" src="https://github.com/user-attachments/assets/f02a1719-0966-43f9-9afb-b3a09a00255e" />
+<img width="923" height="695" alt="스크린샷 2025-08-21 오후 10 57 24" src="https://github.com/user-attachments/assets/1f717cc4-6331-43f5-857b-31b7f9a60d50" />
+
+### ✅ **마이페이지 및 정보 수정**
+- 자신의 정보를 확인하고 수정할 수 있어요.
+
+<img width="535" height="257" alt="스크린샷 2025-08-21 오후 10 48 37" src="https://github.com/user-attachments/assets/2d5e7a4b-fdb2-45e0-b6f8-256d71a11344" />
+
+---
+### 동아리 회장
+### ✅ **동아리 정보 입력**
+- 검증된 동아리 회장은 동아리 모집 공고를 올릴 수 있어요.
+- 에타에 매번 글을 올리지 않아도 돼요.
+
+---
+## 대학 생활의 꽃, 동아리 활동을 모꼬지와 함께 해봐요! 🌻
