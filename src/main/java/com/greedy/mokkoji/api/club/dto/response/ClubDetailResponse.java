@@ -12,6 +12,7 @@ public record ClubDetailResponse(
         String category,
         String affiliation,
         String description,
+        Long recruitmentId,
         String recruitStartDate,
         String recruitEndDate,
         String logo,
@@ -25,6 +26,7 @@ public record ClubDetailResponse(
             final String category,
             final String affiliation,
             final String description,
+            final Long recruitmentId,
             final LocalDateTime recruitStartDate,
             final LocalDateTime recruitEndDate,
             final String logo,
@@ -39,6 +41,7 @@ public record ClubDetailResponse(
                 .category(category)
                 .affiliation(affiliation)
                 .description(description)
+                .recruitmentId(recruitmentId)
                 .recruitStartDate(recruitStartDate != null ? recruitStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE) : null)
                 .recruitEndDate(recruitEndDate != null ? recruitEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE) : null)
                 .logo(logo)

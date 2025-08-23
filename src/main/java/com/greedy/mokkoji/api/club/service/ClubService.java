@@ -133,6 +133,7 @@ public class ClubService {
                 club.getClubCategory().getDescription(),
                 club.getClubAffiliation().getDescription(),
                 club.getDescription(),
+                recruitment != null ? recruitment.getId() : null,
                 recruitment != null ? recruitment.getRecruitStart() : null,
                 recruitment != null ? recruitment.getRecruitEnd() : null,
                 appDataS3Client.getPresignedUrl(club.getLogo()),
