@@ -34,7 +34,7 @@ public class UserController {
 
     @PostMapping("/auth/refresh")
     public ResponseEntity<APISuccessResponse<RefreshResponse>> refresh(
-        @RequestHeader("Authorization") String bearerToken
+            @RequestHeader("Authorization") String bearerToken
     ) {
         final String refreshToken = bearerAuthExtractor.extractTokenValue(bearerToken);
 
