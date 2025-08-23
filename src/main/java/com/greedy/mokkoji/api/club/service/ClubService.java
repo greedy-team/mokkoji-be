@@ -16,7 +16,6 @@ import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
-import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -109,6 +109,8 @@ public class ClubService {
         String oldLogoKey = club.getLogo();
         String newLogoKey = extractNewLogoKey(logo);
 
+        if (clubMasterStudentId != null) changeClubMasterRole(club.getClubMasterStudentId(), clubMasterStudentId);
+
         club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, logo, instagram);
 
         String updateLogo = generatePresignedPutUrl(newLogoKey);
@@ -117,6 +119,13 @@ public class ClubService {
         return ClubUpdateResponse.of(updateLogo, deleteLogo);
     }
 
+    private void changeClubMasterRole(final String previousClubMasterStudentId, final String newClubMasterStudentId) {
+        userRepository.findByStudentId(previousClubMasterStudentId)
+                .ifPresent(user -> user.updateRole(UserRole.NORMAL));
+
+        userRepository.findByStudentId(newClubMasterStudentId)
+                .ifPresent(user -> user.updateRole(UserRole.CLUB_MASTER));
+    }
 
     private boolean getIsFavorite(final Long userId, final Long clubId) {
         if (userId == null) { //회원 및 비회원 구별 로직
@@ -185,7 +194,7 @@ public class ClubService {
 
         User masterUser = userRepository.findByStudentId(clubMasterStudentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-        masterUser.grantRole(UserRole.CLUB_MASTER);
+        masterUser.updateRole(UserRole.CLUB_MASTER);
         return masterUser.getStudentId();
     }
 
