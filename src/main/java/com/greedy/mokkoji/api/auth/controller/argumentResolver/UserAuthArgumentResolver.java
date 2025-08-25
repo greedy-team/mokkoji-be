@@ -32,10 +32,10 @@ public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(
-        final MethodParameter parameter,
-        final ModelAndViewContainer mavContainer,
-        final NativeWebRequest webRequest,
-        final WebDataBinderFactory binderFactory
+            final MethodParameter parameter,
+            final ModelAndViewContainer mavContainer,
+            final NativeWebRequest webRequest,
+            final WebDataBinderFactory binderFactory
     ) throws Exception {
         final HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);

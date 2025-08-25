@@ -51,7 +51,7 @@ public class User {
         this.email = email;
     }
 
-    public void grantRole(UserRole newRole) {
+    public void updateRole(UserRole newRole) {
         this.role = newRole;
     }
 }

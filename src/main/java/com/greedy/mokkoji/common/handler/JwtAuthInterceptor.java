@@ -19,9 +19,9 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(
-        final HttpServletRequest request,
-        final HttpServletResponse response,
-        final Object handler
+            final HttpServletRequest request,
+            final HttpServletResponse response,
+            final Object handler
     ) {
         if (CorsUtils.isPreFlightRequest(request)) {
             return true;
