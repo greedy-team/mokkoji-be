@@ -79,7 +79,6 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
         return null;
     }
 
-
     private BooleanExpression equalCategory(final ClubCategory category) {
         if (category != null) {
             return club.clubCategory.eq(category);
