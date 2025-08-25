@@ -72,9 +72,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
 
     private BooleanExpression likeClubName(final String keyword) {
         if (StringUtils.hasText(keyword)) {
-            return club.name.like("%" + keyword + "%")
-                    .or(club.description.like("%" + keyword + "%"))
-                    .or(recruitment.content.like("%" + keyword + "%"));
+            return recruitment.content.like("%" + keyword + "%");
         }
         return null;
     }
