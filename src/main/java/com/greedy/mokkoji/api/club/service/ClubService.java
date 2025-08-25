@@ -109,7 +109,9 @@ public class ClubService {
         String oldLogoKey = club.getLogo();
         String newLogoKey = extractNewLogoKey(logo);
 
-        if (clubMasterStudentId != null) changeClubMasterRole(club.getClubMasterStudentId(), clubMasterStudentId);
+        if (clubMasterStudentId != null) {
+            changeClubMasterRole(club.getClubMasterStudentId(), clubMasterStudentId);
+        }
 
         club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, logo, instagram);
 
