@@ -41,7 +41,7 @@ public class UserService {
         return userRepository.findByStudentId(studentId)
                 .map(user -> {
                     user.updateRole(role);
-                    return userRepository.save(user);
+                    return user;
                 }).orElseGet(() -> {
                     final User newUser = User.builder()
                             .studentId(studentId)
