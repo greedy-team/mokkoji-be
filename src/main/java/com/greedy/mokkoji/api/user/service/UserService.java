@@ -36,17 +36,23 @@ public class UserService {
 
         final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId, password);
 
-        return userRepository.findByStudentId(studentId).orElseGet(() -> {
-            final User newUser = User.builder()
-                    .studentId(studentId)
-                    .name(studentInformationResponse.name())
-                    .department(studentInformationResponse.department())
-                    .grade(studentInformationResponse.grade())
-                    .role(determineUserRole(studentId))
-                    .build();
+        final UserRole role = determineUserRole(studentId);
 
-            return userRepository.save(newUser);
-        });
+        return userRepository.findByStudentId(studentId)
+                .map(user -> {
+                    user.updateRole(role);
+                    return userRepository.save(user);
+                }).orElseGet(() -> {
+                    final User newUser = User.builder()
+                            .studentId(studentId)
+                            .name(studentInformationResponse.name())
+                            .department(studentInformationResponse.department())
+                            .grade(studentInformationResponse.grade())
+                            .role(role)
+                            .build();
+
+                    return userRepository.save(newUser);
+                });
     }
 
     private UserRole determineUserRole(final String studentId) {
