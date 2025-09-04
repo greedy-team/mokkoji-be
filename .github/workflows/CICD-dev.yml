@@ -1,9 +1,9 @@
-name: CI/CD for prod
+name: CI/CD for dev
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches:
+      - dev
 
 jobs:
   ci:
@@ -15,30 +15,18 @@ jobs:
       - name: 체크아웃
         uses: actions/checkout@v3
 
-      # 브랜치 필터링 확인
-      - name: Validate branch for tag
-        run: |
-          echo "Checking if tag is from the prod branch..."
-          git fetch origin prod --depth=1
-          COMMIT_HASH=$(git rev-parse HEAD)
-          PROD_HASH=$(git rev-parse origin/prod)
-          if [ "$COMMIT_HASH" != "$PROD_HASH" ]; then
-            echo "Tag is not from the prod branch. Exiting workflow."
-            exit 1
-          fi
-
       - name: JDK 21 설정
         uses: actions/setup-java@v3
         with:
           distribution: 'corretto'
           java-version: '21'
 
-      - name: application.yml 생성
+      - name: application.yml 생성 (dev)
         run: |
           mkdir -p ./src/main/resources
           cd ./src/main/resources
           touch ./application.yml
-          echo "${{ secrets.CICD_APPLICATION }}" > ./application.yml
+          echo "${{ secrets.CICD_APPLICATION_DEV }}" > ./application.yml
         working-directory: ${{ env.working-directory }}
 
       - name: 빌드
@@ -61,17 +49,17 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./Dockerfile-prod
+          file: ./Dockerfile-dev
           push: true
-          tags: mokkojiteam/mokkoji
+          tags: mokkojiteam/mokkoji:dev
 
       - name: 도커 컴포즈 파일 서버 전송
         uses: appleboy/scp-action@master
         with:
           username: ubuntu
-          host: ${{ secrets.SERVER_IP  }}
-          key: ${{ secrets.SERVER_KEY }}
-          source: "docker-compose-prod.yml"
+          host: ${{ secrets.DEV_SERVER_IP  }}
+          key: ${{ secrets.DEV_SERVER_KEY }}
+          source: "docker-compose-dev.yml"
           target: "~"
 
   cd:
@@ -82,9 +70,10 @@ jobs:
       - name: 도커 컨테이너 실행
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_KEY }}
+          host: ${{ secrets.DEV_SERVER_IP }}
+          username: ${{ secrets.DEV_SERVER_USER }}
+          key: ${{ secrets.DEV_SERVER_KEY }}
           script: |
             cd ~
             ./deploy.sh
+
