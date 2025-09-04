@@ -1,0 +1,17 @@
+services:
+  redis:
+    container_name: redis
+    image: redis:alpine
+    hostname: redis
+    ports:
+      - "6379:6379"
+
+  app:
+    container_name: mokkoji-dev
+    image: mokkojiteam/mokkoji:dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
