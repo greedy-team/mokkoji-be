@@ -56,22 +56,25 @@ public class UserService {
     }
 
     private UserRole determineUserRole(final String studentId) {
-        User user = userRepository.findByStudentId(studentId)
-            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-
-        if (user.getRole().equals(UserRole.GREEDY_ADMIN)) {
-            return UserRole.GREEDY_ADMIN;
-        }
-
-        if (user.getRole().equals(UserRole.CLUB_ADMIN)) {
-            return UserRole.CLUB_ADMIN;
-        }
-
-        if (clubRepository.existsByClubMasterStudentId(studentId)) {
-            return UserRole.CLUB_MASTER;
-        }
-
-        return UserRole.NORMAL;
+        return userRepository.findByStudentId(studentId)
+            .map(user -> {
+                if (user.getRole() == UserRole.GREEDY_ADMIN) {
+                    return UserRole.GREEDY_ADMIN;
+                }
+                if (user.getRole() == UserRole.CLUB_ADMIN) {
+                    return UserRole.CLUB_ADMIN;
+                }
+                if (clubRepository.existsByClubMasterStudentId(studentId)) {
+                    return UserRole.CLUB_MASTER;
+                }
+                return UserRole.NORMAL;
+            })
+            .orElseGet(() -> {
+                if (clubRepository.existsByClubMasterStudentId(studentId)) {
+                    return UserRole.CLUB_MASTER;
+                }
+                return UserRole.NORMAL;
+            });
     }
 
     @Transactional
