@@ -17,13 +17,29 @@ import java.util.Set;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private final Set<String> excludedPaths = Set.of("/users/auth/login", "/users/auth/refresh", "/clubs/**", "/test/health-check/**", "/recruitments/**", "/comments/**");
+    private final Set<String> excludedPaths = Set.of(
+            "/users/auth/login",
+            "/users/auth/refresh",
+            "/clubs/**",
+            "/recruitments/**",
+            "/comments/**",
+            "/test/health-check/**"
+    );
+
+    private final Set<String> swaggerExcludedPaths = Set.of(
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/sw.js"
+    );
+
 
     private final JwtAuthInterceptor jwtAuthInterceptor;
     private final UserAuthArgumentResolver userAuthArgumentResolver;
     private final RequestLogInterceptor requestLogInterceptor;
+
     @Value("${api.prefix}")
     private String prefixUrl;
+
     @Value("${cors.allowedOrigins}")
     private String[] allowedOrigins;
 
@@ -39,13 +55,14 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        final List<String> excludedFullPaths = excludedPaths.stream()
+        final List<String> excludedApiPaths = excludedPaths.stream()
                 .map(path -> prefixUrl + path)
                 .toList();
 
         registry.addInterceptor(jwtAuthInterceptor)
                 .addPathPatterns("/**")
-                .excludePathPatterns(excludedFullPaths);
+                .excludePathPatterns(excludedApiPaths)
+                .excludePathPatterns(List.copyOf(swaggerExcludedPaths));
 
         registry.addInterceptor(requestLogInterceptor);
     }
