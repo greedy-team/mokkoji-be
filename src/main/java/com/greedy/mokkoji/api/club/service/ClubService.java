@@ -107,7 +107,7 @@ public class ClubService {
         Club club = validateClubManagerAuthority(userId, clubId);
 
         String oldLogoKey = club.getLogo();
-        String newLogoKey = extractNewLogoKey(club, logo);
+        String newLogoKey = extractLogoKey(club, logo);
 
         if (clubMasterStudentId != null) {
             changeClubMasterRole(club.getClubMasterStudentId(), clubMasterStudentId);
@@ -225,13 +225,13 @@ public class ClubService {
     }
 
     @Nullable
-    private String extractNewLogoKey(Club club, String logo) {
+    private String extractLogoKey(Club club, String logo) {
         if (logo != null && !logo.isBlank()) {
             return null;
         }
         String category = club.getClubCategory().name();
-        String newLogoKey = String.format("club-logo/%s/%d/%s", category, club.getId(), logo);
-        return newLogoKey;
+        String logoKey = String.format("club-logo/%s/%d/%s", category, club.getId(), logo);
+        return logoKey;
     }
 
     @Nullable
