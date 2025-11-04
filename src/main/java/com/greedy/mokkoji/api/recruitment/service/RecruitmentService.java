@@ -57,7 +57,7 @@ public class RecruitmentService {
             final String content,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
-            final List<String> images,
+            final int imageCount,
             final String recruitForm) {
 
         validateAdmin(userId);
@@ -66,7 +66,7 @@ public class RecruitmentService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
 
         Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm);
-        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, images);
+        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageCount);
 
         return CreateRecruitmentResponse.of(recruitment.getId(), uploadImageUrls);
     }
@@ -225,25 +225,37 @@ public class RecruitmentService {
         return recruitment;
     }
 
-    private List<String> uploadRecruitmentImages(Recruitment recruitment, List<String> imageKeys) {
-        List<String> imageUrls = new ArrayList<>();
+    private List<String> uploadRecruitmentImages(Recruitment recruitment, int imageCount) {
+        List<String> presignedUrls = new ArrayList<>();
 
-        if (imageKeys != null && !imageKeys.isEmpty()) {
-            List<RecruitmentImage> recruitmentImages = imageKeys.stream()
-                    .map(imageKey -> {
-                        String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
-                        imageUrls.add(presignedPutUrl);
-
-                        return RecruitmentImage.builder()
-                                .recruitment(recruitment)
-                                .image(imageKey)
-                                .build();
-                    })
-                    .toList();
-
-            recruitmentImageRepository.saveAll(recruitmentImages);
+        if (imageCount == 0) {
+            return presignedUrls;
         }
-        return imageUrls;
+
+        List<RecruitmentImage> recruitmentImages = new ArrayList<>();
+        for (int i = 1; i <= imageCount; i++) {
+            String imageKey = extractImageKey(recruitment, i);
+            String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
+            presignedUrls.add(presignedPutUrl);
+
+            RecruitmentImage recruitmentImage = RecruitmentImage.builder()
+                    .recruitment(recruitment)
+                    .image(imageKey)
+                    .build();
+            recruitmentImages.add(recruitmentImage);
+        }
+
+        recruitmentImageRepository.saveAll(recruitmentImages);
+
+        return presignedUrls;
+    }
+
+    private String extractImageKey(Recruitment recruitment, int imageNumber) {
+        String fileName = String.format("%d.jpg", imageNumber);
+        Club club = recruitment.getClub();
+
+        String imageKey = String.format("recruitment-image/%d/%d/%s", club.getId(), recruitment.getId(), fileName);
+        return imageKey;
     }
 
     private List<String> deleteImages(Long recruitmentId) {

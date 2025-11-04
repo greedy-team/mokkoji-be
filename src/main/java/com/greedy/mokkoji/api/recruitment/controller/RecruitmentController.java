@@ -42,7 +42,7 @@ public class RecruitmentController {
                         request.content(),
                         request.recruitStart(),
                         request.recruitEnd(),
-                        request.images(),
+                        request.imageCount(),
                         request.recruitForm()
                 )
         );
