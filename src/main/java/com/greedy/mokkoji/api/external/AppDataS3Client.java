@@ -43,7 +43,6 @@ public class AppDataS3Client {
         //presigned url 반환
         final String url = presignedGetObjectRequest.url().toString();
 
-        s3Presigner.close();
         return url;
     }
 
