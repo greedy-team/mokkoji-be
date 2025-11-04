@@ -70,6 +70,15 @@ public class AppDataS3Client {
         return presignedPutObjectRequest.url().toString();
     }
 
+    private String appendUUID(String filename) {
+        int dotIndex = filename.lastIndexOf('.');
+        String uuid = UUID.randomUUID().toString();
+
+        String name = filename.substring(0, dotIndex);
+        String ext = filename.substring(dotIndex);
+        return name + "_" + uuid + ext;
+    }
+
     public String getPresignedDeleteUrl(final String filename) {
         if (filename == null || filename.isBlank()) {
             return null;
@@ -89,14 +98,5 @@ public class AppDataS3Client {
                 .presignDeleteObject(presignRequest);
 
         return presignedDeleteObjectRequest.url().toString();
-    }
-
-    private String appendUUID(String filename) {
-        int dotIndex = filename.lastIndexOf('.');
-        String uuid = UUID.randomUUID().toString();
-
-        String name = filename.substring(0, dotIndex);
-        String ext = filename.substring(dotIndex);
-        return name + "_" + uuid + ext;
     }
 }
