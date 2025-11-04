@@ -79,7 +79,7 @@ public class RecruitmentService {
             final String content,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
-            final List<String> newImages,
+            final int imageCount,
             final String recruitForm
     ) {
         validateAdmin(userId);
@@ -91,7 +91,7 @@ public class RecruitmentService {
 
         List<String> deleteImageUrls = deleteImages(recruitment.getId());
 
-        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, newImages);
+        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageCount);
 
         return UpdateRecruitmentResponse.of(recruitment.getId(), deleteImageUrls, uploadImageUrls);
     }
