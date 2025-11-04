@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.*;
 
 import java.time.Duration;
+import java.util.UUID;
 
 @Component
 public class AppDataS3Client {
@@ -46,15 +47,16 @@ public class AppDataS3Client {
         return url;
     }
 
-    //TODO: UUID 사용하여 filename 중복 문제 해결하기
     public String getPresignedPutUrl(final String filename) {
         if (filename == null || filename.isBlank()) {
             return null;
         }
 
+        String uniqueFilename = appendUUID(filename);
+
         final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(filename)
+                .key(uniqueFilename)
                 .build();
 
         final PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
@@ -87,5 +89,14 @@ public class AppDataS3Client {
                 .presignDeleteObject(presignRequest);
 
         return presignedDeleteObjectRequest.url().toString();
+    }
+
+    private String appendUUID(String filename) {
+        int dotIndex = filename.lastIndexOf('.');
+        String uuid = UUID.randomUUID().toString();
+
+        String name = filename.substring(0, dotIndex);
+        String ext = filename.substring(dotIndex);
+        return name + "_" + uuid + ext;
     }
 }
