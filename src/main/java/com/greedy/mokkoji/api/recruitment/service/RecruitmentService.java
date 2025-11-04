@@ -58,14 +58,15 @@ public class RecruitmentService {
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
             final List<String> images,
-            final String recruitForm) {
+            final String recruitForm,
+            final boolean isAlwaysRecruiting) {
 
         validateAdmin(userId);
 
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
 
-        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm);
+        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
         List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, images);
 
         return CreateRecruitmentResponse.of(recruitment.getId(), uploadImageUrls);
@@ -80,14 +81,15 @@ public class RecruitmentService {
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
             final List<String> newImages,
-            final String recruitForm
+            final String recruitForm,
+            final boolean isAlwaysRecruiting
     ) {
         validateAdmin(userId);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
-        recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm);
+        recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
 
         List<String> deleteImageUrls = deleteImages(recruitment.getId());
 
@@ -124,6 +126,7 @@ public class RecruitmentService {
                         .status(RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()))
                         .createdAt(recruitment.getCreatedAt())
                         .firstImage(getFirstImageUrl(recruitment.getId()))
+                        .isAlwaysRecruiting(recruitment.isAlwaysRecruiting())
                         .build()
                 )
                 .toList();
@@ -160,7 +163,8 @@ public class RecruitmentService {
                 recruitment.getRecruitForm(),
                 isFavorite(userId, club.getId()),
                 club.getInstagram(),
-                club.getClubCategory().getDescription()
+                club.getClubCategory().getDescription(),
+                recruitment.isAlwaysRecruiting()
         );
     }
 
@@ -211,7 +215,7 @@ public class RecruitmentService {
 
     private Recruitment buildAndSaveRecruitment(Club club, String title, String content,
                                                 LocalDateTime recruitStart, LocalDateTime recruitEnd,
-                                                String recruitForm) {
+                                                String recruitForm, boolean isAlwaysRecruiting) {
         Recruitment recruitment = Recruitment.builder()
                 .club(club)
                 .title(title)
@@ -219,6 +223,7 @@ public class RecruitmentService {
                 .recruitStart(recruitStart)
                 .recruitEnd(recruitEnd)
                 .recruitForm(recruitForm)
+                .isAlwaysRecruiting(isAlwaysRecruiting)
                 .build();
 
         recruitmentRepository.save(recruitment);
@@ -299,7 +304,8 @@ public class RecruitmentService {
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
                 RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
-                isFavorite
+                isFavorite,
+                recruitment.isAlwaysRecruiting()
         );
     }
 

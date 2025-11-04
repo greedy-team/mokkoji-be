@@ -43,7 +43,8 @@ public class RecruitmentController {
                         request.recruitStart(),
                         request.recruitEnd(),
                         request.images(),
-                        request.recruitForm()
+                        request.recruitForm(),
+                        request.isAlwaysRecruiting()
                 )
         );
     }
@@ -62,7 +63,8 @@ public class RecruitmentController {
                 request.recruitStart(),
                 request.recruitEnd(),
                 request.images(),
-                request.recruitForm()
+                request.recruitForm(),
+                request.isAlwaysRecruiting()
         );
         return APISuccessResponse.of(HttpStatus.OK, response);
     }

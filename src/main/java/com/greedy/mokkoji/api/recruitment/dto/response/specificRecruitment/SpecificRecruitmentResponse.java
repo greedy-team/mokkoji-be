@@ -20,7 +20,8 @@ public record SpecificRecruitmentResponse(
         String recruitForm,
         Boolean isFavorite,
         String instagramUrl,
-        String category
+        String category,
+        boolean isAlwaysRecruiting
 ) {
 
     public static SpecificRecruitmentResponse of(
@@ -38,12 +39,13 @@ public record SpecificRecruitmentResponse(
             String recruitForm,
             Boolean isFavorite,
             String instagramUrl,
-            String category
+            String category,
+            boolean isAlwaysRecruiting
     ) {
         return new SpecificRecruitmentResponse(
                 id, title, clubName, logo, clubId, content, recruitStart, recruitEnd,
                 status, createdAt, imageUrls, recruitForm,
-                isFavorite, instagramUrl, category
+                isFavorite, instagramUrl, category, isAlwaysRecruiting
         );
     }
 }
