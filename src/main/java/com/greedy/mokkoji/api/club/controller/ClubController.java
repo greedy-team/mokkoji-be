@@ -29,11 +29,7 @@ public class ClubController {
 
     private final ClubService clubService;
 
-    @Operation(
-            summary = "동아리 상세 조회 API",
-            description = "특정 동아리의 상세 정보를 조회합니다.",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
+    @Operation(summary = "동아리 상세 조회 API", security = {@SecurityRequirement(name = "JWT")})
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/{clubId}")
     public ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(
@@ -47,11 +43,7 @@ public class ClubController {
         );
     }
 
-    @Operation(
-            summary = "동아리 목록 조회 API",
-            description = "검색 조건과 페이징 정보를 이용해 동아리 목록을 조회합니다.",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
+    @Operation(summary = "동아리 목록 조회 API", security = {@SecurityRequirement(name = "JWT")})
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping
     public ResponseEntity<APISuccessResponse<ClubsPaginationResponse>> getClubs(
@@ -75,11 +67,7 @@ public class ClubController {
         );
     }
 
-    @Operation(
-            summary = "동아리 생성 API",
-            description = "새로운 동아리를 생성합니다.",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
+    @Operation(summary = "동아리 생성 API", security = {@SecurityRequirement(name = "JWT")})
     @ApiResponse(responseCode = "201", description = "동아리 생성 성공")
     @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createClub(
@@ -96,11 +84,7 @@ public class ClubController {
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
-    @Operation(
-            summary = "관리 중인 동아리 상세 조회 API",
-            description = "해당 사용자가 관리 중인 동아리의 상세 정보를 조회합니다.",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
+    @Operation(summary = "사용자가 관리 중인 동아리 상세 조회 API", security = {@SecurityRequirement(name = "JWT")})
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/manage/{clubId}")
     public ResponseEntity<APISuccessResponse<ClubManageDetailResponse>> getClubManageDetail(
@@ -113,11 +97,7 @@ public class ClubController {
         );
     }
 
-    @Operation(
-            summary = "동아리 수정 API",
-            description = "관리자가 동아리 정보를 수정합니다.",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
+    @Operation(summary = "동아리 수정 API", security = {@SecurityRequirement(name = "JWT")})
     @ApiResponse(responseCode = "200", description = "수정 성공")
     @PatchMapping("/manage/{clubId}")
     public ResponseEntity<APISuccessResponse<ClubUpdateResponse>> updateClub(
