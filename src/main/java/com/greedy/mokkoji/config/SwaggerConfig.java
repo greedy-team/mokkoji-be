@@ -1,11 +1,10 @@
-package com.greedy.mokkoji.config.swagger;
+package com.greedy.mokkoji.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
 
 import java.util.Arrays;
-
 
 @Configuration
 @OpenAPIDefinition(
@@ -28,7 +26,6 @@ public class SwaggerConfig {
     public OpenAPI openAPI() {
         String jwt = "JWT";
 
-        SecurityRequirement securityRequirement = new SecurityRequirement().addList(jwt);
         SecurityScheme securityScheme = new SecurityScheme()
                 .name(jwt)
                 .type(SecurityScheme.Type.HTTP)
@@ -37,8 +34,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .components(new Components().addSecuritySchemes(jwt, securityScheme))
-                .info(apiInfo())
-                .addSecurityItem(securityRequirement);
+                .info(apiInfo());
     }
 
     private Info apiInfo() {
@@ -54,7 +50,7 @@ public class SwaggerConfig {
         return (operation, handlerMethod) -> {
 
             Arrays.stream(handlerMethod.getMethodParameters())
-                    .filter(this::isAuthCredentialParameter) // 필터 조건 따로 분리
+                    .filter(this::isAuthCredentialParameter)
                     .findAny()
                     .ifPresent(param -> removeAuthCredentialParameter(operation));
 
@@ -76,6 +72,4 @@ public class SwaggerConfig {
                 "authCredential".equalsIgnoreCase(p.getName())
         );
     }
-
-
 }
