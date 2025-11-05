@@ -29,10 +29,7 @@ public class UserController {
     private final UserService userService;
     private final TokenService tokenService;
 
-    @Operation(
-            summary = "로그인 API",
-            description = "학번과 비밀번호를 통해 로그인을 수행합니다."
-    )
+    @Operation(summary = "로그인 API", description = "학번과 세종포털 비밀번호를 통해 로그인을 수행합니다.")
     @ApiResponse(responseCode = "200", description = "로그인 성공")
     @PostMapping("/auth/login")
     public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
@@ -42,17 +39,9 @@ public class UserController {
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
     }
 
-    @Operation(
-            summary = "Access Token 재발급 API",
-            description = "Refresh Token을 사용해 새로운 Access Token을 발급받습니다."
-    )
+    @Operation(summary = "Access Token 재발급 API", description = "Refresh Token을 사용해 새로운 Access Token을 발급받습니다.")
     @ApiResponse(responseCode = "200", description = "Access Token 재발급 성공")
-    @Parameter(
-            name = "Authorization",
-            description = "Bearer + Refresh Token",
-            in = ParameterIn.HEADER,
-            required = true
-    )
+    @Parameter(name = "Authorization", description = "Refresh Token", in = ParameterIn.HEADER, required = true)
     @PostMapping("/auth/refresh")
     public ResponseEntity<APISuccessResponse<RefreshResponse>> refresh(
             @RequestHeader("Authorization") String bearerToken
@@ -64,11 +53,7 @@ public class UserController {
         return APISuccessResponse.of(HttpStatus.OK, refreshResponse);
     }
 
-    @Operation(
-            summary = "로그아웃 API",
-            description = "현재 로그인된 사용자를 로그아웃합니다.",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
+    @Operation(summary = "로그아웃 API", security = {@SecurityRequirement(name = "JWT")})
     @ApiResponse(responseCode = "200", description = "로그아웃 성공")
     @PostMapping("/auth/logout")
     public ResponseEntity<APISuccessResponse<Void>> logout(
@@ -79,11 +64,7 @@ public class UserController {
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
-    @Operation(
-            summary = "사용자 정보 조회 API",
-            description = "현재 로그인된 사용자의 정보를 조회합니다.",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
+    @Operation(summary = "사용자 정보 조회 API", security = {@SecurityRequirement(name = "JWT")})
     @ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공")
     @GetMapping
     public ResponseEntity<APISuccessResponse<UserInformationResponse>> getUserInformation(
@@ -96,11 +77,7 @@ public class UserController {
         return APISuccessResponse.of(HttpStatus.OK, userInformationResponse);
     }
 
-    @Operation(
-            summary = "사용자 정보 수정 API",
-            description = "현재 로그인된 사용자의 이메일을 수정합니다.",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
+    @Operation(summary = "사용자 정보 수정 API", description = "현재 로그인된 사용자의 이메일을 수정합니다.", security = {@SecurityRequirement(name = "JWT")})
     @ApiResponse(responseCode = "200", description = "사용자 정보 수정 성공")
     @PutMapping
     public ResponseEntity<APISuccessResponse<Void>> updateUserInformation(
@@ -113,11 +90,14 @@ public class UserController {
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
-    @Operation(
-            summary = "사용자 권한 조회 API",
-            description = "현재 로그인된 사용자의 권한 정보를 조회합니다.",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
+    @Operation(summary = "사용자 권한 조회 API",
+            description = """
+                    로그인한 사용자의 권한(Role)을 조회합니다.  
+                    - NORMAL: 일반 사용자  
+                    - CLUB_MASTER: 동아리장  
+                    - CLUB_ADMIN: 총동연 관계자  
+                    - GREEDY_ADMIN: 모꼬지 개발자
+                    """, security = {@SecurityRequirement(name = "JWT")})
     @ApiResponse(responseCode = "200", description = "권한 조회 성공")
     @GetMapping("/roles")
     public ResponseEntity<APISuccessResponse<UserRoleResponse>> getUserRole(
@@ -126,11 +106,7 @@ public class UserController {
         return APISuccessResponse.of(HttpStatus.OK, userService.getUserRole(authCredential.userId()));
     }
 
-    @Operation(
-            summary = "관리 중인 동아리 조회 API",
-            description = "현재 로그인된 사용자가 관리 중인 동아리 목록을 조회합니다.",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
+    @Operation(summary = "사용자의 관리 중인 동아리 조회 API", security = {@SecurityRequirement(name = "JWT")})
     @ApiResponse(responseCode = "200", description = "관리 동아리 조회 성공")
     @GetMapping("/manage/clubs")
     public ResponseEntity<APISuccessResponse<UserManageClubsResponse>> getUserManageClubs(
