@@ -27,8 +27,7 @@ public class ReportController {
     @Operation(
             summary = "신고 생성 API",
             description = """
-                    사용자가 특정 대상을 신고합니다.  
-                    reportType은 다음 중 하나를 입력해야 합니다:  
+                    사용자가 특정 대상을 신고합니다.
                     - CLUB (동아리)  
                     - RECRUITMENT (모집글)  
                     - COMMENT (댓글)  
@@ -42,7 +41,7 @@ public class ReportController {
             description = "신고 대상 유형",
             in = ParameterIn.QUERY,
             required = true,
-            schema = @Schema(implementation = ReportType.class, example = "COMMENT")
+            schema = @Schema(implementation = ReportType.class)
     )
     @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createReport(

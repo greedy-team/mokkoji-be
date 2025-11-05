@@ -14,6 +14,7 @@ import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.report.ReportType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -126,7 +127,7 @@ public class RecruitmentController {
                     - SMALL_GROUP (소모임)
                     """,
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", allowableValues = {"CENTRAL_CLUB", "DEPARTMENT_CLUB", "SMALL_GROUP"}),
+            schema = @Schema(implementation = ClubAffiliation.class),
             required = false
     )
     @Parameter(
@@ -141,9 +142,7 @@ public class RecruitmentController {
                     - OTHER (기타)
                     """,
             in = ParameterIn.QUERY,
-            schema = @Schema(type = "string", allowableValues = {
-                    "CULTURAL_ART", "ACADEMIC_CULTURAL", "VOLUNTEER_SOCIAL", "SPORTS", "RELIGIOUS", "OTHER"
-            }),
+            schema = @Schema(implementation = ClubCategory.class),
             required = false
     )
     @GetMapping
