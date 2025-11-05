@@ -14,7 +14,6 @@ import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
-import com.greedy.mokkoji.enums.report.ReportType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -91,7 +90,16 @@ public class RecruitmentController {
         return APISuccessResponse.of(HttpStatus.OK, response);
     }
 
-    @Operation(summary = "특정 동아리의 모든 모집글 조회 API")
+    @Operation(
+            summary = "특정 동아리의 모든 모집글 조회 API",
+            description = """
+                    모집 상태(`RecruitStatus`)
+                    - IMMINENT : 모집 마감 임박  
+                    - OPEN : 모집 중  
+                    - BEFORE : 모집 시작 전  
+                    - CLOSED : 모집 종료
+                    """
+    )
     @ApiResponse(responseCode = "200", description = "동아리의 모집글 목록 조회 성공")
     @GetMapping("/club/{clubId}")
     public ResponseEntity<APISuccessResponse<AllRecruitmentOfClubResponse>> getAllRecruitmentOfClub(
@@ -116,7 +124,17 @@ public class RecruitmentController {
         );
     }
 
-    @Operation(summary = "전체 모집글 조회 API", security = @SecurityRequirement(name = "JWT"))
+    @Operation(
+            summary = "전체 모집글 조회 API",
+            description = """
+                    모집 상태(`RecruitStatus`)
+                    - IMMINENT : 모집 마감 임박  
+                    - OPEN : 모집 중  
+                    - BEFORE : 모집 시작 전  
+                    - CLOSED : 모집 종료
+                    """,
+            security = @SecurityRequirement(name = "JWT")
+    )
     @ApiResponse(responseCode = "200", description = "전체 모집글 조회 성공")
     @Parameter(
             name = "affiliation",
