@@ -32,10 +32,12 @@ public class RecruitmentNotificationScheduler {
         recruitments.addAll(recruitmentRepository.findAllByRecruitEndToday(today));
         recruitments.addAll(recruitmentRepository.findAllByRecruitEndInThreeDays(threeDaysLater));
 
-        recruitments.forEach(recruitment -> {
-            Club club = recruitment.getClub();
-            notificationService.sendNotification(club, recruitment);
-        });
+        recruitments.stream()
+                .filter(recruitment -> !recruitment.isAlwaysRecruiting())
+                .forEach(recruitment -> {
+                    Club club = recruitment.getClub();
+                    notificationService.sendNotification(club, recruitment);
+                });
     }
 }
 

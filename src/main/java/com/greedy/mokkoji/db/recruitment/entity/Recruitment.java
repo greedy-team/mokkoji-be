@@ -40,21 +40,26 @@ public class Recruitment extends BaseTime {
     @Column(name = "recruit_form", columnDefinition = "text")
     private String recruitForm;
 
+    @Column(name = "is_always_recruiting", columnDefinition = "tinyint(1)", nullable = false)
+    private boolean isAlwaysRecruiting;
+
     @Builder
-    public Recruitment(final Club club, final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm) {
+    public Recruitment(final Club club, final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm, final boolean isAlwaysRecruiting) {
         this.club = club;
         this.title = title;
         this.content = content;
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
         this.recruitForm = recruitForm;
+        this.isAlwaysRecruiting = isAlwaysRecruiting;
     }
 
-    public void updateRecruitment(final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm) {
+    public void updateRecruitment(final String title, final String content, final LocalDateTime recruitStart, final LocalDateTime recruitEnd, final String recruitForm, final boolean isAlwaysRecruiting) {
         this.title = title;
         this.content = content;
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
         this.recruitForm = recruitForm;
+        this.isAlwaysRecruiting = isAlwaysRecruiting;
     }
 }

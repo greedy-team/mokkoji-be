@@ -95,7 +95,8 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
 
     private BooleanExpression filterByRecruitStatus(final RecruitStatus status, final LocalDateTime now) {
         if (status == OPEN) {
-            return recruitment.recruitStart.loe(now).and(recruitment.recruitEnd.gt(now));
+            return recruitment.isAlwaysRecruiting.isTrue()
+                    .or(recruitment.recruitStart.loe(now).and(recruitment.recruitEnd.gt(now)));
         }
         return null;
     }

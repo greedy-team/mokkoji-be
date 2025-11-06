@@ -9,7 +9,8 @@ public record UpdateRecruitmentRequest(
         String content,
         LocalDateTime recruitStart,
         LocalDateTime recruitEnd,
-        String recruitForm
+        String recruitForm,
+        boolean isAlwaysRecruiting
 ) {
 }
 

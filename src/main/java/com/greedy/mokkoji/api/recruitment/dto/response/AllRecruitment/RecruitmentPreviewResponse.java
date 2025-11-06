@@ -13,6 +13,7 @@ public record RecruitmentPreviewResponse(
         LocalDateTime recruitStart,
         LocalDateTime recruitEnd,
         RecruitStatus status,
-        boolean isFavorite
+        boolean isFavorite,
+        boolean isAlwaysRecruiting
 ) {
 }
