@@ -282,13 +282,30 @@ public class FavoriteServiceTest {
             .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
-        final Recruitment recruitment = Recruitment.builder()
+        final Recruitment recruitment1 = Recruitment.builder()
+            .club(club)
+            .recruitStart(LocalDateTime.of(2024, 2, 1, 12, 0))
+            .recruitEnd(LocalDateTime.of(2024, 3, 30, 12, 0))
+            .content("동아리 모집 글")
+            .build();
+
+        final Recruitment recruitment2 = Recruitment.builder()
             .club(club)
             .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
             .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
             .content("동아리 모집 글")
             .build();
-        ReflectionTestUtils.setField(recruitment, "id", 1L);
+
+        final Recruitment recruitment3 = Recruitment.builder()
+            .club(club)
+            .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
+            .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
+            .content("동아리 모집 글")
+            .build();
+
+        ReflectionTestUtils.setField(recruitment1, "id", 1L);
+        ReflectionTestUtils.setField(recruitment2, "id", 2L);
+        ReflectionTestUtils.setField(recruitment3, "id", 3L);
 
         final List<Favorite> favorites = List.of(
             Favorite.builder().
@@ -298,7 +315,7 @@ public class FavoriteServiceTest {
 
         BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
         BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
-            .willReturn(List.of(recruitment));
+            .willReturn(List.of(recruitment3));
 
         // when
         List<RecruitClubsResponse> result = favoriteService.getRecruitClubs(1L, YearMonth.of(2025, 2));
@@ -339,13 +356,30 @@ public class FavoriteServiceTest {
             .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
-        final Recruitment recruitment = Recruitment.builder()
+        final Recruitment recruitment1 = Recruitment.builder()
+            .club(club)
+            .recruitStart(LocalDateTime.of(2024, 2, 1, 12, 0))
+            .recruitEnd(LocalDateTime.of(2024, 3, 30, 12, 0))
+            .content("동아리 모집 글")
+            .build();
+
+        final Recruitment recruitment2 = Recruitment.builder()
             .club(club)
             .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
             .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
             .content("동아리 모집 글")
             .build();
-        ReflectionTestUtils.setField(recruitment, "id", 1L);
+
+        final Recruitment recruitment3 = Recruitment.builder()
+            .club(club)
+            .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
+            .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
+            .content("동아리 모집 글")
+            .build();
+
+        ReflectionTestUtils.setField(recruitment1, "id", 1L);
+        ReflectionTestUtils.setField(recruitment2, "id", 2L);
+        ReflectionTestUtils.setField(recruitment3, "id", 3L);
 
         final List<Favorite> favorites = List.of(
             Favorite.builder().
@@ -355,7 +389,7 @@ public class FavoriteServiceTest {
 
         BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
         BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
-            .willReturn(List.of(recruitment));
+            .willReturn(List.of(recruitment3));
 
         // when
         List<RecruitClubsResponse> result = favoriteService.getRecruitClubs(1L, YearMonth.of(2025, 3));
@@ -397,13 +431,30 @@ public class FavoriteServiceTest {
             .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
-        final Recruitment recruitment = Recruitment.builder()
+        final Recruitment recruitment1 = Recruitment.builder()
+            .club(club)
+            .recruitStart(LocalDateTime.of(2024, 2, 1, 12, 0))
+            .recruitEnd(LocalDateTime.of(2024, 3, 30, 12, 0))
+            .content("동아리 모집 글")
+            .build();
+
+        final Recruitment recruitment2 = Recruitment.builder()
             .club(club)
             .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
             .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
             .content("동아리 모집 글")
             .build();
-        ReflectionTestUtils.setField(recruitment, "id", 1L);
+
+        final Recruitment recruitment3 = Recruitment.builder()
+            .club(club)
+            .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
+            .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
+            .content("동아리 모집 글")
+            .build();
+
+        ReflectionTestUtils.setField(recruitment1, "id", 1L);
+        ReflectionTestUtils.setField(recruitment2, "id", 2L);
+        ReflectionTestUtils.setField(recruitment3, "id", 3L);
 
         final List<Favorite> favorites = List.of(
             Favorite.builder().
@@ -413,7 +464,7 @@ public class FavoriteServiceTest {
 
         BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
         BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
-            .willReturn(List.of(recruitment));
+            .willReturn(List.of(recruitment3));
 
         // when
         List<RecruitClubsResponse> result = favoriteService.getRecruitClubs(1L, YearMonth.of(2025, 10));
