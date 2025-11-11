@@ -105,24 +105,24 @@ public class FavoriteService {
             return null;
         }
 
-        List<Recruitment> recruitments = recruitmentRepository.findByClubIdIn(favoriteClubIds);
+        final List<Recruitment> recruitments = recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(favoriteClubIds);
 
         return recruitments.stream()
-                .filter(r -> isSameMonth(r, yearMonth))
-                .map(r -> RecruitClubsResponse.of(
-                        r.getClub().getId(),
-                        r.getClub().getName(),
-                        r.getRecruitStart(),
-                        r.getRecruitEnd()
-                ))
-                .toList();
+            .filter(recruitment -> isSameMonth(recruitment, yearMonth))
+            .map(recruitment -> RecruitClubsResponse.of(
+                recruitment.getClub().getId(),
+                recruitment.getClub().getName(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd()
+            ))
+            .toList();
     }
 
-    private boolean isSameMonth(Recruitment r, YearMonth yearMonth) {
-        YearMonth startMonth = YearMonth.from(r.getRecruitStart());
+    private boolean isSameMonth(Recruitment recruitment, YearMonth yearMonth) {
+        YearMonth startMonth = YearMonth.from(recruitment.getRecruitStart());
         if (startMonth.equals(yearMonth)) return true;
 
-        YearMonth endMonth = YearMonth.from(r.getRecruitEnd());
+        YearMonth endMonth = YearMonth.from(recruitment.getRecruitEnd());
         if (endMonth.equals(yearMonth)) return true;
 
         return false;
