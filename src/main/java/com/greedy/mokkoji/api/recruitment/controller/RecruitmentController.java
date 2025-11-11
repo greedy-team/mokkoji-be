@@ -61,7 +61,8 @@ public class RecruitmentController {
                 request.content(),
                 request.recruitStart(),
                 request.recruitEnd(),
-                request.imageCount(),
+                request.newImageCount(),
+                request.deleteImageKeys(),
                 request.recruitForm()
         );
         return APISuccessResponse.of(HttpStatus.OK, response);

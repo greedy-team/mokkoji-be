@@ -79,7 +79,8 @@ public class RecruitmentService {
             final String content,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
-            final int imageCount,
+            final int newImageCount,
+            final List<String> deleteImageKeys,
             final String recruitForm
     ) {
         validateAdmin(userId);
@@ -89,9 +90,9 @@ public class RecruitmentService {
 
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm);
 
-        List<String> deleteImageUrls = deleteImages(recruitment.getId());
+        List<String> deleteImageUrls = deleteSpecificImages(deleteImageKeys);
+        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, newImageCount);
 
-        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageCount);
 
         return UpdateRecruitmentResponse.of(recruitment.getId(), deleteImageUrls, uploadImageUrls);
     }
@@ -203,7 +204,6 @@ public class RecruitmentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
-        //Todo: 권한 설정에 대해서 추가적으로 이야기 해보기
         if (user.getRole().equals(UserRole.NORMAL)) {
             throw new MokkojiException(FailMessage.FORBIDDEN);
         }
@@ -256,6 +256,20 @@ public class RecruitmentService {
 
         String imageKey = String.format("recruitment-image/%d/%d/%s", club.getId(), recruitment.getId(), fileName);
         return imageKey;
+    }
+
+    private List<String> deleteSpecificImages(List<String> deleteImageKeys) {
+        if (deleteImageKeys == null || deleteImageKeys.isEmpty()) {
+            return List.of();
+        }
+
+        List<RecruitmentImage> imagesToDelete = recruitmentImageRepository.findAllByImageIn(deleteImageKeys);
+        List<String> deleteImageUrls = imagesToDelete.stream()
+                .map(img -> appDataS3Client.getPresignedDeleteUrl(img.getImage()))
+                .toList();
+
+        recruitmentImageRepository.deleteAll(imagesToDelete);
+        return deleteImageUrls;
     }
 
     private List<String> deleteImages(Long recruitmentId) {

@@ -76,7 +76,7 @@ public class AppDataS3Client {
         String uuid = UUID.randomUUID().toString();
 
         String prevDot = fileKey.substring(0, dotIndex);
-        String nextDot = fileKey.substring(dotIndex); //jpg와 같은 확장자 의미
+        String nextDot = fileKey.substring(dotIndex); //jpg와 같은 확장자 부분
 
         if (dotIndex == (sliceIndex + 1)) {
             return prevDot + uuid + nextDot;
