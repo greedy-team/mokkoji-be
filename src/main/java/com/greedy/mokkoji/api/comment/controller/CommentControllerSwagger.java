@@ -28,7 +28,10 @@ public interface CommentControllerSwagger {
             @Parameter(hidden = true) AuthCredential authCredential
     );
 
-    @Operation(summary = "댓글 목록 조회 API", security = @SecurityRequirement(name = "JWT"))
+    @Operation(
+            summary = "댓글 목록 조회 API",
+            security = @SecurityRequirement(name = "JWT")
+    )
     @ApiResponse(responseCode = "200", description = "댓글 목록 조회 성공")
     @Parameter(
             name = "clubId",
@@ -53,7 +56,10 @@ public interface CommentControllerSwagger {
             @Parameter(hidden = true) AuthCredential authCredential
     );
 
-    @Operation(summary = "댓글 삭제 API", security = @SecurityRequirement(name = "JWT"))
+    @Operation(
+            summary = "댓글 삭제 API",
+            security = @SecurityRequirement(name = "JWT")
+    )
     @ApiResponse(responseCode = "200", description = "댓글 삭제 성공")
     ResponseEntity<APISuccessResponse<Void>> deleteComment(
             @Parameter(name = "commentId", description = "삭제할 댓글 ID", in = ParameterIn.PATH) Long commentId,
