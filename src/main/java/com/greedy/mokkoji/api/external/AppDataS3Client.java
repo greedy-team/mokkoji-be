@@ -72,19 +72,18 @@ public class AppDataS3Client {
 
     private String appendUUID(String fileKey) {
         int dotIndex = fileKey.lastIndexOf('.');
+        int sliceIndex = fileKey.lastIndexOf('/');
         String uuid = UUID.randomUUID().toString();
 
-        // recruitmentImage인 경우
-        if (dotIndex == 0) {
-            return uuid + fileKey;
+        String prevDot = fileKey.substring(0, dotIndex);
+        String nextDot = fileKey.substring(dotIndex); //jpg와 같은 확장자 의미
+
+        if (dotIndex == (sliceIndex + 1)) {
+            return prevDot + uuid + nextDot;
         }
 
-
-        String name = fileKey.substring(0, dotIndex);
-        String ext = fileKey.substring(dotIndex);
-        return name + "_" + uuid + ext;
+        return prevDot + "_" + uuid + nextDot;
     }
-
 
     public String getPresignedDeleteUrl(final String fileKey) {
         if (fileKey == null || fileKey.isBlank()) {
