@@ -1,0 +1,85 @@
+package com.greedy.mokkoji.api.user.controller;
+
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
+import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
+import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
+import com.greedy.mokkoji.api.user.dto.resopnse.*;
+import com.greedy.mokkoji.common.response.APISuccessResponse;
+import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
+
+@Tag(name = "User Controller", description = "사용자 관련 API")
+public interface UserControllerSwagger {
+
+    @Operation(
+            summary = "로그인 API",
+            description = "`학번`과 `세종포털 비밀번호`를 통해 로그인을 수행합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "로그인 성공")
+    ResponseEntity<APISuccessResponse<LoginResponse>> login(
+            @Parameter(name = "request", description = "로그인 요청 본문") LoginRequest request
+    );
+
+    @Operation(
+            summary = "Access Token 재발급 API",
+            description = "`Refresh Token`을 사용해 새로운 `Access Token`을 발급받습니다."
+    )
+    @ApiResponse(responseCode = "200", description = "Access Token 재발급 성공")
+    @Parameter(
+            name = "Authorization",
+            description = "Refresh Token (예: Bearer eyJhbGci...)",
+            in = ParameterIn.HEADER,
+            required = true
+    )
+    ResponseEntity<APISuccessResponse<RefreshResponse>> refresh(
+            @Parameter(name = "Authorization", description = "Refresh Token 헤더") String bearerToken
+    );
+
+    @Operation(
+            summary = "로그아웃 API",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
+    @ApiResponse(responseCode = "200", description = "로그아웃 성공")
+    ResponseEntity<APISuccessResponse<Void>> logout(
+            @Parameter(hidden = true) AuthCredential authCredential
+    );
+
+    @Operation(
+            summary = "사용자 정보 조회 API",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
+    @ApiResponse(responseCode = "200", description = "사용자 정보 조회 성공")
+    ResponseEntity<APISuccessResponse<UserInformationResponse>> getUserInformation(
+            @Parameter(hidden = true) AuthCredential authCredential
+    );
+
+    @Operation(
+            summary = "사용자 정보 수정 API",
+            description = "현재 로그인된 사용자의 `이메일`을 수정합니다.",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
+    @ApiResponse(responseCode = "200", description = "사용자 정보 수정 성공")
+    ResponseEntity<APISuccessResponse<Void>> updateUserInformation(
+            @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "updateUserInformationRequest", description = "사용자 정보 수정 요청") UpdateUserInformationRequest updateUserInformationRequest
+    );
+
+    @Operation(
+            summary = "사용자 권한 조회 API",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
+    @ApiResponse(responseCode = "200", description = "권한 조회 성공")
+    ResponseEntity<APISuccessResponse<UserRoleResponse>> getUserRole(
+            @Parameter(hidden = true) AuthCredential authCredential
+    );
+
+    @Operation(summary = "사용자의 관리 중인 동아리 조회 API", security = {@SecurityRequirement(name = "JWT")})
+    @ApiResponse(responseCode = "200", description = "관리 동아리 조회 성공")
+    ResponseEntity<APISuccessResponse<UserManageClubsResponse>> getUserManageClubs(
+            @Parameter(hidden = true) AuthCredential authCredential
+    );
+}
