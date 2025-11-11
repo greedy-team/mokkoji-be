@@ -137,7 +137,7 @@ public class RecruitmentService {
         Recruitment recruitment = recruitmentRepository.findRecruitmentById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
-        List<RecruitmentImage> recruitmentImages = recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(
+        List<RecruitmentImage> recruitmentImages = recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(
                 recruitmentId);
 
         List<String> imageUrls = recruitmentImages.stream()
@@ -285,7 +285,7 @@ public class RecruitmentService {
     }
 
     private String getFirstImageUrl(Long recruitmentId) {
-        return recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitmentId).stream()
+        return recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(recruitmentId).stream()
                 .findFirst()
                 .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
                 .orElse(null);
