@@ -233,8 +233,8 @@ public class RecruitmentService {
         }
 
         List<RecruitmentImage> recruitmentImages = new ArrayList<>();
-        for (int i = 1; i <= imageCount; i++) {
-            String imageKey = extractImageKey(recruitment, i);
+        for (int i = 0; i < imageCount; i++) {
+            String imageKey = extractImageKey(recruitment);
             String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
             presignedUrls.add(presignedPutUrl);
 
@@ -250,8 +250,8 @@ public class RecruitmentService {
         return presignedUrls;
     }
 
-    private String extractImageKey(Recruitment recruitment, int imageNumber) {
-        String fileName = String.format("%d.jpg", imageNumber);
+    private String extractImageKey(Recruitment recruitment) {
+        String fileName = ".jpg";
         Club club = recruitment.getClub();
 
         String imageKey = String.format("recruitment-image/%d/%d/%s", club.getId(), recruitment.getId(), fileName);
