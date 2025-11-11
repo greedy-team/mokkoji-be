@@ -23,14 +23,14 @@ public class AppDataS3Client {
         this.s3Presigner = awsConfig.getPresigner();
     }
 
-    public String getPresignedUrl(final String filename) {
-        if (filename == null || filename.equals("")) {
+    public String getPresignedUrl(final String fileKey) {
+        if (fileKey == null || fileKey.equals("")) {
             return null;
         }
 
         final GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
-                .key(filename)
+                .key(fileKey)
                 .build();
 
         final GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
@@ -47,16 +47,16 @@ public class AppDataS3Client {
         return url;
     }
 
-    public String getPresignedPutUrl(final String filename) {
-        if (filename == null || filename.isBlank()) {
+    public String getPresignedPutUrl(final String fileKey) {
+        if (fileKey == null || fileKey.isBlank()) {
             return null;
         }
 
-        String uniqueFilename = appendUUID(filename);
+        String uniqueFileKey = appendUUID(fileKey);
 
         final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(uniqueFilename)
+                .key(uniqueFileKey)
                 .build();
 
         final PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
@@ -70,23 +70,30 @@ public class AppDataS3Client {
         return presignedPutObjectRequest.url().toString();
     }
 
-    private String appendUUID(String filename) {
-        int dotIndex = filename.lastIndexOf('.');
+    private String appendUUID(String fileKey) {
+        int dotIndex = fileKey.lastIndexOf('.');
         String uuid = UUID.randomUUID().toString();
 
-        String name = filename.substring(0, dotIndex);
-        String ext = filename.substring(dotIndex);
+        // recruitmentImage인 경우
+        if (dotIndex == 0) {
+            return uuid + fileKey;
+        }
+
+
+        String name = fileKey.substring(0, dotIndex);
+        String ext = fileKey.substring(dotIndex);
         return name + "_" + uuid + ext;
     }
 
-    public String getPresignedDeleteUrl(final String filename) {
-        if (filename == null || filename.isBlank()) {
+
+    public String getPresignedDeleteUrl(final String fileKey) {
+        if (fileKey == null || fileKey.isBlank()) {
             return null;
         }
 
         final DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
-                .key(filename)
+                .key(fileKey)
                 .build();
 
         final DeleteObjectPresignRequest presignRequest = DeleteObjectPresignRequest.builder()

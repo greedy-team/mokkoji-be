@@ -270,14 +270,6 @@ public class RecruitmentService {
         return deleteImageUrls;
     }
 
-    private String extractExtension(String fileName) {
-        int dotIndex = fileName.lastIndexOf('.');
-        if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
-            return fileName.substring(dotIndex);
-        }
-        return "";
-    }
-
     private String getFirstImageUrl(Long recruitmentId) {
         return recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitmentId).stream()
                 .findFirst()
