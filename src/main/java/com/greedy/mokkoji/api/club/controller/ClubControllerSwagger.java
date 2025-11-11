@@ -19,14 +19,21 @@ import org.springframework.http.ResponseEntity;
 @Tag(name = "Club Controller", description = "동아리 관련 API")
 public interface ClubControllerSwagger {
 
-    @Operation(summary = "동아리 상세 조회 API", security = {@SecurityRequirement(name = "JWT")})
+    @Operation(
+            summary = "동아리 상세 조회 API",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
     @ApiResponse(responseCode = "200", description = "조회 성공")
     ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(
             @Parameter(hidden = true) AuthCredential authCredential,
             @Parameter(name = "clubId", description = "동아리 ID") Long clubId
     );
 
-    @Operation(summary = "동아리 목록 조회 API", security = {@SecurityRequirement(name = "JWT")})
+    @Operation(
+            summary = "동아리 목록 조회 API",
+            description = "페이지 번호(`page`)는 1부터 시작",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
     @ApiResponse(responseCode = "200", description = "조회 성공")
     ResponseEntity<APISuccessResponse<ClubsPaginationResponse>> getClubs(
             @Parameter(hidden = true) AuthCredential authCredential,
@@ -35,21 +42,30 @@ public interface ClubControllerSwagger {
             @Parameter(name = "size", description = "페이지 크기") int size
     );
 
-    @Operation(summary = "동아리 생성 API", security = {@SecurityRequirement(name = "JWT")})
+    @Operation(
+            summary = "동아리 생성 API",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
     @ApiResponse(responseCode = "201", description = "동아리 생성 성공")
     ResponseEntity<APISuccessResponse<Void>> createClub(
             @Parameter(name = "clubCreateRequest", description = "동아리 생성 요청") ClubCreateRequest clubCreateRequest,
             @Parameter(hidden = true) AuthCredential authCredential
     );
 
-    @Operation(summary = "사용자가 관리 중인 동아리 상세 조회 API", security = {@SecurityRequirement(name = "JWT")})
+    @Operation(
+            summary = "사용자가 관리 중인 동아리 상세 조회 API",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
     @ApiResponse(responseCode = "200", description = "조회 성공")
     ResponseEntity<APISuccessResponse<ClubManageDetailResponse>> getClubManageDetail(
             @Parameter(name = "clubId", description = "동아리 ID") Long clubId,
             @Parameter(hidden = true) AuthCredential authCredential
     );
 
-    @Operation(summary = "동아리 수정 API", security = {@SecurityRequirement(name = "JWT")})
+    @Operation(
+            summary = "동아리 수정 API",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
     @ApiResponse(responseCode = "200", description = "수정 성공")
     ResponseEntity<APISuccessResponse<ClubUpdateResponse>> updateClub(
             @Parameter(name = "clubId", description = "동아리 ID") Long clubId,
