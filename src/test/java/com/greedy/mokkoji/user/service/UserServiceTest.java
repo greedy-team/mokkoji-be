@@ -1,14 +1,16 @@
 package com.greedy.mokkoji.user.service;
 
-import com.greedy.mokkoji.api.external.sejong.SejongLoginClient;
+import com.greedy.mokkoji.api.external.sejong.SejongLoginRestClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.user.UserRole;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -43,7 +45,10 @@ public class UserServiceTest {
     UserRepository userRepository;
 
     @Mock
-    SejongLoginClient sejongLoginClient;
+    ClubRepository clubRepository;
+
+    @Mock
+    SejongLoginRestClient sejongLoginClient;
 
     @Mock
     JwtUtil jwtUtil;
@@ -83,6 +88,7 @@ public class UserServiceTest {
                 .grade("4")
                 .studentId(studentId)
                 .department("컴공과")
+                .role(UserRole.NORMAL)
                 .build();
 
         BDDMockito.given(sejongLoginClient.getStudentInformation(any(), any())).willReturn(studentInfo);
