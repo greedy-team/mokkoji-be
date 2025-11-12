@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/reports")
-public class ReportController {
+public class ReportController implements ReportControllerSwagger {
 
     private final ReportService reportService;
 

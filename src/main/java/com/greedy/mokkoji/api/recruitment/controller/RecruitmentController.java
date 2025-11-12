@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/recruitments")
-public class RecruitmentController {
+public class RecruitmentController implements RecruitmentControllerSwagger {
+
     private final RecruitmentService recruitmentService;
 
     @PostMapping("/{clubId}")
@@ -34,7 +35,7 @@ public class RecruitmentController {
             @RequestBody CreateRecruitmentRequest request
     ) {
         return APISuccessResponse.of(
-                HttpStatus.OK,
+                HttpStatus.CREATED,
                 recruitmentService.createRecruitment(
                         authCredential.userId(),
                         clubId,
@@ -74,11 +75,10 @@ public class RecruitmentController {
             @Authentication final AuthCredential authCredential,
             @PathVariable("recruitmentId") final Long recruitmentId
     ) {
-        DeleteRecruitmentResponse response = recruitmentService.deleteRecruitment(authCredential.userId(),
-                recruitmentId);
+        DeleteRecruitmentResponse response =
+                recruitmentService.deleteRecruitment(authCredential.userId(), recruitmentId);
         return APISuccessResponse.of(HttpStatus.OK, response);
     }
-
 
     @GetMapping("/club/{clubId}")
     public ResponseEntity<APISuccessResponse<AllRecruitmentOfClubResponse>> getAllRecruitmentOfClub(

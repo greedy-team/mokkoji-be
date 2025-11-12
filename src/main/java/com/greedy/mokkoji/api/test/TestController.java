@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("${api.prefix}/test")
-public class TestController {
+public class TestController implements TestControllerSwagger {
 
     @GetMapping("/health-check")
     public ResponseEntity<APISuccessResponse<String>> healthCheck() {

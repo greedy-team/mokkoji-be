@@ -21,16 +21,19 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/clubs")
-public class ClubController {
+public class ClubController implements ClubControllerSwagger {
+
     private final ClubService clubService;
 
     @GetMapping("/{clubId}")
     public ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(
             @Authentication final AuthCredential authCredential,
-            @PathVariable(name = "clubId") final Long clubId) {
+            @PathVariable(name = "clubId") final Long clubId
+    ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubService.findClub(authCredential.userId(), clubId));
+                clubService.findClub(authCredential.userId(), clubId)
+        );
     }
 
     @GetMapping
@@ -41,7 +44,6 @@ public class ClubController {
             @RequestParam(value = "size") final int size
     ) {
         final Pageable pageable = PageRequest.of(page - 1, size);
-
         return APISuccessResponse.of(
                 HttpStatus.OK,
                 clubService.findClubsByConditions(
@@ -50,7 +52,9 @@ public class ClubController {
                         clubSearchCond.category(),
                         clubSearchCond.affiliation(),
                         clubSearchCond.recruitStatus(),
-                        pageable));
+                        pageable
+                )
+        );
     }
 
     @PostMapping
@@ -58,8 +62,13 @@ public class ClubController {
             @RequestBody final ClubCreateRequest clubCreateRequest,
             @Authentication final AuthCredential authCredential
     ) {
-        clubService.createClub(authCredential.userId(), clubCreateRequest.name(), clubCreateRequest.category(),
-                clubCreateRequest.affiliation(), clubCreateRequest.clubMasterStudentId());
+        clubService.createClub(
+                authCredential.userId(),
+                clubCreateRequest.name(),
+                clubCreateRequest.category(),
+                clubCreateRequest.affiliation(),
+                clubCreateRequest.clubMasterStudentId()
+        );
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
@@ -68,7 +77,10 @@ public class ClubController {
             @PathVariable(name = "clubId") final Long clubId,
             @Authentication final AuthCredential authCredential
     ) {
-        return APISuccessResponse.of(HttpStatus.OK, clubService.getClubManageDetail(authCredential.userId(), clubId));
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                clubService.getClubManageDetail(authCredential.userId(), clubId)
+        );
     }
 
     @PatchMapping("/manage/{clubId}")

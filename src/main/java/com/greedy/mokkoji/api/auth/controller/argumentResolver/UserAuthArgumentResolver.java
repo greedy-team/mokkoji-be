@@ -31,12 +31,7 @@ public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public Object resolveArgument(
-            final MethodParameter parameter,
-            final ModelAndViewContainer mavContainer,
-            final NativeWebRequest webRequest,
-            final WebDataBinderFactory binderFactory
-    ) throws Exception {
+    public Object resolveArgument(final MethodParameter parameter, final ModelAndViewContainer mavContainer, final NativeWebRequest webRequest, final WebDataBinderFactory binderFactory) throws Exception {
         final HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String requestURI = request.getRequestURI();
@@ -48,9 +43,11 @@ public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
         final String token = bearerAuthExtractor.extractTokenValue(authHeader);
         final Long userId = jwtUtil.getUserIdFromToken(token);
         return new AuthCredential(userId);
+
     }
 
     private boolean isExcludedRequest(String requestURI, String authHeader) {
         return EXCLUDE_PATTERNS.stream().anyMatch(requestURI::contains) && authHeader == null;
     }
 }
+

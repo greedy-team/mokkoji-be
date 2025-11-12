@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("${api.prefix}/users")
-public class UserController {
+public class UserController implements UserControllerSwagger {
 
     private final BearerAuthExtractor bearerAuthExtractor;
     private final UserService userService;
@@ -28,7 +28,6 @@ public class UserController {
     public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         final User user = userService.login(request.studentId(), request.password());
         final LoginResponse loginResponse = tokenService.generateToken(user.getId());
-
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
     }
 
@@ -37,11 +36,8 @@ public class UserController {
             @RequestHeader("Authorization") String bearerToken
     ) {
         final String refreshToken = bearerAuthExtractor.extractTokenValue(bearerToken);
-
         final String newAccessToken = userService.refreshAccessToken(refreshToken);
-
         RefreshResponse refreshResponse = RefreshResponse.of(newAccessToken);
-
         return APISuccessResponse.of(HttpStatus.OK, refreshResponse);
     }
 
@@ -50,18 +46,17 @@ public class UserController {
             @Authentication AuthCredential authCredential
     ) {
         final Long userId = authCredential.userId();
-
         userService.logOut(userId);
-
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
     @GetMapping
-    public ResponseEntity<APISuccessResponse<UserInformationResponse>> getUserInformation(@Authentication AuthCredential authCredential) {
+    public ResponseEntity<APISuccessResponse<UserInformationResponse>> getUserInformation(
+            @Authentication AuthCredential authCredential
+    ) {
         final Long userId = authCredential.userId();
         final User user = userService.findUser(userId);
         final UserInformationResponse userInformationResponse = UserInformationResponse.of(user);
-
         return APISuccessResponse.of(HttpStatus.OK, userInformationResponse);
     }
 
@@ -72,7 +67,6 @@ public class UserController {
     ) {
         final Long userId = authCredential.userId();
         userService.updateEmail(userId, updateUserInformationRequest.email());
-
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
