@@ -58,14 +58,15 @@ public class RecruitmentService {
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
             final int imageCount,
-            final String recruitForm) {
+            final String recruitForm,
+            final boolean isAlwaysRecruiting) {
 
         validateAdmin(userId);
 
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
 
-        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm);
+        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
         List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageCount);
 
         return CreateRecruitmentResponse.of(recruitment.getId(), uploadImageUrls);
@@ -81,7 +82,8 @@ public class RecruitmentService {
             final LocalDateTime recruitEnd,
             final int newImageCount,
             final List<String> deleteImageKeys,
-            final String recruitForm
+            final String recruitForm,
+            final boolean isAlwaysRecruiting
     ) {
         validateAdmin(userId);
 
