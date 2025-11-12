@@ -57,17 +57,16 @@ public class RecruitmentService {
             final String content,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
-            final List<String> images,
-            final String recruitForm,
-            final boolean isAlwaysRecruiting) {
+            final int imageCount,
+            final String recruitForm) {
 
         validateAdmin(userId);
 
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
 
-        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
-        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, images);
+        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm);
+        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageCount);
 
         return CreateRecruitmentResponse.of(recruitment.getId(), uploadImageUrls);
     }
@@ -80,9 +79,9 @@ public class RecruitmentService {
             final String content,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
-            final List<String> newImages,
-            final String recruitForm,
-            final boolean isAlwaysRecruiting
+            final int newImageCount,
+            final List<String> deleteImageKeys,
+            final String recruitForm
     ) {
         validateAdmin(userId);
 
@@ -91,9 +90,9 @@ public class RecruitmentService {
 
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
 
-        List<String> deleteImageUrls = deleteImages(recruitment.getId());
+        List<String> deleteImageUrls = deleteSpecificImages(deleteImageKeys);
+        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, newImageCount);
 
-        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, newImages);
 
         return UpdateRecruitmentResponse.of(recruitment.getId(), deleteImageUrls, uploadImageUrls);
     }
@@ -139,7 +138,7 @@ public class RecruitmentService {
         Recruitment recruitment = recruitmentRepository.findRecruitmentById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
-        List<RecruitmentImage> recruitmentImages = recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(
+        List<RecruitmentImage> recruitmentImages = recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(
                 recruitmentId);
 
         List<String> imageUrls = recruitmentImages.stream()
@@ -207,7 +206,6 @@ public class RecruitmentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
-        //Todo: 권한 설정에 대해서 추가적으로 이야기 해보기
         if (user.getRole().equals(UserRole.NORMAL)) {
             throw new MokkojiException(FailMessage.FORBIDDEN);
         }
@@ -230,25 +228,51 @@ public class RecruitmentService {
         return recruitment;
     }
 
-    private List<String> uploadRecruitmentImages(Recruitment recruitment, List<String> imageKeys) {
-        List<String> imageUrls = new ArrayList<>();
+    private List<String> uploadRecruitmentImages(Recruitment recruitment, int imageCount) {
+        List<String> presignedUrls = new ArrayList<>();
 
-        if (imageKeys != null && !imageKeys.isEmpty()) {
-            List<RecruitmentImage> recruitmentImages = imageKeys.stream()
-                    .map(imageKey -> {
-                        String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
-                        imageUrls.add(presignedPutUrl);
-
-                        return RecruitmentImage.builder()
-                                .recruitment(recruitment)
-                                .image(imageKey)
-                                .build();
-                    })
-                    .toList();
-
-            recruitmentImageRepository.saveAll(recruitmentImages);
+        if (imageCount == 0) {
+            return presignedUrls;
         }
-        return imageUrls;
+
+        List<RecruitmentImage> recruitmentImages = new ArrayList<>();
+        for (int i = 0; i < imageCount; i++) {
+            String imageKey = extractImageKey(recruitment);
+            String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
+            presignedUrls.add(presignedPutUrl);
+
+            RecruitmentImage recruitmentImage = RecruitmentImage.builder()
+                    .recruitment(recruitment)
+                    .image(imageKey)
+                    .build();
+            recruitmentImages.add(recruitmentImage);
+        }
+
+        recruitmentImageRepository.saveAll(recruitmentImages);
+
+        return presignedUrls;
+    }
+
+    private String extractImageKey(Recruitment recruitment) {
+        String fileName = ".jpg";
+        Club club = recruitment.getClub();
+
+        String imageKey = String.format("recruitment-image/%d/%d/%s", club.getId(), recruitment.getId(), fileName);
+        return imageKey;
+    }
+
+    private List<String> deleteSpecificImages(List<String> deleteImageKeys) {
+        if (deleteImageKeys == null || deleteImageKeys.isEmpty()) {
+            return List.of();
+        }
+
+        List<RecruitmentImage> imagesToDelete = recruitmentImageRepository.findAllByImageIn(deleteImageKeys);
+        List<String> deleteImageUrls = imagesToDelete.stream()
+                .map(img -> appDataS3Client.getPresignedDeleteUrl(img.getImage()))
+                .toList();
+
+        recruitmentImageRepository.deleteAll(imagesToDelete);
+        return deleteImageUrls;
     }
 
     private List<String> deleteImages(Long recruitmentId) {
@@ -263,16 +287,8 @@ public class RecruitmentService {
         return deleteImageUrls;
     }
 
-    private String extractExtension(String fileName) {
-        int dotIndex = fileName.lastIndexOf('.');
-        if (dotIndex != -1 && dotIndex < fileName.length() - 1) {
-            return fileName.substring(dotIndex);
-        }
-        return "";
-    }
-
     private String getFirstImageUrl(Long recruitmentId) {
-        return recruitmentImageRepository.findByRecruitmentIdOrderByIdAsc(recruitmentId).stream()
+        return recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(recruitmentId).stream()
                 .findFirst()
                 .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
                 .orElse(null);

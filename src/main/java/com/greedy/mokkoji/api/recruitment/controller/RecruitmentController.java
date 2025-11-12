@@ -43,9 +43,8 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
                         request.content(),
                         request.recruitStart(),
                         request.recruitEnd(),
-                        request.images(),
-                        request.recruitForm(),
-                        request.isAlwaysRecruiting()
+                        request.imageCount(),
+                        request.recruitForm()
                 )
         );
     }
@@ -63,9 +62,9 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
                 request.content(),
                 request.recruitStart(),
                 request.recruitEnd(),
-                request.images(),
-                request.recruitForm(),
-                request.isAlwaysRecruiting()
+                request.newImageCount(),
+                request.deleteImageKeys(),
+                request.recruitForm()
         );
         return APISuccessResponse.of(HttpStatus.OK, response);
     }

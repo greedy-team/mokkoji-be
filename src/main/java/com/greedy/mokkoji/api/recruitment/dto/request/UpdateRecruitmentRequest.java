@@ -5,7 +5,8 @@ import java.util.List;
 
 public record UpdateRecruitmentRequest(
         String title,
-        List<String> images,
+        List<String> deleteImageKeys,
+        int newImageCount,
         String content,
         LocalDateTime recruitStart,
         LocalDateTime recruitEnd,

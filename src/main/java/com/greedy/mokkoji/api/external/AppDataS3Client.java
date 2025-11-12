@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.*;
 
 import java.time.Duration;
+import java.util.UUID;
 
 @Component
 public class AppDataS3Client {
@@ -22,14 +23,14 @@ public class AppDataS3Client {
         this.s3Presigner = awsConfig.getPresigner();
     }
 
-    public String getPresignedUrl(final String filename) {
-        if (filename == null || filename.equals("")) {
+    public String getPresignedUrl(final String fileKey) {
+        if (fileKey == null || fileKey.equals("")) {
             return null;
         }
 
         final GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
-                .key(filename)
+                .key(fileKey)
                 .build();
 
         final GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
@@ -43,19 +44,19 @@ public class AppDataS3Client {
         //presigned url 반환
         final String url = presignedGetObjectRequest.url().toString();
 
-        s3Presigner.close();
         return url;
     }
 
-    //TODO: UUID 사용하여 filename 중복 문제 해결하기
-    public String getPresignedPutUrl(final String filename) {
-        if (filename == null || filename.isBlank()) {
+    public String getPresignedPutUrl(final String fileKey) {
+        if (fileKey == null || fileKey.isBlank()) {
             return null;
         }
 
+        String uniqueFileKey = appendUUID(fileKey);
+
         final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(filename)
+                .key(uniqueFileKey)
                 .build();
 
         final PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
@@ -69,14 +70,29 @@ public class AppDataS3Client {
         return presignedPutObjectRequest.url().toString();
     }
 
-    public String getPresignedDeleteUrl(final String filename) {
-        if (filename == null || filename.isBlank()) {
+    private String appendUUID(String fileKey) {
+        int dotIndex = fileKey.lastIndexOf('.');
+        int sliceIndex = fileKey.lastIndexOf('/');
+        String uuid = UUID.randomUUID().toString();
+
+        String prevDot = fileKey.substring(0, dotIndex);
+        String nextDot = fileKey.substring(dotIndex); //jpg와 같은 확장자 부분
+
+        if (dotIndex == (sliceIndex + 1)) {
+            return prevDot + uuid + nextDot;
+        }
+
+        return prevDot + "_" + uuid + nextDot;
+    }
+
+    public String getPresignedDeleteUrl(final String fileKey) {
+        if (fileKey == null || fileKey.isBlank()) {
             return null;
         }
 
         final DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
-                .key(filename)
+                .key(fileKey)
                 .build();
 
         final DeleteObjectPresignRequest presignRequest = DeleteObjectPresignRequest.builder()
