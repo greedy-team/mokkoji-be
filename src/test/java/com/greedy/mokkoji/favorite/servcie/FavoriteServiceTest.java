@@ -238,7 +238,7 @@ public class FavoriteServiceTest {
         final Page<Favorite> favoritePage = new PageImpl<>(List.of(favorite));
 
         BDDMockito.given(favoriteRepository.findByUserId(any(), any())).willReturn(favoritePage);
-        BDDMockito.given(recruitmentRepository.findByClubId(any())).willReturn(recruitment);
+        BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(any())).willReturn(Optional.of(recruitment));
         BDDMockito.given(appDataS3Client.getPresignedUrl(any())).willReturn("testLogo1");
 
         //when
@@ -256,7 +256,7 @@ public class FavoriteServiceTest {
         assertThat(favoriteClubs.clubs().get(0).isFavorite()).isEqualTo(true);
 
         BDDMockito.verify(favoriteRepository, times(1)).findByUserId(user.getId(), PageRequest.of(0, 10));
-        BDDMockito.verify(recruitmentRepository, times(1)).findByClubId(club.getId());
+        BDDMockito.verify(recruitmentRepository, times(1)).findTopByClubIdOrderByUpdatedAtDesc(club.getId());
     }
 
     @DisplayName("특정 연월에 모집 중인 즐겨찾기 동아리의 최신 모집 정보를 조회한다. - 모집 시작일이 겹치는 경우")

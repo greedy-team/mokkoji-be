@@ -75,7 +75,7 @@ public class RecruitmentNotificationSchedulerTest {
                 .content("모집글2")
                 .build();
 
-        BDDMockito.given(recruitmentRepository.findTodayRecruitStartDate(currentDateTime.toLocalDate()))
+        BDDMockito.given(recruitmentRepository.findAllByRecruitStartToday(currentDateTime.toLocalDate()))
                 .willReturn(List.of(recruitment1, recruitment2));
 
         BDDMockito.doNothing().when(notificationService).sendNotification(any(Club.class), any(Recruitment.class));
@@ -85,7 +85,7 @@ public class RecruitmentNotificationSchedulerTest {
 
         //then
         BDDMockito.verify(recruitmentRepository, times(1))
-                .findTodayRecruitStartDate(currentDateTime.toLocalDate());
+                .findAllByRecruitStartToday(currentDateTime.toLocalDate());
 
         BDDMockito.verify(notificationService, times(2)).sendNotification(any(Club.class), any(Recruitment.class));
     }
