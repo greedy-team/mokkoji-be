@@ -240,7 +240,7 @@ public class RecruitmentService {
 
         List<RecruitmentImage> recruitmentImages = new ArrayList<>();
         for (int i = 0; i < imageCount; i++) {
-            String imageKey = extractImageKey(recruitment);
+            String imageKey = appDataS3Client.appendUUID(extractImageKey(recruitment));
             String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
             presignedUrls.add(presignedPutUrl);
 
