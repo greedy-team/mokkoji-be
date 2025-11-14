@@ -70,7 +70,7 @@ public class AppDataS3Client {
         return presignedPutObjectRequest.url().toString();
     }
 
-    private String appendUUID(String fileKey) {
+    public String appendUUID(String fileKey) {
         int dotIndex = fileKey.lastIndexOf('.');
         int sliceIndex = fileKey.lastIndexOf('/');
         String uuid = UUID.randomUUID().toString();
