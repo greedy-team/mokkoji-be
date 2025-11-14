@@ -37,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -256,7 +257,8 @@ public class RecruitmentService {
     }
 
     private String extractImageKey(Recruitment recruitment) {
-        String fileName = ".jpg";
+        String uuid = UUID.randomUUID().toString();
+        String fileName = uuid + ".jpg";
         Club club = recruitment.getClub();
 
         String imageKey = String.format("recruitment-image/%d/%d/%s", club.getId(), recruitment.getId(), fileName);

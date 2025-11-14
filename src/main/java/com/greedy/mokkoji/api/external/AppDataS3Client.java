@@ -10,7 +10,6 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.*;
 
 import java.time.Duration;
-import java.util.UUID;
 
 @Component
 public class AppDataS3Client {
@@ -52,11 +51,9 @@ public class AppDataS3Client {
             return null;
         }
 
-        String uniqueFileKey = appendUUID(fileKey);
-
         final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(uniqueFileKey)
+                .key(fileKey)
                 .build();
 
         final PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
@@ -68,21 +65,6 @@ public class AppDataS3Client {
                 .presignPutObject(presignRequest);
 
         return presignedPutObjectRequest.url().toString();
-    }
-
-    private String appendUUID(String fileKey) {
-        int dotIndex = fileKey.lastIndexOf('.');
-        int sliceIndex = fileKey.lastIndexOf('/');
-        String uuid = UUID.randomUUID().toString();
-
-        String prevDot = fileKey.substring(0, dotIndex);
-        String nextDot = fileKey.substring(dotIndex); //jpg와 같은 확장자 부분
-
-        if (dotIndex == (sliceIndex + 1)) {
-            return prevDot + uuid + nextDot;
-        }
-
-        return prevDot + "_" + uuid + nextDot;
     }
 
     public String getPresignedDeleteUrl(final String fileKey) {
