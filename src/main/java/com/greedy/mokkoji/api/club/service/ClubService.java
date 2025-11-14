@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -229,7 +230,14 @@ public class ClubService {
         if (logo != null && !logo.isBlank()) {
             return null;
         }
-        String logoKey = String.format("club-logo/%d/%s", clubId, logo);
+
+        int dotIndex = logo.lastIndexOf('.');
+        String prevDot = logo.substring(0, dotIndex);
+        String nextDot = logo.substring(dotIndex); //jpg와 같은 확장자 부분
+        String uuid = UUID.randomUUID().toString();
+        String fileName = prevDot + "_" + uuid + nextDot;
+
+        String logoKey = String.format("club-logo/%d/%s", clubId, fileName);
         return logoKey;
     }
 
