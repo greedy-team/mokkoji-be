@@ -58,7 +58,7 @@ public class RecruitmentService {
             final String content,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
-            final int imageCount,
+            final List<String> imageNames,
             final String recruitForm,
             final boolean isAlwaysRecruiting) {
 
@@ -68,7 +68,7 @@ public class RecruitmentService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
 
         Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
-        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageCount);
+        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageNames);
 
         return CreateRecruitmentResponse.of(recruitment.getId(), uploadImageUrls);
     }
@@ -81,7 +81,7 @@ public class RecruitmentService {
             final String content,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
-            final int newImageCount,
+            final List<String> imageNames,
             final List<String> deleteImageKeys,
             final String recruitForm,
             final boolean isAlwaysRecruiting
@@ -94,8 +94,7 @@ public class RecruitmentService {
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
 
         List<String> deleteImageUrls = deleteSpecificImages(deleteImageKeys);
-        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, newImageCount);
-
+        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageNames);
 
         return UpdateRecruitmentResponse.of(recruitment.getId(), deleteImageUrls, uploadImageUrls);
     }
@@ -231,16 +230,17 @@ public class RecruitmentService {
         return recruitment;
     }
 
-    private List<String> uploadRecruitmentImages(Recruitment recruitment, int imageCount) {
+    private List<String> uploadRecruitmentImages(Recruitment recruitment, List<String> imageNames) {
         List<String> presignedUrls = new ArrayList<>();
 
-        if (imageCount == 0) {
+        if (imageNames.isEmpty() && imageNames == null) {
             return presignedUrls;
         }
 
         List<RecruitmentImage> recruitmentImages = new ArrayList<>();
-        for (int i = 0; i < imageCount; i++) {
-            String imageKey = extractImageKey(recruitment);
+
+        for (String imageName : imageNames) {
+            String imageKey = extractImageKey(recruitment, imageName);
             String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
             presignedUrls.add(presignedPutUrl);
 
@@ -252,18 +252,21 @@ public class RecruitmentService {
         }
 
         recruitmentImageRepository.saveAll(recruitmentImages);
-
         return presignedUrls;
     }
 
-    private String extractImageKey(Recruitment recruitment) {
+    private String extractImageKey(Recruitment recruitment, String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        String nextDot = fileName.substring(dotIndex); //jpg와 같은 확장자 부분
+
         String uuid = UUID.randomUUID().toString();
-        String fileName = uuid + ".jpg";
+        fileName = uuid + nextDot;
         Club club = recruitment.getClub();
 
         String imageKey = String.format("recruitment-image/%d/%d/%s", club.getId(), recruitment.getId(), fileName);
         return imageKey;
     }
+
 
     private List<String> deleteSpecificImages(List<String> deleteImageKeys) {
         if (deleteImageKeys == null || deleteImageKeys.isEmpty()) {

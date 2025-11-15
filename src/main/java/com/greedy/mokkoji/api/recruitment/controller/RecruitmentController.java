@@ -43,7 +43,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
                         request.content(),
                         request.recruitStart(),
                         request.recruitEnd(),
-                        request.imageCount(),
+                        request.imageNames(),
                         request.recruitForm(),
                         request.isAlwaysRecruiting()
                 )
@@ -63,7 +63,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
                 request.content(),
                 request.recruitStart(),
                 request.recruitEnd(),
-                request.newImageCount(),
+                request.newImageNames(),
                 request.deleteImageKeys(),
                 request.recruitForm(),
                 request.isAlwaysRecruiting()
