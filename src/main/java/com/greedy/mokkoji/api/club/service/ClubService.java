@@ -114,7 +114,7 @@ public class ClubService {
             changeClubMasterRole(club.getClubMasterStudentId(), clubMasterStudentId);
         }
 
-        club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, logo, instagram);
+        club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, newLogoKey, instagram);
 
         String updateLogo = generatePresignedPutUrl(newLogoKey);
         String deleteLogo = generatePresignedDeleteUrl(newLogoKey, oldLogoKey);
