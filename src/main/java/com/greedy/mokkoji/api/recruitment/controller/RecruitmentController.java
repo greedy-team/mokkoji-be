@@ -64,7 +64,6 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
                 request.recruitStart(),
                 request.recruitEnd(),
                 request.newImageNames(),
-                request.deleteImageKeys(),
                 request.recruitForm(),
                 request.isAlwaysRecruiting()
         );
