@@ -82,7 +82,6 @@ public class RecruitmentService {
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
             final List<String> imageNames,
-            final List<String> deleteImageKeys,
             final String recruitForm,
             final boolean isAlwaysRecruiting
     ) {
@@ -93,7 +92,7 @@ public class RecruitmentService {
 
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
 
-        List<String> deleteImageUrls = deleteSpecificImages(deleteImageKeys);
+        List<String> deleteImageUrls = deleteImages(recruitmentId);
         List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageNames);
 
         return UpdateRecruitmentResponse.of(recruitment.getId(), deleteImageUrls, uploadImageUrls);
@@ -265,21 +264,6 @@ public class RecruitmentService {
 
         String imageKey = String.format("recruitment-image/%d/%d/%s", club.getId(), recruitment.getId(), fileName);
         return imageKey;
-    }
-
-
-    private List<String> deleteSpecificImages(List<String> deleteImageKeys) {
-        if (deleteImageKeys == null || deleteImageKeys.isEmpty()) {
-            return List.of();
-        }
-
-        List<RecruitmentImage> imagesToDelete = recruitmentImageRepository.findAllByImageIn(deleteImageKeys);
-        List<String> deleteImageUrls = imagesToDelete.stream()
-                .map(img -> appDataS3Client.getPresignedDeleteUrl(img.getImage()))
-                .toList();
-
-        recruitmentImageRepository.deleteAll(imagesToDelete);
-        return deleteImageUrls;
     }
 
     private List<String> deleteImages(Long recruitmentId) {
