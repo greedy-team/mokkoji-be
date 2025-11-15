@@ -38,7 +38,9 @@ public class Fixture {
                 .club(club)
                 .recruitStart(LocalDateTime.of(2025, 01, 01, 12, 00, 00))
                 .recruitEnd(LocalDateTime.of(2025, 02, 02, 12, 00, 00))
+                .title("모집글 제목")
                 .content("그리디 모집글")
+                .isAlwaysRecruiting(false)
                 .build();
     }
 
