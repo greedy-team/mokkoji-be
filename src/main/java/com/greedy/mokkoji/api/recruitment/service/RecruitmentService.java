@@ -2,13 +2,14 @@ package com.greedy.mokkoji.api.recruitment.service;
 
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.ClubPreviewResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.RecruitmentPreviewResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.ClubPreviewResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.RecruitmentPreviewResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.recentRecruitment.RecentRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -34,10 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -133,6 +131,48 @@ public class RecruitmentService {
 
         return AllRecruitmentOfClubResponse.of(recruitmentList);
     }
+
+    @Transactional
+    public RecentRecruitmentOfClubResponse getRecentRecruitmentOfClub(final Long clubId, final Long userId) {
+
+        Optional<Recruitment> recentRecruitment = recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(clubId);
+
+        Recruitment recruitment = recentRecruitment.orElseGet(() ->
+                recruitmentRepository.findTopByClubIdAndIsAlwaysRecruitingOrderByUpdatedAtDesc(clubId, true)
+                        .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT))
+        );
+
+        Club club = recruitment.getClub();
+
+        List<RecruitmentImage> recruitmentImages = recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(
+                recruitment.getId());
+
+        List<String> imageUrls = recruitmentImages.stream()
+                .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
+                .toList();
+
+        Boolean isFavorite = isFavorite(userId, club.getId());
+
+        return RecentRecruitmentOfClubResponse.of(
+                recruitment.getId(),
+                recruitment.getTitle(),
+                club.getName(),
+                appDataS3Client.getPublicUrl(club.getLogo()),
+                club.getId(),
+                recruitment.getContent(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd(),
+                RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                recruitment.getCreatedAt(),
+                imageUrls,
+                recruitment.getRecruitForm(),
+                isFavorite,
+                club.getInstagram(),
+                club.getClubCategory().getDescription(),
+                recruitment.isAlwaysRecruiting()
+        );
+    }
+
 
     @Transactional
     public SpecificRecruitmentResponse getSpecificRecruitment(final Long userId, final Long recruitmentId) {

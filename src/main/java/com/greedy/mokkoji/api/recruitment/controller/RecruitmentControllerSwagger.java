@@ -3,10 +3,11 @@ package com.greedy.mokkoji.api.recruitment.controller;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.recruitment.dto.request.CreateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.request.UpdateRecruitmentRequest;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.recentRecruitment.RecentRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
@@ -103,4 +104,16 @@ public interface RecruitmentControllerSwagger {
             int page,
             int size
     );
+
+    @Operation(
+            summary = "특정 동아리의 최근 모집글 조회 API",
+            description = "가장 최근 업데이트된 모집글을 조회하며, 없다면 상시모집 중인 모집글을 반환합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @ApiResponse(responseCode = "200", description = "최근 모집글 조회 성공")
+    ResponseEntity<APISuccessResponse<RecentRecruitmentOfClubResponse>> getRecentRecruitmentOfClub(
+            @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "clubId", description = "동아리 ID") Long clubId
+    );
+
 }

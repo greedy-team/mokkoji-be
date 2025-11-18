@@ -4,10 +4,11 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.recruitment.dto.request.CreateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.request.UpdateRecruitmentRequest;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.recentRecruitment.RecentRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
@@ -87,6 +88,17 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
         return APISuccessResponse.of(
                 HttpStatus.OK,
                 recruitmentService.getAllRecruitmentOfClub(clubId)
+        );
+    }
+
+    @GetMapping("/club/recent/{clubId}")
+    public ResponseEntity<APISuccessResponse<RecentRecruitmentOfClubResponse>> getRecentRecruitmentOfClub(
+            @Authentication final AuthCredential authCredential,
+            @PathVariable("clubId") final Long clubId
+    ) {
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                recruitmentService.getRecentRecruitmentOfClub(clubId, authCredential.userId())
         );
     }
 
