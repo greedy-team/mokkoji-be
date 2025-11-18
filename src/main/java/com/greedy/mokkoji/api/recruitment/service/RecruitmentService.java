@@ -143,7 +143,7 @@ public class RecruitmentService {
                 recruitmentId);
 
         List<String> imageUrls = recruitmentImages.stream()
-                .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
+                .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
                 .toList();
 
         Club club = recruitment.getClub();
@@ -152,7 +152,7 @@ public class RecruitmentService {
                 recruitment.getId(),
                 recruitment.getTitle(),
                 club.getName(),
-                appDataS3Client.getPresignedUrl(club.getLogo()),
+                appDataS3Client.getPublicUrl(club.getLogo()),
                 club.getId(),
                 recruitment.getContent(),
                 recruitment.getRecruitStart(),
@@ -281,7 +281,7 @@ public class RecruitmentService {
     private String getFirstImageUrl(Long recruitmentId) {
         return recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(recruitmentId).stream()
                 .findFirst()
-                .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
+                .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
                 .orElse(null);
     }
 
@@ -301,7 +301,7 @@ public class RecruitmentService {
                 recruitment.getClub().getDescription(),
                 recruitment.getClub().getClubCategory(),
                 recruitment.getClub().getClubAffiliation(),
-                appDataS3Client.getPresignedUrl(recruitment.getClub().getLogo())
+                appDataS3Client.getPublicUrl(recruitment.getClub().getLogo())
         );
 
         return new RecruitmentPreviewResponse(
