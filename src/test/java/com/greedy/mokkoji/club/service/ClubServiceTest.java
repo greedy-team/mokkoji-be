@@ -110,8 +110,8 @@ class ClubServiceTest {
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(clubId2)).willReturn(Optional.ofNullable(recruitment2));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(true);
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId2)).willReturn(false);
-        BDDMockito.given(appDataS3Client.getPresignedUrl(club1.getLogo())).willReturn("testLogo1");
-        BDDMockito.given(appDataS3Client.getPresignedUrl(club2.getLogo())).willReturn("testLogo2");
+        BDDMockito.given(appDataS3Client.getPublicUrl(club1.getLogo())).willReturn("testLogo1");
+        BDDMockito.given(appDataS3Client.getPublicUrl(club2.getLogo())).willReturn("testLogo2");
 
         //when
         final ClubsPaginationResponse response = clubService.findClubsByConditions(userId, null, null, null, null, pageable);
@@ -154,7 +154,7 @@ class ClubServiceTest {
         BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.ofNullable(club1));
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(clubId)).willReturn(Optional.ofNullable(recruitment1));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId)).willReturn(true);
-        BDDMockito.given(appDataS3Client.getPresignedUrl(club1.getLogo())).willReturn("testLogo1");
+        BDDMockito.given(appDataS3Client.getPublicUrl(club1.getLogo())).willReturn("testLogo1");
 
         //when
         ClubDetailResponse response = clubService.findClub(userId, clubId);

@@ -95,7 +95,7 @@ public class ClubService {
                 club.getClubCategory().name(),
                 club.getClubAffiliation().name(),
                 club.getDescription(),
-                appDataS3Client.getPresignedUrl(club.getLogo()),
+                appDataS3Client.getPublicUrl(club.getLogo()),
                 club.getInstagram()
         );
     }
@@ -147,7 +147,7 @@ public class ClubService {
                 club.getDescription(),
                 recruitment != null ? recruitment.getRecruitStart() : null,
                 recruitment != null ? recruitment.getRecruitEnd() : null,
-                appDataS3Client.getPresignedUrl(club.getLogo()),
+                appDataS3Client.getPublicUrl(club.getLogo()),
                 isFavorite,
                 club.getInstagram(),
                 recruitment != null ? recruitment.getContent() : null
@@ -167,7 +167,7 @@ public class ClubService {
                             club.getDescription(),
                             recruitment != null ? recruitment.getRecruitStart() : null,
                             recruitment != null ? recruitment.getRecruitEnd() : null,
-                            appDataS3Client.getPresignedUrl(club.getLogo()),
+                            appDataS3Client.getPublicUrl(club.getLogo()),
                             isFavorite);
                 })
                 .sorted(getFavoriteComparator())
