@@ -1,14 +1,15 @@
 package com.greedy.mokkoji.db.recruitment.repository;
 
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>, RecruitmentRepositoryCustom {
@@ -23,14 +24,13 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
     @Query("SELECT r FROM Recruitment r WHERE FUNCTION('DATE', r.recruitEnd) = :targetDate")
     List<Recruitment> findAllByRecruitEndInThreeDays(@Param("targetDate") LocalDate targetDate);
 
-
-    Recruitment findByClubId(final Long id);
-
     Optional<Recruitment> findRecruitmentById(Long id);
 
     List<Recruitment> findAllByClubId(final Long id);
 
-    List<Recruitment> findByClubIdIn(List<Long> clubIds);
-
     Optional<Recruitment> findTopByClubIdOrderByUpdatedAtDesc(Long clubId);
+
+    //상시모집 중인 모집글 중 최신 updatedAt 공고 반환
+    Optional<Recruitment> findTopByClubIdAndIsAlwaysRecruitingOrderByUpdatedAtDesc(Long clubId, boolean isAlwaysRecruiting);
+
 }

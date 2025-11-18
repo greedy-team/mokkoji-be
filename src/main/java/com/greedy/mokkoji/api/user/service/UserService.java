@@ -12,11 +12,12 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -34,47 +35,47 @@ public class UserService {
     public User login(final String studentId, final String password) {
 
         final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId,
-            password);
+                password);
 
         final UserRole role = determineUserRole(studentId);
 
         return userRepository.findByStudentId(studentId)
-            .map(user -> {
-                user.updateRole(role);
-                return user;
-            }).orElseGet(() -> {
-                final User newUser = User.builder()
-                    .studentId(studentId)
-                    .name(studentInformationResponse.name())
-                    .department(studentInformationResponse.department())
-                    .grade(studentInformationResponse.grade())
-                    .role(role)
-                    .build();
+                .map(user -> {
+                    user.updateRole(role);
+                    return user;
+                }).orElseGet(() -> {
+                    final User newUser = User.builder()
+                            .studentId(studentId)
+                            .name(studentInformationResponse.name())
+                            .department(studentInformationResponse.department())
+                            .grade(studentInformationResponse.grade())
+                            .role(role)
+                            .build();
 
-                return userRepository.save(newUser);
-            });
+                    return userRepository.save(newUser);
+                });
     }
 
     private UserRole determineUserRole(final String studentId) {
         return userRepository.findByStudentId(studentId)
-            .map(user -> {
-                if (user.getRole() == UserRole.GREEDY_ADMIN) {
-                    return UserRole.GREEDY_ADMIN;
-                }
-                if (user.getRole() == UserRole.CLUB_ADMIN) {
-                    return UserRole.CLUB_ADMIN;
-                }
-                if (clubRepository.existsByClubMasterStudentId(studentId)) {
-                    return UserRole.CLUB_MASTER;
-                }
-                return UserRole.NORMAL;
-            })
-            .orElseGet(() -> {
-                if (clubRepository.existsByClubMasterStudentId(studentId)) {
-                    return UserRole.CLUB_MASTER;
-                }
-                return UserRole.NORMAL;
-            });
+                .map(user -> {
+                    if (user.getRole() == UserRole.GREEDY_ADMIN) {
+                        return UserRole.GREEDY_ADMIN;
+                    }
+                    if (user.getRole() == UserRole.CLUB_ADMIN) {
+                        return UserRole.CLUB_ADMIN;
+                    }
+                    if (clubRepository.existsByClubMasterStudentId(studentId)) {
+                        return UserRole.CLUB_MASTER;
+                    }
+                    return UserRole.NORMAL;
+                })
+                .orElseGet(() -> {
+                    if (clubRepository.existsByClubMasterStudentId(studentId)) {
+                        return UserRole.CLUB_MASTER;
+                    }
+                    return UserRole.NORMAL;
+                });
     }
 
     @Transactional
@@ -98,7 +99,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findUser(final Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
     @Transactional
@@ -109,23 +110,23 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserRoleResponse getUserRole(final Long userId) {
         final User user = userRepository.findById(userId)
-            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
         return UserRoleResponse.of(
-            user.getRole().toString()
+                user.getRole().toString()
         );
     }
 
     @Transactional
     public UserManageClubsResponse getUserManageClubs(final Long userId) {
         final User user = userRepository.findById(userId)
-            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
         String studentId = user.getStudentId();
 
         List<UserManageClubResponse> clubs = clubRepository.findByClubMasterStudentId(studentId).stream()
-            .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
-            .toList();
+                .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
+                .toList();
 
         return UserManageClubsResponse.of(clubs);
     }

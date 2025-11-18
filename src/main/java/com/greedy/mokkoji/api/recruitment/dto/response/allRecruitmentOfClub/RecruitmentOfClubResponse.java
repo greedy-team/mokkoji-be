@@ -14,6 +14,7 @@ public record RecruitmentOfClubResponse(
         LocalDateTime recruitEnd,
         RecruitStatus status,
         LocalDateTime createdAt,
-        String firstImage
+        String firstImage,
+        boolean isAlwaysRecruiting
 ) {
 }

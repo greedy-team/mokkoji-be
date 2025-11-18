@@ -16,46 +16,54 @@ public class AppDataS3Client {
 
     private final S3Presigner s3Presigner;
     private final String bucketName;
+    private final String region;
+    private final String urlFormat;
 
-    public AppDataS3Client(@Value("${aws.app-data-s3-bucket-name}") final String bucketName, final AwsConfig awsConfig) {
+    public AppDataS3Client(@Value("${aws.app-data-s3-bucket-name}") final String bucketName, @Value("${aws.region}") String region,
+                           @Value("${aws.s3-url-format}") String urlFormat, final AwsConfig awsConfig) {
         this.bucketName = bucketName;
         this.s3Presigner = awsConfig.getPresigner();
+        this.region = region;
+        this.urlFormat = urlFormat;
     }
 
-    public String getPresignedUrl(final String filename) {
-        if (filename == null || filename.equals("")) {
-            return null;
-        }
-
-        final GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(filename)
-                .build();
-
-        final GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(15)) // 15분간 접근 허용
-                .getObjectRequest(getObjectRequest)
-                .build();
-
-        final PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner
-                .presignGetObject(getObjectPresignRequest);
-
-        //presigned url 반환
-        final String url = presignedGetObjectRequest.url().toString();
-
-        s3Presigner.close();
-        return url;
+    public String getPublicUrl(String fileKey) {
+        if (fileKey == null || fileKey.isBlank()) return null;
+        return String.format(urlFormat, bucketName, region) + fileKey;
     }
 
-    //TODO: UUID 사용하여 filename 중복 문제 해결하기
-    public String getPresignedPutUrl(final String filename) {
-        if (filename == null || filename.isBlank()) {
+//    public String getPresignedUrl(final String fileKey) {
+//        if (fileKey == null || fileKey.equals("")) {
+//            return null;
+//        }
+//
+//        final GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+//                .bucket(bucketName)
+//                .key(fileKey)
+//                .build();
+//
+//        final GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
+//                .signatureDuration(Duration.ofMinutes(15)) // 15분 동안 접근 허용
+//                .getObjectRequest(getObjectRequest)
+//                .build();
+//
+//        final PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner
+//                .presignGetObject(getObjectPresignRequest);
+//
+//        //presigned url 반환
+//        final String url = presignedGetObjectRequest.url().toString();
+//
+//        return url;
+//    }
+
+    public String getPresignedPutUrl(final String fileKey) {
+        if (fileKey == null || fileKey.isBlank()) {
             return null;
         }
 
         final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(filename)
+                .key(fileKey)
                 .build();
 
         final PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
@@ -69,14 +77,14 @@ public class AppDataS3Client {
         return presignedPutObjectRequest.url().toString();
     }
 
-    public String getPresignedDeleteUrl(final String filename) {
-        if (filename == null || filename.isBlank()) {
+    public String getPresignedDeleteUrl(final String fileKey) {
+        if (fileKey == null || fileKey.isBlank()) {
             return null;
         }
 
         final DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
-                .key(filename)
+                .key(fileKey)
                 .build();
 
         final DeleteObjectPresignRequest presignRequest = DeleteObjectPresignRequest.builder()

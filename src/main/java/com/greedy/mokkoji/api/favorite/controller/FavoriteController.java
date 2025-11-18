@@ -16,11 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import java.time.YearMonth;
 import java.util.List;
 
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/favorites")
-public class FavoriteController {
+public class FavoriteController implements FavoriteControllerSwagger {
 
     private final FavoriteService favoriteService;
 
@@ -39,7 +38,6 @@ public class FavoriteController {
             @RequestParam(value = "size") final int size
     ) {
         final Pageable pageable = PageRequest.of(page - 1, size);
-
         return APISuccessResponse.of(HttpStatus.OK, favoriteService.findFavoriteClubs(authCredential.userId(), pageable));
     }
 

@@ -4,10 +4,11 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.recruitment.dto.request.CreateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.request.UpdateRecruitmentRequest;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.recentRecruitment.RecentRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
@@ -24,7 +25,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/recruitments")
-public class RecruitmentController {
+public class RecruitmentController implements RecruitmentControllerSwagger {
+
     private final RecruitmentService recruitmentService;
 
     @PostMapping("/{clubId}")
@@ -34,7 +36,7 @@ public class RecruitmentController {
             @RequestBody CreateRecruitmentRequest request
     ) {
         return APISuccessResponse.of(
-                HttpStatus.OK,
+                HttpStatus.CREATED,
                 recruitmentService.createRecruitment(
                         authCredential.userId(),
                         clubId,
@@ -42,8 +44,9 @@ public class RecruitmentController {
                         request.content(),
                         request.recruitStart(),
                         request.recruitEnd(),
-                        request.images(),
-                        request.recruitForm()
+                        request.imageNames(),
+                        request.recruitForm(),
+                        request.isAlwaysRecruiting()
                 )
         );
     }
@@ -61,8 +64,9 @@ public class RecruitmentController {
                 request.content(),
                 request.recruitStart(),
                 request.recruitEnd(),
-                request.images(),
-                request.recruitForm()
+                request.imageNames(),
+                request.recruitForm(),
+                request.isAlwaysRecruiting()
         );
         return APISuccessResponse.of(HttpStatus.OK, response);
     }
@@ -72,11 +76,10 @@ public class RecruitmentController {
             @Authentication final AuthCredential authCredential,
             @PathVariable("recruitmentId") final Long recruitmentId
     ) {
-        DeleteRecruitmentResponse response = recruitmentService.deleteRecruitment(authCredential.userId(),
-                recruitmentId);
+        DeleteRecruitmentResponse response =
+                recruitmentService.deleteRecruitment(authCredential.userId(), recruitmentId);
         return APISuccessResponse.of(HttpStatus.OK, response);
     }
-
 
     @GetMapping("/club/{clubId}")
     public ResponseEntity<APISuccessResponse<AllRecruitmentOfClubResponse>> getAllRecruitmentOfClub(
@@ -85,6 +88,17 @@ public class RecruitmentController {
         return APISuccessResponse.of(
                 HttpStatus.OK,
                 recruitmentService.getAllRecruitmentOfClub(clubId)
+        );
+    }
+
+    @GetMapping("/club/recent/{clubId}")
+    public ResponseEntity<APISuccessResponse<RecentRecruitmentOfClubResponse>> getRecentRecruitmentOfClub(
+            @Authentication final AuthCredential authCredential,
+            @PathVariable("clubId") final Long clubId
+    ) {
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                recruitmentService.getRecentRecruitmentOfClub(clubId, authCredential.userId())
         );
     }
 

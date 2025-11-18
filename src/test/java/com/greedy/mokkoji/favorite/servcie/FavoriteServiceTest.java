@@ -2,6 +2,7 @@ package com.greedy.mokkoji.favorite.servcie;
 
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
+import com.greedy.mokkoji.api.favorite.dto.response.RecruitClubsResponse;
 import com.greedy.mokkoji.api.favorite.service.FavoriteService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -15,6 +16,9 @@ import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
+
+import java.time.YearMonth;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -236,8 +240,8 @@ public class FavoriteServiceTest {
         final Page<Favorite> favoritePage = new PageImpl<>(List.of(favorite));
 
         BDDMockito.given(favoriteRepository.findByUserId(any(), any())).willReturn(favoritePage);
-        BDDMockito.given(recruitmentRepository.findByClubId(any())).willReturn(recruitment);
-        BDDMockito.given(appDataS3Client.getPresignedUrl(any())).willReturn("testLogo1");
+        BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(any())).willReturn(Optional.of(recruitment));
+        BDDMockito.given(appDataS3Client.getPublicUrl(any())).willReturn("testLogo1");
 
         //when
         final ClubsPaginationResponse favoriteClubs = favoriteService.findFavoriteClubs(user.getId(), PageRequest.of(0, 10));
@@ -245,8 +249,8 @@ public class FavoriteServiceTest {
         //then
         assertThat(favoriteClubs.clubs().size()).isEqualTo(1);
         assertThat(favoriteClubs.clubs().get(0).name()).isEqualTo("동아리 이름");
-        assertThat(favoriteClubs.clubs().get(0).category()).isEqualTo("공연");
-        assertThat(favoriteClubs.clubs().get(0).affiliation()).isEqualTo("중앙동아리");
+        assertThat(favoriteClubs.clubs().get(0).category()).isEqualTo("문화/예술");
+        assertThat(favoriteClubs.clubs().get(0).affiliation()).isEqualTo("중앙");
         assertThat(favoriteClubs.clubs().get(0).description()).isEqualTo("동아리 설명");
         assertThat(favoriteClubs.clubs().get(0).recruitStartDate()).isEqualTo("2025-02-01");
         assertThat(favoriteClubs.clubs().get(0).recruitEndDate()).isEqualTo("2025-03-30");
@@ -254,6 +258,222 @@ public class FavoriteServiceTest {
         assertThat(favoriteClubs.clubs().get(0).isFavorite()).isEqualTo(true);
 
         BDDMockito.verify(favoriteRepository, times(1)).findByUserId(user.getId(), PageRequest.of(0, 10));
-        BDDMockito.verify(recruitmentRepository, times(1)).findByClubId(club.getId());
+        BDDMockito.verify(recruitmentRepository, times(1)).findTopByClubIdOrderByUpdatedAtDesc(club.getId());
+    }
+
+    @DisplayName("특정 연월에 모집 중인 즐겨찾기 동아리의 최신 모집 정보를 조회한다. - 모집 시작일이 겹치는 경우")
+    @Test
+    void getRecruitClubsWhenRecruitStartInYearMonth() {
+        // given
+        final User user = User.builder()
+                .name("사용자 이름")
+                .email("사용자 이메일")
+                .grade("4")
+                .department("사용자 학과")
+                .studentId("사용자 학번")
+                .build();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        final Club club = Club.builder()
+                .name("동아리 이름")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.CULTURAL_ART)
+                .logo("동아리 로고")
+                .description("동아리 설명")
+                .instagram("동아리 인스타그램 링크")
+                .build();
+        ReflectionTestUtils.setField(club, "id", 1L);
+
+        final Recruitment recruitment1 = Recruitment.builder()
+                .club(club)
+                .recruitStart(LocalDateTime.of(2024, 2, 1, 12, 0))
+                .recruitEnd(LocalDateTime.of(2024, 3, 30, 12, 0))
+                .content("동아리 모집 글")
+                .build();
+
+        final Recruitment recruitment2 = Recruitment.builder()
+                .club(club)
+                .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
+                .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
+                .content("동아리 모집 글")
+                .build();
+
+        final Recruitment recruitment3 = Recruitment.builder()
+                .club(club)
+                .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
+                .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
+                .content("동아리 모집 글")
+                .build();
+
+        ReflectionTestUtils.setField(recruitment1, "id", 1L);
+        ReflectionTestUtils.setField(recruitment2, "id", 2L);
+        ReflectionTestUtils.setField(recruitment3, "id", 3L);
+
+        final List<Favorite> favorites = List.of(
+                Favorite.builder().
+                        club(club).
+                        user(user).build()
+        );
+
+        BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
+        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
+                .willReturn(List.of(recruitment3));
+
+        // when
+        List<RecruitClubsResponse> result = favoriteService.getRecruitClubs(1L, YearMonth.of(2025, 2));
+
+        // then
+        assertThat(result).hasSize(1);
+
+        RecruitClubsResponse response = result.get(0);
+        assertThat(response.clubId()).isEqualTo(1L);
+        assertThat(response.clubName()).isEqualTo("동아리 이름");
+        ;
+        assertThat(response.recruitStart()).isEqualTo("2025-02-01T12:00:00");
+        assertThat(response.recruitEnd()).isEqualTo("2025-03-30T12:00:00");
+
+        BDDMockito.verify(favoriteRepository, times(1)).findClubIdsByUserId(1L);
+        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByFavoriteClubs(List.of(1L));
+    }
+
+    @DisplayName("특정 연월에 모집 중인 즐겨찾기 동아리의 최신 모집 정보를 조회한다. - 모집 마감일이 겹치는 경우")
+    @Test
+    void getRecruitClubsWhenRecruitEndInYearMonth() {
+        // given
+        final User user = User.builder()
+                .name("사용자 이름")
+                .email("사용자 이메일")
+                .grade("4")
+                .department("사용자 학과")
+                .studentId("사용자 학번")
+                .build();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        final Club club = Club.builder()
+                .name("동아리 이름")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.CULTURAL_ART)
+                .logo("동아리 로고")
+                .description("동아리 설명")
+                .instagram("동아리 인스타그램 링크")
+                .build();
+        ReflectionTestUtils.setField(club, "id", 1L);
+
+        final Recruitment recruitment1 = Recruitment.builder()
+                .club(club)
+                .recruitStart(LocalDateTime.of(2024, 2, 1, 12, 0))
+                .recruitEnd(LocalDateTime.of(2024, 3, 30, 12, 0))
+                .content("동아리 모집 글")
+                .build();
+
+        final Recruitment recruitment2 = Recruitment.builder()
+                .club(club)
+                .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
+                .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
+                .content("동아리 모집 글")
+                .build();
+
+        final Recruitment recruitment3 = Recruitment.builder()
+                .club(club)
+                .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
+                .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
+                .content("동아리 모집 글")
+                .build();
+
+        ReflectionTestUtils.setField(recruitment1, "id", 1L);
+        ReflectionTestUtils.setField(recruitment2, "id", 2L);
+        ReflectionTestUtils.setField(recruitment3, "id", 3L);
+
+        final List<Favorite> favorites = List.of(
+                Favorite.builder().
+                        club(club).
+                        user(user).build()
+        );
+
+        BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
+        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
+                .willReturn(List.of(recruitment3));
+
+        // when
+        List<RecruitClubsResponse> result = favoriteService.getRecruitClubs(1L, YearMonth.of(2025, 3));
+
+        //then
+        assertThat(result).hasSize(1);
+
+        RecruitClubsResponse response = result.get(0);
+        assertThat(response.clubId()).isEqualTo(1L);
+        assertThat(response.clubName()).isEqualTo("동아리 이름");
+        ;
+        assertThat(response.recruitStart()).isEqualTo("2025-02-01T12:00:00");
+        assertThat(response.recruitEnd()).isEqualTo("2025-03-30T12:00:00");
+
+        BDDMockito.verify(favoriteRepository, times(1)).findClubIdsByUserId(1L);
+        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByFavoriteClubs(List.of(1L));
+    }
+
+
+    @DisplayName("특정 연월에 해당하는 즐겨찾기 동아리의 모집글이 없으면 빈 리스트를 반환한다.")
+    @Test
+    void getRecruitClubsWhenNoRecruitmentInYearMonth() {
+        // given
+        final User user = User.builder()
+                .name("사용자 이름")
+                .email("사용자 이메일")
+                .grade("4")
+                .department("사용자 학과")
+                .studentId("사용자 학번")
+                .build();
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        final Club club = Club.builder()
+                .name("동아리 이름")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.CULTURAL_ART)
+                .logo("동아리 로고")
+                .description("동아리 설명")
+                .instagram("동아리 인스타그램 링크")
+                .build();
+        ReflectionTestUtils.setField(club, "id", 1L);
+
+        final Recruitment recruitment1 = Recruitment.builder()
+                .club(club)
+                .recruitStart(LocalDateTime.of(2024, 2, 1, 12, 0))
+                .recruitEnd(LocalDateTime.of(2024, 3, 30, 12, 0))
+                .content("동아리 모집 글")
+                .build();
+
+        final Recruitment recruitment2 = Recruitment.builder()
+                .club(club)
+                .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
+                .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
+                .content("동아리 모집 글")
+                .build();
+
+        final Recruitment recruitment3 = Recruitment.builder()
+                .club(club)
+                .recruitStart(LocalDateTime.of(2025, 2, 1, 12, 0))
+                .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
+                .content("동아리 모집 글")
+                .build();
+
+        ReflectionTestUtils.setField(recruitment1, "id", 1L);
+        ReflectionTestUtils.setField(recruitment2, "id", 2L);
+        ReflectionTestUtils.setField(recruitment3, "id", 3L);
+
+        final List<Favorite> favorites = List.of(
+                Favorite.builder().
+                        club(club).
+                        user(user).build()
+        );
+
+        BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
+        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
+                .willReturn(List.of(recruitment3));
+
+        // when
+        List<RecruitClubsResponse> result = favoriteService.getRecruitClubs(1L, YearMonth.of(2025, 10));
+
+        //then
+        assertThat(result).isEmpty();
     }
 }

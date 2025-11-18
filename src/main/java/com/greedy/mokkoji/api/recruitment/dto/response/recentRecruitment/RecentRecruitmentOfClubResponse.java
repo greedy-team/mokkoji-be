@@ -1,11 +1,11 @@
-package com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment;
+package com.greedy.mokkoji.api.recruitment.dto.response.recentRecruitment;
 
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record SpecificRecruitmentResponse(
+public record RecentRecruitmentOfClubResponse(
         Long id,
         String title,
         String clubName,
@@ -24,7 +24,7 @@ public record SpecificRecruitmentResponse(
         boolean isAlwaysRecruiting
 ) {
 
-    public static SpecificRecruitmentResponse of(
+    public static RecentRecruitmentOfClubResponse of(
             Long id,
             String title,
             String clubName,
@@ -42,10 +42,11 @@ public record SpecificRecruitmentResponse(
             String category,
             boolean isAlwaysRecruiting
     ) {
-        return new SpecificRecruitmentResponse(
+        return new RecentRecruitmentOfClubResponse(
                 id, title, clubName, logo, clubId, content, recruitStart, recruitEnd,
                 status, createdAt, imageUrls, recruitForm,
                 isFavorite, instagramUrl, category, isAlwaysRecruiting
         );
     }
+
 }

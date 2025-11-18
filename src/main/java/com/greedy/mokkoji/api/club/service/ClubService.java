@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -94,7 +95,7 @@ public class ClubService {
                 club.getClubCategory().name(),
                 club.getClubAffiliation().name(),
                 club.getDescription(),
-                appDataS3Client.getPresignedUrl(club.getLogo()),
+                appDataS3Client.getPublicUrl(club.getLogo()),
                 club.getInstagram()
         );
     }
@@ -107,13 +108,13 @@ public class ClubService {
         Club club = validateClubManagerAuthority(userId, clubId);
 
         String oldLogoKey = club.getLogo();
-        String newLogoKey = extractNewLogoKey(logo);
+        String newLogoKey = extractLogoKey(clubId, logo);
 
         if (clubMasterStudentId != null) {
             changeClubMasterRole(club.getClubMasterStudentId(), clubMasterStudentId);
         }
 
-        club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, logo, instagram);
+        club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, newLogoKey, instagram);
 
         String updateLogo = generatePresignedPutUrl(newLogoKey);
         String deleteLogo = generatePresignedDeleteUrl(newLogoKey, oldLogoKey);
@@ -146,7 +147,7 @@ public class ClubService {
                 club.getDescription(),
                 recruitment != null ? recruitment.getRecruitStart() : null,
                 recruitment != null ? recruitment.getRecruitEnd() : null,
-                appDataS3Client.getPresignedUrl(club.getLogo()),
+                appDataS3Client.getPublicUrl(club.getLogo()),
                 isFavorite,
                 club.getInstagram(),
                 recruitment != null ? recruitment.getContent() : null
@@ -166,7 +167,7 @@ public class ClubService {
                             club.getDescription(),
                             recruitment != null ? recruitment.getRecruitStart() : null,
                             recruitment != null ? recruitment.getRecruitEnd() : null,
-                            appDataS3Client.getPresignedUrl(club.getLogo()),
+                            appDataS3Client.getPublicUrl(club.getLogo()),
                             isFavorite);
                 })
                 .sorted(getFavoriteComparator())
@@ -225,10 +226,19 @@ public class ClubService {
     }
 
     @Nullable
-    private String extractNewLogoKey(String logo) {
-        return (logo != null && !logo.isBlank())
-                ? logo
-                : null;
+    private String extractLogoKey(Long clubId, String logo) {
+        if (logo == null && logo.isBlank()) {
+            return null;
+        }
+
+        int dotIndex = logo.lastIndexOf('.');
+        String prevDot = logo.substring(0, dotIndex);
+        String nextDot = logo.substring(dotIndex); //jpg와 같은 확장자 부분
+        String uuid = UUID.randomUUID().toString();
+        String fileName = prevDot + "_" + uuid + nextDot;
+
+        String logoKey = String.format("club-logo/%d/%s", clubId, fileName);
+        return logoKey;
     }
 
     @Nullable

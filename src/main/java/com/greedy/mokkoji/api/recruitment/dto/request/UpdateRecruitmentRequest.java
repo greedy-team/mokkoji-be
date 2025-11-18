@@ -5,11 +5,12 @@ import java.util.List;
 
 public record UpdateRecruitmentRequest(
         String title,
-        List<String> images,
+        List<String> imageNames,
         String content,
         LocalDateTime recruitStart,
         LocalDateTime recruitEnd,
-        String recruitForm
+        String recruitForm,
+        boolean isAlwaysRecruiting
 ) {
 }
 

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/comments")
-public class CommentController {
+public class CommentController implements CommentControllerSwagger {
 
     private final CommentService commentService;
 
@@ -24,8 +24,14 @@ public class CommentController {
     public ResponseEntity<APISuccessResponse<Void>> createComment(
             @PathVariable(name = "clubId") final Long clubId,
             @RequestBody @Valid final CommentCreateRequest commentCreateRequest,
-            @Authentication final AuthCredential authCredential) {
-        commentService.createComment(authCredential.userId(), clubId, commentCreateRequest.rate(), commentCreateRequest.content());
+            @Authentication final AuthCredential authCredential
+    ) {
+        commentService.createComment(
+                authCredential.userId(),
+                clubId,
+                commentCreateRequest.rate(),
+                commentCreateRequest.content()
+        );
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
@@ -34,7 +40,10 @@ public class CommentController {
             @PathVariable(name = "clubId") final Long clubId,
             @Authentication final AuthCredential authCredential
     ) {
-        return APISuccessResponse.of(HttpStatus.OK, commentService.getComments(authCredential.userId(), clubId));
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                commentService.getComments(authCredential.userId(), clubId)
+        );
     }
 
     @PatchMapping("/{commentId}")
@@ -43,7 +52,12 @@ public class CommentController {
             @RequestBody @Valid final CommentUpdateRequest commentUpdateRequest,
             @Authentication final AuthCredential authCredential
     ) {
-        commentService.updateComment(authCredential.userId(), commentId, commentUpdateRequest.rate(), commentUpdateRequest.content());
+        commentService.updateComment(
+                authCredential.userId(),
+                commentId,
+                commentUpdateRequest.rate(),
+                commentUpdateRequest.content()
+        );
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 

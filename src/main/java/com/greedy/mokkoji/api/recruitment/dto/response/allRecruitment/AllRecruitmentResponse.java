@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment;
+package com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment;
 
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 
