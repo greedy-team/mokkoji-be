@@ -7,12 +7,15 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.env.Environment;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @OpenAPIDefinition(
@@ -20,13 +23,32 @@ import java.util.Arrays;
                 title = "mokkoji API 명세서",
                 version = "1.0.0",
                 description = SwaggerDescription.ENUM_DESCRIPTION
-        ),
-        servers = {
-                @Server(url = "http://43.200.8.39:8080/", description = "개발 서버"),
-                @Server(url = "http://localhost:8080/", description = "로컬 서버")
-        }
+        )
 )
 public class SwaggerConfig {
+
+    private final Environment env;
+
+    public SwaggerConfig(Environment env) {
+        this.env = env;
+    }
+
+    @Bean
+    public OpenApiCustomizer serverOpenApiCustomizer() {
+        return openApi -> {
+            String serverUrl;
+
+            if (env.acceptsProfiles("dev")) {
+                serverUrl = "http://43.200.8.39:8080/";
+            } else {
+                serverUrl = "http://localhost:8080/";
+            }
+
+            openApi.setServers(List.of(
+                    new io.swagger.v3.oas.models.servers.Server().url(serverUrl)
+            ));
+        };
+    }
 
     @Bean
     public OpenAPI openAPI() {
