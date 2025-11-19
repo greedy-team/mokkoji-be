@@ -4,6 +4,9 @@ public class SwaggerDescription {
 
     public static final String ENUM_DESCRIPTION = """
             <div style="text-align:center; font-size:17px; font-weight:bold; margin-bottom:10px;">
+            <b>🔗 로컬 Swagger:</b> http://localhost:8080/swagger-ui/index.html<br>
+            <b>🔗 배포 Swagger:</b> http://43.200.8.39:8080/swagger-ui/index.html
+            
             <b>< 공통 ENUM 용어 정리 ></b>
             </div>
             
