@@ -227,7 +227,7 @@ public class ClubService {
 
     @Nullable
     private String extractLogoKey(Long clubId, String logo) {
-        if (logo == null && logo.isBlank()) {
+        if (logo == null || logo.isBlank()) {
             return null;
         }
 
