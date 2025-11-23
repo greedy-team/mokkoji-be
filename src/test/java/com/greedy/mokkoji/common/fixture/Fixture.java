@@ -36,8 +36,8 @@ public class Fixture {
     public static Recruitment createRecruitment(Club club) {
         return Recruitment.builder()
             .club(club)
-            .recruitStart(LocalDateTime.of(2025, 1, 1, 12, 00, 00))
-            .recruitEnd(LocalDateTime.of(2025, 2, 2, 12, 00, 00))
+            .recruitStart(LocalDateTime.of(2025, 1, 1, 12, 0, 0))
+            .recruitEnd(LocalDateTime.of(2025, 2, 2, 12, 0, 0))
             .title("모집글 제목")
             .content("그리디 모집글")
             .isAlwaysRecruiting(false)
@@ -47,8 +47,8 @@ public class Fixture {
     public static Recruitment createRecruitmentOfAugust(Club club) {
         return Recruitment.builder()
             .club(club)
-            .recruitStart(LocalDateTime.of(2025, 8, 1, 12, 00, 00))
-            .recruitEnd(LocalDateTime.of(2025, 9, 2, 12, 00, 00))
+            .recruitStart(LocalDateTime.of(2025, 8, 1, 12, 0, 0))
+            .recruitEnd(LocalDateTime.of(2025, 9, 2, 12, 0, 0))
             .title("8월 모집글")
             .content("그리디 모집글")
             .isAlwaysRecruiting(false)
