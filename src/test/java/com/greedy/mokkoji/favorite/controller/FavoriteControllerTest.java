@@ -198,7 +198,7 @@ public class FavoriteControllerTest extends ControllerTest {
 
         RecruitClubsResponse recruitClubResponse = recruitList.get(0);
 
-        assertThat(recruitClubResponse.clubId()).isEqualTo(1L);
+        assertThat(recruitClubResponse.clubId()).isEqualTo(favoriteClub.getId());
         assertThat(recruitClubResponse.clubName()).isEqualTo("그리디");
         assertThat(recruitClubResponse.recruitStart()).isEqualTo(LocalDateTime.of(2025, 1, 1, 12, 0, 0));
         assertThat(recruitClubResponse.recruitEnd()).isEqualTo(LocalDateTime.of(2025, 2, 2, 12, 0, 0));
@@ -228,7 +228,7 @@ public class FavoriteControllerTest extends ControllerTest {
 
         RecruitClubsResponse recruitClubResponse = recruitList.get(0);
 
-        assertThat(recruitClubResponse.clubId()).isEqualTo(1L);
+        assertThat(recruitClubResponse.clubId()).isEqualTo(favoriteClub.getId());
         assertThat(recruitClubResponse.clubName()).isEqualTo("그리디");
         assertThat(recruitClubResponse.recruitStart()).isEqualTo(LocalDateTime.of(2025, 8, 1, 12, 0, 0));
         assertThat(recruitClubResponse.recruitEnd()).isEqualTo(LocalDateTime.of(2025, 9, 2, 12, 0, 0));
@@ -258,7 +258,7 @@ public class FavoriteControllerTest extends ControllerTest {
 
         RecruitClubsResponse recruitClubResponse = recruitList.get(0);
 
-        assertThat(recruitClubResponse.clubId()).isEqualTo(1L);
+        assertThat(recruitClubResponse.clubId()).isEqualTo(favoriteClub.getId());
         assertThat(recruitClubResponse.clubName()).isEqualTo("그리디");
         assertThat(recruitClubResponse.recruitStart()).isEqualTo(LocalDateTime.of(2025, 8, 1, 12, 0, 0));
         assertThat(recruitClubResponse.recruitEnd()).isEqualTo(LocalDateTime.of(2025, 9, 2, 12, 0, 0));
