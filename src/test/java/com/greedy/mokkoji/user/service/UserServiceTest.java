@@ -3,14 +3,19 @@ package com.greedy.mokkoji.user.service;
 import com.greedy.mokkoji.api.external.sejong.SejongLoginRestClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -181,5 +186,71 @@ public class UserServiceTest {
 
         // then
         assertThat(user.getEmail()).isEqualTo("updated@email.com");
+    }
+
+    @Test
+    @DisplayName("사용자의 역할을 조회할 수 있다.")
+    void getUserRole() {
+        // given
+        Long userId = 1L;
+
+        User user = User.builder()
+            .name("세종")
+            .grade("4")
+            .studentId("학번")
+            .department("컴공과")
+            .role(UserRole.GREEDY_ADMIN)
+            .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        UserRoleResponse actualRole = userService.getUserRole(userId);
+
+        // then
+        assertThat(actualRole.role()).isEqualTo(UserRole.GREEDY_ADMIN.toString());
+    }
+
+    @Test
+    @DisplayName("사용자가 회장으로 관리 중인 동아리를 조회할 수 있다.")
+    void getUserManageClubs() {
+        // given
+        Long userId = 1L;
+
+        User user = User.builder()
+            .name("모꼬지")
+            .studentId("12341234")
+            .grade("4")
+            .department("컴퓨터공학과")
+            .email("모꼬지@test.com")
+            .role(UserRole.GREEDY_ADMIN)
+            .build();
+
+        Club club1 = Club.builder()
+            .name("그리디1")
+            .clubMasterStudentId("12341234")
+            .build();
+
+        Club club2 = Club.builder()
+            .name("그리디2")
+            .clubMasterStudentId("12341234")
+            .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(clubRepository.findByClubMasterStudentId(user.getStudentId())).thenReturn(List.of(club1, club2));
+
+        UserManageClubsResponse expectedResponse = new UserManageClubsResponse(
+            List.of(
+                new UserManageClubResponse(club1.getId(), club1.getName()),
+                new UserManageClubResponse(club2.getId(), club2.getName())
+            )
+        );
+
+        // when
+        UserManageClubsResponse actualResponse = userService.getUserManageClubs(userId);
+
+        // then
+        assertThat(actualResponse.clubs()).hasSize(2);
+        assertThat(actualResponse).usingRecursiveComparison().isEqualTo(expectedResponse);
     }
 }
