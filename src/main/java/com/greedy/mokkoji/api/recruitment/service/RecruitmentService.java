@@ -2,13 +2,14 @@ package com.greedy.mokkoji.api.recruitment.service;
 
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.AllRecruitmentResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.ClubPreviewResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.AllRecruitment.RecruitmentPreviewResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.ClubPreviewResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.RecruitmentPreviewResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteRecruitmentResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.recentRecruitment.RecentRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -34,10 +35,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +56,7 @@ public class RecruitmentService {
             final String content,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
-            final int imageCount,
+            final List<String> imageNames,
             final String recruitForm,
             final boolean isAlwaysRecruiting) {
 
@@ -68,7 +66,7 @@ public class RecruitmentService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
 
         Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
-        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageCount);
+        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageNames);
 
         return CreateRecruitmentResponse.of(recruitment.getId(), uploadImageUrls);
     }
@@ -81,8 +79,7 @@ public class RecruitmentService {
             final String content,
             final LocalDateTime recruitStart,
             final LocalDateTime recruitEnd,
-            final int newImageCount,
-            final List<String> deleteImageKeys,
+            final List<String> imageNames,
             final String recruitForm,
             final boolean isAlwaysRecruiting
     ) {
@@ -93,9 +90,8 @@ public class RecruitmentService {
 
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
 
-        List<String> deleteImageUrls = deleteSpecificImages(deleteImageKeys);
-        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, newImageCount);
-
+        List<String> deleteImageUrls = deleteImages(recruitmentId);
+        List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageNames);
 
         return UpdateRecruitmentResponse.of(recruitment.getId(), deleteImageUrls, uploadImageUrls);
     }
@@ -137,6 +133,48 @@ public class RecruitmentService {
     }
 
     @Transactional
+    public RecentRecruitmentOfClubResponse getRecentRecruitmentOfClub(final Long clubId, final Long userId) {
+
+        Optional<Recruitment> recentRecruitment = recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(clubId);
+
+        Recruitment recruitment = recentRecruitment.orElseGet(() ->
+                recruitmentRepository.findTopByClubIdAndIsAlwaysRecruitingOrderByUpdatedAtDesc(clubId, true)
+                        .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT))
+        );
+
+        Club club = recruitment.getClub();
+
+        List<RecruitmentImage> recruitmentImages = recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(
+                recruitment.getId());
+
+        List<String> imageUrls = recruitmentImages.stream()
+                .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
+                .toList();
+
+        Boolean isFavorite = isFavorite(userId, club.getId());
+
+        return RecentRecruitmentOfClubResponse.of(
+                recruitment.getId(),
+                recruitment.getTitle(),
+                club.getName(),
+                appDataS3Client.getPublicUrl(club.getLogo()),
+                club.getId(),
+                recruitment.getContent(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd(),
+                RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                recruitment.getCreatedAt(),
+                imageUrls,
+                recruitment.getRecruitForm(),
+                isFavorite,
+                club.getInstagram(),
+                club.getClubCategory().getDescription(),
+                recruitment.isAlwaysRecruiting()
+        );
+    }
+
+
+    @Transactional
     public SpecificRecruitmentResponse getSpecificRecruitment(final Long userId, final Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findRecruitmentById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
@@ -145,7 +183,7 @@ public class RecruitmentService {
                 recruitmentId);
 
         List<String> imageUrls = recruitmentImages.stream()
-                .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
+                .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
                 .toList();
 
         Club club = recruitment.getClub();
@@ -154,7 +192,7 @@ public class RecruitmentService {
                 recruitment.getId(),
                 recruitment.getTitle(),
                 club.getName(),
-                appDataS3Client.getPresignedUrl(club.getLogo()),
+                appDataS3Client.getPublicUrl(club.getLogo()),
                 club.getId(),
                 recruitment.getContent(),
                 recruitment.getRecruitStart(),
@@ -231,16 +269,17 @@ public class RecruitmentService {
         return recruitment;
     }
 
-    private List<String> uploadRecruitmentImages(Recruitment recruitment, int imageCount) {
+    private List<String> uploadRecruitmentImages(Recruitment recruitment, List<String> imageNames) {
         List<String> presignedUrls = new ArrayList<>();
 
-        if (imageCount == 0) {
+        if (imageNames.isEmpty() && imageNames == null) {
             return presignedUrls;
         }
 
         List<RecruitmentImage> recruitmentImages = new ArrayList<>();
-        for (int i = 0; i < imageCount; i++) {
-            String imageKey = extractImageKey(recruitment);
+
+        for (String imageName : imageNames) {
+            String imageKey = extractImageKey(recruitment, imageName);
             String presignedPutUrl = appDataS3Client.getPresignedPutUrl(imageKey);
             presignedUrls.add(presignedPutUrl);
 
@@ -252,31 +291,19 @@ public class RecruitmentService {
         }
 
         recruitmentImageRepository.saveAll(recruitmentImages);
-
         return presignedUrls;
     }
 
-    private String extractImageKey(Recruitment recruitment) {
+    private String extractImageKey(Recruitment recruitment, String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        String nextDot = fileName.substring(dotIndex); //jpg와 같은 확장자 부분
+
         String uuid = UUID.randomUUID().toString();
-        String fileName = uuid + ".jpg";
+        fileName = uuid + nextDot;
         Club club = recruitment.getClub();
 
         String imageKey = String.format("recruitment-image/%d/%d/%s", club.getId(), recruitment.getId(), fileName);
         return imageKey;
-    }
-
-    private List<String> deleteSpecificImages(List<String> deleteImageKeys) {
-        if (deleteImageKeys == null || deleteImageKeys.isEmpty()) {
-            return List.of();
-        }
-
-        List<RecruitmentImage> imagesToDelete = recruitmentImageRepository.findAllByImageIn(deleteImageKeys);
-        List<String> deleteImageUrls = imagesToDelete.stream()
-                .map(img -> appDataS3Client.getPresignedDeleteUrl(img.getImage()))
-                .toList();
-
-        recruitmentImageRepository.deleteAll(imagesToDelete);
-        return deleteImageUrls;
     }
 
     private List<String> deleteImages(Long recruitmentId) {
@@ -294,7 +321,7 @@ public class RecruitmentService {
     private String getFirstImageUrl(Long recruitmentId) {
         return recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(recruitmentId).stream()
                 .findFirst()
-                .map(image -> appDataS3Client.getPresignedUrl(image.getImage()))
+                .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
                 .orElse(null);
     }
 
@@ -314,7 +341,7 @@ public class RecruitmentService {
                 recruitment.getClub().getDescription(),
                 recruitment.getClub().getClubCategory(),
                 recruitment.getClub().getClubAffiliation(),
-                appDataS3Client.getPresignedUrl(recruitment.getClub().getLogo())
+                appDataS3Client.getPublicUrl(recruitment.getClub().getLogo())
         );
 
         return new RecruitmentPreviewResponse(

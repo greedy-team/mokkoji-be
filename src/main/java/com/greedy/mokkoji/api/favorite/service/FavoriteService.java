@@ -72,7 +72,7 @@ public class FavoriteService {
                             club.getDescription(),
                             recruitment != null ? recruitment.getRecruitStart() : null,
                             recruitment != null ? recruitment.getRecruitEnd() : null,
-                            appDataS3Client.getPresignedUrl(club.getLogo()),
+                            appDataS3Client.getPublicUrl(club.getLogo()),
                             true
                     );
                 }).toList();
@@ -108,14 +108,14 @@ public class FavoriteService {
         final List<Recruitment> recruitments = recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(favoriteClubIds);
 
         return recruitments.stream()
-            .filter(recruitment -> isSameMonth(recruitment, yearMonth))
-            .map(recruitment -> RecruitClubsResponse.of(
-                recruitment.getClub().getId(),
-                recruitment.getClub().getName(),
-                recruitment.getRecruitStart(),
-                recruitment.getRecruitEnd()
-            ))
-            .toList();
+                .filter(recruitment -> isSameMonth(recruitment, yearMonth))
+                .map(recruitment -> RecruitClubsResponse.of(
+                        recruitment.getClub().getId(),
+                        recruitment.getClub().getName(),
+                        recruitment.getRecruitStart(),
+                        recruitment.getRecruitEnd()
+                ))
+                .toList();
     }
 
     private boolean isSameMonth(Recruitment recruitment, YearMonth yearMonth) {

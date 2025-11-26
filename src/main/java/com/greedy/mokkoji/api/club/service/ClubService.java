@@ -95,7 +95,7 @@ public class ClubService {
                 club.getClubCategory().name(),
                 club.getClubAffiliation().name(),
                 club.getDescription(),
-                appDataS3Client.getPresignedUrl(club.getLogo()),
+                appDataS3Client.getPublicUrl(club.getLogo()),
                 club.getInstagram()
         );
     }
@@ -114,7 +114,7 @@ public class ClubService {
             changeClubMasterRole(club.getClubMasterStudentId(), clubMasterStudentId);
         }
 
-        club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, logo, instagram);
+        club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, newLogoKey, instagram);
 
         String updateLogo = generatePresignedPutUrl(newLogoKey);
         String deleteLogo = generatePresignedDeleteUrl(newLogoKey, oldLogoKey);
@@ -147,7 +147,7 @@ public class ClubService {
                 club.getDescription(),
                 recruitment != null ? recruitment.getRecruitStart() : null,
                 recruitment != null ? recruitment.getRecruitEnd() : null,
-                appDataS3Client.getPresignedUrl(club.getLogo()),
+                appDataS3Client.getPublicUrl(club.getLogo()),
                 isFavorite,
                 club.getInstagram(),
                 recruitment != null ? recruitment.getContent() : null
@@ -167,7 +167,7 @@ public class ClubService {
                             club.getDescription(),
                             recruitment != null ? recruitment.getRecruitStart() : null,
                             recruitment != null ? recruitment.getRecruitEnd() : null,
-                            appDataS3Client.getPresignedUrl(club.getLogo()),
+                            appDataS3Client.getPublicUrl(club.getLogo()),
                             isFavorite);
                 })
                 .sorted(getFavoriteComparator())
@@ -227,7 +227,7 @@ public class ClubService {
 
     @Nullable
     private String extractLogoKey(Long clubId, String logo) {
-        if (logo != null && !logo.isBlank()) {
+        if (logo == null || logo.isBlank()) {
             return null;
         }
 
