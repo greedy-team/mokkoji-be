@@ -40,7 +40,7 @@ public class Recruitment extends BaseTime {
     @Column(name = "recruit_form", columnDefinition = "text")
     private String recruitForm;
 
-    @Column(name = "is_always_recruiting", columnDefinition = "tinyint(1)", nullable = false)
+    @Column(name = "is_always_recruiting", columnDefinition = "BOOLEAN", nullable = false)
     private boolean isAlwaysRecruiting;
 
     @Builder
