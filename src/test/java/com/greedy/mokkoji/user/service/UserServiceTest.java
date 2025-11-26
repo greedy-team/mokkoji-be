@@ -54,7 +54,8 @@ public class UserServiceTest {
     JwtUtil jwtUtil;
 
     @Test
-    void 로그인을_할_수_있다() {
+    @DisplayName("로그인을 할 수 있다.")
+    void login() {
         //given
         final String studentId = "학번";
         final String password = "비밀번호";
@@ -103,7 +104,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("이미 등록된 사용자가 로그인하면 기존 User객체가 반환된다.")
+    @DisplayName("이미 등록된 사용자가 로그인 시 기존 User 객체가 반환된다.")
     void ReturnUserWhenNotFirstLogin() {
         // given
         String studentId = "학번";
@@ -127,7 +128,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("access토큰을 재발급 받을 수 있다.")
+    @DisplayName("AccessToken을 재발급 받을 수 있다.")
     void refreshAccessToken() {
         // given
         Long userId = 1L;
@@ -146,7 +147,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("access토큰 재발급 시 잘못된 refresh토큰이면 예외가 발생한다.")
+    @DisplayName("AccessToken 재발급 시 잘못된 RefreshToken이면 예외가 발생한다.")
     void wrongRefreshTokenWhenRefreshAccessToken() {
         // given
         Long userId = 1L;
@@ -162,23 +163,23 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("User정보를 업데이트 할 수 있다.")
-    void UpdateUser() {
+    @DisplayName("User의 이메일 정보를 업데이트 할 수 있다.")
+    void updateEmail() {
         // given
         final User user = User.builder()
                 .name("세종")
                 .grade("4")
                 .studentId("학번")
                 .department("컴공과")
-                .email("a@email.com")
+                .email("origin@email.com")
                 .build();
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         // when
-        userService.updateEmail(1L, "b@email.com");
+        userService.updateEmail(1L, "updated@email.com");
 
         // then
-        assertThat(user.getEmail()).isEqualTo("b@email.com");
+        assertThat(user.getEmail()).isEqualTo("updated@email.com");
     }
 }

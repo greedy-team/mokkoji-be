@@ -28,10 +28,10 @@ import static org.mockito.Mockito.when;
 
 public class UserControllerTest extends ControllerTest {
 
-    @Value("${test.studentId}")
+    @Value("${account.studentId}")
     private String studentId;
 
-    @Value("${test.password}")
+    @Value("${account.password}")
     private String password;
 
     private User user;
@@ -50,7 +50,7 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 성공 테스트")
+    @DisplayName("올바른 학사정보시스템 아이디 및 비밀번호로 로그인 성공 여부를 검증한다.")
     void loginSuccessful() {
         //given
         final Map<String, String> params = new HashMap<>();
@@ -80,12 +80,12 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 실패 테스트")
+    @DisplayName("올바르지 않은 학사정보시스템 아이디 및 비밀번호로 로그인 실패 여부를 검증한다.")
     void loginFailed() {
         //given
         Map<String, String> params = new HashMap<>();
-        params.put("studentId", "12345678");
-        params.put("password", "password");
+        params.put("studentId", "invalidId");
+        params.put("password", "invalidPassword");
 
         //when & then
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
@@ -122,7 +122,7 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("로그아웃 성공 테스트")
+    @DisplayName("로그아웃 성공 여부를 검증한다.")
     void logout() {
         // given
         doNothing().when(tokenService).deleteRefreshToken(any());
@@ -141,7 +141,7 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 정보를 가져오기 성공 테스트")
+    @DisplayName("사용자 정보를 조회 성공 여부를 검증한다.")
     void getUserInfo() {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
@@ -164,7 +164,7 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 이메일 업데이트 성공 테스트")
+    @DisplayName("사용자 이메일 업데이트 성공 여부를 검증한다.")
     void updateUserInfo() {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
@@ -187,19 +187,18 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 이메일 업데이트 실패 테스트")
+    @DisplayName("유효하지 않은 이메일 형식일 경우를 검증한다.")
     void updateUserInfoWithIncorrectEmail() {
         // given
-        String authorizationForBearer = authorizationForBearerAccessToken(user);
-        String updatedEmail = "updatedEmailtest.com";
-        Map<String, String> body = new HashMap<>();
-        body.put("email", updatedEmail);
+        final String authorizationForBearer = authorizationForBearerAccessToken(user);
+        final String invalidUpdatedEmail = "updatedEmail.com";
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(invalidUpdatedEmail);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("Authorization", authorizationForBearer)
-                .body(body)
+                .body(updateUserInformationRequest)
                 .when().put(prefixUrl + "/users")
                 .then().log().all()
                 .extract();
