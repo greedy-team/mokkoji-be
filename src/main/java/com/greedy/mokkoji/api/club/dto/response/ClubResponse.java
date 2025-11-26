@@ -1,21 +1,23 @@
 package com.greedy.mokkoji.api.club.dto.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Builder
+@Schema(description = "동아리 목록 응답")
 public record ClubResponse(
-        Long id,
-        String name,
-        String category,
-        String affiliation,
-        String description,
-        String recruitStartDate,
-        String recruitEndDate,
-        String logo,
-        Boolean isFavorite
+        @Schema(description = "동아리 ID", example = "1") Long id,
+        @Schema(description = "동아리명", example = "그리디") String name,
+        @Schema(description = "동아리 카테고리", example = "학술/교양") String category,
+        @Schema(description = "동아리 소속", example = "정인준/가인준") String affiliation,
+        @Schema(description = "동아리 소개", example = "세종대 최고의 코딩 동아리") String description,
+        @Schema(description = "모집 시작일", example = "2025-11-25") String recruitStartDate,
+        @Schema(description = "모집 종료일", example = "2025-12-04") String recruitEndDate,
+        @Schema(description = "동아리 로고", example = "greedy_logo.jpg") String logo,
+        @Schema(description = "즐겨찾기 여부", example = "true") Boolean isFavorite
 ) {
     public static ClubResponse of(
             final Long id,
