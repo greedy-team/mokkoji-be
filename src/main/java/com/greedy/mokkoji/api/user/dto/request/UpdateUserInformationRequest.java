@@ -1,21 +1,13 @@
 package com.greedy.mokkoji.api.user.dto.request;
 
-import java.util.regex.Pattern;
+import jakarta.validation.constraints.Pattern;
 
-public record UpdateUserInformationRequest(String email) {
+public record UpdateUserInformationRequest(
+    @Pattern(
+        regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+        message = "유효하지 않은 이메일 형식입니다."
+    )
+    String email
+) {
 
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
-    );
-
-    public UpdateUserInformationRequest(String email) {
-        validateEmail(email);
-        this.email = email;
-    }
-
-    private void validateEmail(String email) {
-        if (email == null || !EMAIL_PATTERN.matcher(email).matches()) {
-            throw new IllegalArgumentException("유효하지 않은 이메일 형식입니다: " + email);
-        }
-    }
 }
