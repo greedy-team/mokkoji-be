@@ -7,6 +7,7 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 
+import com.greedy.mokkoji.enums.user.UserRole;
 import java.time.LocalDateTime;
 
 public class Fixture {
@@ -19,6 +20,7 @@ public class Fixture {
                 .grade("4")
                 .department("컴퓨터공학과")
                 .email("모꼬지@test.com")
+                .role(UserRole.GREEDY_ADMIN)
                 .build();
     }
 
@@ -30,6 +32,7 @@ public class Fixture {
                 .logo(FIXTURE_CLUB_LOGO)
                 .description("세종대 최고의 코딩 동아리")
                 .instagram("www.그리디.com")
+                .clubMasterStudentId("12341234")
                 .build();
     }
 
