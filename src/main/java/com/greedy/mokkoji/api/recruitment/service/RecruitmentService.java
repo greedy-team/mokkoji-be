@@ -114,7 +114,7 @@ public class RecruitmentService {
         List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
 
         List<RecruitmentOfClubResponse> recruitmentList = recruitments.stream()
-                .sorted(Comparator.comparing(Recruitment::getRecruitEnd).reversed())
+                .sorted(Comparator.comparing(Recruitment::getId).reversed())
                 .map(recruitment -> RecruitmentOfClubResponse.builder()
                         .id(recruitment.getId())
                         .title(recruitment.getTitle())
