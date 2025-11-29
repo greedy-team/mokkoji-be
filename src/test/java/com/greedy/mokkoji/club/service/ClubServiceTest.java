@@ -222,7 +222,7 @@ class ClubServiceTest {
         BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.of(clubWithoutRecruitment));
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(clubId)).willReturn(Optional.empty());
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId)).willReturn(false);
-        BDDMockito.given(appDataS3Client.getPresignedUrl(clubWithoutRecruitment.getLogo())).willReturn("testLogo3");
+        BDDMockito.given(appDataS3Client.getPublicUrl(clubWithoutRecruitment.getLogo())).willReturn("testLogo3");
 
         //when
         ClubDetailResponse response = clubService.findClub(userId, clubId);
@@ -366,7 +366,7 @@ class ClubServiceTest {
 
         BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(clubMasterUser));
         BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.of(club1));
-        BDDMockito.given(appDataS3Client.getPresignedUrl(club1.getLogo())).willReturn("testLogo1");
+        BDDMockito.given(appDataS3Client.getPublicUrl(club1.getLogo())).willReturn("testLogo1");
 
         //when
         ClubManageDetailResponse response = clubService.getClubManageDetail(userId, clubId);
@@ -524,8 +524,8 @@ class ClubServiceTest {
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(clubId2)).willReturn(Optional.ofNullable(recruitment2));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(false);
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId2)).willReturn(true);
-        BDDMockito.given(appDataS3Client.getPresignedUrl(club1.getLogo())).willReturn("testLogo1");
-        BDDMockito.given(appDataS3Client.getPresignedUrl(club2.getLogo())).willReturn("testLogo2");
+        BDDMockito.given(appDataS3Client.getPublicUrl(club1.getLogo())).willReturn("testLogo1");
+        BDDMockito.given(appDataS3Client.getPublicUrl(club2.getLogo())).willReturn("testLogo2");
 
         //when
         final ClubsPaginationResponse response = clubService.findClubsByConditions(userId, null, null, null, null, pageable);
