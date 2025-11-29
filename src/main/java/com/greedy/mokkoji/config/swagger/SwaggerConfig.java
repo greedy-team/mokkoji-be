@@ -2,13 +2,14 @@ package com.greedy.mokkoji.config.swagger;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.customizers.OperationCustomizer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
@@ -28,26 +29,19 @@ import java.util.List;
 public class SwaggerConfig {
 
     private final Environment env;
+    @Value("${swagger.base-url}")
+    private String swaggerServerUrl;
 
     public SwaggerConfig(Environment env) {
         this.env = env;
     }
 
+
     @Bean
     public OpenApiCustomizer serverOpenApiCustomizer() {
-        return openApi -> {
-            String serverUrl;
-
-            if (env.acceptsProfiles("dev")) {
-                serverUrl = "http://43.200.8.39:8080/";
-            } else {
-                serverUrl = "http://localhost:8080/";
-            }
-
-            openApi.setServers(List.of(
-                    new io.swagger.v3.oas.models.servers.Server().url(serverUrl)
-            ));
-        };
+        return openApi -> openApi.setServers(
+                List.of(new Server().url(swaggerServerUrl))
+        );
     }
 
     @Bean
