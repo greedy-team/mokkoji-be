@@ -15,8 +15,19 @@ public class SwaggerDescription {
     public String getDescription() {
         return """
                 <div style="text-align:center; font-size:17px; font-weight:bold; margin-bottom:10px;">
-                <b>🔗 local Swagger:</b> %s/swagger-ui/index.html<br>
-                <b>🔗 dev Swagger:</b> %s/swagger-ui/index.html<br><br>
+                
+                <a href="%s/swagger-ui/index.html" target="_blank"
+                   style="text-decoration:none; cursor:pointer;">
+                    📎 <b>Local Swagger로 바로가기</b>
+                </a>
+                <br>
+                
+                <a href="%s/swagger-ui/index.html" target="_blank"
+                   style="text-decoration:none; cursor:pointer;">
+                    📎 <b>Dev Swagger로 바로가기</b>
+                </a>
+                
+                <br>
                 <b>< 공통 ENUM 용어 정리 ></b>
                 </div>
                 

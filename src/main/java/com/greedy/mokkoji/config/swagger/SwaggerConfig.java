@@ -2,7 +2,6 @@ package com.greedy.mokkoji.config.swagger;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OpenApiCustomizer;
@@ -51,8 +50,7 @@ public class SwaggerConfig {
                 .info(new io.swagger.v3.oas.models.info.Info()
                         .title("mokkoji API 명세서")
                         .version("1.0.0")
-                        .description(swaggerDescription.getDescription())  // 💥 동적으로 ENUM HTML 적용
-                        .contact(new Contact().name("Mokkoji Dev Team").email("mokkoji@example.com"))
+                        .description(swaggerDescription.getDescription())
                 );
     }
 
