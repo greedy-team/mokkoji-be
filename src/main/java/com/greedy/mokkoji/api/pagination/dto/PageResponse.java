@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
-@Schema(description = "페이지네이션 정보")
 public record PageResponse(
         @Schema(example = "1") int page,
         @Schema(example = "10") int size,

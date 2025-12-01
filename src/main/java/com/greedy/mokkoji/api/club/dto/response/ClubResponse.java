@@ -7,17 +7,16 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Builder
-@Schema(description = "동아리 목록 응답")
 public record ClubResponse(
-        @Schema(description = "동아리 ID", example = "1") Long id,
-        @Schema(description = "동아리명", example = "그리디") String name,
-        @Schema(description = "동아리 카테고리", example = "학술/교양") String category,
-        @Schema(description = "동아리 소속", example = "정인준/가인준") String affiliation,
-        @Schema(description = "동아리 소개", example = "세종대 최고의 코딩 동아리") String description,
-        @Schema(description = "모집 시작일", example = "2025-11-25") String recruitStartDate,
-        @Schema(description = "모집 종료일", example = "2025-12-04") String recruitEndDate,
-        @Schema(description = "동아리 로고", example = "greedy_logo.jpg") String logo,
-        @Schema(description = "즐겨찾기 여부", example = "true") Boolean isFavorite
+        @Schema(example = "1") Long id,
+        @Schema(example = "그리디") String name,
+        @Schema(example = "학술/교양") String category,
+        @Schema(example = "정인준/가인준") String affiliation,
+        @Schema(example = "세종대 최고의 코딩 동아리") String description,
+        @Schema(example = "2025-11-25") String recruitStartDate,
+        @Schema(example = "2025-12-04") String recruitEndDate,
+        @Schema(example = "https://mokkoji-app-data.s3.ap-northeast-2.amazonaws.com/club-logo/1/greedy_{UUID}.jpg") String logo,
+        @Schema(example = "true") Boolean isFavorite
 ) {
     public static ClubResponse of(
             final Long id,

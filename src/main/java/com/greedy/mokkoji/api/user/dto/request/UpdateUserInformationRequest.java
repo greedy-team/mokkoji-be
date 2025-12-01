@@ -4,9 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.regex.Pattern;
 
-@Schema(description = "사용자 정보 수정 요청")
 public record UpdateUserInformationRequest(
-        @Schema(description = "이메일", example = "user@sejong.ac.kr") String email) {
+        @Schema(example = "user@sejong.ac.kr") String email) {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
