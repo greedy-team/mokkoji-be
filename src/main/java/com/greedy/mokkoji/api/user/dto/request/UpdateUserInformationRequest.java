@@ -1,8 +1,11 @@
 package com.greedy.mokkoji.api.user.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.regex.Pattern;
 
-public record UpdateUserInformationRequest(String email) {
+public record UpdateUserInformationRequest(
+        @Schema(example = "user@sejong.ac.kr") String email) {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"

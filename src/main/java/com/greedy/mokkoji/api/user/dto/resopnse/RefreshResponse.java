@@ -1,10 +1,11 @@
 package com.greedy.mokkoji.api.user.dto.resopnse;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
 public record RefreshResponse(
-        String accessToken
+        @Schema(example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...") String accessToken
 ) {
 
     public static RefreshResponse of(final String accessToken) {
