@@ -24,8 +24,11 @@ public class EmailNotificationChannel implements NotificationChannel {
     private static final String SUBJECT = "동아리 모집 시작";
     private static final String SENDER_NAME = "모꼬지";
     private final JavaMailSender mailSender;
+
     @Value("${spring.mail.username}")
     private String senderMail;
+    @Value("${mokkoji.base-url}")
+    private String baseUrl;
 
     private String generateHtmlText(
             final Long clubId,
@@ -47,7 +50,8 @@ public class EmailNotificationChannel implements NotificationChannel {
                 "<p>모꼬지에서 즐겨찾기하신 <strong>" + clubName + "</strong> 동아리가 신규 회원을 모집합니다.</p>" +
                 "<p>📅 <strong>모집 기간:</strong> " + recruitStart.format(formatter) + " ~ " + recruitEnd.format(formatter) + "</p>" +
                 "<p>지금 바로 지원하여 기회를 놓치지 마세요!</p>" +
-                "<a href='https://mokkoji.vercel.app/clubs/" + clubId + "' style='display: inline-block; padding: 10px 20px; margin-top: 20px; font-size: 16px; color: white; background-color: #2E86C1; text-decoration: none; border-radius: 5px;'>신청하러 가기</a>" +
+                "<a href='" + baseUrl + "/club/" + clubId + "' " +
+                "style='display: inline-block; padding: 10px 20px; margin-top: 20px; font-size: 16px; color: white; background-color: #2E86C1; text-decoration: none; border-radius: 5px;'>신청하러 가기</a>" +
                 "<p>감사합니다!<br>모꼬지 팀 드림</p>" +
                 "</body>" +
                 "</html>";
