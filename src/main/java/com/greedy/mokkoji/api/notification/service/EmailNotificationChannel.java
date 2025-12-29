@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
@@ -88,6 +89,7 @@ public class EmailNotificationChannel implements NotificationChannel {
         }
     }
 
+    @Async
     @Override
     public void sendNotification(
             final List<String> receiverMails,
@@ -98,7 +100,6 @@ public class EmailNotificationChannel implements NotificationChannel {
     ) {
         try {
             final MimeMessage mimeMessage = generateNotification(receiverMails, clubId, clubName, recruitStartTime, recruitEndTime);
-
             mailSender.send(mimeMessage);
         } catch (MailException e) {
             log.error("[MAIL SEND FAILED] : {}", e.getMessage());
