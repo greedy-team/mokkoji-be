@@ -71,7 +71,7 @@ public class EmailNotificationChannel implements NotificationChannel {
             helper.setFrom(senderMail, SENDER_NAME);
 
             final String[] receiverMailsS = receiverMails.toArray(String[]::new);
-            helper.setTo(receiverMailsS);
+            helper.setBcc(receiverMailsS);
 
             helper.setSubject(SUBJECT);
 
