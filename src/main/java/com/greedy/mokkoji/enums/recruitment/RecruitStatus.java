@@ -8,25 +8,35 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public enum RecruitStatus {
-    IMMINENT(0),
-    OPEN(1),
-    BEFORE(2),
-    CLOSED(3);
+    ALWAYS(0),
+    IMMINENT(1),
+    OPEN(2),
+    BEFORE(3),
+    CLOSED(4);
 
     private final int priority;
 
-    public static RecruitStatus from(LocalDateTime start, LocalDateTime end) {
+    public static RecruitStatus from(boolean isAlwaysRecruiting, LocalDateTime recruitStart, LocalDateTime recruitEnd) {
+        if (isAlwaysRecruiting) {
+            return ALWAYS;
+        }
+
         LocalDateTime now = LocalDateTime.now();
 
-        if (now.isBefore(start)) {
+        if (now.isBefore(recruitStart)) {
             return BEFORE;
-        } else if (now.isAfter(end)) {
-            return CLOSED;
-        } else if (now.isAfter(end.minusDays(7))) {
-            return IMMINENT;
-        } else {
-            return OPEN;
         }
+        if (now.isAfter(recruitEnd)) {
+            return CLOSED;
+        }
+        if (now.isAfter(recruitEnd.minusDays(7))) {
+            return IMMINENT;
+        }
+        return OPEN;
+    }
+
+    public static RecruitStatus from(LocalDateTime start, LocalDateTime end) {
+        return from(false, start, end);
     }
 }
 
