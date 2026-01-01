@@ -114,14 +114,20 @@ public class RecruitmentService {
         List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
 
         List<RecruitmentOfClubResponse> recruitmentList = recruitments.stream()
-                .sorted(Comparator.comparing(Recruitment::getRecruitEnd).reversed())
+                .sorted(clubRecruitmentsOrderByNewestFirstComparator())
                 .map(recruitment -> RecruitmentOfClubResponse.builder()
                         .id(recruitment.getId())
                         .title(recruitment.getTitle())
                         .content(recruitment.getContent())
                         .recruitStart(recruitment.getRecruitStart())
                         .recruitEnd(recruitment.getRecruitEnd())
-                        .status(RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()))
+                        .status(
+                            RecruitStatus.from(
+                                recruitment.isAlwaysRecruiting(),
+                                recruitment.getRecruitStart(),
+                                recruitment.getRecruitEnd()
+                            )
+                        )
                         .createdAt(recruitment.getCreatedAt())
                         .firstImage(getFirstImageUrl(recruitment.getId()))
                         .isAlwaysRecruiting(recruitment.isAlwaysRecruiting())
@@ -162,7 +168,7 @@ public class RecruitmentService {
                 recruitment.getContent(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
-                RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
                 recruitment.getCreatedAt(),
                 imageUrls,
                 recruitment.getRecruitForm(),
@@ -197,7 +203,7 @@ public class RecruitmentService {
                 recruitment.getContent(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
-                RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
                 recruitment.getCreatedAt(),
                 imageUrls,
                 recruitment.getRecruitForm(),
@@ -350,7 +356,7 @@ public class RecruitmentService {
                 recruitment.getTitle(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
-                RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
                 isFavorite,
                 recruitment.isAlwaysRecruiting()
         );
@@ -359,16 +365,22 @@ public class RecruitmentService {
     // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
     private Comparator<RecruitmentPreviewResponse> getFinalComparator(Long userId) {
         Comparator<RecruitmentPreviewResponse> comparator =
-                Comparator.comparing(
-                        (RecruitmentPreviewResponse r) ->
-                                RecruitStatus.from(r.recruitStart(), r.recruitEnd()).getPriority()
-                ).thenComparing(RecruitmentPreviewResponse::recruitEnd);
+            Comparator.comparing(
+                    (RecruitmentPreviewResponse response) ->
+                        RecruitStatus.from(response.isAlwaysRecruiting(), response.recruitStart(), response.recruitEnd()).getPriority()
+                )
+                .thenComparing(RecruitmentPreviewResponse::recruitEnd);
 
         if (userId != null) {
             comparator = Comparator.comparing(RecruitmentPreviewResponse::isFavorite).reversed()
-                    .thenComparing(comparator);
+                .thenComparing(comparator);
         }
 
         return comparator;
+    }
+
+    private Comparator<Recruitment> clubRecruitmentsOrderByNewestFirstComparator() {
+        return Comparator.comparing(Recruitment::getCreatedAt).reversed()
+            .thenComparing(Recruitment::getId, Comparator.reverseOrder());
     }
 }
