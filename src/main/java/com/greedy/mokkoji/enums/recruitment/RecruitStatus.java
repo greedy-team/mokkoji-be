@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public enum RecruitStatus {
-    ALWAYS(0),
-    IMMINENT(1),
-    OPEN(2),
+    IMMINENT(0),
+    OPEN(1),
+    ALWAYS(2),
     BEFORE(3),
     CLOSED(4);
 
