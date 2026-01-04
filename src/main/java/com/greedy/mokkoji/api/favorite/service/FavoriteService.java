@@ -61,7 +61,7 @@ public class FavoriteService {
         List<ClubResponse> clubResponses = favorites.stream()
                 .map(favorite -> {
                     final Club club = favorite.getClub();
-                    Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(club.getId())
+                    Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(club.getId())
                             .orElse(null);
 
                     return ClubResponse.of(

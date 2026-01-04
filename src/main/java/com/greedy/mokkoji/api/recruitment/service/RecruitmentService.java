@@ -140,10 +140,10 @@ public class RecruitmentService {
     @Transactional
     public RecentRecruitmentOfClubResponse getRecentRecruitmentOfClub(final Long clubId, final Long userId) {
 
-        Optional<Recruitment> recentRecruitment = recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(clubId);
+        Optional<Recruitment> recentRecruitment = recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId);
 
         Recruitment recruitment = recentRecruitment.orElseGet(() ->
-                recruitmentRepository.findTopByClubIdAndIsAlwaysRecruitingOrderByUpdatedAtDesc(clubId, true)
+                recruitmentRepository.findTopByClubIdAndIsAlwaysRecruitingOrderByCreatedAtDesc(clubId, true)
                         .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT))
         );
 
