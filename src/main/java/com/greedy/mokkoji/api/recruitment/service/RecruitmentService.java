@@ -30,7 +30,6 @@ import com.greedy.mokkoji.enums.user.UserRole;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -222,25 +221,9 @@ public class RecruitmentService {
         Page<Recruitment> recruitmentPage = recruitmentRepository.findRecruitments(affiliation, category, pageable);
         List<Recruitment> filteredRecruitments = recruitmentPage.getContent();
 
-        // 페이징 처리
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), filteredRecruitments.size());
-        List<Recruitment> pagedRecruitments = filteredRecruitments.subList(start, end);
-        Page<Recruitment> paged = new PageImpl<>(pagedRecruitments, pageable, filteredRecruitments.size());
+        List<RecruitmentPreviewResponse> recruitmentResponses = mapToRecruitmentResponses(userId, filteredRecruitments);
 
-        // DTO 변환 및 정렬
-        List<RecruitmentPreviewResponse> recruitmentResponses = paged.stream()
-                .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
-                .sorted(getFinalComparator(userId))
-                .toList();
-
-        // 페이징 정보 생성
-        PageResponse pageResponse = PageResponse.of(
-                paged.getNumber() + 1,
-                paged.getSize(),
-                paged.getTotalPages(),
-                (int) paged.getTotalElements()
-        );
+        PageResponse pageResponse = createPageResponse(recruitmentPage);
 
         return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
     }
@@ -336,6 +319,22 @@ public class RecruitmentService {
             return false;
         }
         return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
+    }
+
+    private List<RecruitmentPreviewResponse> mapToRecruitmentResponses(Long userId, List<Recruitment> filteredRecruitments) {
+        return filteredRecruitments.stream()
+            .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
+            .sorted(getFinalComparator(userId))
+            .toList();
+    }
+
+    private static PageResponse createPageResponse(Page<Recruitment> recruitmentPage) {
+        return PageResponse.of(
+            recruitmentPage.getNumber() + 1,
+            recruitmentPage.getSize(),
+            recruitmentPage.getTotalPages(),
+            (int) recruitmentPage.getTotalElements()
+        );
     }
 
     private RecruitmentPreviewResponse mapToRecruitmentPreviewResponse(Long userId, Recruitment recruitment) {
