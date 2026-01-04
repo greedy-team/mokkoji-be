@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>, RecruitmentRepositoryCustom {
+
     @Query("SELECT r FROM Recruitment r WHERE FUNCTION('DATE', r.recruitStart) = :currentDate")
     List<Recruitment> findAllByRecruitStartToday(LocalDate currentDate);
 
@@ -28,9 +29,8 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
 
     List<Recruitment> findAllByClubId(final Long id);
 
-    Optional<Recruitment> findTopByClubIdOrderByUpdatedAtDesc(Long clubId);
+    Optional<Recruitment> findTopByClubIdOrderByCreatedAtDesc(Long clubId);
 
     //상시모집 중인 모집글 중 최신 updatedAt 공고 반환
-    Optional<Recruitment> findTopByClubIdAndIsAlwaysRecruitingOrderByUpdatedAtDesc(Long clubId, boolean isAlwaysRecruiting);
-
+    Optional<Recruitment> findTopByClubIdAndIsAlwaysRecruitingOrderByCreatedAtDesc(Long clubId, boolean isAlwaysRecruiting);
 }
