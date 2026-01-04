@@ -2,6 +2,7 @@ package com.greedy.mokkoji.common;
 
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
+import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,4 +21,7 @@ public class AbstractTest {
 
     @Autowired
     protected RecruitmentRepository recruitmentRepository;
+
+    @Autowired
+    protected RecruitmentImageRepository recruitmentImageRepository;
 }
