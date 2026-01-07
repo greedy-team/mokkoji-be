@@ -12,7 +12,7 @@ import java.util.concurrent.Executor;
 @Slf4j
 @Configuration
 @EnableAsync
-public class AsyncConfiguration implements AsyncConfigurer {
+public class AsyncConfig implements AsyncConfigurer {
 
     @Override
     public Executor getAsyncExecutor() {
