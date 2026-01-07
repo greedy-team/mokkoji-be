@@ -23,6 +23,7 @@ import java.util.List;
 public class EmailNotificationChannel implements NotificationChannel {
     private static final String SUBJECT = "동아리 모집 시작";
     private static final String SENDER_NAME = "모꼬지";
+    private static final String OFFICIAL_EMAIL = "noreply@mokkoji.com";
     private final JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
@@ -69,6 +70,7 @@ public class EmailNotificationChannel implements NotificationChannel {
             final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
             helper.setFrom(senderMail, SENDER_NAME);
+            helper.setTo(OFFICIAL_EMAIL);
 
             final String[] receiverMailsS = receiverMails.toArray(String[]::new);
             helper.setBcc(receiverMailsS);
