@@ -22,6 +22,16 @@ public class Fixture {
             .build();
     }
 
+    public static User createAnotherUser() {
+        return User.builder()
+            .name("다른사용자")
+            .studentId("87654321")
+            .grade("3")
+            .department("소프트웨어학과")
+            .email("another@test.com")
+            .build();
+    }
+
     public static Club createClub() {
         return Club.builder()
             .name("그리디")
