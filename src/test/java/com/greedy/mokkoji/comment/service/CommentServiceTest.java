@@ -109,17 +109,21 @@ public class CommentServiceTest {
     @DisplayName("동아리의 댓글 목록을 조회한다")
     void getComments() {
         //given
-        final Long userId = 1L;
+        final Long userId1 = 1L;
+        final Long userId2 = 2L;
         final Long clubId = 1L;
 
-        final User user = User.builder().build();
-        ReflectionTestUtils.setField(user, "id", userId);
+        final User user1 = User.builder().build();
+        ReflectionTestUtils.setField(user1, "id", userId1);
+
+        final User user2 = User.builder().build();
+        ReflectionTestUtils.setField(user2, "id", userId2);
 
         final Club club = Club.builder().build();
         ReflectionTestUtils.setField(club, "id", clubId);
 
         final Comment comment1 = Comment.builder()
-                .user(user)
+                .user(user1)
                 .club(club)
                 .rate(5.0)
                 .content("좋은 동아리입니다")
@@ -129,7 +133,7 @@ public class CommentServiceTest {
         ReflectionTestUtils.setField(comment1, "updatedAt", LocalDateTime.of(2025, 11, 1, 10, 0));
 
         final Comment comment2 = Comment.builder()
-                .user(user)
+                .user(user2)
                 .club(club)
                 .rate(4.0)
                 .content("추천합니다")
@@ -142,7 +146,7 @@ public class CommentServiceTest {
         BDDMockito.given(commentRepository.findAllByClub(club)).willReturn(List.of(comment1, comment2));
 
         //when
-        CommentListResponse response = commentService.getComments(userId, clubId);
+        CommentListResponse response = commentService.getComments(userId1, clubId);
 
         //then
         assertThat(response.comments()).hasSize(2);
