@@ -3,6 +3,7 @@ package com.greedy.mokkoji.comment.controller;
 import com.greedy.mokkoji.api.comment.dto.request.CommentCreateRequest;
 import com.greedy.mokkoji.api.comment.dto.request.CommentUpdateRequest;
 import com.greedy.mokkoji.api.comment.dto.response.CommentListResponse;
+import com.greedy.mokkoji.api.comment.dto.response.CommentResponse;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.common.response.APIErrorResponse;
@@ -12,11 +13,14 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,11 +67,11 @@ public class CommentControllerTest extends ControllerTest {
         final int statusCode = response.statusCode();
         assertThat(statusCode).isEqualTo(HttpStatus.CREATED.value());
 
-        final Comment createdComment = commentRepository.findAll().get(0);
-        assertThat(createdComment.getUser().getId()).isEqualTo(user.getId());
-        assertThat(createdComment.getClub().getId()).isEqualTo(club.getId());
-        assertThat(createdComment.getRate()).isEqualTo(5.0);
-        assertThat(createdComment.getContent()).isEqualTo("최고의 동아리입니다!");
+        List<Comment> createdComments = commentRepository.findAll();
+        assertThat(createdComments).hasSize(1);
+        assertThat(createdComments)
+                .extracting("rate", "content")
+                .containsExactlyInAnyOrder(Tuple.tuple(5.0, "최고의 동아리입니다!"));
     }
 
     @Test
@@ -141,11 +145,16 @@ public class CommentControllerTest extends ControllerTest {
 
         assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
         assertThat(actual.comments()).hasSize(2);
-        assertThat(actual.comments().get(0).content()).isEqualTo("좋은 동아리입니다");
-        assertThat(actual.comments().get(0).rate()).isEqualTo(5.0);
-        assertThat(actual.comments().get(0).isWriter()).isTrue();
-        assertThat(actual.comments().get(1).content()).isEqualTo("추천합니다");
-        assertThat(actual.comments().get(1).isWriter()).isFalse();
+        assertThat(actual.comments())
+                .extracting(
+                        CommentResponse::content,
+                        CommentResponse::rate,
+                        CommentResponse::isWriter
+                )
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple("좋은 동아리입니다", 5.0, true),
+                        Tuple.tuple("추천합니다", 4.0, false)
+                );
     }
 
     @Test

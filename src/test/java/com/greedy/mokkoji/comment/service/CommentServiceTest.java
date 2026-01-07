@@ -10,6 +10,7 @@ import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -150,11 +151,12 @@ public class CommentServiceTest {
 
         //then
         assertThat(response.comments()).hasSize(2);
-        assertThat(response.comments().get(0).id()).isEqualTo(1L);
-        assertThat(response.comments().get(0).content()).isEqualTo("좋은 동아리입니다");
-        assertThat(response.comments().get(0).rate()).isEqualTo(5.0);
-        assertThat(response.comments().get(0).isWriter()).isTrue();
-        assertThat(response.comments().get(1).id()).isEqualTo(2L);
+        assertThat(response.comments())
+                .extracting("id", "content", "rate", "isWriter")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple(1L, "좋은 동아리입니다", 5.0, true),
+                        Tuple.tuple(2L, "추천합니다", 4.0, false)
+                );
 
         BDDMockito.verify(clubRepository, times(1)).findById(clubId);
         BDDMockito.verify(commentRepository, times(1)).findAllByClub(club);
