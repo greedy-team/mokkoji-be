@@ -1,7 +1,5 @@
 package com.greedy.mokkoji.api.notification.service;
 
-import com.greedy.mokkoji.common.exception.MokkojiException;
-import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -10,13 +8,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR;
+import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR_SMTP;
+import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR_SMTP_MAIL;
 
 @Slf4j
 @Component
@@ -25,6 +26,7 @@ public class EmailNotificationChannel implements NotificationChannel {
     private static final String SUBJECT = "동아리 모집 시작";
     private static final String SENDER_NAME = "모꼬지";
     private final JavaMailSender mailSender;
+    private final DiscordNotifier discordNotifier;
 
     @Value("${spring.mail.username}")
     private String senderMail;
@@ -58,7 +60,8 @@ public class EmailNotificationChannel implements NotificationChannel {
                 "</html>";
     }
 
-    private MimeMessage generateNotification(
+    @Override
+    public void sendNotification(
             final List<String> receiverMails,
             final Long clubId,
             final String clubName,
@@ -78,32 +81,30 @@ public class EmailNotificationChannel implements NotificationChannel {
 
             final String text = generateHtmlText(clubId, clubName, recruitStartTime, recruitEndTime);
             helper.setText(text, true);
-
-            return mimeMessage;
-        } catch (MessagingException e) {
-            log.error("[MAIL GENERATING ERROR]: {}", e.getMessage());
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SMTP_MAIL);
-        } catch (UnsupportedEncodingException e) {
-            log.error("[Mail GENERATING ERROR FROM SENDER INFORMATION]: {}", e.getMessage());
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SMTP_MAIL);
-        }
-    }
-
-    @Async
-    @Override
-    public void sendNotification(
-            final List<String> receiverMails,
-            final Long clubId,
-            final String clubName,
-            final LocalDateTime recruitStartTime,
-            final LocalDateTime recruitEndTime
-    ) {
-        try {
-            final MimeMessage mimeMessage = generateNotification(receiverMails, clubId, clubName, recruitStartTime, recruitEndTime);
             mailSender.send(mimeMessage);
+            throw new MessagingException();
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            log.error("[MAIL GENERATING ERROR] clubId={} clubName={} receivers={} message={}",
+                    clubId,
+                    clubName,
+                    receiverMails,
+                    e.getMessage());
+            discordNotifier.notifyEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR_SMTP_MAIL.getMessage());
         } catch (MailException e) {
-            log.error("[MAIL SEND FAILED] : {}", e.getMessage());
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SMTP);
+            log.error("[MAIL SEND FAILED] clubId={} clubName={} receivers={} message={}",
+                    clubId,
+                    clubName,
+                    receiverMails,
+                    e.getMessage());
+            discordNotifier.notifyEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR_SMTP.getMessage());
+        } catch (Exception e) {
+            log.error("[EMAIL UNEXPECTED ERROR] clubId={}, clubName={} receivers={}",
+                    clubId,
+                    clubName,
+                    receiverMails,
+                    e);
+            discordNotifier.notifyEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR.getMessage());
         }
     }
 }
+
