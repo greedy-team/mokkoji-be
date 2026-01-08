@@ -82,7 +82,6 @@ public class EmailNotificationChannel implements NotificationChannel {
             final String text = generateHtmlText(clubId, clubName, recruitStartTime, recruitEndTime);
             helper.setText(text, true);
             mailSender.send(mimeMessage);
-            throw new MessagingException();
         } catch (MessagingException | UnsupportedEncodingException e) {
             log.error("[MAIL GENERATING ERROR] clubId={} clubName={} receivers={} message={}",
                     clubId,
