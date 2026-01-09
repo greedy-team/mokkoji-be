@@ -15,7 +15,6 @@ public record RecruitmentOfClubResponse(
         @Schema(example = "2025-12-04T23:59:59") LocalDateTime recruitEnd,
         @Schema(example = "OPEN") RecruitStatus status,
         @Schema(example = "2025-11-20T10:00:00") LocalDateTime createdAt,
-        @Schema(example = "https://mokkoji-app-data.s3.ap-northeast-2.amazonaws.com/recruitment-image/1/2/{UUID}.jpg") String firstImage,
         @Schema(example = "false") boolean isAlwaysRecruiting
 ) {
 }
