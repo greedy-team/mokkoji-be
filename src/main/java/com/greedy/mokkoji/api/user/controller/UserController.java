@@ -10,6 +10,7 @@ import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.db.user.entity.User;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,7 +64,7 @@ public class UserController implements UserControllerSwagger {
     @PutMapping
     public ResponseEntity<APISuccessResponse<Void>> updateUserInformation(
             @Authentication AuthCredential authCredential,
-            @RequestBody UpdateUserInformationRequest updateUserInformationRequest
+            @RequestBody @Valid UpdateUserInformationRequest updateUserInformationRequest
     ) {
         final Long userId = authCredential.userId();
         userService.updateEmail(userId, updateUserInformationRequest.email());
