@@ -208,7 +208,7 @@ public class ClubControllerTest extends ControllerTest {
                 .build();
         clubRepository.save(managedClub);
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
-        when(appDataS3Client.getPresignedUrl(null)).thenReturn(null);
+        when(appDataS3Client.getPublicUrl(null)).thenReturn(null);
 
         //when
         final ExtractableResponse<Response> response = given().log().all()

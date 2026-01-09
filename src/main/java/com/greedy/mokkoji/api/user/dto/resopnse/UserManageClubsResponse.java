@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.user.dto.resopnse;
 
+
 import java.util.List;
 
 public record UserManageClubsResponse(

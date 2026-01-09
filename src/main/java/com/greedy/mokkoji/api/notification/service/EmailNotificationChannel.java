@@ -1,7 +1,5 @@
 package com.greedy.mokkoji.api.notification.service;
 
-import com.greedy.mokkoji.common.exception.MokkojiException;
-import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +15,24 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR;
+import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR_SMTP;
+import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR_SMTP_MAIL;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class EmailNotificationChannel implements NotificationChannel {
     private static final String SUBJECT = "동아리 모집 시작";
     private static final String SENDER_NAME = "모꼬지";
+    private static final String OFFICIAL_EMAIL = "noreply@mokkoji.com";
     private final JavaMailSender mailSender;
+    private final DiscordNotifier discordNotifier;
+
     @Value("${spring.mail.username}")
     private String senderMail;
+    @Value("${mokkoji.base-url}")
+    private String baseUrl;
 
     private String generateHtmlText(
             final Long clubId,
@@ -47,41 +54,11 @@ public class EmailNotificationChannel implements NotificationChannel {
                 "<p>모꼬지에서 즐겨찾기하신 <strong>" + clubName + "</strong> 동아리가 신규 회원을 모집합니다.</p>" +
                 "<p>📅 <strong>모집 기간:</strong> " + recruitStart.format(formatter) + " ~ " + recruitEnd.format(formatter) + "</p>" +
                 "<p>지금 바로 지원하여 기회를 놓치지 마세요!</p>" +
-                "<a href='https://mokkoji.vercel.app/clubs/" + clubId + "' style='display: inline-block; padding: 10px 20px; margin-top: 20px; font-size: 16px; color: white; background-color: #2E86C1; text-decoration: none; border-radius: 5px;'>신청하러 가기</a>" +
+                "<a href='" + baseUrl + "/club/" + clubId + "' " +
+                "style='display: inline-block; padding: 10px 20px; margin-top: 20px; font-size: 16px; color: white; background-color: #2E86C1; text-decoration: none; border-radius: 5px;'>신청하러 가기</a>" +
                 "<p>감사합니다!<br>모꼬지 팀 드림</p>" +
                 "</body>" +
                 "</html>";
-    }
-
-    private MimeMessage generateNotification(
-            final List<String> receiverMails,
-            final Long clubId,
-            final String clubName,
-            final LocalDateTime recruitStartTime,
-            final LocalDateTime recruitEndTime
-    ) {
-        try {
-            final MimeMessage mimeMessage = mailSender.createMimeMessage();
-            final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-
-            helper.setFrom(senderMail, SENDER_NAME);
-
-            final String[] receiverMailsS = receiverMails.toArray(String[]::new);
-            helper.setTo(receiverMailsS);
-
-            helper.setSubject(SUBJECT);
-
-            final String text = generateHtmlText(clubId, clubName, recruitStartTime, recruitEndTime);
-            helper.setText(text, true);
-
-            return mimeMessage;
-        } catch (MessagingException e) {
-            log.error("[MAIL GENERATING ERROR]: {}", e.getMessage());
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SMTP_MAIL);
-        } catch (UnsupportedEncodingException e) {
-            log.error("[Mail GENERATING ERROR FROM SENDER INFORMATION]: {}", e.getMessage());
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SMTP_MAIL);
-        }
     }
 
     @Override
@@ -93,12 +70,42 @@ public class EmailNotificationChannel implements NotificationChannel {
             final LocalDateTime recruitEndTime
     ) {
         try {
-            final MimeMessage mimeMessage = generateNotification(receiverMails, clubId, clubName, recruitStartTime, recruitEndTime);
+            final MimeMessage mimeMessage = mailSender.createMimeMessage();
+            final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
 
+            helper.setFrom(senderMail, SENDER_NAME);
+            helper.setTo(OFFICIAL_EMAIL);
+
+            final String[] receiverMailsS = receiverMails.toArray(String[]::new);
+            helper.setBcc(receiverMailsS);
+
+            helper.setSubject(SUBJECT);
+
+            final String text = generateHtmlText(clubId, clubName, recruitStartTime, recruitEndTime);
+            helper.setText(text, true);
             mailSender.send(mimeMessage);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            log.error("[MAIL GENERATING ERROR] clubId={} clubName={} receivers={} message={}",
+                    clubId,
+                    clubName,
+                    receiverMails,
+                    e.getMessage());
+            discordNotifier.notifyEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR_SMTP_MAIL.getMessage());
         } catch (MailException e) {
-            log.error("[MAIL SEND FAILED] : {}", e.getMessage());
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SMTP);
+            log.error("[MAIL SEND FAILED] clubId={} clubName={} receivers={} message={}",
+                    clubId,
+                    clubName,
+                    receiverMails,
+                    e.getMessage());
+            discordNotifier.notifyEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR_SMTP.getMessage());
+        } catch (Exception e) {
+            log.error("[EMAIL UNEXPECTED ERROR] clubId={}, clubName={} receivers={}",
+                    clubId,
+                    clubName,
+                    receiverMails,
+                    e);
+            discordNotifier.notifyEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR.getMessage());
         }
     }
 }
+
