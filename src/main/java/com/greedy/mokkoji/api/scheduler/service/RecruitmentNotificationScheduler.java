@@ -49,7 +49,12 @@ public class RecruitmentNotificationScheduler {
 
         uniqueAndLatestRecruitments.forEach(recruitment -> {
             Club club = recruitment.getClub();
-            notificationService.sendNotification(club, recruitment);
+            try {
+                notificationService.sendNotification(club, recruitment);
+            } catch (Exception e) {
+                log.error("[RECRUITMENT NOTI SUBMIT FAILED] clubId={} recruitmentId={} msg={}",
+                        club.getId(), recruitment.getId(), e.getMessage(), e);
+            }
         });
     }
 }
