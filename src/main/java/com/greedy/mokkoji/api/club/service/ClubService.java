@@ -45,7 +45,7 @@ public class ClubService {
         final Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
         final Recruitment recruitment = recruitmentRepository
-                .findTopByClubIdOrderByUpdatedAtDesc(club.getId())
+                .findTopByClubIdOrderByCreatedAtDesc(club.getId())
                 .orElse(null);
         final Boolean isFavorite = getIsFavorite(userId, clubId);
 
@@ -157,7 +157,7 @@ public class ClubService {
     private List<ClubResponse> mapToClubResponses(final Long userId, final List<Club> clubs) {
         return clubs.stream()
                 .map(club -> {
-                    Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(club.getId())
+                    Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(club.getId())
                             .orElse(null);
                     boolean isFavorite = getIsFavorite(userId, club.getId());
                     return ClubResponse.of(club.getId(),

@@ -29,7 +29,6 @@ import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,14 +113,20 @@ public class RecruitmentService {
         List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
 
         List<RecruitmentOfClubResponse> recruitmentList = recruitments.stream()
-                .sorted(Comparator.comparing(Recruitment::getRecruitEnd).reversed())
+                .sorted(newestFirstRecruitmentComparator())
                 .map(recruitment -> RecruitmentOfClubResponse.builder()
                         .id(recruitment.getId())
                         .title(recruitment.getTitle())
                         .content(recruitment.getContent())
                         .recruitStart(recruitment.getRecruitStart())
                         .recruitEnd(recruitment.getRecruitEnd())
-                        .status(RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()))
+                        .status(
+                            RecruitStatus.from(
+                                recruitment.isAlwaysRecruiting(),
+                                recruitment.getRecruitStart(),
+                                recruitment.getRecruitEnd()
+                            )
+                        )
                         .createdAt(recruitment.getCreatedAt())
                         .firstImage(getFirstImageUrl(recruitment.getId()))
                         .isAlwaysRecruiting(recruitment.isAlwaysRecruiting())
@@ -135,10 +140,10 @@ public class RecruitmentService {
     @Transactional
     public RecentRecruitmentOfClubResponse getRecentRecruitmentOfClub(final Long clubId, final Long userId) {
 
-        Optional<Recruitment> recentRecruitment = recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(clubId);
+        Optional<Recruitment> recentRecruitment = recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId);
 
         Recruitment recruitment = recentRecruitment.orElseGet(() ->
-                recruitmentRepository.findTopByClubIdAndIsAlwaysRecruitingOrderByUpdatedAtDesc(clubId, true)
+                recruitmentRepository.findTopByClubIdAndIsAlwaysRecruitingOrderByCreatedAtDesc(clubId, true)
                         .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT))
         );
 
@@ -162,7 +167,7 @@ public class RecruitmentService {
                 recruitment.getContent(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
-                RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
                 recruitment.getCreatedAt(),
                 imageUrls,
                 recruitment.getRecruitForm(),
@@ -197,7 +202,7 @@ public class RecruitmentService {
                 recruitment.getContent(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
-                RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
                 recruitment.getCreatedAt(),
                 imageUrls,
                 recruitment.getRecruitForm(),
@@ -216,25 +221,9 @@ public class RecruitmentService {
         Page<Recruitment> recruitmentPage = recruitmentRepository.findRecruitments(affiliation, category, pageable);
         List<Recruitment> filteredRecruitments = recruitmentPage.getContent();
 
-        // 페이징 처리
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), filteredRecruitments.size());
-        List<Recruitment> pagedRecruitments = filteredRecruitments.subList(start, end);
-        Page<Recruitment> paged = new PageImpl<>(pagedRecruitments, pageable, filteredRecruitments.size());
+        List<RecruitmentPreviewResponse> recruitmentResponses = mapToRecruitmentResponses(userId, filteredRecruitments);
 
-        // DTO 변환 및 정렬
-        List<RecruitmentPreviewResponse> recruitmentResponses = paged.stream()
-                .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
-                .sorted(getFinalComparator(userId))
-                .toList();
-
-        // 페이징 정보 생성
-        PageResponse pageResponse = PageResponse.of(
-                paged.getNumber() + 1,
-                paged.getSize(),
-                paged.getTotalPages(),
-                (int) paged.getTotalElements()
-        );
+        PageResponse pageResponse = createPageResponse(recruitmentPage);
 
         return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
     }
@@ -332,6 +321,22 @@ public class RecruitmentService {
         return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
     }
 
+    private List<RecruitmentPreviewResponse> mapToRecruitmentResponses(Long userId, List<Recruitment> filteredRecruitments) {
+        return filteredRecruitments.stream()
+            .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
+            .sorted(recruitmentPriorityComparator(userId))
+            .toList();
+    }
+
+    private static PageResponse createPageResponse(Page<Recruitment> recruitmentPage) {
+        return PageResponse.of(
+            recruitmentPage.getNumber() + 1,
+            recruitmentPage.getSize(),
+            recruitmentPage.getTotalPages(),
+            (int) recruitmentPage.getTotalElements()
+        );
+    }
+
     private RecruitmentPreviewResponse mapToRecruitmentPreviewResponse(Long userId, Recruitment recruitment) {
         boolean isFavorite = isFavorite(userId, recruitment.getClub().getId());
 
@@ -350,25 +355,31 @@ public class RecruitmentService {
                 recruitment.getTitle(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
-                RecruitStatus.from(recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
+                RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
                 isFavorite,
                 recruitment.isAlwaysRecruiting()
         );
     }
 
     // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
-    private Comparator<RecruitmentPreviewResponse> getFinalComparator(Long userId) {
+    private Comparator<RecruitmentPreviewResponse> recruitmentPriorityComparator(Long userId) {
         Comparator<RecruitmentPreviewResponse> comparator =
-                Comparator.comparing(
-                        (RecruitmentPreviewResponse r) ->
-                                RecruitStatus.from(r.recruitStart(), r.recruitEnd()).getPriority()
-                ).thenComparing(RecruitmentPreviewResponse::recruitEnd);
+            Comparator.comparing(
+                    (RecruitmentPreviewResponse response) ->
+                        RecruitStatus.from(response.isAlwaysRecruiting(), response.recruitStart(), response.recruitEnd()).getPriority()
+                )
+                .thenComparing(RecruitmentPreviewResponse::recruitEnd);
 
         if (userId != null) {
             comparator = Comparator.comparing(RecruitmentPreviewResponse::isFavorite).reversed()
-                    .thenComparing(comparator);
+                .thenComparing(comparator);
         }
 
         return comparator;
+    }
+
+    private Comparator<Recruitment> newestFirstRecruitmentComparator() {
+        return Comparator.comparing(Recruitment::getCreatedAt).reversed()
+            .thenComparing(Recruitment::getId, Comparator.reverseOrder());
     }
 }
