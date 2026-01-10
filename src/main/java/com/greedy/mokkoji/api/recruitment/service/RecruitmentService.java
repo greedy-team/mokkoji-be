@@ -128,7 +128,6 @@ public class RecruitmentService {
                             )
                         )
                         .createdAt(recruitment.getCreatedAt())
-                        .firstImage(getFirstImageUrl(recruitment.getId()))
                         .isAlwaysRecruiting(recruitment.isAlwaysRecruiting())
                         .build()
                 )
@@ -305,13 +304,6 @@ public class RecruitmentService {
         recruitmentImageRepository.deleteAll(oldImages);
 
         return deleteImageUrls;
-    }
-
-    private String getFirstImageUrl(Long recruitmentId) {
-        return recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(recruitmentId).stream()
-                .findFirst()
-                .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
-                .orElse(null);
     }
 
     private boolean isFavorite(final Long userId, final Long clubId) {

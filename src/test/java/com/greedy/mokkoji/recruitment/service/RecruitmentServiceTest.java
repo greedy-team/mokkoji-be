@@ -329,10 +329,6 @@ public class RecruitmentServiceTest {
 
         BDDMockito.given(recruitmentRepository.findAllByClubId(1L))
             .willReturn(List.of(olderRecruitment, newerRecruitment));
-        BDDMockito.given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(2L))
-            .willReturn(List.of(newerImage));
-        BDDMockito.given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(1L)).willReturn(List.of());
-        BDDMockito.given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         AllRecruitmentOfClubResponse allRecruitmentOfClubResponse = recruitmentService.getAllRecruitmentOfClub(1L);
@@ -343,7 +339,6 @@ public class RecruitmentServiceTest {
         RecruitmentOfClubResponse firstRecruitment = allRecruitmentOfClubResponse.recruitments().get(0);
         assertThat(firstRecruitment.id()).isEqualTo(2L);
         assertThat(firstRecruitment.title()).isEqualTo("새 그리디 모집글 제목");
-        assertThat(firstRecruitment.firstImage()).isEqualTo("그리디 모집글 이미지.jpg");
 
         RecruitmentOfClubResponse secondRecruitment = allRecruitmentOfClubResponse.recruitments().get(1);
         assertThat(secondRecruitment.id()).isEqualTo(1L);
