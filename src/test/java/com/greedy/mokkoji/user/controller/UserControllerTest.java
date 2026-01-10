@@ -4,13 +4,18 @@ import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.RefreshResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
+import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.user.entity.User;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,10 +33,10 @@ import static org.mockito.Mockito.when;
 
 public class UserControllerTest extends ControllerTest {
 
-    @Value("${test.studentId}")
+    @Value("${account.studentId}")
     private String studentId;
 
-    @Value("${test.password}")
+    @Value("${account.password}")
     private String password;
 
     private User user;
@@ -50,7 +55,7 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 성공 테스트")
+    @DisplayName("올바른 학사정보시스템 아이디 및 비밀번호로 로그인 성공 여부를 검증한다.")
     void loginSuccessful() {
         //given
         final Map<String, String> params = new HashMap<>();
@@ -80,12 +85,12 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("로그인 실패 테스트")
+    @DisplayName("올바르지 않은 학사정보시스템 아이디 및 비밀번호로 로그인 실패 여부를 검증한다.")
     void loginFailed() {
         //given
         Map<String, String> params = new HashMap<>();
-        params.put("studentId", "12345678");
-        params.put("password", "password");
+        params.put("studentId", "invalidId");
+        params.put("password", "invalidPassword");
 
         //when & then
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
@@ -122,7 +127,7 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("로그아웃 성공 테스트")
+    @DisplayName("로그아웃 성공 여부를 검증한다.")
     void logout() {
         // given
         doNothing().when(tokenService).deleteRefreshToken(any());
@@ -141,7 +146,7 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 정보를 가져오기 성공 테스트")
+    @DisplayName("사용자 정보를 조회 성공 여부를 검증한다.")
     void getUserInfo() {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
@@ -164,7 +169,7 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 이메일 업데이트 성공 테스트")
+    @DisplayName("사용자 이메일 업데이트 성공 여부를 검증한다.")
     void updateUserInfo() {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
@@ -187,19 +192,18 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("사용자 이메일 업데이트 실패 테스트")
+    @DisplayName("유효하지 않은 이메일 형식일 경우를 검증한다.")
     void updateUserInfoWithIncorrectEmail() {
         // given
-        String authorizationForBearer = authorizationForBearerAccessToken(user);
-        String updatedEmail = "updatedEmailtest.com";
-        Map<String, String> body = new HashMap<>();
-        body.put("email", updatedEmail);
+        final String authorizationForBearer = authorizationForBearerAccessToken(user);
+        final String invalidUpdatedEmail = "updatedEmail.com";
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(invalidUpdatedEmail);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("Authorization", authorizationForBearer)
-                .body(body)
+                .body(updateUserInformationRequest)
                 .when().put(prefixUrl + "/users")
                 .then().log().all()
                 .extract();
@@ -208,5 +212,55 @@ public class UserControllerTest extends ControllerTest {
 
         // then
         assertThat(statusCode).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("사용자 역할 조회 성공 여부를 검증한다.")
+    void getUserRole() {
+        // given
+        final String authorizationForBearer = authorizationForBearerAccessToken(user);
+        final String expected = user.getRole().toString();
+
+        // when
+        final ExtractableResponse<Response> response = RestAssured.given().log().all()
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .when().get(prefixUrl + "/users/roles")
+            .then().log().all()
+            .extract();
+
+        final int statusCode = response.statusCode();
+        final UserRoleResponse actual = getDataFromResponse(response, UserRoleResponse.class);
+
+        // then
+        assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+        assertThat(expected).isEqualTo(actual.role());
+    }
+
+    @Test
+    @DisplayName("사용자가 회장인 동아리 조회 성공 여부를 검증한다.")
+    void getUserManageClubs() {
+        // given
+        final String authorizationForBearer = authorizationForBearerAccessToken(user);
+
+        final Club club = clubRepository.save(Fixture.createClub());
+        final UserManageClubsResponse expected = new UserManageClubsResponse(
+            List.of(new UserManageClubResponse(club.getId(), club.getName()))
+        );
+
+        // when
+        final ExtractableResponse<Response> response = RestAssured.given().log().all()
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .when().get(prefixUrl + "/users/manage/clubs")
+            .then().log().all()
+            .extract();
+
+        final int statusCode = response.statusCode();
+        final UserManageClubsResponse actual = getDataFromResponse(response, UserManageClubsResponse.class);
+
+        // then
+        assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+        assertThat(expected).usingRecursiveComparison().isEqualTo(actual);
     }
 }

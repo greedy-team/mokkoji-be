@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.common;
 
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
@@ -24,4 +25,7 @@ public class AbstractTest {
 
     @Autowired
     protected RecruitmentImageRepository recruitmentImageRepository;
+    
+    @Autowired
+    protected CommentRepository commentRepository;
 }
