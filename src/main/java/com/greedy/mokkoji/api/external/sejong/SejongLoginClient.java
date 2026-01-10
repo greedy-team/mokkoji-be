@@ -3,12 +3,12 @@ package com.greedy.mokkoji.api.external.sejong;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.enums.message.FailMessage;
-import jakarta.transaction.Transactional;
 import okhttp3.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.net.ssl.*;
 import java.io.IOException;
