@@ -31,6 +31,5 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
 
     Optional<Recruitment> findTopByClubIdOrderByCreatedAtDesc(Long clubId);
 
-    //상시모집 중인 모집글 중 최신 updatedAt 공고 반환
     Optional<Recruitment> findTopByClubIdAndIsAlwaysRecruitingOrderByCreatedAtDesc(Long clubId, boolean isAlwaysRecruiting);
 }
