@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment;
 
+import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -21,7 +22,7 @@ public record SpecificRecruitmentResponse(
         @Schema(example = "https://forms.gle/abcdEFGH1234") String recruitForm,
         @Schema(example = "true") Boolean isFavorite,
         @Schema(example = "https://instagram.com/greedy_sejong") String instagramUrl,
-        @Schema(example = "학술/교양") String category,
+        @Schema(example = "ACADEMIC_CULTURAL") ClubCategory category,
         @Schema(example = "false") boolean isAlwaysRecruiting
 ) {
 
@@ -40,7 +41,7 @@ public record SpecificRecruitmentResponse(
             String recruitForm,
             Boolean isFavorite,
             String instagramUrl,
-            String category,
+            ClubCategory category,
             boolean isAlwaysRecruiting
     ) {
         return new SpecificRecruitmentResponse(

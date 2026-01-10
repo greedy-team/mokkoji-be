@@ -168,7 +168,7 @@ public class RecruitmentService {
                 recruitment.getRecruitForm(),
                 isFavorite,
                 club.getInstagram(),
-                club.getClubCategory().getDescription(),
+                club.getClubCategory(),
                 recruitment.isAlwaysRecruiting()
         );
     }
@@ -203,7 +203,7 @@ public class RecruitmentService {
                 recruitment.getRecruitForm(),
                 isFavorite(userId, club.getId()),
                 club.getInstagram(),
-                club.getClubCategory().getDescription(),
+                club.getClubCategory(),
                 recruitment.isAlwaysRecruiting()
         );
     }
