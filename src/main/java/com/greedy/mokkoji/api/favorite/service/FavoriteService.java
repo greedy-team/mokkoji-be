@@ -67,8 +67,8 @@ public class FavoriteService {
                     return ClubResponse.of(
                             club.getId(),
                             club.getName(),
-                            club.getClubCategory().getDescription(),
-                            club.getClubAffiliation().getDescription(),
+                            club.getClubCategory(),
+                            club.getClubAffiliation(),
                             club.getDescription(),
                             recruitment != null ? recruitment.getRecruitStart() : null,
                             recruitment != null ? recruitment.getRecruitEnd() : null,

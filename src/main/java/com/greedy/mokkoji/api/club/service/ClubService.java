@@ -92,8 +92,8 @@ public class ClubService {
 
         return ClubManageDetailResponse.of(
                 club.getName(),
-                club.getClubCategory().name(),
-                club.getClubAffiliation().name(),
+                club.getClubCategory(),
+                club.getClubAffiliation(),
                 club.getDescription(),
                 appDataS3Client.getPublicUrl(club.getLogo()),
                 club.getInstagram()
@@ -142,8 +142,8 @@ public class ClubService {
         return ClubDetailResponse.of(
                 club.getId(),
                 club.getName(),
-                club.getClubCategory().getDescription(),
-                club.getClubAffiliation().getDescription(),
+                club.getClubCategory(),
+                club.getClubAffiliation(),
                 club.getDescription(),
                 recruitment != null ? recruitment.getRecruitStart() : null,
                 recruitment != null ? recruitment.getRecruitEnd() : null,
@@ -162,8 +162,8 @@ public class ClubService {
                     boolean isFavorite = getIsFavorite(userId, club.getId());
                     return ClubResponse.of(club.getId(),
                             club.getName(),
-                            club.getClubCategory().getDescription(),
-                            club.getClubAffiliation().getDescription(),
+                            club.getClubCategory(),
+                            club.getClubAffiliation(),
                             club.getDescription(),
                             recruitment != null ? recruitment.getRecruitStart() : null,
                             recruitment != null ? recruitment.getRecruitEnd() : null,
