@@ -29,6 +29,7 @@ public class FavoriteControllerTest extends ControllerTest {
     @BeforeEach
     void setUp() {
         favoriteRepository.deleteAll();
+        commentRepository.deleteAll();
         userRepository.deleteAll();
         recruitmentRepository.deleteAll();
         clubRepository.deleteAll();
