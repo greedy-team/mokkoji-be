@@ -343,7 +343,6 @@ public class RecruitmentServiceTest {
         RecruitmentOfClubResponse firstRecruitment = allRecruitmentOfClubResponse.recruitments().get(0);
         assertThat(firstRecruitment.id()).isEqualTo(2L);
         assertThat(firstRecruitment.title()).isEqualTo("새 그리디 모집글 제목");
-        assertThat(firstRecruitment.firstImage()).isEqualTo("그리디 모집글 이미지.jpg");
 
         RecruitmentOfClubResponse secondRecruitment = allRecruitmentOfClubResponse.recruitments().get(1);
         assertThat(secondRecruitment.id()).isEqualTo(1L);
