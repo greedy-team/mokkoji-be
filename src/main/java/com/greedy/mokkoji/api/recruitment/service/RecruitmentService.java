@@ -113,7 +113,7 @@ public class RecruitmentService {
         List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
 
         List<RecruitmentOfClubResponse> recruitmentList = recruitments.stream()
-                .sorted(clubRecruitmentsOrderByNewestFirstComparator())
+                .sorted(newestFirstRecruitmentComparator())
                 .map(recruitment -> RecruitmentOfClubResponse.builder()
                         .id(recruitment.getId())
                         .title(recruitment.getTitle())
@@ -324,7 +324,7 @@ public class RecruitmentService {
     private List<RecruitmentPreviewResponse> mapToRecruitmentResponses(Long userId, List<Recruitment> filteredRecruitments) {
         return filteredRecruitments.stream()
             .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
-            .sorted(getFinalComparator(userId))
+            .sorted(recruitmentPriorityComparator(userId))
             .toList();
     }
 
@@ -362,7 +362,7 @@ public class RecruitmentService {
     }
 
     // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
-    private Comparator<RecruitmentPreviewResponse> getFinalComparator(Long userId) {
+    private Comparator<RecruitmentPreviewResponse> recruitmentPriorityComparator(Long userId) {
         Comparator<RecruitmentPreviewResponse> comparator =
             Comparator.comparing(
                     (RecruitmentPreviewResponse response) ->
@@ -378,7 +378,7 @@ public class RecruitmentService {
         return comparator;
     }
 
-    private Comparator<Recruitment> clubRecruitmentsOrderByNewestFirstComparator() {
+    private Comparator<Recruitment> newestFirstRecruitmentComparator() {
         return Comparator.comparing(Recruitment::getCreatedAt).reversed()
             .thenComparing(Recruitment::getId, Comparator.reverseOrder());
     }
