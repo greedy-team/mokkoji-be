@@ -35,14 +35,14 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom {
             .where(
                 equalAffiliation(affiliation),
                 equalCategory(category),
-                recruitment.updatedAt.eq(
+                recruitment.createdAt.eq(
                     JPAExpressions
-                        .select(subRecruitment.updatedAt.max())
+                        .select(subRecruitment.createdAt.max())
                         .from(subRecruitment)
                         .where(subRecruitment.club.id.eq(recruitment.club.id))
                 )
             )
-            .orderBy(recruitment.updatedAt.desc())
+            .orderBy(recruitment.createdAt.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
@@ -53,9 +53,10 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom {
             .join(recruitment.club, club)
             .where(
                 equalAffiliation(affiliation),
-                recruitment.updatedAt.eq(
+                equalCategory(category),
+                recruitment.createdAt.eq(
                     JPAExpressions
-                        .select(subRecruitment.updatedAt.max())
+                        .select(subRecruitment.createdAt.max())
                         .from(subRecruitment)
                         .where(subRecruitment.club.id.eq(recruitment.club.id))
                 )
@@ -74,14 +75,14 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom {
             .join(recruitment.club, club).fetchJoin()
             .where(
                 club.id.in(favoriteClubIds),
-                recruitment.updatedAt.eq(
+                recruitment.createdAt.eq(
                     JPAExpressions
-                        .select(subRecruitment.updatedAt.max())
+                        .select(subRecruitment.createdAt.max())
                         .from(subRecruitment)
                         .where(subRecruitment.club.id.eq(recruitment.club.id))
                 )
             )
-            .orderBy(recruitment.updatedAt.desc())
+            .orderBy(recruitment.createdAt.desc())
             .fetch();
     }
 
