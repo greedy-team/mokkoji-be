@@ -65,6 +65,7 @@ public class SwaggerDescription {
             ─────────────<br>
             • IMMINENT: 모집 마감 임박<br>
             • OPEN: 모집 중<br>
+            • ALWAYS: 상시 모집<br>
             • BEFORE: 모집 시작 전<br>
             • CLOSED: 모집 종료<br>
             </div>
