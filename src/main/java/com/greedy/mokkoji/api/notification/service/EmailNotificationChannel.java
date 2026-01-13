@@ -24,7 +24,7 @@ import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR
 @RequiredArgsConstructor
 public class EmailNotificationChannel implements NotificationChannel {
     private static final String SUBJECT = "동아리 모집 안내";
-    private static final String SENDER_NAME = "모꼬지";
+    private static final String SENDER_NAME = "모꼬지(mokkoji)";
     private static final String OFFICIAL_EMAIL = "noreply@mokkoji.com";
     private final JavaMailSender mailSender;
     private final DiscordNotifier discordNotifier;
