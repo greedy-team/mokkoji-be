@@ -33,6 +33,8 @@ public class EmailNotificationChannel implements NotificationChannel {
     private String senderMail;
     @Value("${mokkoji.base-url}")
     private String baseUrl;
+    @Value("${mokkoji.mail.banner-url}")
+    private String mailBannerUrl;
 
     private String generateHtmlText(
             final Long clubId,
@@ -42,23 +44,46 @@ public class EmailNotificationChannel implements NotificationChannel {
     ) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
 
-        return "<!DOCTYPE html>" +
-                "<html>" +
-                "<head>" +
-                "<meta charset='UTF-8'>" +
-                "<title>동아리 모집 안내</title>" +
-                "</head>" +
-                "<body style='font-family: Arial, sans-serif; margin: 20px;'>" +
-                "<h2 style='color: #2E86C1;'>🎉 " + clubName + " 모집 시작! 🎉</h2>" +
-                "<p>안녕하세요!</p>" +
-                "<p>모꼬지에서 즐겨찾기하신 <strong>" + clubName + "</strong> 동아리가 신규 회원을 모집합니다.</p>" +
-                "<p>📅 <strong>모집 기간:</strong> " + recruitStart.format(formatter) + " ~ " + recruitEnd.format(formatter) + "</p>" +
-                "<p>지금 바로 지원하여 기회를 놓치지 마세요!</p>" +
-                "<a href='" + baseUrl + "/club/" + clubId + "' " +
-                "style='display: inline-block; padding: 10px 20px; margin-top: 20px; font-size: 16px; color: white; background-color: #2E86C1; text-decoration: none; border-radius: 5px;'>신청하러 가기</a>" +
-                "<p>감사합니다!<br>모꼬지 팀 드림</p>" +
-                "</body>" +
-                "</html>";
+        return """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>동아리 모집 안내</title>
+                </head>
+                <body style="font-family: Arial, sans-serif;">
+                
+                    <!-- 배너 이미지 -->
+                    <img src="%s"
+                         alt="모꼬지 배너"
+                         style="width: 100%%; display: block; margin: 0 0 20px 0; max-width: 600px;" />
+                    <div style="margin: 40px">
+                    <h3>📣 %s 모집 안내!</h3>
+                    <p style="margin: 0 0 8px 0;">안녕하세요! <strong>모꼬지</strong>입니다:)</p>
+                    <p style="margin: 0 0 30px 0;">즐겨찾기하신 <strong>%s</strong> 동아리가 신규 회원을 모집합니다.</p>
+                    <p style="margin: 0 0 8px 0;"><strong>모집 기간 : %s ~ %s</strong></p>
+                    <p style="margin: 0 0 30px 0;">지금 바로 지원하여 기회를 놓치지 마세요!</p>
+                    <p style="margin: 0 0 30px 0;">모꼬지 드림.</p>
+                
+                    <a href="%s/club/%d"
+                       style="display: inline-block; padding: 10px 15px;
+                              font-size: 14px; color: #000000; background-color: #4AF38A;
+                              text-decoration: none; border-radius: 40px; font-weight: 500;">
+                       신청하러 가기
+                    </a>
+                    </div>
+                </body>
+                </html>
+                """.formatted(
+                mailBannerUrl,
+                clubName,
+                clubName,
+                recruitStart.format(formatter),
+                recruitEnd.format(formatter),
+                baseUrl,
+                clubId
+        );
+
     }
 
     @Override
