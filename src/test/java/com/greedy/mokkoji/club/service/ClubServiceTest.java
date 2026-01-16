@@ -116,7 +116,7 @@ class ClubServiceTest {
         final List<Club> clubs = List.of(club1, club2);
         final Page<Club> clubPage = new PageImpl<>(clubs, pageable, clubs.size());
 
-        BDDMockito.given(clubRepository.findClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
+        BDDMockito.given(clubRepository.searchClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId1)).willReturn(Optional.ofNullable(recruitment1));
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId2)).willReturn(Optional.ofNullable(recruitment2));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(true);
@@ -131,8 +131,8 @@ class ClubServiceTest {
         assertThat(response.clubs()).hasSize(2);
 
         assertThat(response.clubs().get(0).name()).isEqualTo("testClub1");
-        assertThat(response.clubs().get(0).category()).isEqualTo("학술/교양");
-        assertThat(response.clubs().get(0).affiliation()).isEqualTo("중앙");
+        assertThat(response.clubs().get(0).category()).isEqualTo(ClubCategory.ACADEMIC_CULTURAL);
+        assertThat(response.clubs().get(0).affiliation()).isEqualTo(ClubAffiliation.CENTRAL_CLUB);
         assertThat(response.clubs().get(0).description()).isEqualTo("testDescription1");
         assertThat(response.clubs().get(0).recruitStartDate()).isEqualTo("2025-01-01");
         assertThat(response.clubs().get(0).recruitEndDate()).isEqualTo("2025-03-30");
@@ -140,8 +140,8 @@ class ClubServiceTest {
         assertThat(response.clubs().get(0).isFavorite()).isEqualTo(true);
 
         assertThat(response.clubs().get(1).name()).isEqualTo("testClub2");
-        assertThat(response.clubs().get(1).category()).isEqualTo("문화/예술");
-        assertThat(response.clubs().get(1).affiliation()).isEqualTo("정인준/가인준");
+        assertThat(response.clubs().get(1).category()).isEqualTo(ClubCategory.CULTURAL_ART);
+        assertThat(response.clubs().get(1).affiliation()).isEqualTo(ClubAffiliation.DEPARTMENT_CLUB);
         assertThat(response.clubs().get(1).description()).isEqualTo("testDescription2");
         assertThat(response.clubs().get(1).recruitStartDate()).isEqualTo("2025-01-01");
         assertThat(response.clubs().get(1).recruitEndDate()).isEqualTo("2025-01-30");
@@ -150,7 +150,7 @@ class ClubServiceTest {
 
         assertThat(response.pagination().totalElements()).isEqualTo(2);
 
-        BDDMockito.verify(clubRepository, times(1)).findClubs(any(), any(), any(), any(), any(Pageable.class));
+        BDDMockito.verify(clubRepository, times(1)).searchClubs(any(), any(), any(), any(), any(Pageable.class));
         BDDMockito.verify(recruitmentRepository, times(2)).findTopByClubIdOrderByCreatedAtDesc(anyLong());
         BDDMockito.verify(favoriteRepository, times(2)).existsByUserIdAndClubId(anyLong(), anyLong());
     }
@@ -173,8 +173,8 @@ class ClubServiceTest {
         //then
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo("testClub1");
-        assertThat(response.category()).isEqualTo("학술/교양");
-        assertThat(response.affiliation()).isEqualTo("중앙");
+        assertThat(response.category()).isEqualTo(ClubCategory.ACADEMIC_CULTURAL);
+        assertThat(response.affiliation()).isEqualTo(ClubAffiliation.CENTRAL_CLUB);
         assertThat(response.description()).isEqualTo("testDescription1");
         assertThat(response.recruitStartDate()).isEqualTo("2025-01-01");
         assertThat(response.recruitEndDate()).isEqualTo("2025-03-30");
@@ -230,7 +230,7 @@ class ClubServiceTest {
         //then
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo("testClub3");
-        assertThat(response.category()).isEqualTo("체육");
+        assertThat(response.category()).isEqualTo(ClubCategory.SPORTS);
         assertThat(response.recruitStartDate()).isNull();
         assertThat(response.recruitEndDate()).isNull();
         assertThat(response.recruitPost()).isNull();
@@ -374,8 +374,8 @@ class ClubServiceTest {
         //then
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo("testClub1");
-        assertThat(response.category()).isEqualTo(ClubCategory.ACADEMIC_CULTURAL.name());
-        assertThat(response.affiliation()).isEqualTo(ClubAffiliation.CENTRAL_CLUB.name());
+        assertThat(response.category()).isEqualTo(ClubCategory.ACADEMIC_CULTURAL);
+        assertThat(response.affiliation()).isEqualTo(ClubAffiliation.CENTRAL_CLUB);
         assertThat(response.description()).isEqualTo("testDescription1");
         assertThat(response.logo()).isEqualTo("testLogo1");
         assertThat(response.instagram()).isEqualTo("testInstagramURL1");
@@ -519,7 +519,7 @@ class ClubServiceTest {
         final List<Club> clubs = List.of(club1, club2);
         final Page<Club> clubPage = new PageImpl<>(clubs, pageable, clubs.size());
 
-        BDDMockito.given(clubRepository.findClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
+        BDDMockito.given(clubRepository.searchClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId1)).willReturn(Optional.ofNullable(recruitment1));
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId2)).willReturn(Optional.ofNullable(recruitment2));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(false);
