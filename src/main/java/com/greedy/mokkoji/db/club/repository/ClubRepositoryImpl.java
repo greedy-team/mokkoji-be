@@ -28,11 +28,11 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Club> findClubs(final String keyword,
-                                final ClubCategory category,
-                                final ClubAffiliation affiliation,
-                                final RecruitStatus status,
-                                final Pageable pageable) {
+    public Page<Club> searchClubs(final String keyword,
+                                  final ClubCategory category,
+                                  final ClubAffiliation affiliation,
+                                  final RecruitStatus status,
+                                  final Pageable pageable) {
 
         final LocalDateTime now = LocalDateTime.now();
 
