@@ -30,7 +30,7 @@ public interface ClubControllerSwagger {
     );
 
     @Operation(
-            summary = "동아리 목록 조회 API",
+            summary = "동아리 검색 API",
             description = "페이지 번호(`page`)는 1부터 시작",
             security = {@SecurityRequirement(name = "JWT")}
     )
