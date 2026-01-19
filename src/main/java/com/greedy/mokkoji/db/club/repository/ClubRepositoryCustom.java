@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.db.club.repository;
 
+import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubWithLatestRecruitment;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
@@ -13,6 +14,12 @@ public interface ClubRepositoryCustom {
             final ClubCategory category,
             final ClubAffiliation affiliation,
             final RecruitStatus status,
+            final Pageable pageable
+    );
+
+    Page<ClubWithLatestRecruitment> findClubs(
+            final ClubAffiliation affiliation,
+            final ClubCategory category,
             final Pageable pageable
     );
 }
