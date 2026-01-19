@@ -112,7 +112,6 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                         equalAffiliation(affiliation),
                         equalCategory(category)
                 )
-                .orderBy(recruitment.createdAt.desc().nullsLast())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
