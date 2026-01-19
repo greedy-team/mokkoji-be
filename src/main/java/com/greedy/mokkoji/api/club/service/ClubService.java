@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.api.club.service;
 
 import com.greedy.mokkoji.api.club.dto.response.*;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.*;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -61,13 +63,28 @@ public class ClubService {
                                                          final Pageable pageable) {
 
         final Page<Club> clubPage = clubRepository.searchClubs(keyword, category, affiliation, status, pageable);
-
         final List<Club> clubs = clubPage.getContent();
         final List<ClubResponse> clubResponses = mapToClubResponses(userId, clubs);
 
         final PageResponse pageResponse = createPageResponse(clubPage);
 
         return new ClubsPaginationResponse(clubResponses, pageResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public AllClubsResponse getAllClubs(
+            final Long userId,
+            final ClubAffiliation affiliation,
+            final ClubCategory category,
+            final Pageable pageable
+    ) {
+        Page<ClubWithLatestRecruitment> clubPage = clubRepository.findClubs(affiliation, category, pageable);
+        List<ClubWithLatestRecruitment> filteredClubs = clubPage.getContent();
+        List<ClubPreviewResponse> clubResponses = mapToClubPreviewResponses(userId, filteredClubs);
+
+        PageResponse pageResponse = createPageResponse(clubPage);
+
+        return AllClubsResponse.of(clubResponses, pageResponse);
     }
 
     @Transactional
@@ -122,37 +139,75 @@ public class ClubService {
         return ClubUpdateResponse.of(updateLogo, deleteLogo);
     }
 
-    private void changeClubMasterRole(final String previousClubMasterStudentId, final String newClubMasterStudentId) {
-        userRepository.findByStudentId(previousClubMasterStudentId)
-                .ifPresent(user -> user.updateRole(UserRole.NORMAL));
+    private List<ClubPreviewResponse> mapToClubPreviewResponses(
+            final Long userId,
+            final List<ClubWithLatestRecruitment> clubs
+    ) {
+        Map<Boolean, List<ClubPreviewResponse>> partitioned = clubs.stream()
+                .map(c -> mapToClubPreviewResponse(userId, c))
+                .collect(java.util.stream.Collectors.partitioningBy(
+                        r -> r.recruitmentPreviewResponse() != null
+                ));
 
-        userRepository.findByStudentId(newClubMasterStudentId)
-                .ifPresent(user -> user.updateRole(UserRole.CLUB_MASTER));
+        List<ClubPreviewResponse> withRecruitment = partitioned.get(true).stream()
+                .sorted(clubPriorityComparator(userId))
+                .toList();
+
+        List<ClubPreviewResponse> withoutRecruitment = partitioned.get(false);
+
+        List<ClubPreviewResponse> result = new java.util.ArrayList<>(withRecruitment.size() + withoutRecruitment.size());
+        result.addAll(withRecruitment);
+        result.addAll(withoutRecruitment);
+        return result;
     }
 
-    private boolean getIsFavorite(final Long userId, final Long clubId) {
-        if (userId == null) { //회원 및 비회원 구별 로직
-            return false;
+    // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
+    private Comparator<ClubPreviewResponse> clubPriorityComparator(Long userId) {
+        Comparator<ClubPreviewResponse> comparator =
+                Comparator.comparing(
+                                (ClubPreviewResponse club) -> club.recruitmentPreviewResponse().recruitStatus().getPriority()
+                        )
+                        .thenComparing(
+                                club -> club.recruitmentPreviewResponse().recruitEnd()
+                        );
+
+        return (userId == null)
+                ? comparator
+                : Comparator.comparing(
+                (ClubPreviewResponse club) -> club.recruitmentPreviewResponse().isFavorite()
+        ).reversed().thenComparing(comparator);
+    }
+
+
+    private ClubPreviewResponse mapToClubPreviewResponse(Long userId, ClubWithLatestRecruitment c) {
+        return ClubPreviewResponse.builder()
+                .id(c.id())
+                .name(c.name())
+                .description(c.description())
+                .logo(appDataS3Client.getPublicUrl(c.logo()))
+                .recruitmentPreviewResponse(mapToLatestRecruitmentPreviewResponse(userId, c.id(), c.latestRecruitmentInfo()))
+                .build();
+    }
+
+    @Nullable
+    private RecruitmentPreviewResponse mapToLatestRecruitmentPreviewResponse(
+            Long userId,
+            Long clubId,
+            LatestRecruitmentInfo latest
+    ) {
+        if (latest == null || latest.id() == null) {
+            return null;
         }
-        return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
+
+        return RecruitmentPreviewResponse.builder()
+                .id(latest.id())
+                .recruitStart(latest.recruitStart())
+                .recruitEnd(latest.recruitEnd())
+                .recruitStatus(RecruitStatus.from(latest.isAlwaysRecruiting(), latest.recruitStart(), latest.recruitEnd()))
+                .isFavorite(getIsFavorite(userId, clubId))
+                .build();
     }
 
-    private ClubDetailResponse mapToClubDetailResponse(final Club club, final Recruitment recruitment,
-                                                       final Boolean isFavorite) {
-        return ClubDetailResponse.of(
-                club.getId(),
-                club.getName(),
-                club.getClubCategory(),
-                club.getClubAffiliation(),
-                club.getDescription(),
-                recruitment != null ? recruitment.getRecruitStart() : null,
-                recruitment != null ? recruitment.getRecruitEnd() : null,
-                appDataS3Client.getPublicUrl(club.getLogo()),
-                isFavorite,
-                club.getInstagram(),
-                recruitment != null ? recruitment.getContent() : null
-        );
-    }
 
     private List<ClubResponse> mapToClubResponses(final Long userId, final List<Club> clubs) {
         return clubs.stream()
@@ -174,12 +229,20 @@ public class ClubService {
                 .toList();
     }
 
-    private PageResponse createPageResponse(final Page<Club> clubPage) {
-        return PageResponse.of(
-                clubPage.getNumber() + 1,
-                clubPage.getSize(),
-                clubPage.getTotalPages(),
-                (int) clubPage.getTotalElements()
+    private ClubDetailResponse mapToClubDetailResponse(final Club club, final Recruitment recruitment,
+                                                       final Boolean isFavorite) {
+        return ClubDetailResponse.of(
+                club.getId(),
+                club.getName(),
+                club.getClubCategory(),
+                club.getClubAffiliation(),
+                club.getDescription(),
+                recruitment != null ? recruitment.getRecruitStart() : null,
+                recruitment != null ? recruitment.getRecruitEnd() : null,
+                appDataS3Client.getPublicUrl(club.getLogo()),
+                isFavorite,
+                club.getInstagram(),
+                recruitment != null ? recruitment.getContent() : null
         );
     }
 
@@ -188,17 +251,6 @@ public class ClubService {
         if (!adminUser.getRole().canRegisterClub()) {
             throw new MokkojiException(FailMessage.FORBIDDEN_REGISTER_CLUB);
         }
-    }
-
-    private String getValidClubMasterStudentId(final String clubMasterStudentId) {
-        if (clubMasterStudentId == null || clubMasterStudentId.isBlank()) {
-            return null;
-        }
-
-        User masterUser = userRepository.findByStudentId(clubMasterStudentId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-        masterUser.updateRole(UserRole.CLUB_MASTER);
-        return masterUser.getStudentId();
     }
 
     private Club validateClubManagerAuthority(final Long userId, final Long clubId) { //권한 부여: CLUB_MASTER, CLUB_ADMIN
@@ -212,6 +264,30 @@ public class ClubService {
         return club;
     }
 
+    private String getValidClubMasterStudentId(final String clubMasterStudentId) {
+        if (clubMasterStudentId == null || clubMasterStudentId.isBlank()) {
+            return null;
+        }
+
+        User masterUser = userRepository.findByStudentId(clubMasterStudentId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+        masterUser.updateRole(UserRole.CLUB_MASTER);
+        return masterUser.getStudentId();
+    }
+
+    private void changeClubMasterRole(final String previousClubMasterStudentId, final String newClubMasterStudentId) {
+        userRepository.findByStudentId(previousClubMasterStudentId)
+                .ifPresent(user -> user.updateRole(UserRole.NORMAL));
+
+        userRepository.findByStudentId(newClubMasterStudentId)
+                .ifPresent(user -> user.updateRole(UserRole.CLUB_MASTER));
+    }
+
+    private Club findClubOrThrow(Long clubId) {
+        return clubRepository.findById(clubId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+    }
+
     private User findUserOrThrow(Long userId) {
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
@@ -220,9 +296,24 @@ public class ClubService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
-    private Club findClubOrThrow(Long clubId) {
-        return clubRepository.findById(clubId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+    private boolean getIsFavorite(final Long userId, final Long clubId) {
+        if (userId == null) { //회원 및 비회원 구별 로직
+            return false;
+        }
+        return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
+    }
+
+    private Comparator<ClubResponse> getFavoriteComparator() {
+        return Comparator.comparing(ClubResponse::isFavorite).reversed();
+    }
+
+    private static PageResponse createPageResponse(final Page<?> page) {
+        return PageResponse.of(
+                page.getNumber() + 1,
+                page.getSize(),
+                page.getTotalPages(),
+                (int) page.getTotalElements()
+        );
     }
 
     @Nullable
@@ -253,9 +344,5 @@ public class ClubService {
         return (newLogoKey != null && oldLogoKey != null && !oldLogoKey.equals(newLogoKey))
                 ? appDataS3Client.getPresignedDeleteUrl(oldLogoKey)
                 : null;
-    }
-
-    private Comparator<ClubResponse> getFavoriteComparator() {
-        return Comparator.comparing(ClubResponse::isFavorite).reversed();
     }
 }
