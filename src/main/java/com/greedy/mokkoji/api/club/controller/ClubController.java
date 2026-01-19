@@ -10,7 +10,10 @@ import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
+import com.greedy.mokkoji.enums.club.ClubCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +39,7 @@ public class ClubController implements ClubControllerSwagger {
         );
     }
 
-    @GetMapping
+    @GetMapping("/search")
     public ResponseEntity<APISuccessResponse<ClubsPaginationResponse>> getClubs(
             @Authentication final AuthCredential authCredential,
             @ModelAttribute(value = "clubSearchCond") final ClubSearchCond clubSearchCond,
