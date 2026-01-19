@@ -8,7 +8,10 @@ import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
+import com.greedy.mokkoji.enums.club.ClubCategory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -72,4 +75,19 @@ public interface ClubControllerSwagger {
             @Parameter(hidden = true) AuthCredential authCredential,
             @Parameter(name = "clubUpdateRequest", description = "동아리 수정 요청") ClubUpdateRequest clubUpdateRequest
     );
+
+    @Operation(
+            summary = "전체 동아리 조회 API",
+            description = "동아리 리스트를 반환합니다. 페이지 번호(`page`)는 1부터 시작.",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    ResponseEntity<APISuccessResponse<AllClubsResponse>> getAllClubs(
+            @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "affiliation") ClubAffiliation affiliation,
+            @Parameter(name = "category") ClubCategory category,
+            @Parameter(name = "page", description = "페이지 번호") int page,
+            @Parameter(name = "size", description = "페이지 크기") int size
+    );
+
 }
