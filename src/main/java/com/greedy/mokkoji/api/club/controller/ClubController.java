@@ -9,8 +9,8 @@ import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
-import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
@@ -59,6 +59,22 @@ public class ClubController implements ClubControllerSwagger {
                 )
         );
     }
+
+    @GetMapping
+    public ResponseEntity<APISuccessResponse<AllClubsResponse>> getAllRecruitment(
+            @Authentication final AuthCredential authCredential,
+            @RequestParam(value = "affiliation", required = false) final ClubAffiliation affiliation,
+            @RequestParam(value = "category", required = false) final ClubCategory category,
+            @RequestParam(value = "page") final int page,
+            @RequestParam(value = "size") final int size
+    ) {
+        final Pageable pageable = PageRequest.of(page - 1, size);
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                clubService.getAllClubs(authCredential.userId(), affiliation, category, pageable)
+        );
+    }
+
 
     @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createClub(
