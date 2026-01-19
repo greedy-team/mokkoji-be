@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -143,41 +142,38 @@ public class ClubService {
             final Long userId,
             final List<ClubWithLatestRecruitment> clubs
     ) {
-        Map<Boolean, List<ClubPreviewResponse>> partitioned = clubs.stream()
+        return clubs.stream()
                 .map(c -> mapToClubPreviewResponse(userId, c))
-                .collect(java.util.stream.Collectors.partitioningBy(
-                        r -> r.recruitmentPreviewResponse() != null
-                ));
-
-        List<ClubPreviewResponse> withRecruitment = partitioned.get(true).stream()
-                .sorted(clubPriorityComparator(userId))
+                .sorted(clubSortComparator(userId))
                 .toList();
-
-        List<ClubPreviewResponse> withoutRecruitment = partitioned.get(false);
-
-        List<ClubPreviewResponse> result = new java.util.ArrayList<>(withRecruitment.size() + withoutRecruitment.size());
-        result.addAll(withRecruitment);
-        result.addAll(withoutRecruitment);
-        return result;
     }
 
     // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
-    private Comparator<ClubPreviewResponse> clubPriorityComparator(Long userId) {
-        Comparator<ClubPreviewResponse> comparator =
+    private Comparator<ClubPreviewResponse> clubSortComparator(Long userId) {
+        Comparator<ClubPreviewResponse> recruitmentComparator =
                 Comparator.comparing(
-                                (ClubPreviewResponse club) -> club.recruitmentPreviewResponse().recruitStatus().getPriority()
+                        (ClubPreviewResponse r) -> r.recruitmentPreviewResponse(),
+                        Comparator.nullsLast(
+                                Comparator
+                                        .comparing((RecruitmentPreviewResponse rp) -> rp.recruitStatus().getPriority())
+                                        .thenComparing(RecruitmentPreviewResponse::recruitEnd)
                         )
-                        .thenComparing(
-                                club -> club.recruitmentPreviewResponse().recruitEnd()
-                        );
+                );
 
-        return (userId == null)
-                ? comparator
-                : Comparator.comparing(
-                (ClubPreviewResponse club) -> club.recruitmentPreviewResponse().isFavorite()
-        ).reversed().thenComparing(comparator);
+        Comparator<ClubPreviewResponse> base = recruitmentComparator;
+
+        if (userId != null) {
+            return Comparator.comparing(
+                            (ClubPreviewResponse r) ->
+                                    r.recruitmentPreviewResponse() != null &&
+                                            r.recruitmentPreviewResponse().isFavorite()
+                    )
+                    .reversed()
+                    .thenComparing(base);
+        }
+
+        return base;
     }
-
 
     private ClubPreviewResponse mapToClubPreviewResponse(Long userId, ClubWithLatestRecruitment c) {
         return ClubPreviewResponse.builder()

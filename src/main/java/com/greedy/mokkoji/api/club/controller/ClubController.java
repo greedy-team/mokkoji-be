@@ -61,7 +61,7 @@ public class ClubController implements ClubControllerSwagger {
     }
 
     @GetMapping
-    public ResponseEntity<APISuccessResponse<AllClubsResponse>> getAllRecruitment(
+    public ResponseEntity<APISuccessResponse<AllClubsResponse>> getAllClubs(
             @Authentication final AuthCredential authCredential,
             @RequestParam(value = "affiliation", required = false) final ClubAffiliation affiliation,
             @RequestParam(value = "category", required = false) final ClubCategory category,
