@@ -10,7 +10,6 @@ import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -77,11 +76,10 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     }
 
     @Override
-    public Page<ClubWithLatestRecruitment> findClubs(ClubAffiliation affiliation, ClubCategory category, Pageable pageable) {
-
+    public List<ClubWithLatestRecruitment> findClubs(ClubAffiliation affiliation, ClubCategory category) {
         QRecruitment subRecruitment = new QRecruitment("subRecruitment");
 
-        List<ClubWithLatestRecruitment> clubs = queryFactory
+        return queryFactory
                 .select(
                         Projections.constructor(
                                 ClubWithLatestRecruitment.class,
@@ -112,21 +110,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                         equalAffiliation(affiliation),
                         equalCategory(category)
                 )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
                 .fetch();
-
-        JPAQuery<Long> countQuery = queryFactory
-                .select(club.count())
-                .from(club)
-                .where(
-                        equalAffiliation(affiliation),
-                        equalCategory(category)
-                );
-
-        long total = Optional.ofNullable(countQuery.fetchOne()).orElse(0L);
-
-        return new PageImpl<>(clubs, pageable, total);
     }
 
     private BooleanExpression likeClubName(final String keyword) {
