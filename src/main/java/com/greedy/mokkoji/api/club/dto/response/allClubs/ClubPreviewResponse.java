@@ -9,7 +9,8 @@ public record ClubPreviewResponse(
         @Schema(example = "그리디") String name,
         @Schema(example = "세종대 최고의 코딩 동아리") String description,
         @Schema(example = "https://mokkoji-app-data.s3.ap-northeast-2.amazonaws.com/club-logo/1/greedy_{UUID}.jpg") String logo,
-        @Schema(example = "true") boolean isFavorite,
+        @Schema(example = "true") boolean favorite,
+        @Schema(implementation = RecruitmentPreviewResponse.class)
         RecruitmentPreviewResponse recruitmentPreviewResponse
 ) {
 }
