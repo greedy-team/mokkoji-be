@@ -147,33 +147,27 @@ public class ClubService {
                 .sorted(clubSortComparator(userId))
                 .toList();
     }
-
+    
     // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
     private Comparator<ClubPreviewResponse> clubSortComparator(Long userId) {
         Comparator<ClubPreviewResponse> recruitmentComparator =
                 Comparator.comparing(
-                        (ClubPreviewResponse r) -> r.recruitmentPreviewResponse(),
+                        ClubPreviewResponse::recruitmentPreviewResponse,
                         Comparator.nullsLast(
-                                Comparator
-                                        .comparing((RecruitmentPreviewResponse rp) -> rp.recruitStatus().getPriority())
+                                Comparator.comparing((RecruitmentPreviewResponse rp) -> rp.recruitStatus().getPriority())
                                         .thenComparing(RecruitmentPreviewResponse::recruitEnd)
                         )
                 );
 
-        Comparator<ClubPreviewResponse> base = recruitmentComparator;
-
-        if (userId != null) {
-            return Comparator.comparing(
-                            (ClubPreviewResponse r) ->
-                                    r.recruitmentPreviewResponse() != null &&
-                                            r.recruitmentPreviewResponse().isFavorite()
-                    )
-                    .reversed()
-                    .thenComparing(base);
+        if (userId == null) {
+            return recruitmentComparator;
         }
 
-        return base;
+        return Comparator.comparing(ClubPreviewResponse::isFavorite)
+                .reversed()
+                .thenComparing(recruitmentComparator);
     }
+
 
     private ClubPreviewResponse mapToClubPreviewResponse(Long userId, ClubWithLatestRecruitment c) {
         return ClubPreviewResponse.builder()
@@ -200,7 +194,6 @@ public class ClubService {
                 .recruitStart(latest.recruitStart())
                 .recruitEnd(latest.recruitEnd())
                 .recruitStatus(RecruitStatus.from(latest.isAlwaysRecruiting(), latest.recruitStart(), latest.recruitEnd()))
-                .isFavorite(getIsFavorite(userId, clubId))
                 .build();
     }
 
