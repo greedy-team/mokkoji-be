@@ -1,7 +1,15 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.club.dto.response.*;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.*;
+import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubPreviewResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.RecruitmentPreviewResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubWithLatestRecruitment;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.LatestRecruitmentInfo;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -25,9 +33,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -65,25 +71,30 @@ public class ClubService {
         final List<Club> clubs = clubPage.getContent();
         final List<ClubResponse> clubResponses = mapToClubResponses(userId, clubs);
 
-        final PageResponse pageResponse = createPageResponse(clubPage);
+        final PageResponse pageResponse = createPageResponses(clubPage);
 
         return new ClubsPaginationResponse(clubResponses, pageResponse);
     }
 
     @Transactional(readOnly = true)
     public AllClubsResponse getAllClubs(
-            final Long userId,
-            final ClubAffiliation affiliation,
-            final ClubCategory category,
-            final Pageable pageable
+            Long userId,
+            ClubAffiliation affiliation,
+            ClubCategory category,
+            Pageable pageable
     ) {
-        Page<ClubWithLatestRecruitment> clubPage = clubRepository.findClubs(affiliation, category, pageable);
-        List<ClubWithLatestRecruitment> filteredClubs = clubPage.getContent();
-        List<ClubPreviewResponse> clubResponses = mapToClubPreviewResponses(userId, filteredClubs);
+        List<ClubWithLatestRecruitment> clubs = clubRepository.findClubs(affiliation, category);
 
-        PageResponse pageResponse = createPageResponse(clubPage);
+        Set<Long> favoriteClubIds = loadFavoriteClubIds(userId);
 
-        return AllClubsResponse.of(clubResponses, pageResponse);
+        List<ClubPreviewResponse> sortedResponses =
+                toSortedClubPreviewResponses(clubs, favoriteClubIds, userId);
+
+        List<ClubPreviewResponse> pageContent = slicePage(sortedResponses, pageable);
+
+        PageResponse pageResponse = createPageResponse(pageable, sortedResponses.size());
+
+        return AllClubsResponse.of(pageContent, pageResponse);
     }
 
     @Transactional
@@ -138,16 +149,52 @@ public class ClubService {
         return ClubUpdateResponse.of(updateLogo, deleteLogo);
     }
 
-    private List<ClubPreviewResponse> mapToClubPreviewResponses(
-            final Long userId,
-            final List<ClubWithLatestRecruitment> clubs
+    private Set<Long> loadFavoriteClubIds(Long userId) {
+        if (userId == null) return Set.of();
+        return new HashSet<>(favoriteRepository.findClubIdsByUserId(userId));
+    }
+
+    private List<ClubPreviewResponse> toSortedClubPreviewResponses(
+            List<ClubWithLatestRecruitment> clubs,
+            Set<Long> favoriteClubIds,
+            Long userId
     ) {
         return clubs.stream()
-                .map(c -> mapToClubPreviewResponse(userId, c))
+                .map(c -> mapToClubPreviewResponse(c, favoriteClubIds))
                 .sorted(clubSortComparator(userId))
                 .toList();
     }
-    
+
+    private ClubPreviewResponse mapToClubPreviewResponse(
+            ClubWithLatestRecruitment c,
+            Set<Long> favoriteClubIds
+    ) {
+        boolean isFavorite = favoriteClubIds.contains(c.id());
+
+        return ClubPreviewResponse.builder()
+                .id(c.id())
+                .name(c.name())
+                .description(c.description())
+                .logo(appDataS3Client.getPublicUrl(c.logo()))
+                .favorite(isFavorite)
+                .recruitmentPreviewResponse(
+                        mapToLatestRecruitmentPreviewResponse(c.latestRecruitmentInfo())
+                )
+                .build();
+    }
+
+    private List<ClubPreviewResponse> slicePage(
+            List<ClubPreviewResponse> sortedResponses,
+            Pageable pageable
+    ) {
+        int total = sortedResponses.size();
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), total);
+
+        if (start >= total) return List.of();
+        return sortedResponses.subList(start, end);
+    }
+
     // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
     private Comparator<ClubPreviewResponse> clubSortComparator(Long userId) {
         Comparator<ClubPreviewResponse> recruitmentComparator =
@@ -159,30 +206,25 @@ public class ClubService {
                         )
                 );
 
-        if (userId == null) {
-            return recruitmentComparator;
-        }
+        if (userId == null) return recruitmentComparator;
 
-        return Comparator.comparing(ClubPreviewResponse::isFavorite)
+        return Comparator.comparing(ClubPreviewResponse::favorite)
                 .reversed()
                 .thenComparing(recruitmentComparator);
     }
 
-
-    private ClubPreviewResponse mapToClubPreviewResponse(Long userId, ClubWithLatestRecruitment c) {
-        return ClubPreviewResponse.builder()
-                .id(c.id())
-                .name(c.name())
-                .description(c.description())
-                .logo(appDataS3Client.getPublicUrl(c.logo()))
-                .recruitmentPreviewResponse(mapToLatestRecruitmentPreviewResponse(userId, c.id(), c.latestRecruitmentInfo()))
-                .build();
+    private static PageResponse createPageResponse(Pageable pageable, int totalElements) {
+        int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
+        return PageResponse.of(
+                pageable.getPageNumber() + 1,
+                pageable.getPageSize(),
+                totalPages,
+                totalElements
+        );
     }
 
     @Nullable
     private RecruitmentPreviewResponse mapToLatestRecruitmentPreviewResponse(
-            Long userId,
-            Long clubId,
             LatestRecruitmentInfo latest
     ) {
         if (latest == null || latest.id() == null) {
@@ -196,7 +238,6 @@ public class ClubService {
                 .recruitStatus(RecruitStatus.from(latest.isAlwaysRecruiting(), latest.recruitStart(), latest.recruitEnd()))
                 .build();
     }
-
 
     private List<ClubResponse> mapToClubResponses(final Long userId, final List<Club> clubs) {
         return clubs.stream()
@@ -296,7 +337,7 @@ public class ClubService {
         return Comparator.comparing(ClubResponse::isFavorite).reversed();
     }
 
-    private static PageResponse createPageResponse(final Page<?> page) {
+    private static PageResponse createPageResponses(final Page<?> page) {
         return PageResponse.of(
                 page.getNumber() + 1,
                 page.getSize(),

@@ -7,6 +7,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
+@Schema(name = "Recruitment_RecruitmentPreviewResponse")
 public record RecruitmentPreviewResponse(
         ClubPreviewResponse club,
         @Schema(example = "1") Long id,

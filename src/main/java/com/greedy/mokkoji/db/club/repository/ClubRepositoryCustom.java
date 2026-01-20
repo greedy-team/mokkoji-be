@@ -8,6 +8,8 @@ import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ClubRepositoryCustom {
     Page<Club> searchClubs(
             final String keyword,
@@ -17,9 +19,8 @@ public interface ClubRepositoryCustom {
             final Pageable pageable
     );
 
-    Page<ClubWithLatestRecruitment> findClubs(
-            final ClubAffiliation affiliation,
-            final ClubCategory category,
-            final Pageable pageable
+    List<ClubWithLatestRecruitment> findClubs(
+            ClubAffiliation affiliation,
+            ClubCategory category
     );
 }
