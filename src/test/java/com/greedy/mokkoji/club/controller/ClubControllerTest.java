@@ -2,11 +2,7 @@ package com.greedy.mokkoji.club.controller;
 
 import com.greedy.mokkoji.api.club.dto.request.ClubCreateRequest;
 import com.greedy.mokkoji.api.club.dto.request.ClubUpdateRequest;
-import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.club.dto.response.*;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
@@ -81,8 +77,8 @@ public class ClubControllerTest extends ControllerTest {
         final ClubDetailResponse expected = ClubDetailResponse.of(
                 club.getId(),
                 club.getName(),
-                club.getClubCategory().getDescription(),
-                club.getClubAffiliation().getDescription(),
+                club.getClubCategory(),
+                club.getClubAffiliation(),
                 club.getDescription(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
@@ -105,8 +101,8 @@ public class ClubControllerTest extends ControllerTest {
         final List<ClubResponse> clubResponses = List.of(ClubResponse.of(
                 club.getId(),
                 club.getName(),
-                club.getClubCategory().getDescription(),
-                club.getClubAffiliation().getDescription(),
+                club.getClubCategory(),
+                club.getClubAffiliation(),
                 club.getDescription(),
                 recruitment.getRecruitStart(),
                 recruitment.getRecruitEnd(),
@@ -223,8 +219,8 @@ public class ClubControllerTest extends ControllerTest {
         final ClubManageDetailResponse actual = getDataFromResponse(response, ClubManageDetailResponse.class);
         final ClubManageDetailResponse expected = ClubManageDetailResponse.of(
                 managedClub.getName(),
-                managedClub.getClubCategory().name(),
-                managedClub.getClubAffiliation().name(),
+                managedClub.getClubCategory(),
+                managedClub.getClubAffiliation(),
                 managedClub.getDescription(),
                 managedClub.getLogo(),
                 managedClub.getInstagram()
