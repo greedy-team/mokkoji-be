@@ -1,7 +1,5 @@
 package com.greedy.mokkoji.favorite.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.greedy.mokkoji.api.favorite.dto.response.RecruitClubsResponse;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
@@ -12,12 +10,15 @@ import com.greedy.mokkoji.enums.message.FailMessage;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import java.time.LocalDateTime;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class FavoriteControllerTest extends ControllerTest {
@@ -41,7 +42,7 @@ public class FavoriteControllerTest extends ControllerTest {
         favoriteClub = clubRepository.save(Fixture.createClub());
         notFavoriteClub = clubRepository.save(Fixture.createClub());
         recruitmentRepository.saveAll(
-            List.of(Fixture.createRecruitment(favoriteClub), Fixture.createRecruitment(notFavoriteClub))
+                List.of(Fixture.createRecruitment(favoriteClub), Fixture.createRecruitment(notFavoriteClub))
         );
         favoriteRepository.save(Fixture.createFavorite(favoriteClub, user));
     }
@@ -51,11 +52,11 @@ public class FavoriteControllerTest extends ControllerTest {
     void addFavorite() {
         // given & when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearerAccessToken(user))
-            .pathParam("clubId", notFavoriteClub.getId())
-            .when().post(prefixUrl + "/favorites/{clubId}")
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearerAccessToken(user))
+                .pathParam("clubId", notFavoriteClub.getId())
+                .when().post(prefixUrl + "/favorites/{clubId}")
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
@@ -68,17 +69,17 @@ public class FavoriteControllerTest extends ControllerTest {
     void addFavorite_whenAlreadyFavorited_shouldReturn409() {
         // given & when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearerAccessToken(user))
-            .pathParam("clubId", favoriteClub.getId())
-            .when().post(prefixUrl + "/favorites/{clubId}")
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearerAccessToken(user))
+                .pathParam("clubId", favoriteClub.getId())
+                .when().post(prefixUrl + "/favorites/{clubId}")
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(FailMessage.CONFLICT_FAVORITE.getCode(),
-            FailMessage.CONFLICT_FAVORITE.getMessage());
+                FailMessage.CONFLICT_FAVORITE.getMessage());
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.CONFLICT.value());
         assertThat(actualResponse).usingRecursiveComparison().isEqualTo(expectedResponse);
@@ -89,16 +90,16 @@ public class FavoriteControllerTest extends ControllerTest {
     void addFavorite_withoutToken_shouldReturn401() {
         // given & when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .pathParam("clubId", notFavoriteClub.getId())
-            .when().post(prefixUrl + "/favorites/{clubId}")
-            .then().log().all()
-            .extract();
+                .pathParam("clubId", notFavoriteClub.getId())
+                .when().post(prefixUrl + "/favorites/{clubId}")
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(FailMessage.UNAUTHORIZED_EMPTY_HEADER.getCode(),
-            FailMessage.UNAUTHORIZED_EMPTY_HEADER.getMessage());
+                FailMessage.UNAUTHORIZED_EMPTY_HEADER.getMessage());
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.UNAUTHORIZED.value());
         assertThat(actualResponse).usingRecursiveComparison().isEqualTo(expectedResponse);
@@ -109,11 +110,11 @@ public class FavoriteControllerTest extends ControllerTest {
     void deleteFavorite() {
         // given & when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearerAccessToken(user))
-            .pathParam("clubId", favoriteClub.getId())
-            .when().delete(prefixUrl + "/favorites/{clubId}")
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearerAccessToken(user))
+                .pathParam("clubId", favoriteClub.getId())
+                .when().delete(prefixUrl + "/favorites/{clubId}")
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
@@ -126,17 +127,17 @@ public class FavoriteControllerTest extends ControllerTest {
     void deleteFavorite_whenNotFavorited_shouldReturn404() {
         // given & when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearerAccessToken(user))
-            .pathParam("clubId", notFavoriteClub.getId())
-            .when().delete(prefixUrl + "/favorites/{clubId}")
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearerAccessToken(user))
+                .pathParam("clubId", notFavoriteClub.getId())
+                .when().delete(prefixUrl + "/favorites/{clubId}")
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(FailMessage.NOT_FOUND_FAVORITE.getCode(),
-            FailMessage.NOT_FOUND_FAVORITE.getMessage());
+                FailMessage.NOT_FOUND_FAVORITE.getMessage());
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.NOT_FOUND.value());
         assertThat(actualResponse).usingRecursiveComparison().isEqualTo(expectedResponse);
@@ -147,16 +148,16 @@ public class FavoriteControllerTest extends ControllerTest {
     void deleteFavorite_withoutToken_shouldReturn401() {
         // given & when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .pathParam("clubId", notFavoriteClub.getId())
-            .when().delete(prefixUrl + "/favorites/{clubId}")
-            .then().log().all()
-            .extract();
+                .pathParam("clubId", notFavoriteClub.getId())
+                .when().delete(prefixUrl + "/favorites/{clubId}")
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(FailMessage.UNAUTHORIZED_EMPTY_HEADER.getCode(),
-            FailMessage.UNAUTHORIZED_EMPTY_HEADER.getMessage());
+                FailMessage.UNAUTHORIZED_EMPTY_HEADER.getMessage());
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.UNAUTHORIZED.value());
         assertThat(actualResponse).usingRecursiveComparison().isEqualTo(expectedResponse);
@@ -167,12 +168,12 @@ public class FavoriteControllerTest extends ControllerTest {
     void getFavoriteClubs() {
         // given & when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearerAccessToken(user))
-            .param("page", 1)
-            .param("size", 5)
-            .when().get(prefixUrl + "/favorites")
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearerAccessToken(user))
+                .param("page", 1)
+                .param("size", 5)
+                .when().get(prefixUrl + "/favorites")
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
@@ -184,18 +185,18 @@ public class FavoriteControllerTest extends ControllerTest {
     @DisplayName("즐겨찾기 되어 있는 동아리 중, 해당 연월에 모집하는 동아리의 모집 정보를 조회한다.")
     void getRecruitClubs() {
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearerAccessToken(user))
-            .param("yearMonth", "2025-01")
-            .when().get(prefixUrl + "/favorites/recruit")
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearerAccessToken(user))
+                .param("yearMonth", "2025-01")
+                .when().get(prefixUrl + "/favorites/recruit")
+                .then().log().all()
+                .extract();
 
         final int actualStatusCode = response.statusCode();
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.OK.value());
 
         List<RecruitClubsResponse> recruitList =
-            response.jsonPath().getList("data", RecruitClubsResponse.class);
+                response.jsonPath().getList("data", RecruitClubsResponse.class);
 
         RecruitClubsResponse recruitClubResponse = recruitList.get(0);
 
@@ -209,23 +210,23 @@ public class FavoriteControllerTest extends ControllerTest {
     @Test
     void getRecruitClubsWhenRecruitStartInYearMonth() {
         recruitmentRepository.saveAll(
-            List.of(Fixture.createRecruitmentOfAugust(favoriteClub),
-                Fixture.createLastedRecruitmentOfAugust(favoriteClub))
+                List.of(Fixture.createRecruitmentOfAugust(favoriteClub),
+                        Fixture.createLastedRecruitmentOfAugust(favoriteClub))
         );
 
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearerAccessToken(user))
-            .param("yearMonth", "2025-08")
-            .when().get(prefixUrl + "/favorites/recruit")
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearerAccessToken(user))
+                .param("yearMonth", "2025-08")
+                .when().get(prefixUrl + "/favorites/recruit")
+                .then().log().all()
+                .extract();
 
         final int actualStatusCode = response.statusCode();
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.OK.value());
 
         List<RecruitClubsResponse> recruitList =
-            response.jsonPath().getList("data", RecruitClubsResponse.class);
+                response.jsonPath().getList("data", RecruitClubsResponse.class);
 
         RecruitClubsResponse recruitClubResponse = recruitList.get(0);
 
@@ -239,23 +240,23 @@ public class FavoriteControllerTest extends ControllerTest {
     @Test
     void getRecruitClubsWhenRecruitEndInYearMonth() {
         recruitmentRepository.saveAll(
-            List.of(Fixture.createRecruitmentOfAugust(favoriteClub),
-                Fixture.createLastedRecruitmentOfAugust(favoriteClub))
+                List.of(Fixture.createRecruitmentOfAugust(favoriteClub),
+                        Fixture.createLastedRecruitmentOfAugust(favoriteClub))
         );
 
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearerAccessToken(user))
-            .param("yearMonth", "2025-09")
-            .when().get(prefixUrl + "/favorites/recruit")
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearerAccessToken(user))
+                .param("yearMonth", "2025-09")
+                .when().get(prefixUrl + "/favorites/recruit")
+                .then().log().all()
+                .extract();
 
         final int actualStatusCode = response.statusCode();
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.OK.value());
 
         List<RecruitClubsResponse> recruitList =
-            response.jsonPath().getList("data", RecruitClubsResponse.class);
+                response.jsonPath().getList("data", RecruitClubsResponse.class);
 
         RecruitClubsResponse recruitClubResponse = recruitList.get(0);
 
@@ -269,23 +270,23 @@ public class FavoriteControllerTest extends ControllerTest {
     @Test
     void getRecruitClubsWhenNoRecruitmentInYearMonth() {
         recruitmentRepository.saveAll(
-            List.of(Fixture.createRecruitmentOfAugust(favoriteClub),
-                Fixture.createLastedRecruitmentOfAugust(favoriteClub))
+                List.of(Fixture.createRecruitmentOfAugust(favoriteClub),
+                        Fixture.createLastedRecruitmentOfAugust(favoriteClub))
         );
 
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearerAccessToken(user))
-            .param("yearMonth", "2025-10")
-            .when().get(prefixUrl + "/favorites/recruit")
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearerAccessToken(user))
+                .param("yearMonth", "2025-10")
+                .when().get(prefixUrl + "/favorites/recruit")
+                .then().log().all()
+                .extract();
 
         final int actualStatusCode = response.statusCode();
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.OK.value());
 
         List<RecruitClubsResponse> recruitList =
-            response.jsonPath().getList("data", RecruitClubsResponse.class);
+                response.jsonPath().getList("data", RecruitClubsResponse.class);
 
         assertThat(recruitList).isEmpty();
     }
