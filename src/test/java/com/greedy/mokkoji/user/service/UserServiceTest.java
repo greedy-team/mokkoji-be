@@ -208,7 +208,7 @@ public class UserServiceTest {
         UserRoleResponse actualRole = userService.getUserRole(userId);
 
         // then
-        assertThat(actualRole.role()).isEqualTo(UserRole.GREEDY_ADMIN.toString());
+        assertThat(actualRole.role()).isEqualTo(UserRole.GREEDY_ADMIN);
     }
 
     @Test

@@ -11,6 +11,7 @@ import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.user.entity.User;
+import com.greedy.mokkoji.enums.user.UserRole;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
@@ -219,7 +220,7 @@ public class UserControllerTest extends ControllerTest {
     void getUserRole() {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
-        final String expected = user.getRole().toString();
+        final UserRole expected = user.getRole();
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
