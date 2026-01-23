@@ -93,7 +93,7 @@ public class SejongLoginRestClient {
 
             return StudentInformationResponse.of(name, major, grade);
         } catch (Exception e) {
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH, e);
         }
     }
 }
