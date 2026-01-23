@@ -1,10 +1,15 @@
 package com.greedy.mokkoji.db.club.repository;
 
+import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubWithLatestRecruitment;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.LatestRecruitmentInfo;
 import com.greedy.mokkoji.db.club.entity.Club;
+import com.greedy.mokkoji.db.recruitment.entity.QRecruitment;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.*;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -28,11 +33,11 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Club> findClubs(final String keyword,
-                                final ClubCategory category,
-                                final ClubAffiliation affiliation,
-                                final RecruitStatus status,
-                                final Pageable pageable) {
+    public Page<Club> findClubsWithLatestRecruitment(final String keyword,
+                                                     final ClubCategory category,
+                                                     final ClubAffiliation affiliation,
+                                                     final RecruitStatus status,
+                                                     final Pageable pageable) {
 
         final LocalDateTime now = LocalDateTime.now();
 
@@ -68,6 +73,44 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
         ).orElse(0L);
 
         return new PageImpl<>(clubs, pageable, total);
+    }
+
+    @Override
+    public List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(ClubAffiliation affiliation, ClubCategory category) {
+        QRecruitment subRecruitment = new QRecruitment("subRecruitment");
+
+        return queryFactory
+                .select(
+                        Projections.constructor(
+                                ClubWithLatestRecruitment.class,
+                                club.id,
+                                club.name,
+                                club.description,
+                                club.logo,
+                                Projections.constructor(
+                                        LatestRecruitmentInfo.class,
+                                        recruitment.id,
+                                        recruitment.recruitStart,
+                                        recruitment.recruitEnd,
+                                        recruitment.isAlwaysRecruiting
+                                )
+                        )
+                )
+                .from(club)
+                .leftJoin(recruitment).on(
+                        recruitment.club.eq(club),
+                        recruitment.createdAt.eq(
+                                JPAExpressions
+                                        .select(subRecruitment.createdAt.max())
+                                        .from(subRecruitment)
+                                        .where(subRecruitment.club.eq(club))
+                        )
+                )
+                .where(
+                        equalAffiliation(affiliation),
+                        equalCategory(category)
+                )
+                .fetch();
     }
 
     private BooleanExpression likeClubName(final String keyword) {

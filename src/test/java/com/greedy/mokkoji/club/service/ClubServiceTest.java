@@ -116,7 +116,7 @@ class ClubServiceTest {
         final List<Club> clubs = List.of(club1, club2);
         final Page<Club> clubPage = new PageImpl<>(clubs, pageable, clubs.size());
 
-        BDDMockito.given(clubRepository.findClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
+        BDDMockito.given(clubRepository.searchClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId1)).willReturn(Optional.ofNullable(recruitment1));
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId2)).willReturn(Optional.ofNullable(recruitment2));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(true);
@@ -150,7 +150,7 @@ class ClubServiceTest {
 
         assertThat(response.pagination().totalElements()).isEqualTo(2);
 
-        BDDMockito.verify(clubRepository, times(1)).findClubs(any(), any(), any(), any(), any(Pageable.class));
+        BDDMockito.verify(clubRepository, times(1)).searchClubs(any(), any(), any(), any(), any(Pageable.class));
         BDDMockito.verify(recruitmentRepository, times(2)).findTopByClubIdOrderByCreatedAtDesc(anyLong());
         BDDMockito.verify(favoriteRepository, times(2)).existsByUserIdAndClubId(anyLong(), anyLong());
     }
@@ -519,7 +519,7 @@ class ClubServiceTest {
         final List<Club> clubs = List.of(club1, club2);
         final Page<Club> clubPage = new PageImpl<>(clubs, pageable, clubs.size());
 
-        BDDMockito.given(clubRepository.findClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
+        BDDMockito.given(clubRepository.searchClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId1)).willReturn(Optional.ofNullable(recruitment1));
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId2)).willReturn(Optional.ofNullable(recruitment2));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(false);

@@ -322,17 +322,17 @@ public class RecruitmentService {
     private List<RecruitmentPreviewResponse> mapToRecruitmentResponses(Long userId,
         List<Recruitment> filteredRecruitments) {
         return filteredRecruitments.stream()
-            .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
-            .sorted(recruitmentPriorityComparator(userId))
-            .toList();
+                .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
+                .sorted(recruitmentPriorityComparator(userId))
+                .toList();
     }
 
     private static PageResponse createPageResponse(Page<Recruitment> recruitmentPage) {
         return PageResponse.of(
-            recruitmentPage.getNumber() + 1,
-            recruitmentPage.getSize(),
-            recruitmentPage.getTotalPages(),
-            (int) recruitmentPage.getTotalElements()
+                recruitmentPage.getNumber() + 1,
+                recruitmentPage.getSize(),
+                recruitmentPage.getTotalPages(),
+                (int) recruitmentPage.getTotalElements()
         );
     }
 
@@ -364,6 +364,11 @@ public class RecruitmentService {
     // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
     private Comparator<RecruitmentPreviewResponse> recruitmentPriorityComparator(Long userId) {
         Comparator<RecruitmentPreviewResponse> comparator =
+                Comparator.comparing(
+                                (RecruitmentPreviewResponse response) ->
+                                        RecruitStatus.from(response.isAlwaysRecruiting(), response.recruitStart(), response.recruitEnd()).getPriority()
+                        )
+                        .thenComparing(RecruitmentPreviewResponse::recruitEnd);
             Comparator.comparing(
                     (RecruitmentPreviewResponse response) ->
                         RecruitStatus.from(response.isAlwaysRecruiting(), response.recruitStart(), response.recruitEnd())
@@ -376,14 +381,15 @@ public class RecruitmentService {
 
         if (userId != null) {
             comparator = Comparator.comparing(RecruitmentPreviewResponse::isFavorite).reversed()
-                .thenComparing(comparator);
+                    .thenComparing(comparator);
         }
 
         return comparator;
     }
 
+
     private Comparator<Recruitment> newestFirstRecruitmentComparator() {
         return Comparator.comparing(Recruitment::getCreatedAt).reversed()
-            .thenComparing(Recruitment::getId, Comparator.reverseOrder());
+                .thenComparing(Recruitment::getId, Comparator.reverseOrder());
     }
 }
