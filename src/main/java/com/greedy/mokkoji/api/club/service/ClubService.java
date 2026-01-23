@@ -1,15 +1,7 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubPreviewResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.RecruitmentPreviewResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubWithLatestRecruitment;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.LatestRecruitmentInfo;
+import com.greedy.mokkoji.api.club.dto.response.*;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.*;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -197,14 +189,18 @@ public class ClubService {
 
     // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
     private Comparator<ClubPreviewResponse> clubSortComparator(Long userId) {
-        Comparator<ClubPreviewResponse> recruitmentComparator =
-                Comparator.comparing(
-                        ClubPreviewResponse::recruitmentPreviewResponse,
-                        Comparator.nullsLast(
-                                Comparator.comparing((RecruitmentPreviewResponse rp) -> rp.recruitStatus().getPriority())
-                                        .thenComparing(RecruitmentPreviewResponse::recruitEnd)
-                        )
+
+        Comparator<RecruitmentPreviewResponse> recruitmentSortComparator =
+                Comparator.nullsLast(
+                        Comparator.comparing((RecruitmentPreviewResponse rp) -> rp.recruitStatus().getPriority())
+                                .thenComparing(
+                                        RecruitmentPreviewResponse::recruitEnd,
+                                        Comparator.nullsLast(Comparator.naturalOrder())
+                                )
                 );
+
+        Comparator<ClubPreviewResponse> recruitmentComparator =
+                Comparator.comparing(ClubPreviewResponse::recruitmentPreviewResponse, recruitmentSortComparator);
 
         if (userId == null) return recruitmentComparator;
 
