@@ -16,9 +16,6 @@ import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
-
-import java.time.YearMonth;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -35,6 +32,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -249,8 +247,8 @@ public class FavoriteServiceTest {
         //then
         assertThat(favoriteClubs.clubs().size()).isEqualTo(1);
         assertThat(favoriteClubs.clubs().get(0).name()).isEqualTo("동아리 이름");
-        assertThat(favoriteClubs.clubs().get(0).category()).isEqualTo("문화/예술");
-        assertThat(favoriteClubs.clubs().get(0).affiliation()).isEqualTo("중앙");
+        assertThat(favoriteClubs.clubs().get(0).category()).isEqualTo(ClubCategory.CULTURAL_ART);
+        assertThat(favoriteClubs.clubs().get(0).affiliation()).isEqualTo(ClubAffiliation.CENTRAL_CLUB);
         assertThat(favoriteClubs.clubs().get(0).description()).isEqualTo("동아리 설명");
         assertThat(favoriteClubs.clubs().get(0).recruitStartDate()).isEqualTo("2025-02-01");
         assertThat(favoriteClubs.clubs().get(0).recruitEndDate()).isEqualTo("2025-03-30");

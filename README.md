@@ -47,7 +47,7 @@
   <tr>
     <th><a href="https://github.com/sins051301">신혁수</a></th>
     <th><a href="https://github.com/ChangwooJ">정창우</a></th>
-    <th><a href="https://github.com/Jae-kyoung">방재경</a></th>
+    <th><a href="https://github.com/zldn109">신지우</a></th>
   </tr>
   <tr>
     <td>
@@ -57,7 +57,7 @@
       <img src="https://github.com/user-attachments/assets/7400b9d8-ad5c-46cf-bf3e-f7319c1db3b6" width="120px" height="120px"/>
     </td>
     <td>
-      <img src="https://github.com/user-attachments/assets/57316d29-f270-49b4-a368-0b6e055e6096" width="120px" height="120px"/>
+      <img src="https://github.com/user-attachments/assets/6babe0d5-445d-4492-a274-c17d765d6fa0" width="120px" height="120px"/>
     </td>
   </tr>
   <tr>
@@ -68,7 +68,7 @@
   <tr>
     <td>컴퓨터공학과</td>
     <td>전자정보통신공학과</td>
-    <td>정보보호학과</td>
+    <td>소프트웨어학과</td>
   </tr>
 </table>
 
@@ -78,25 +78,20 @@
   <tr>
     <th><a href="https://github.com/c0mputurtle">신혜빈</a></th>
     <th><a href="https://github.com/goldm0ng">안금서</a></th>
-    <th><a href="https://github.com/davidolleh">황승준</a></th>
-    <th><a href="https://github.com/sansan20535">김의진</a></th>
+    <th><a href="https://github.com/gjtjrl303">허석준</a></th>
   </tr>
   <tr>
     <td>
-      <img src="https://github.com/user-attachments/assets/30288ae1-f8f9-4409-a483-b9244a3df618" width="120px" height="120px"/>
+      <img src="https://github.com/user-attachments/assets/c890af9f-53be-4c51-a38b-a4ae70434dc6" width="120px" height="120px"/>
     </td>
     <td>
       <img width="120" height="120" alt="image" src="https://github.com/user-attachments/assets/eb9e4c67-0548-4d0e-804f-95497091ac45" />
     </td>
-    <td>
-      <img src="https://github.com/user-attachments/assets/53ff6d2f-1cb6-47f4-87dd-e3a929c1add3" width="120px" height="120px"/>
-    </td>
-    <td>
-      <img src="https://github.com/user-attachments/assets/a9479c33-d451-48bd-9ac1-42448045175b" width="120px" height="120px"/>
+     <td>
+      <img width="120" height="120" alt="image" src="https://github.com/user-attachments/assets/fe0450b1-bc50-4c1c-9a57-312fd65c4892" />
     </td>
   </tr>
   <tr>
-    <td>BE Developer</td>
     <td>BE Developer</td>
     <td>BE Developer</td>
     <td>BE Developer</td>
@@ -104,7 +99,6 @@
   <tr>
     <td>컴퓨터공학과</td>
     <td>소프트웨어학과</td>
-    <td>컴퓨터공학과</td>
     <td>컴퓨터공학과</td>
   </tr>
 </table>
@@ -130,11 +124,42 @@
   </tr>
 </table>
 
+### ⚪ Former Members
+
+<table>
+  <tr>
+    <th><a href="https://github.com/Jae-kyoung">방재경</a></th>
+    <th><a href="https://github.com/davidolleh">황승준</a></th>
+    <th><a href="https://github.com/sansan20535">김의진</a></th>
+  </tr>
+  <tr>
+    <td>
+      <img src="https://github.com/user-attachments/assets/57316d29-f270-49b4-a368-0b6e055e6096" width="120px" height="120px"/>
+    </td>
+     <td>
+      <img src="https://github.com/user-attachments/assets/53ff6d2f-1cb6-47f4-87dd-e3a929c1add3" width="120px" height="120px"/>
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/a9479c33-d451-48bd-9ac1-42448045175b" width="120px" height="120px"/>
+    </td>
+  </tr>
+  <tr>
+    <td>FE Developer</td>
+    <td>BE Developer</td>
+    <td>BE Developer</td>
+  </tr>
+  <tr>
+    <td>정보보호학과</td>
+    <td>컴퓨터공학과</td>
+    <td>컴퓨터공학과</td>
+  </tr>
+</table>
+
 </div>
 
 ## 주요 기능 소개
 
-### ✅ **세종대 모든 동아리를 한 곳애서!**
+### ✅ **세종대 모든 동아리를 한 곳에서!**
 
 - 학술, 공연, 체육, 봉사, 종교 등 다양한 분야의 동아리 정보를 한 눈에 볼 수 있어요.
 

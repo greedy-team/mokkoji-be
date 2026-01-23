@@ -27,14 +27,17 @@ import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -49,22 +52,23 @@ public class RecruitmentService {
 
     @Transactional
     public CreateRecruitmentResponse createRecruitment(
-            final Long userId,
-            final Long clubId,
-            final String title,
-            final String content,
-            final LocalDateTime recruitStart,
-            final LocalDateTime recruitEnd,
-            final List<String> imageNames,
-            final String recruitForm,
-            final boolean isAlwaysRecruiting) {
+        final Long userId,
+        final Long clubId,
+        final String title,
+        final String content,
+        final LocalDateTime recruitStart,
+        final LocalDateTime recruitEnd,
+        final List<String> imageNames,
+        final String recruitForm,
+        final boolean isAlwaysRecruiting) {
 
         validateAdmin(userId);
 
         Club club = clubRepository.findById(clubId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
 
-        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
+        Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm,
+            isAlwaysRecruiting);
         List<String> uploadImageUrls = uploadRecruitmentImages(recruitment, imageNames);
 
         return CreateRecruitmentResponse.of(recruitment.getId(), uploadImageUrls);
@@ -72,20 +76,20 @@ public class RecruitmentService {
 
     @Transactional
     public UpdateRecruitmentResponse updateRecruitment(
-            final Long userId,
-            final Long recruitmentId,
-            final String title,
-            final String content,
-            final LocalDateTime recruitStart,
-            final LocalDateTime recruitEnd,
-            final List<String> imageNames,
-            final String recruitForm,
-            final boolean isAlwaysRecruiting
+        final Long userId,
+        final Long recruitmentId,
+        final String title,
+        final String content,
+        final LocalDateTime recruitStart,
+        final LocalDateTime recruitEnd,
+        final List<String> imageNames,
+        final String recruitForm,
+        final boolean isAlwaysRecruiting
     ) {
         validateAdmin(userId);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
 
@@ -100,7 +104,7 @@ public class RecruitmentService {
         validateAdmin(userId);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
         List<String> deleteImageUrls = deleteImages(recruitmentId);
         recruitmentRepository.delete(recruitment);
@@ -113,25 +117,25 @@ public class RecruitmentService {
         List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
 
         List<RecruitmentOfClubResponse> recruitmentList = recruitments.stream()
-                .sorted(newestFirstRecruitmentComparator())
-                .map(recruitment -> RecruitmentOfClubResponse.builder()
-                        .id(recruitment.getId())
-                        .title(recruitment.getTitle())
-                        .content(recruitment.getContent())
-                        .recruitStart(recruitment.getRecruitStart())
-                        .recruitEnd(recruitment.getRecruitEnd())
-                        .status(
-                                RecruitStatus.from(
-                                        recruitment.isAlwaysRecruiting(),
-                                        recruitment.getRecruitStart(),
-                                        recruitment.getRecruitEnd()
-                                )
-                        )
-                        .createdAt(recruitment.getCreatedAt())
-                        .isAlwaysRecruiting(recruitment.isAlwaysRecruiting())
-                        .build()
+            .sorted(newestFirstRecruitmentComparator())
+            .map(recruitment -> RecruitmentOfClubResponse.builder()
+                .id(recruitment.getId())
+                .title(recruitment.getTitle())
+                .content(recruitment.getContent())
+                .recruitStart(recruitment.getRecruitStart())
+                .recruitEnd(recruitment.getRecruitEnd())
+                .status(
+                    RecruitStatus.from(
+                        recruitment.isAlwaysRecruiting(),
+                        recruitment.getRecruitStart(),
+                        recruitment.getRecruitEnd()
+                    )
                 )
-                .toList();
+                .createdAt(recruitment.getCreatedAt())
+                .isAlwaysRecruiting(recruitment.isAlwaysRecruiting())
+                .build()
+            )
+            .toList();
 
         return AllRecruitmentOfClubResponse.of(recruitmentList);
     }
@@ -142,38 +146,39 @@ public class RecruitmentService {
         Optional<Recruitment> recentRecruitment = recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId);
 
         Recruitment recruitment = recentRecruitment.orElseGet(() ->
-                recruitmentRepository.findTopByClubIdAndIsAlwaysRecruitingOrderByCreatedAtDesc(clubId, true)
-                        .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT))
+            recruitmentRepository.findTopByClubIdAndIsAlwaysRecruitingOrderByCreatedAtDesc(clubId, true)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT))
         );
 
         Club club = recruitment.getClub();
 
         List<RecruitmentImage> recruitmentImages = recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(
-                recruitment.getId());
+            recruitment.getId());
 
         List<String> imageUrls = recruitmentImages.stream()
-                .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
-                .toList();
+            .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
+            .toList();
 
         Boolean isFavorite = isFavorite(userId, club.getId());
 
         return RecentRecruitmentOfClubResponse.of(
-                recruitment.getId(),
-                recruitment.getTitle(),
-                club.getName(),
-                appDataS3Client.getPublicUrl(club.getLogo()),
-                club.getId(),
-                recruitment.getContent(),
-                recruitment.getRecruitStart(),
-                recruitment.getRecruitEnd(),
-                RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
-                recruitment.getCreatedAt(),
-                imageUrls,
-                recruitment.getRecruitForm(),
-                isFavorite,
-                club.getInstagram(),
-                club.getClubCategory(),
-                recruitment.isAlwaysRecruiting()
+            recruitment.getId(),
+            recruitment.getTitle(),
+            club.getName(),
+            appDataS3Client.getPublicUrl(club.getLogo()),
+            club.getId(),
+            recruitment.getContent(),
+            recruitment.getRecruitStart(),
+            recruitment.getRecruitEnd(),
+            RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd()),
+            recruitment.getCreatedAt(),
+            imageUrls,
+            recruitment.getRecruitForm(),
+            isFavorite,
+            club.getInstagram(),
+            club.getClubCategory(),
+            recruitment.isAlwaysRecruiting()
         );
     }
 
@@ -181,41 +186,42 @@ public class RecruitmentService {
     @Transactional
     public SpecificRecruitmentResponse getSpecificRecruitment(final Long userId, final Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findRecruitmentById(recruitmentId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
         List<RecruitmentImage> recruitmentImages = recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(
-                recruitmentId);
+            recruitmentId);
 
         List<String> imageUrls = recruitmentImages.stream()
-                .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
-                .toList();
+            .map(image -> appDataS3Client.getPublicUrl(image.getImage()))
+            .toList();
 
         Club club = recruitment.getClub();
 
         return SpecificRecruitmentResponse.of(
-                recruitment.getId(),
-                recruitment.getTitle(),
-                club.getName(),
-                appDataS3Client.getPublicUrl(club.getLogo()),
-                club.getId(),
-                recruitment.getContent(),
-                recruitment.getRecruitStart(),
-                recruitment.getRecruitEnd(),
-                RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
-                recruitment.getCreatedAt(),
-                imageUrls,
-                recruitment.getRecruitForm(),
-                isFavorite(userId, club.getId()),
-                club.getInstagram(),
-                club.getClubCategory(),
-                recruitment.isAlwaysRecruiting()
+            recruitment.getId(),
+            recruitment.getTitle(),
+            club.getName(),
+            appDataS3Client.getPublicUrl(club.getLogo()),
+            club.getId(),
+            recruitment.getContent(),
+            recruitment.getRecruitStart(),
+            recruitment.getRecruitEnd(),
+            RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd()),
+            recruitment.getCreatedAt(),
+            imageUrls,
+            recruitment.getRecruitForm(),
+            isFavorite(userId, club.getId()),
+            club.getInstagram(),
+            club.getClubCategory(),
+            recruitment.isAlwaysRecruiting()
         );
     }
 
     @Transactional
     public AllRecruitmentResponse getAllRecruitment(final Long userId, final ClubAffiliation affiliation,
-                                                    final ClubCategory category,
-                                                    final Pageable pageable) {
+        final ClubCategory category,
+        final Pageable pageable) {
 
         Page<Recruitment> recruitmentPage = recruitmentRepository.findRecruitments(affiliation, category, pageable);
         List<Recruitment> filteredRecruitments = recruitmentPage.getContent();
@@ -233,7 +239,7 @@ public class RecruitmentService {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+            .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
         if (user.getRole().equals(UserRole.NORMAL)) {
             throw new MokkojiException(FailMessage.FORBIDDEN);
@@ -241,17 +247,17 @@ public class RecruitmentService {
     }
 
     private Recruitment buildAndSaveRecruitment(Club club, String title, String content,
-                                                LocalDateTime recruitStart, LocalDateTime recruitEnd,
-                                                String recruitForm, boolean isAlwaysRecruiting) {
+        LocalDateTime recruitStart, LocalDateTime recruitEnd,
+        String recruitForm, boolean isAlwaysRecruiting) {
         Recruitment recruitment = Recruitment.builder()
-                .club(club)
-                .title(title)
-                .content(content)
-                .recruitStart(recruitStart)
-                .recruitEnd(recruitEnd)
-                .recruitForm(recruitForm)
-                .isAlwaysRecruiting(isAlwaysRecruiting)
-                .build();
+            .club(club)
+            .title(title)
+            .content(content)
+            .recruitStart(recruitStart)
+            .recruitEnd(recruitEnd)
+            .recruitForm(recruitForm)
+            .isAlwaysRecruiting(isAlwaysRecruiting)
+            .build();
 
         recruitmentRepository.save(recruitment);
         return recruitment;
@@ -260,7 +266,7 @@ public class RecruitmentService {
     private List<String> uploadRecruitmentImages(Recruitment recruitment, List<String> imageNames) {
         List<String> presignedUrls = new ArrayList<>();
 
-        if (imageNames.isEmpty() && imageNames == null) {
+        if (imageNames == null || imageNames.isEmpty()) {
             return presignedUrls;
         }
 
@@ -272,9 +278,9 @@ public class RecruitmentService {
             presignedUrls.add(presignedPutUrl);
 
             RecruitmentImage recruitmentImage = RecruitmentImage.builder()
-                    .recruitment(recruitment)
-                    .image(imageKey)
-                    .build();
+                .recruitment(recruitment)
+                .image(imageKey)
+                .build();
             recruitmentImages.add(recruitmentImage);
         }
 
@@ -298,8 +304,8 @@ public class RecruitmentService {
         List<RecruitmentImage> oldImages = recruitmentImageRepository.findByRecruitmentId(recruitmentId);
 
         List<String> deleteImageUrls = oldImages.stream()
-                .map(image -> appDataS3Client.getPresignedDeleteUrl(image.getImage()))
-                .toList();
+            .map(image -> appDataS3Client.getPresignedDeleteUrl(image.getImage()))
+            .toList();
 
         recruitmentImageRepository.deleteAll(oldImages);
 
@@ -313,7 +319,8 @@ public class RecruitmentService {
         return favoriteRepository.existsByUserIdAndClubId(userId, clubId);
     }
 
-    private List<RecruitmentPreviewResponse> mapToRecruitmentResponses(Long userId, List<Recruitment> filteredRecruitments) {
+    private List<RecruitmentPreviewResponse> mapToRecruitmentResponses(Long userId,
+        List<Recruitment> filteredRecruitments) {
         return filteredRecruitments.stream()
                 .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
                 .sorted(recruitmentPriorityComparator(userId))
@@ -333,23 +340,24 @@ public class RecruitmentService {
         boolean isFavorite = isFavorite(userId, recruitment.getClub().getId());
 
         ClubPreviewResponse clubPreview = new ClubPreviewResponse(
-                recruitment.getClub().getId(),
-                recruitment.getClub().getName(),
-                recruitment.getClub().getDescription(),
-                recruitment.getClub().getClubCategory(),
-                recruitment.getClub().getClubAffiliation(),
-                appDataS3Client.getPublicUrl(recruitment.getClub().getLogo())
+            recruitment.getClub().getId(),
+            recruitment.getClub().getName(),
+            recruitment.getClub().getDescription(),
+            recruitment.getClub().getClubCategory(),
+            recruitment.getClub().getClubAffiliation(),
+            appDataS3Client.getPublicUrl(recruitment.getClub().getLogo())
         );
 
         return new RecruitmentPreviewResponse(
-                clubPreview,
-                recruitment.getId(),
-                recruitment.getTitle(),
-                recruitment.getRecruitStart(),
-                recruitment.getRecruitEnd(),
-                RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()),
-                isFavorite,
-                recruitment.isAlwaysRecruiting()
+            clubPreview,
+            recruitment.getId(),
+            recruitment.getTitle(),
+            recruitment.getRecruitStart(),
+            recruitment.getRecruitEnd(),
+            RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd()),
+            isFavorite,
+            recruitment.isAlwaysRecruiting()
         );
     }
 
@@ -361,6 +369,15 @@ public class RecruitmentService {
                                         RecruitStatus.from(response.isAlwaysRecruiting(), response.recruitStart(), response.recruitEnd()).getPriority()
                         )
                         .thenComparing(RecruitmentPreviewResponse::recruitEnd);
+            Comparator.comparing(
+                    (RecruitmentPreviewResponse response) ->
+                        RecruitStatus.from(response.isAlwaysRecruiting(), response.recruitStart(), response.recruitEnd())
+                            .getPriority()
+                )
+                .thenComparing(
+                    RecruitmentPreviewResponse::recruitEnd,
+                    Comparator.nullsLast(LocalDateTime::compareTo)
+                );
 
         if (userId != null) {
             comparator = Comparator.comparing(RecruitmentPreviewResponse::isFavorite).reversed()
