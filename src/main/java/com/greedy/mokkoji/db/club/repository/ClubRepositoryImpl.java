@@ -33,11 +33,11 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Club> searchClubs(final String keyword,
-                                  final ClubCategory category,
-                                  final ClubAffiliation affiliation,
-                                  final RecruitStatus status,
-                                  final Pageable pageable) {
+    public Page<Club> findClubsWithLatestRecruitment(final String keyword,
+                                                     final ClubCategory category,
+                                                     final ClubAffiliation affiliation,
+                                                     final RecruitStatus status,
+                                                     final Pageable pageable) {
 
         final LocalDateTime now = LocalDateTime.now();
 
@@ -76,7 +76,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     }
 
     @Override
-    public List<ClubWithLatestRecruitment> findClubs(ClubAffiliation affiliation, ClubCategory category) {
+    public List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(ClubAffiliation affiliation, ClubCategory category) {
         QRecruitment subRecruitment = new QRecruitment("subRecruitment");
 
         return queryFactory

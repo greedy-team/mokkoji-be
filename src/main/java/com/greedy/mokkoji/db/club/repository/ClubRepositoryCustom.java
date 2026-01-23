@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ClubRepositoryCustom {
-    Page<Club> searchClubs(
+    Page<Club> findClubsWithLatestRecruitment(
             final String keyword,
             final ClubCategory category,
             final ClubAffiliation affiliation,
@@ -19,7 +19,7 @@ public interface ClubRepositoryCustom {
             final Pageable pageable
     );
 
-    List<ClubWithLatestRecruitment> findClubs(
+    List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(
             ClubAffiliation affiliation,
             ClubCategory category
     );

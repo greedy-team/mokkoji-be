@@ -59,7 +59,7 @@ public class ClubService {
                                                          final RecruitStatus status,
                                                          final Pageable pageable) {
 
-        final Page<Club> clubPage = clubRepository.searchClubs(keyword, category, affiliation, status, pageable);
+        final Page<Club> clubPage = clubRepository.findClubsWithLatestRecruitment(keyword, category, affiliation, status, pageable);
         final List<Club> clubs = clubPage.getContent();
         final List<ClubResponse> clubResponses = mapToClubResponses(userId, clubs);
 
@@ -75,7 +75,7 @@ public class ClubService {
             ClubCategory category,
             Pageable pageable
     ) {
-        List<ClubWithLatestRecruitment> clubs = clubRepository.findClubs(affiliation, category);
+        List<ClubWithLatestRecruitment> clubs = clubRepository.findAllClubsWithLatestRecruitment(affiliation, category);
 
         Set<Long> favoriteClubIds = loadFavoriteClubIds(userId);
 
