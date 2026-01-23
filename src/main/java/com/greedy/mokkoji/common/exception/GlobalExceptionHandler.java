@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
         final int failCode = failMessage.getCode();
         final String failMessageMessage = failMessage.getMessage();
 
-        errorLog(failCode, failMessageMessage);
+        errorLog(failCode, failMessageMessage, exception.getCause());
 
         return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
     }
@@ -172,13 +172,19 @@ public class GlobalExceptionHandler {
         final FailMessage failMessage = FailMessage.INTERNAL_SERVER_ERROR;
         final int failCode = failMessage.getCode();
         final String failMessageMessage = exception.getMessage();
-        errorLog(failCode, failMessageMessage);
+        errorLog(failCode, failMessageMessage, exception);
         return APIErrorResponse.of(failMessage.getHttpStatus(), failCode, failMessageMessage);
     }
 
     private void errorLog(final int failCode, final String failMessage) {
         log.error("[{}] URI: {}, 실패 코드: {}, 실패 메세지: {}",
                 commonLogInformation.getRequestIdentifier(), commonLogInformation.getUri(), failCode, failMessage
+        );
+    }
+
+    private void errorLog(final int failCode, final String failMessage, final Throwable cause) {
+        log.error("[{}] URI: {}, 실패 코드: {}, 실패 메세지: {}",
+            commonLogInformation.getRequestIdentifier(), commonLogInformation.getUri(), failCode, failMessage, cause
         );
     }
 }
