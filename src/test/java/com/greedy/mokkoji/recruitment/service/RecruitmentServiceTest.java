@@ -1,9 +1,5 @@
 package com.greedy.mokkoji.recruitment.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.RecruitmentPreviewResponse;
@@ -29,9 +25,6 @@ import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -46,6 +39,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("모집글 서비스 테스트")
@@ -82,37 +83,37 @@ public class RecruitmentServiceTest {
         ReflectionTestUtils.setField(adminUser, "role", UserRole.CLUB_MASTER);
 
         Club club = Club.builder()
-            .name("그리디")
-            .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
-            .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
-            .logo("greedy-logo.png")
-            .instagram("https://greedy-instagram.com")
-            .description("그리디 소개글")
-            .build();
+                .name("그리디")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
+                .logo("greedy-logo.png")
+                .instagram("https://greedy-instagram.com")
+                .description("그리디 소개글")
+                .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
         BDDMockito.given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
         BDDMockito.given(clubRepository.findById(1L)).willReturn(Optional.of(club));
         BDDMockito.given(recruitmentRepository.save(any(Recruitment.class)))
-            .willAnswer(inv -> {
-                Recruitment recruitment = inv.getArgument(0);
-                ReflectionTestUtils.setField(recruitment, "id", 1L);
-                return recruitment;
-            });
+                .willAnswer(inv -> {
+                    Recruitment recruitment = inv.getArgument(0);
+                    ReflectionTestUtils.setField(recruitment, "id", 1L);
+                    return recruitment;
+                });
 
         BDDMockito.given(appDataS3Client.getPresignedPutUrl(any())).willReturn("putUrl");
 
         // when
         CreateRecruitmentResponse createRecruitmentResponse = recruitmentService.createRecruitment(
-            1L,
-            1L,
-            "그리디 모집글 제목",
-            "그리디 모집글 내용",
-            LocalDateTime.of(2025, 1, 1, 0, 0),
-            LocalDateTime.of(2025, 1, 31, 23, 59),
-            List.of("그리디 모집글 이미지1.jpg", "그리디 모집글 이미지2.png"),
-            "그리디 모집 링크",
-            false
+                1L,
+                1L,
+                "그리디 모집글 제목",
+                "그리디 모집글 내용",
+                LocalDateTime.of(2025, 1, 1, 0, 0),
+                LocalDateTime.of(2025, 1, 31, 23, 59),
+                List.of("그리디 모집글 이미지1.jpg", "그리디 모집글 이미지2.png"),
+                "그리디 모집 링크",
+                false
         );
 
         // then
@@ -137,11 +138,11 @@ public class RecruitmentServiceTest {
 
         // when, then
         Assertions.assertThatThrownBy(() -> recruitmentService.createRecruitment(
-                1L, 1L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(), LocalDateTime.now().plusDays(1),
-                List.of("그리디 모집글 이미지.jpgg"), "그리디 모집 링크", false
-            ))
-            .isInstanceOf(MokkojiException.class)
-            .hasMessageContaining(FailMessage.FORBIDDEN.getMessage());
+                        1L, 1L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(), LocalDateTime.now().plusDays(1),
+                        List.of("그리디 모집글 이미지.jpgg"), "그리디 모집 링크", false
+                ))
+                .isInstanceOf(MokkojiException.class)
+                .hasMessageContaining(FailMessage.FORBIDDEN.getMessage());
     }
 
     @Test
@@ -157,11 +158,11 @@ public class RecruitmentServiceTest {
 
         // when, then
         Assertions.assertThatThrownBy(() -> recruitmentService.createRecruitment(
-                1L, 999L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(), LocalDateTime.now().plusDays(1),
-                List.of("그리디 모집글 이미지.jpgg"), "그리디 모집 링크", false
-            ))
-            .isInstanceOf(MokkojiException.class)
-            .hasMessageContaining(FailMessage.NOT_FOUND_CLUB.getMessage());
+                        1L, 999L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(), LocalDateTime.now().plusDays(1),
+                        List.of("그리디 모집글 이미지.jpgg"), "그리디 모집 링크", false
+                ))
+                .isInstanceOf(MokkojiException.class)
+                .hasMessageContaining(FailMessage.NOT_FOUND_CLUB.getMessage());
     }
 
     @Test
@@ -173,30 +174,30 @@ public class RecruitmentServiceTest {
         ReflectionTestUtils.setField(adminUser, "role", UserRole.CLUB_MASTER);
 
         Club club = Club.builder()
-            .name("그리디")
-            .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
-            .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
-            .logo("greedy-logo.png")
-            .instagram("https://greedy-instagram.com")
-            .description("그리디 소개글")
-            .build();
+                .name("그리디")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
+                .logo("greedy-logo.png")
+                .instagram("https://greedy-instagram.com")
+                .description("그리디 소개글")
+                .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
         Recruitment recruitment = Recruitment.builder()
-            .club(club)
-            .title("그리디 모집글 제목")
-            .content("그리디 모집글 내용")
-            .recruitStart(LocalDateTime.of(2025, 1, 1, 0, 0))
-            .recruitEnd(LocalDateTime.of(2025, 1, 31, 23, 59))
-            .recruitForm("그리디 모집 링크")
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(club)
+                .title("그리디 모집글 제목")
+                .content("그리디 모집글 내용")
+                .recruitStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .recruitEnd(LocalDateTime.of(2025, 1, 31, 23, 59))
+                .recruitForm("그리디 모집 링크")
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(recruitment, "id", 1L);
 
         RecruitmentImage oldImage1 = RecruitmentImage.builder().recruitment(recruitment).image("오래된 그리디 모집글 이미지1.jpg")
-            .build();
+                .build();
         RecruitmentImage oldImage2 = RecruitmentImage.builder().recruitment(recruitment).image("오래된 그리디 모집글 이미지2.jpg")
-            .build();
+                .build();
 
         BDDMockito.given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
         BDDMockito.given(recruitmentRepository.findById(1L)).willReturn(Optional.of(recruitment));
@@ -206,15 +207,15 @@ public class RecruitmentServiceTest {
 
         // when
         UpdateRecruitmentResponse updateRecruitmentResponse = recruitmentService.updateRecruitment(
-            1L,
-            1L,
-            "그리디 모집글 제목 수정",
-            "그리디 모집글 내용 수정",
-            LocalDateTime.of(2026, 1, 1, 0, 0),
-            LocalDateTime.of(2026, 1, 31, 23, 59),
-            List.of("그리디 모집글 이미지 수정.jpg"),
-            "그리디 모집 링크 수정",
-            false
+                1L,
+                1L,
+                "그리디 모집글 제목 수정",
+                "그리디 모집글 내용 수정",
+                LocalDateTime.of(2026, 1, 1, 0, 0),
+                LocalDateTime.of(2026, 1, 31, 23, 59),
+                List.of("그리디 모집글 이미지 수정.jpg"),
+                "그리디 모집 링크 수정",
+                false
         );
 
         // then
@@ -241,11 +242,11 @@ public class RecruitmentServiceTest {
 
         // when, then
         Assertions.assertThatThrownBy(() -> recruitmentService.updateRecruitment(
-                1L, 999L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(), LocalDateTime.now().plusDays(1),
-                List.of("그리디 모집글 이미지.jpgg"), "그리디 모집 링크", false
-            ))
-            .isInstanceOf(MokkojiException.class)
-            .hasMessageContaining(FailMessage.NOT_FOUNT_RECRUITMENT.getMessage());
+                        1L, 999L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(), LocalDateTime.now().plusDays(1),
+                        List.of("그리디 모집글 이미지.jpgg"), "그리디 모집 링크", false
+                ))
+                .isInstanceOf(MokkojiException.class)
+                .hasMessageContaining(FailMessage.NOT_FOUNT_RECRUITMENT.getMessage());
     }
 
     @Test
@@ -257,15 +258,15 @@ public class RecruitmentServiceTest {
         ReflectionTestUtils.setField(adminUser, "role", UserRole.CLUB_MASTER);
 
         Recruitment recruitment = Recruitment.builder()
-            .title("그리디 모집글 제목")
-            .content("그리디 모집글 내용")
-            .build();
+                .title("그리디 모집글 제목")
+                .content("그리디 모집글 내용")
+                .build();
         ReflectionTestUtils.setField(recruitment, "id", 1L);
 
         RecruitmentImage recruitmentImage = RecruitmentImage.builder()
-            .recruitment(recruitment)
-            .image("그리디 모집글 이미지.jpg")
-            .build();
+                .recruitment(recruitment)
+                .image("그리디 모집글 이미지.jpg")
+                .build();
 
         BDDMockito.given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
         BDDMockito.given(recruitmentRepository.findById(1L)).willReturn(Optional.of(recruitment));
@@ -289,46 +290,46 @@ public class RecruitmentServiceTest {
     void getAllRecruitmentOfClub_sortedByNewest() {
         // given
         Club club = Club.builder()
-            .name("그리디")
-            .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
-            .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
-            .logo("greedy-logo.png")
-            .instagram("https://greedy-instagram.com")
-            .description("그리디 소개글")
-            .build();
+                .name("그리디")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
+                .logo("greedy-logo.png")
+                .instagram("https://greedy-instagram.com")
+                .description("그리디 소개글")
+                .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
         Recruitment olderRecruitment = Recruitment.builder()
-            .club(club)
-            .title("오래된 그리디 모집글 제목")
-            .content("오래된 그리디 모집글 내용")
-            .recruitStart(LocalDateTime.of(2025, 1, 1, 0, 0))
-            .recruitEnd(LocalDateTime.of(2025, 1, 31, 23, 59))
-            .recruitForm("오래된 그리디 모집 링크")
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(club)
+                .title("오래된 그리디 모집글 제목")
+                .content("오래된 그리디 모집글 내용")
+                .recruitStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .recruitEnd(LocalDateTime.of(2025, 1, 31, 23, 59))
+                .recruitForm("오래된 그리디 모집 링크")
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(olderRecruitment, "id", 1L);
         ReflectionTestUtils.setField(olderRecruitment, "createdAt", LocalDateTime.of(2025, 1, 1, 0, 0));
 
         Recruitment newerRecruitment = Recruitment.builder()
-            .club(club)
-            .title("새 그리디 모집글 제목")
-            .content("새 그리디 모집글 내용")
-            .recruitStart(LocalDateTime.of(2026, 1, 1, 0, 0))
-            .recruitEnd(LocalDateTime.of(2026, 1, 31, 23, 59))
-            .recruitForm("새 그리디 모집 링크")
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(club)
+                .title("새 그리디 모집글 제목")
+                .content("새 그리디 모집글 내용")
+                .recruitStart(LocalDateTime.of(2026, 1, 1, 0, 0))
+                .recruitEnd(LocalDateTime.of(2026, 1, 31, 23, 59))
+                .recruitForm("새 그리디 모집 링크")
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(newerRecruitment, "id", 2L);
         ReflectionTestUtils.setField(newerRecruitment, "createdAt", LocalDateTime.of(2026, 1, 1, 0, 0));
 
         RecruitmentImage newerImage = RecruitmentImage.builder()
-            .recruitment(newerRecruitment)
-            .image("그리디 모집글 이미지.jpg")
-            .build();
+                .recruitment(newerRecruitment)
+                .image("그리디 모집글 이미지.jpg")
+                .build();
 
         BDDMockito.given(recruitmentRepository.findAllByClubId(1L))
-            .willReturn(List.of(olderRecruitment, newerRecruitment));
+                .willReturn(List.of(olderRecruitment, newerRecruitment));
 
         // when
         AllRecruitmentOfClubResponse allRecruitmentOfClubResponse = recruitmentService.getAllRecruitmentOfClub(1L);
@@ -350,58 +351,58 @@ public class RecruitmentServiceTest {
     void getRecentRecruitmentOfClub() {
         // given
         Club club = Club.builder()
-            .name("그리디")
-            .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
-            .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
-            .logo("greedy-logo.png")
-            .instagram("https://greedy-instagram.com")
-            .description("그리디 소개글")
-            .build();
+                .name("그리디")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
+                .logo("greedy-logo.png")
+                .instagram("https://greedy-instagram.com")
+                .description("그리디 소개글")
+                .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
         Recruitment olderRecruitment = Recruitment.builder()
-            .club(club)
-            .title("오래된 그리디 모집글 제목")
-            .content("오래된 그리디 모집글 내용")
-            .recruitStart(LocalDateTime.of(2025, 1, 1, 0, 0))
-            .recruitEnd(LocalDateTime.of(2025, 1, 31, 23, 59))
-            .recruitForm("오래된 그리디 모집 링크")
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(club)
+                .title("오래된 그리디 모집글 제목")
+                .content("오래된 그리디 모집글 내용")
+                .recruitStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .recruitEnd(LocalDateTime.of(2025, 1, 31, 23, 59))
+                .recruitForm("오래된 그리디 모집 링크")
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(olderRecruitment, "id", 1L);
         ReflectionTestUtils.setField(olderRecruitment, "createdAt", LocalDateTime.of(2025, 1, 1, 0, 0));
 
         Recruitment newerRecruitment = Recruitment.builder()
-            .club(club)
-            .title("새 그리디 모집글 제목")
-            .content("새 그리디 모집글 내용")
-            .recruitStart(LocalDateTime.of(2026, 1, 1, 0, 0))
-            .recruitEnd(LocalDateTime.of(2026, 1, 31, 23, 59))
-            .recruitForm("새 그리디 모집 링크")
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(club)
+                .title("새 그리디 모집글 제목")
+                .content("새 그리디 모집글 내용")
+                .recruitStart(LocalDateTime.of(2026, 1, 1, 0, 0))
+                .recruitEnd(LocalDateTime.of(2026, 1, 31, 23, 59))
+                .recruitForm("새 그리디 모집 링크")
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(newerRecruitment, "id", 2L);
         ReflectionTestUtils.setField(newerRecruitment, "createdAt", LocalDateTime.of(2026, 1, 1, 0, 0));
 
         RecruitmentImage olderImage = RecruitmentImage.builder()
-            .recruitment(newerRecruitment)
-            .image("오래된 그리디 모집글 이미지.jpg")
-            .build();
+                .recruitment(newerRecruitment)
+                .image("오래된 그리디 모집글 이미지.jpg")
+                .build();
         RecruitmentImage newerImage = RecruitmentImage.builder()
-            .recruitment(newerRecruitment)
-            .image("새 그리디 모집글 이미지.jpg")
-            .build();
+                .recruitment(newerRecruitment)
+                .image("새 그리디 모집글 이미지.jpg")
+                .build();
 
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(1L))
-            .willReturn(Optional.of(newerRecruitment));
+                .willReturn(Optional.of(newerRecruitment));
         BDDMockito.given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(2L))
-            .willReturn(List.of(newerImage));
+                .willReturn(List.of(newerImage));
         BDDMockito.given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(1L, 1L)).willReturn(true);
 
         // when
         RecentRecruitmentOfClubResponse recentRecruitmentOfClubResponse = recruitmentService.getRecentRecruitmentOfClub(
-            1L, 1L);
+                1L, 1L);
 
         // then
         assertThat(recentRecruitmentOfClubResponse.id()).isEqualTo(2L);
@@ -416,35 +417,35 @@ public class RecruitmentServiceTest {
     void getRecentRecruitmentOfClub_fallbackToAlwaysRecruiting() {
         // given
         Club club = Club.builder()
-            .name("그리디")
-            .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
-            .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
-            .logo("greedy-logo.png")
-            .instagram("https://greedy-instagram.com")
-            .description("그리디 소개글")
-            .build();
+                .name("그리디")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
+                .logo("greedy-logo.png")
+                .instagram("https://greedy-instagram.com")
+                .description("그리디 소개글")
+                .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
         Recruitment alwaysRecruitment = Recruitment.builder()
-            .club(club)
-            .title("그리디 상시 모집 제목")
-            .content("그리디 상시 모집 내용")
-            .recruitForm("그리디 상시 모집 링크")
-            .isAlwaysRecruiting(true)
-            .build();
+                .club(club)
+                .title("그리디 상시 모집 제목")
+                .content("그리디 상시 모집 내용")
+                .recruitForm("그리디 상시 모집 링크")
+                .isAlwaysRecruiting(true)
+                .build();
         ReflectionTestUtils.setField(alwaysRecruitment, "id", 1L);
         ReflectionTestUtils.setField(alwaysRecruitment, "createdAt", LocalDateTime.of(2026, 1, 1, 0, 0));
 
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(1L)).willReturn(Optional.empty());
         BDDMockito.given(recruitmentRepository.findTopByClubIdAndIsAlwaysRecruitingOrderByCreatedAtDesc(1L, true))
-            .willReturn(Optional.of(alwaysRecruitment));
+                .willReturn(Optional.of(alwaysRecruitment));
         BDDMockito.given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(1L)).willReturn(List.of());
         BDDMockito.given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(1L, 1L)).willReturn(false);
 
         // when
         RecentRecruitmentOfClubResponse recentRecruitmentOfClubResponse = recruitmentService.getRecentRecruitmentOfClub(
-            1L, 1L);
+                1L, 1L);
 
         // then
         assertThat(recentRecruitmentOfClubResponse.id()).isEqualTo(1L);
@@ -456,32 +457,32 @@ public class RecruitmentServiceTest {
     void getSpecificRecruitment() {
         // given
         Club club = Club.builder()
-            .name("그리디")
-            .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
-            .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
-            .logo("greedy-logo.png")
-            .instagram("https://greedy-instagram.com")
-            .description("그리디 소개글")
-            .build();
+                .name("그리디")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
+                .logo("greedy-logo.png")
+                .instagram("https://greedy-instagram.com")
+                .description("그리디 소개글")
+                .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
         Recruitment recruitment = Recruitment.builder()
-            .club(club)
-            .title("그리디 모집글 제목")
-            .content("그리디 모집글 내용")
-            .recruitStart(LocalDateTime.of(2025, 1, 1, 0, 0))
-            .recruitEnd(LocalDateTime.of(2025, 1, 31, 23, 59))
-            .recruitForm("그리디 모집 링크")
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(club)
+                .title("그리디 모집글 제목")
+                .content("그리디 모집글 내용")
+                .recruitStart(LocalDateTime.of(2025, 1, 1, 0, 0))
+                .recruitEnd(LocalDateTime.of(2025, 1, 31, 23, 59))
+                .recruitForm("그리디 모집 링크")
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(recruitment, "id", 1L);
 
         RecruitmentImage recruitmentImage = RecruitmentImage.builder().recruitment(recruitment).image("그리디 모집글 이미지.jpg")
-            .build();
+                .build();
 
         BDDMockito.given(recruitmentRepository.findRecruitmentById(1L)).willReturn(Optional.of(recruitment));
         BDDMockito.given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(1L))
-            .willReturn(List.of(recruitmentImage));
+                .willReturn(List.of(recruitmentImage));
         BDDMockito.given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(1L, 1L)).willReturn(true);
 
@@ -506,108 +507,108 @@ public class RecruitmentServiceTest {
         LocalDateTime now = LocalDateTime.now();
 
         Club favoriteClub = Club.builder()
-            .clubAffiliation(filteringByAffiliation)
-            .clubCategory(filteringByCategory)
-            .build();
+                .clubAffiliation(filteringByAffiliation)
+                .clubCategory(filteringByCategory)
+                .build();
         ReflectionTestUtils.setField(favoriteClub, "id", 1L);
 
         Club imminentClub = Club.builder()
-            .clubAffiliation(filteringByAffiliation)
-            .clubCategory(filteringByCategory).build();
+                .clubAffiliation(filteringByAffiliation)
+                .clubCategory(filteringByCategory).build();
         ReflectionTestUtils.setField(imminentClub, "id", 2L);
 
         Club openClub = Club.builder()
-            .clubAffiliation(filteringByAffiliation)
-            .clubCategory(filteringByCategory)
-            .build();
+                .clubAffiliation(filteringByAffiliation)
+                .clubCategory(filteringByCategory)
+                .build();
         ReflectionTestUtils.setField(openClub, "id", 3L);
 
         Club alwaysClub = Club.builder()
-            .clubAffiliation(filteringByAffiliation)
-            .clubCategory(filteringByCategory)
-            .build();
+                .clubAffiliation(filteringByAffiliation)
+                .clubCategory(filteringByCategory)
+                .build();
         ReflectionTestUtils.setField(alwaysClub, "id", 4L);
 
         Club beforeClub = Club.builder()
-            .clubAffiliation(filteringByAffiliation)
-            .clubCategory(filteringByCategory)
-            .build();
+                .clubAffiliation(filteringByAffiliation)
+                .clubCategory(filteringByCategory)
+                .build();
         ReflectionTestUtils.setField(beforeClub, "id", 5L);
 
         Club closedClub = Club.builder()
-            .clubAffiliation(filteringByAffiliation)
-            .clubCategory(filteringByCategory)
-            .build();
+                .clubAffiliation(filteringByAffiliation)
+                .clubCategory(filteringByCategory)
+                .build();
         ReflectionTestUtils.setField(closedClub, "id", 6L);
 
         //즐겨찾기
         Recruitment favoriteRecruitment = Recruitment.builder()
-            .club(favoriteClub)
-            .recruitStart(now.minusDays(2))
-            .recruitEnd(now.plusDays(10))
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(favoriteClub)
+                .recruitStart(now.minusDays(2))
+                .recruitEnd(now.plusDays(10))
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(favoriteRecruitment, "id", 1L);
 
         //모집 마감 임박
         Recruitment imminentRecruitment = Recruitment.builder()
-            .club(imminentClub)
-            .recruitStart(now.minusDays(1))
-            .recruitEnd(now.plusMinutes(30))
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(imminentClub)
+                .recruitStart(now.minusDays(1))
+                .recruitEnd(now.plusMinutes(30))
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(imminentRecruitment, "id", 2L);
 
         //모집 중
         Recruitment openRecruitment = Recruitment.builder()
-            .club(openClub)
-            .recruitStart(now.minusDays(1))
-            .recruitEnd(now.plusDays(30))
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(openClub)
+                .recruitStart(now.minusDays(1))
+                .recruitEnd(now.plusDays(30))
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(openRecruitment, "id", 3L);
 
         //상시 모집
         Recruitment alwaysRecruitment = Recruitment.builder()
-            .club(alwaysClub)
-            .recruitStart(now.minusDays(100))
-            .recruitEnd(now.plusDays(1000))
-            .isAlwaysRecruiting(true)
-            .build();
+                .club(alwaysClub)
+                .recruitStart(now.minusDays(100))
+                .recruitEnd(now.plusDays(1000))
+                .isAlwaysRecruiting(true)
+                .build();
         ReflectionTestUtils.setField(alwaysRecruitment, "id", 4L);
 
         //모집 전
         Recruitment beforeRecruitment = Recruitment.builder()
-            .club(beforeClub)
-            .recruitStart(now.plusDays(3))
-            .recruitEnd(now.plusDays(10))
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(beforeClub)
+                .recruitStart(now.plusDays(3))
+                .recruitEnd(now.plusDays(10))
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(beforeRecruitment, "id", 5L);
 
         //모집 마감
         Recruitment closedRecruitment = Recruitment.builder()
-            .club(closedClub)
-            .recruitStart(now.minusDays(10))
-            .recruitEnd(now.minusDays(1))
-            .isAlwaysRecruiting(false)
-            .build();
+                .club(closedClub)
+                .recruitStart(now.minusDays(10))
+                .recruitEnd(now.minusDays(1))
+                .isAlwaysRecruiting(false)
+                .build();
         ReflectionTestUtils.setField(closedRecruitment, "id", 6L);
 
         PageRequest pageable = PageRequest.of(0, 10);
 
         Page<Recruitment> page = new PageImpl<>(
-            List.of(openRecruitment, closedRecruitment, alwaysRecruitment, imminentRecruitment, beforeRecruitment, favoriteRecruitment),
-            pageable,
-            6
+                List.of(openRecruitment, closedRecruitment, alwaysRecruitment, imminentRecruitment, beforeRecruitment, favoriteRecruitment),
+                pageable,
+                6
         );
 
         BDDMockito.given(recruitmentRepository.findRecruitments(
-                filteringByAffiliation,
-                filteringByCategory,
-                pageable
-            ))
-            .willReturn(page);
+                        filteringByAffiliation,
+                        filteringByCategory,
+                        pageable
+                ))
+                .willReturn(page);
 
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, 1L)).willReturn(true);
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, 2L)).willReturn(false);
@@ -620,18 +621,18 @@ public class RecruitmentServiceTest {
 
         // when
         AllRecruitmentResponse allRecruitmentResponse = recruitmentService.getAllRecruitment(
-            userId,
-            filteringByAffiliation,
-            filteringByCategory,
-            pageable
+                userId,
+                filteringByAffiliation,
+                filteringByCategory,
+                pageable
         );
 
         // then
         assertThat(allRecruitmentResponse.recruitments()).hasSize(6);
 
         List<Long> recruitmentIds = allRecruitmentResponse.recruitments().stream()
-            .map(RecruitmentPreviewResponse::id)
-            .toList();
+                .map(RecruitmentPreviewResponse::id)
+                .toList();
 
         assertThat(recruitmentIds).containsExactly(1L, 2L, 3L, 4L, 5L, 6L);
     }

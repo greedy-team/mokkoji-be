@@ -38,6 +38,25 @@ public class ClubService {
     private final UserRepository userRepository;
     private final AppDataS3Client appDataS3Client;
 
+    private static PageResponse createPageResponse(Pageable pageable, int totalElements) {
+        int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
+        return PageResponse.of(
+                pageable.getPageNumber() + 1,
+                pageable.getPageSize(),
+                totalPages,
+                totalElements
+        );
+    }
+
+    private static PageResponse createPageResponses(final Page<?> page) {
+        return PageResponse.of(
+                page.getNumber() + 1,
+                page.getSize(),
+                page.getTotalPages(),
+                (int) page.getTotalElements()
+        );
+    }
+
     @Transactional(readOnly = true)
     public ClubDetailResponse findClub(final Long userId, final Long clubId) {
 
@@ -209,16 +228,6 @@ public class ClubService {
                 .thenComparing(recruitmentComparator);
     }
 
-    private static PageResponse createPageResponse(Pageable pageable, int totalElements) {
-        int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
-        return PageResponse.of(
-                pageable.getPageNumber() + 1,
-                pageable.getPageSize(),
-                totalPages,
-                totalElements
-        );
-    }
-
     @Nullable
     private RecruitmentPreviewResponse mapToLatestRecruitmentPreviewResponse(
             LatestRecruitmentInfo latest
@@ -331,15 +340,6 @@ public class ClubService {
 
     private Comparator<ClubResponse> getFavoriteComparator() {
         return Comparator.comparing(ClubResponse::isFavorite).reversed();
-    }
-
-    private static PageResponse createPageResponses(final Page<?> page) {
-        return PageResponse.of(
-                page.getNumber() + 1,
-                page.getSize(),
-                page.getTotalPages(),
-                (int) page.getTotalElements()
-        );
     }
 
     @Nullable

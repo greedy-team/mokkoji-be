@@ -184,7 +184,7 @@ public class GlobalExceptionHandler {
 
     private void errorLog(final int failCode, final String failMessage, final Throwable cause) {
         log.error("[{}] URI: {}, 실패 코드: {}, 실패 메세지: {}",
-            commonLogInformation.getRequestIdentifier(), commonLogInformation.getUri(), failCode, failMessage, cause
+                commonLogInformation.getRequestIdentifier(), commonLogInformation.getUri(), failCode, failMessage, cause
         );
     }
 }

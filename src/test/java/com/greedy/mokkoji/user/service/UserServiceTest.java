@@ -15,7 +15,6 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
-import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -27,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -195,12 +195,12 @@ public class UserServiceTest {
         Long userId = 1L;
 
         User user = User.builder()
-            .name("세종")
-            .grade("4")
-            .studentId("학번")
-            .department("컴공과")
-            .role(UserRole.GREEDY_ADMIN)
-            .build();
+                .name("세종")
+                .grade("4")
+                .studentId("학번")
+                .department("컴공과")
+                .role(UserRole.GREEDY_ADMIN)
+                .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
@@ -218,32 +218,32 @@ public class UserServiceTest {
         Long userId = 1L;
 
         User user = User.builder()
-            .name("모꼬지")
-            .studentId("12341234")
-            .grade("4")
-            .department("컴퓨터공학과")
-            .email("모꼬지@test.com")
-            .role(UserRole.GREEDY_ADMIN)
-            .build();
+                .name("모꼬지")
+                .studentId("12341234")
+                .grade("4")
+                .department("컴퓨터공학과")
+                .email("모꼬지@test.com")
+                .role(UserRole.GREEDY_ADMIN)
+                .build();
 
         Club club1 = Club.builder()
-            .name("그리디1")
-            .clubMasterStudentId("12341234")
-            .build();
+                .name("그리디1")
+                .clubMasterStudentId("12341234")
+                .build();
 
         Club club2 = Club.builder()
-            .name("그리디2")
-            .clubMasterStudentId("12341234")
-            .build();
+                .name("그리디2")
+                .clubMasterStudentId("12341234")
+                .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(clubRepository.findByClubMasterStudentId(user.getStudentId())).thenReturn(List.of(club1, club2));
 
         UserManageClubsResponse expectedResponse = new UserManageClubsResponse(
-            List.of(
-                new UserManageClubResponse(club1.getId(), club1.getName()),
-                new UserManageClubResponse(club2.getId(), club2.getName())
-            )
+                List.of(
+                        new UserManageClubResponse(club1.getId(), club1.getName()),
+                        new UserManageClubResponse(club2.getId(), club2.getName())
+                )
         );
 
         // when
