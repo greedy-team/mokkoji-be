@@ -25,7 +25,7 @@ public class AbstractTest {
 
     @Autowired
     protected RecruitmentImageRepository recruitmentImageRepository;
-    
+
     @Autowired
     protected CommentRepository commentRepository;
 }

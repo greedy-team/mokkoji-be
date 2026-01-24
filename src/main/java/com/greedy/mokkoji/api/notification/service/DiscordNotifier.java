@@ -21,15 +21,11 @@ import java.util.Map;
 public class DiscordNotifier {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
+    private final RestTemplate restTemplate;
     @Value("${discord.webhook.url}")
     private String webhookUrl;
-
     @Value("${discord.webhook.enabled}")
     private boolean enabled;
-
-    private final RestTemplate restTemplate;
-
 
     @Async
     public void notifyEmailFailure(Long clubId, String clubName, int receiverCount, String errorMessage) {

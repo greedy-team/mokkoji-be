@@ -1,12 +1,7 @@
 package com.greedy.mokkoji.user.controller;
 
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
-import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.RefreshResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserInformationResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.*;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -16,7 +11,6 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -224,11 +219,11 @@ public class UserControllerTest extends ControllerTest {
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .when().get(prefixUrl + "/users/roles")
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .when().get(prefixUrl + "/users/roles")
+                .then().log().all()
+                .extract();
 
         final int statusCode = response.statusCode();
         final UserRoleResponse actual = getDataFromResponse(response, UserRoleResponse.class);
@@ -246,16 +241,16 @@ public class UserControllerTest extends ControllerTest {
 
         final Club club = clubRepository.save(Fixture.createClub());
         final UserManageClubsResponse expected = new UserManageClubsResponse(
-            List.of(new UserManageClubResponse(club.getId(), club.getName()))
+                List.of(new UserManageClubResponse(club.getId(), club.getName()))
         );
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .when().get(prefixUrl + "/users/manage/clubs")
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .when().get(prefixUrl + "/users/manage/clubs")
+                .then().log().all()
+                .extract();
 
         final int statusCode = response.statusCode();
         final UserManageClubsResponse actual = getDataFromResponse(response, UserManageClubsResponse.class);

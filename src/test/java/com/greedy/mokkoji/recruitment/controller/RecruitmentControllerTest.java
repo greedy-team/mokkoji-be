@@ -1,9 +1,5 @@
 package com.greedy.mokkoji.recruitment.controller;
 
-import static com.greedy.mokkoji.common.fixture.Fixture.FIXTURE_RECRUITMENT_IMAGE_NAME;
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.greedy.mokkoji.api.recruitment.dto.request.CreateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.request.UpdateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
@@ -23,9 +19,6 @@ import com.greedy.mokkoji.enums.user.UserRole;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,10 +27,26 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Stream;
+
+import static com.greedy.mokkoji.common.fixture.Fixture.FIXTURE_RECRUITMENT_IMAGE_NAME;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class RecruitmentControllerTest extends ControllerTest {
 
     private Club club;
     private Recruitment recruitment;
+
+    static Stream<UserRole> allowedRoles() {
+        return Stream.of(UserRole.CLUB_MASTER, UserRole.GREEDY_ADMIN, UserRole.CLUB_ADMIN);
+    }
+
+    static Stream<UserRole> forbiddenRoles() {
+        return Stream.of(UserRole.NORMAL);
+    }
 
     @BeforeEach
     void setUp() {
@@ -59,23 +68,23 @@ public class RecruitmentControllerTest extends ControllerTest {
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
 
         final CreateRecruitmentRequest request = new CreateRecruitmentRequest(
-            recruitment.getTitle(),
-            FIXTURE_RECRUITMENT_IMAGE_NAME,
-            recruitment.getContent(),
-            recruitment.getRecruitStart(),
-            recruitment.getRecruitEnd(),
-            recruitment.getRecruitForm(),
-            recruitment.isAlwaysRecruiting()
+                recruitment.getTitle(),
+                FIXTURE_RECRUITMENT_IMAGE_NAME,
+                recruitment.getContent(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd(),
+                recruitment.getRecruitForm(),
+                recruitment.isAlwaysRecruiting()
         );
 
         //when
         final ExtractableResponse<Response> response = given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .body(request)
-            .when().post(prefixUrl + "/recruitments/{clubId}", club.getId())
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .body(request)
+                .when().post(prefixUrl + "/recruitments/{clubId}", club.getId())
+                .then().log().all()
+                .extract();
 
         //then
         final int statusCode = response.statusCode();
@@ -99,30 +108,30 @@ public class RecruitmentControllerTest extends ControllerTest {
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         final CreateRecruitmentRequest request = new CreateRecruitmentRequest(
-            recruitment.getTitle(),
-            FIXTURE_RECRUITMENT_IMAGE_NAME,
-            recruitment.getContent(),
-            recruitment.getRecruitStart(),
-            recruitment.getRecruitEnd(),
-            recruitment.getRecruitForm(),
-            recruitment.isAlwaysRecruiting()
+                recruitment.getTitle(),
+                FIXTURE_RECRUITMENT_IMAGE_NAME,
+                recruitment.getContent(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd(),
+                recruitment.getRecruitForm(),
+                recruitment.isAlwaysRecruiting()
         );
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .body(request)
-            .when().post(prefixUrl + "/recruitments/{clubId}", club.getId())
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .body(request)
+                .when().post(prefixUrl + "/recruitments/{clubId}", club.getId())
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-            FailMessage.FORBIDDEN.getCode(),
-            FailMessage.FORBIDDEN.getMessage()
+                FailMessage.FORBIDDEN.getCode(),
+                FailMessage.FORBIDDEN.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -137,29 +146,29 @@ public class RecruitmentControllerTest extends ControllerTest {
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
 
         final CreateRecruitmentRequest request = new CreateRecruitmentRequest(
-            recruitment.getTitle(),
-            FIXTURE_RECRUITMENT_IMAGE_NAME,
-            recruitment.getContent(),
-            recruitment.getRecruitStart(),
-            recruitment.getRecruitEnd(),
-            recruitment.getRecruitForm(),
-            recruitment.isAlwaysRecruiting()
+                recruitment.getTitle(),
+                FIXTURE_RECRUITMENT_IMAGE_NAME,
+                recruitment.getContent(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd(),
+                recruitment.getRecruitForm(),
+                recruitment.isAlwaysRecruiting()
         );
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .body(request)
-            .when().post(prefixUrl + "/recruitments/{clubId}", club.getId())
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(request)
+                .when().post(prefixUrl + "/recruitments/{clubId}", club.getId())
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-            FailMessage.UNAUTHORIZED.getCode(),
-            FailMessage.UNAUTHORIZED.getMessage()
+                FailMessage.UNAUTHORIZED.getCode(),
+                FailMessage.UNAUTHORIZED.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.UNAUTHORIZED.value());
@@ -177,23 +186,23 @@ public class RecruitmentControllerTest extends ControllerTest {
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
 
         final UpdateRecruitmentRequest request = new UpdateRecruitmentRequest(
-            "수정된 모집글 제목",
-            List.of("수정된 모집글 이미지.png"),
-            "수정된 모집글 내용",
-            recruitment.getRecruitStart().plusDays(1),
-            recruitment.getRecruitEnd().plusDays(1),
-            "수정된 모집글 링크",
-            false
+                "수정된 모집글 제목",
+                List.of("수정된 모집글 이미지.png"),
+                "수정된 모집글 내용",
+                recruitment.getRecruitStart().plusDays(1),
+                recruitment.getRecruitEnd().plusDays(1),
+                "수정된 모집글 링크",
+                false
         );
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .body(request)
-            .when().patch(prefixUrl + "/recruitments/{recruitmentId}", recruitment.getId())
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .body(request)
+                .when().patch(prefixUrl + "/recruitments/{recruitmentId}", recruitment.getId())
+                .then().log().all()
+                .extract();
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -217,30 +226,30 @@ public class RecruitmentControllerTest extends ControllerTest {
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         final UpdateRecruitmentRequest request = new UpdateRecruitmentRequest(
-            "수정된 모집글 제목",
-            List.of("수정된 모집글 이미지.png"),
-            "수정된 모집글 내용",
-            recruitment.getRecruitStart().plusDays(1),
-            recruitment.getRecruitEnd().plusDays(1),
-            "수정된 모집글 링크",
-            false
+                "수정된 모집글 제목",
+                List.of("수정된 모집글 이미지.png"),
+                "수정된 모집글 내용",
+                recruitment.getRecruitStart().plusDays(1),
+                recruitment.getRecruitEnd().plusDays(1),
+                "수정된 모집글 링크",
+                false
         );
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .body(request)
-            .when().patch(prefixUrl + "/recruitments/{recruitmentId}", recruitment.getId())
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .body(request)
+                .when().patch(prefixUrl + "/recruitments/{recruitmentId}", recruitment.getId())
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-            FailMessage.FORBIDDEN.getCode(),
-            FailMessage.FORBIDDEN.getMessage()
+                FailMessage.FORBIDDEN.getCode(),
+                FailMessage.FORBIDDEN.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -259,10 +268,10 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearer)
-            .when().delete(prefixUrl + "/recruitments/{recruitmentId}", recruitment.getId())
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearer)
+                .when().delete(prefixUrl + "/recruitments/{recruitmentId}", recruitment.getId())
+                .then().log().all()
+                .extract();
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -281,17 +290,17 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .header("Authorization", authorizationForBearer)
-            .when().delete(prefixUrl + "/recruitments/{recruitmentId}", recruitment.getId())
-            .then().log().all()
-            .extract();
+                .header("Authorization", authorizationForBearer)
+                .when().delete(prefixUrl + "/recruitments/{recruitmentId}", recruitment.getId())
+                .then().log().all()
+                .extract();
 
         // then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-            FailMessage.FORBIDDEN.getCode(),
-            FailMessage.FORBIDDEN.getMessage()
+                FailMessage.FORBIDDEN.getCode(),
+                FailMessage.FORBIDDEN.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -309,15 +318,15 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .when().get(prefixUrl + "/recruitments/club/{clubId}", club.getId())
-            .then().log().all()
-            .extract();
+                .when().get(prefixUrl + "/recruitments/club/{clubId}", club.getId())
+                .then().log().all()
+                .extract();
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
 
         List<RecruitmentOfClubResponse> recruitments =
-            response.jsonPath().getList("data.recruitments", RecruitmentOfClubResponse.class);
+                response.jsonPath().getList("data.recruitments", RecruitmentOfClubResponse.class);
 
         assertThat(recruitments).isNotEmpty();
 
@@ -326,9 +335,9 @@ public class RecruitmentControllerTest extends ControllerTest {
         assertThat(first.isAlwaysRecruiting()).isFalse();
 
         assertThat(recruitments.stream().anyMatch(
-            recruitmentOfClubResponse -> recruitmentOfClubResponse.id().equals(recruitment.getId()))).isTrue();
+                recruitmentOfClubResponse -> recruitmentOfClubResponse.id().equals(recruitment.getId()))).isTrue();
         assertThat(recruitments.stream().anyMatch(
-            recruitmentOfClubResponse -> recruitmentOfClubResponse.id().equals(olderRecruitment.getId()))).isTrue();
+                recruitmentOfClubResponse -> recruitmentOfClubResponse.id().equals(olderRecruitment.getId()))).isTrue();
     }
 
     @Test
@@ -344,17 +353,17 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .when().get(prefixUrl + "/recruitments/club/recent/{clubId}", club.getId())
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .when().get(prefixUrl + "/recruitments/club/recent/{clubId}", club.getId())
+                .then().log().all()
+                .extract();
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
 
         RecentRecruitmentOfClubResponse recruitmentOfClubResponse = getDataFromResponse(response,
-            RecentRecruitmentOfClubResponse.class);
+                RecentRecruitmentOfClubResponse.class);
 
         assertThat(recruitmentOfClubResponse.id()).isEqualTo(newerRecruitment.getId());
     }
@@ -370,12 +379,12 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .pathParam("recruitmentId", recruitment.getId())
-            .when().get(prefixUrl + "/recruitments/{recruitmentId}")
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .pathParam("recruitmentId", recruitment.getId())
+                .when().get(prefixUrl + "/recruitments/{recruitmentId}")
+                .then().log().all()
+                .extract();
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -393,17 +402,17 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         //필터링에 포함될 동아리 데이터
         Club club1 = clubRepository.save(Fixture.createClubWithCategoryAndAffiliation(ClubCategory.ACADEMIC_CULTURAL,
-            ClubAffiliation.DEPARTMENT_CLUB));
+                ClubAffiliation.DEPARTMENT_CLUB));
         Club club2 = clubRepository.save(Fixture.createClubWithCategoryAndAffiliation(ClubCategory.ACADEMIC_CULTURAL,
-            ClubAffiliation.DEPARTMENT_CLUB));
+                ClubAffiliation.DEPARTMENT_CLUB));
         recruitmentRepository.save(Fixture.createRecruitment(club1));
         recruitmentRepository.save(Fixture.createRecruitment(club2));
 
         // 필터링에서 걸러질 동아리 데이터
         Club otherClub1 = clubRepository.save(
-            Fixture.createClubWithCategoryAndAffiliation(ClubCategory.CULTURAL_ART, ClubAffiliation.CENTRAL_CLUB));
+                Fixture.createClubWithCategoryAndAffiliation(ClubCategory.CULTURAL_ART, ClubAffiliation.CENTRAL_CLUB));
         Club otherClub2 = clubRepository.save(
-            Fixture.createClubWithCategoryAndAffiliation(ClubCategory.CULTURAL_ART, ClubAffiliation.CENTRAL_CLUB));
+                Fixture.createClubWithCategoryAndAffiliation(ClubCategory.CULTURAL_ART, ClubAffiliation.CENTRAL_CLUB));
         recruitmentRepository.save(Fixture.createRecruitment(otherClub1));
         recruitmentRepository.save(Fixture.createRecruitment(otherClub2));
 
@@ -412,15 +421,15 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .queryParam("page", 1)
-            .queryParam("size", 10)
-            .queryParam("affiliation", ClubAffiliation.DEPARTMENT_CLUB.name())
-            .queryParam("category", ClubCategory.ACADEMIC_CULTURAL.name())
-            .when().get(prefixUrl + "/recruitments")
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .queryParam("page", 1)
+                .queryParam("size", 10)
+                .queryParam("affiliation", ClubAffiliation.DEPARTMENT_CLUB.name())
+                .queryParam("category", ClubCategory.ACADEMIC_CULTURAL.name())
+                .when().get(prefixUrl + "/recruitments")
+                .then().log().all()
+                .extract();
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -452,15 +461,15 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .queryParam("page", 1)
-            .queryParam("size", 10)
-            .queryParam("affiliation", targetClub.getClubAffiliation().name())
-            .queryParam("category", targetClub.getClubCategory().name())
-            .when().get(prefixUrl + "/recruitments")
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .queryParam("page", 1)
+                .queryParam("size", 10)
+                .queryParam("affiliation", targetClub.getClubAffiliation().name())
+                .queryParam("category", targetClub.getClubCategory().name())
+                .when().get(prefixUrl + "/recruitments")
+                .then().log().all()
+                .extract();
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -486,21 +495,21 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         for (int i = 0; i < 11; i++) {
             Club club = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                    Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
             recruitmentRepository.save(Fixture.createNewerRecruitment(club));
         }
 
         // when: page=1, size= 10 일 경우
         ExtractableResponse<Response> response1 = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .queryParam("page", 1)
-            .queryParam("size", 10)
-            .queryParam("affiliation", filteringByAffiliation)
-            .queryParam("category", filteringByCategory)
-            .when().get(prefixUrl + "/recruitments")
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .queryParam("page", 1)
+                .queryParam("size", 10)
+                .queryParam("affiliation", filteringByAffiliation)
+                .queryParam("category", filteringByCategory)
+                .when().get(prefixUrl + "/recruitments")
+                .then().log().all()
+                .extract();
         AllRecruitmentResponse allRecruitmentResponse1 = getDataFromResponse(response1, AllRecruitmentResponse.class);
 
         // then
@@ -512,15 +521,15 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         // when: page=2, size= 10 일 경우
         ExtractableResponse<Response> response2 = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", authorizationForBearer)
-            .queryParam("page", 2)
-            .queryParam("size", 10)
-            .queryParam("affiliation", filteringByAffiliation)
-            .queryParam("category", filteringByCategory)
-            .when().get(prefixUrl + "/recruitments")
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .queryParam("page", 2)
+                .queryParam("size", 10)
+                .queryParam("affiliation", filteringByAffiliation)
+                .queryParam("category", filteringByCategory)
+                .when().get(prefixUrl + "/recruitments")
+                .then().log().all()
+                .extract();
         AllRecruitmentResponse allRecruitmentResponse2 = getDataFromResponse(response2, AllRecruitmentResponse.class);
 
         // then
@@ -541,62 +550,62 @@ public class RecruitmentControllerTest extends ControllerTest {
         ClubCategory filteringByCategory = ClubCategory.ACADEMIC_CULTURAL;
 
         Club favoriteClub = clubRepository.save(
-            Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
         Club imminetClub = clubRepository.save(
-            Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
         Club openClub = clubRepository.save(
-            Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
         Club alwaysClub = clubRepository.save(
-            Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
         Club beforeClub = clubRepository.save(
-            Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
         Club closedClub = clubRepository.save(
-            Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
 
         LocalDateTime now = LocalDateTime.now();
 
         // 즐겨찾기
         Recruitment favoriteRecruitment = recruitmentRepository.save(
-            Fixture.createRecruitmentWithTimes(favoriteClub, now.minusDays(2), now.plusDays(10), false)
+                Fixture.createRecruitmentWithTimes(favoriteClub, now.minusDays(2), now.plusDays(10), false)
         );
         favoriteRepository.save(Fixture.createFavorite(favoriteClub, normalUser));
 
         //모집 마감 임박
         Recruitment imminetRecruitment = recruitmentRepository.save(
-            Fixture.createRecruitmentWithTimes(imminetClub, now.minusDays(1), now.plusMinutes(30), false)
+                Fixture.createRecruitmentWithTimes(imminetClub, now.minusDays(1), now.plusMinutes(30), false)
         );
 
         //모집 중
         Recruitment openRecruitment = recruitmentRepository.save(
-            Fixture.createRecruitmentWithTimes(openClub, now.minusDays(1), now.plusDays(30), false)
+                Fixture.createRecruitmentWithTimes(openClub, now.minusDays(1), now.plusDays(30), false)
         );
 
         //상시 모집
         Recruitment alwaysRecruitment = recruitmentRepository.save(
-            Fixture.createRecruitmentWithTimes(alwaysClub, now.minusDays(100), now.plusDays(1000), true)
+                Fixture.createRecruitmentWithTimes(alwaysClub, now.minusDays(100), now.plusDays(1000), true)
         );
 
         //모집 전
         Recruitment beforeRecruitment = recruitmentRepository.save(
-            Fixture.createRecruitmentWithTimes(beforeClub, now.plusDays(3), now.plusDays(10), false)
+                Fixture.createRecruitmentWithTimes(beforeClub, now.plusDays(3), now.plusDays(10), false)
         );
 
         //모집 마감
         Recruitment closedRecruitment = recruitmentRepository.save(
-            Fixture.createRecruitmentWithTimes(closedClub, now.minusDays(10), now.minusDays(1), false)
+                Fixture.createRecruitmentWithTimes(closedClub, now.minusDays(10), now.minusDays(1), false)
         );
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .header("Authorization", token)
-            .queryParam("page", 1)
-            .queryParam("size", 10)
-            .queryParam("affiliation", filteringByAffiliation)
-            .queryParam("category", filteringByCategory)
-            .when().get(prefixUrl + "/recruitments")
-            .then().log().all()
-            .extract();
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", token)
+                .queryParam("page", 1)
+                .queryParam("size", 10)
+                .queryParam("affiliation", filteringByAffiliation)
+                .queryParam("category", filteringByCategory)
+                .when().get(prefixUrl + "/recruitments")
+                .then().log().all()
+                .extract();
 
         AllRecruitmentResponse data = getDataFromResponse(response, AllRecruitmentResponse.class);
 
@@ -605,24 +614,16 @@ public class RecruitmentControllerTest extends ControllerTest {
         assertThat(data.recruitments()).hasSize(6);
 
         List<Long> ids = data.recruitments().stream()
-            .map(RecruitmentPreviewResponse::id)
-            .toList();
+                .map(RecruitmentPreviewResponse::id)
+                .toList();
 
         assertThat(ids).containsExactly(
-            favoriteRecruitment.getId(),
-            imminetRecruitment.getId(),
-            openRecruitment.getId(),
-            alwaysRecruitment.getId(),
-            beforeRecruitment.getId(),
-            closedRecruitment.getId()
+                favoriteRecruitment.getId(),
+                imminetRecruitment.getId(),
+                openRecruitment.getId(),
+                alwaysRecruitment.getId(),
+                beforeRecruitment.getId(),
+                closedRecruitment.getId()
         );
-    }
-
-    static Stream<UserRole> allowedRoles() {
-        return Stream.of(UserRole.CLUB_MASTER, UserRole.GREEDY_ADMIN, UserRole.CLUB_ADMIN);
-    }
-
-    static Stream<UserRole> forbiddenRoles() {
-        return Stream.of(UserRole.NORMAL);
     }
 }
