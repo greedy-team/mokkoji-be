@@ -4,6 +4,9 @@ import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubWithLatestRecruitment;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.LatestRecruitmentInfo;
 import com.greedy.mokkoji.api.club.service.ClubService;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -107,52 +110,68 @@ class ClubServiceTest {
 
     @Test
     @DisplayName("전체 동아리 정보를 조회한다.")
-    void findClubsByNoConditions() {
+    void findAllClubs() {
         //given
         final Long userId = 1L;
         final Long clubId1 = club1.getId();
         final Long clubId2 = club2.getId();
         final Pageable pageable = PageRequest.of(0, 10);
-        final List<Club> clubs = List.of(club1, club2);
-        final Page<Club> clubPage = new PageImpl<>(clubs, pageable, clubs.size());
 
-        BDDMockito.given(clubRepository.searchClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
-        BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId1)).willReturn(Optional.ofNullable(recruitment1));
-        BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId2)).willReturn(Optional.ofNullable(recruitment2));
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(true);
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId2)).willReturn(false);
-        BDDMockito.given(appDataS3Client.getPublicUrl(club1.getLogo())).willReturn("testLogo1");
-        BDDMockito.given(appDataS3Client.getPublicUrl(club2.getLogo())).willReturn("testLogo2");
+        final LatestRecruitmentInfo latestRecruitmentInfo1 = new LatestRecruitmentInfo(
+                1L,
+                LocalDateTime.of(2025, 1, 1, 12, 0),
+                LocalDateTime.of(2025, 3, 30, 12, 0),
+                false
+        );
+
+        final LatestRecruitmentInfo latestRecruitmentInfo2 = new LatestRecruitmentInfo(
+                2L,
+                LocalDateTime.of(2025, 1, 1, 12, 0),
+                LocalDateTime.of(2025, 1, 30, 12, 0),
+                false
+        );
+
+        final ClubWithLatestRecruitment clubWithRecruitment1 = new ClubWithLatestRecruitment(
+                clubId1,
+                "testClub1",
+                "testDescription1",
+                "testLogo1",
+                latestRecruitmentInfo1
+        );
+
+        final ClubWithLatestRecruitment clubWithRecruitment2 = new ClubWithLatestRecruitment(
+                clubId2,
+                "testClub2",
+                "testDescription2",
+                "testLogo2",
+                latestRecruitmentInfo2
+        );
+
+        BDDMockito.given(clubRepository.findAllClubsWithLatestRecruitment(any(), any())).willReturn(List.of(clubWithRecruitment1, clubWithRecruitment2));
+        BDDMockito.given(favoriteRepository.findClubIdsByUserId(userId)).willReturn(List.of(clubId1));
+        BDDMockito.given(appDataS3Client.getPublicUrl("testLogo1")).willReturn("testLogo1");
+        BDDMockito.given(appDataS3Client.getPublicUrl("testLogo2")).willReturn("testLogo2");
 
         //when
-        final ClubsPaginationResponse response = clubService.findClubsByConditions(userId, null, null, null, null, pageable);
+        AllClubsResponse response = clubService.getAllClubs(userId, null, null, pageable);
 
         //then
         assertThat(response.clubs()).hasSize(2);
 
         assertThat(response.clubs().get(0).name()).isEqualTo("testClub1");
-        assertThat(response.clubs().get(0).category()).isEqualTo(ClubCategory.ACADEMIC_CULTURAL);
-        assertThat(response.clubs().get(0).affiliation()).isEqualTo(ClubAffiliation.CENTRAL_CLUB);
         assertThat(response.clubs().get(0).description()).isEqualTo("testDescription1");
-        assertThat(response.clubs().get(0).recruitStartDate()).isEqualTo("2025-01-01");
-        assertThat(response.clubs().get(0).recruitEndDate()).isEqualTo("2025-03-30");
         assertThat(response.clubs().get(0).logo()).isEqualTo("testLogo1");
-        assertThat(response.clubs().get(0).isFavorite()).isEqualTo(true);
+        assertThat(response.clubs().get(0).favorite()).isTrue();
 
         assertThat(response.clubs().get(1).name()).isEqualTo("testClub2");
-        assertThat(response.clubs().get(1).category()).isEqualTo(ClubCategory.CULTURAL_ART);
-        assertThat(response.clubs().get(1).affiliation()).isEqualTo(ClubAffiliation.DEPARTMENT_CLUB);
         assertThat(response.clubs().get(1).description()).isEqualTo("testDescription2");
-        assertThat(response.clubs().get(1).recruitStartDate()).isEqualTo("2025-01-01");
-        assertThat(response.clubs().get(1).recruitEndDate()).isEqualTo("2025-01-30");
         assertThat(response.clubs().get(1).logo()).isEqualTo("testLogo2");
-        assertThat(response.clubs().get(1).isFavorite()).isEqualTo(false);
+        assertThat(response.clubs().get(1).favorite()).isFalse();
 
-        assertThat(response.pagination().totalElements()).isEqualTo(2);
+        assertThat(response.page().totalElements()).isEqualTo(2);
 
-        BDDMockito.verify(clubRepository, times(1)).searchClubs(any(), any(), any(), any(), any(Pageable.class));
-        BDDMockito.verify(recruitmentRepository, times(2)).findTopByClubIdOrderByCreatedAtDesc(anyLong());
-        BDDMockito.verify(favoriteRepository, times(2)).existsByUserIdAndClubId(anyLong(), anyLong());
+        verify(clubRepository, times(1)).findAllClubsWithLatestRecruitment(any(), any());
+        verify(favoriteRepository, times(1)).findClubIdsByUserId(userId);
     }
 
     @Test
@@ -509,8 +528,8 @@ class ClubServiceTest {
     }
 
     @Test
-    @DisplayName("즐겨찾기한 동아리가 목록 상단에 표시된다")
-    void findClubsSortedByFavorite() {
+    @DisplayName("조건 검색 시 즐겨찾기한 동아리가 목록 상단에 표시된다")
+    void findClubsByConditionsSortedByFavorite() {
         //given
         final Long userId = 1L;
         final Long clubId1 = club1.getId();
@@ -519,7 +538,7 @@ class ClubServiceTest {
         final List<Club> clubs = List.of(club1, club2);
         final Page<Club> clubPage = new PageImpl<>(clubs, pageable, clubs.size());
 
-        BDDMockito.given(clubRepository.searchClubs(any(), any(), any(), any(), any())).willReturn(clubPage);
+        BDDMockito.given(clubRepository.findClubsWithLatestRecruitment(any(), any(), any(), any(), any())).willReturn(clubPage);
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId1)).willReturn(Optional.ofNullable(recruitment1));
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId2)).willReturn(Optional.ofNullable(recruitment2));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId1)).willReturn(false);
