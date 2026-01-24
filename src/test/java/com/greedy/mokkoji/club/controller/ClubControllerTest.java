@@ -2,7 +2,12 @@ package com.greedy.mokkoji.club.controller;
 
 import com.greedy.mokkoji.api.club.dto.request.ClubCreateRequest;
 import com.greedy.mokkoji.api.club.dto.request.ClubUpdateRequest;
-import com.greedy.mokkoji.api.club.dto.response.*;
+import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubPreviewResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.RecruitmentPreviewResponse;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
@@ -14,6 +19,7 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -98,17 +104,27 @@ public class ClubControllerTest extends ControllerTest {
         //given
         String authorizationForBearer = authorizationForBearerAccessToken(user);
 
-        final List<ClubResponse> clubResponses = List.of(ClubResponse.of(
-                club.getId(),
-                club.getName(),
-                club.getClubCategory(),
-                club.getClubAffiliation(),
-                club.getDescription(),
-                recruitment.getRecruitStart(),
-                recruitment.getRecruitEnd(),
-                club.getLogo(),
-                true
-        ));
+        final RecruitmentPreviewResponse recruitmentPreviewResponse =
+                RecruitmentPreviewResponse.builder()
+                        .id(recruitment.getId())
+                        .recruitStart(recruitment.getRecruitStart())
+                        .recruitEnd(recruitment.getRecruitEnd())
+                        .recruitStatus(RecruitStatus.from(
+                                recruitment.isAlwaysRecruiting(),
+                                recruitment.getRecruitStart(),
+                                recruitment.getRecruitEnd()
+                        ))
+                        .build();
+
+        final List<ClubPreviewResponse> clubResponses =
+                List.of(ClubPreviewResponse.builder()
+                        .id(club.getId())
+                        .name(club.getName())
+                        .description(club.getDescription())
+                        .logo(club.getLogo())
+                        .favorite(true)
+                        .recruitmentPreviewResponse(recruitmentPreviewResponse)
+                        .build());
 
         final int pageNumber = 1;
         final int pageSize = 10;
@@ -132,8 +148,8 @@ public class ClubControllerTest extends ControllerTest {
 
         //when
         final int statusCode = response.statusCode();
-        final ClubsPaginationResponse actual = getDataFromResponse(response, ClubsPaginationResponse.class);
-        final ClubsPaginationResponse expected = ClubsPaginationResponse.of(clubResponses, pageResponse);
+        final AllClubsResponse actual = getDataFromResponse(response, AllClubsResponse.class);
+        final AllClubsResponse expected = AllClubsResponse.of(clubResponses, pageResponse);
 
         assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
         assertThat(expected).usingRecursiveComparison().isEqualTo(actual);
