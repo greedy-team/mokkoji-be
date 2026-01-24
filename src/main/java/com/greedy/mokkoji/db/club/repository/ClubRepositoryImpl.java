@@ -78,6 +78,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     @Override
     public List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(ClubAffiliation affiliation, ClubCategory category) {
         QRecruitment subRecruitment = new QRecruitment("subRecruitment");
+        QRecruitment subRecruitment2 = new QRecruitment("subRecruitment2");
 
         return queryFactory
                 .select(
@@ -99,11 +100,19 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                 .from(club)
                 .leftJoin(recruitment).on(
                         recruitment.club.eq(club),
-                        recruitment.createdAt.eq(
+                        recruitment.id.eq(
                                 JPAExpressions
-                                        .select(subRecruitment.createdAt.max())
+                                        .select(subRecruitment.id.max())
                                         .from(subRecruitment)
-                                        .where(subRecruitment.club.eq(club))
+                                        .where(
+                                                subRecruitment.club.eq(club),
+                                                subRecruitment.createdAt.eq(
+                                                        JPAExpressions
+                                                                .select(subRecruitment2.createdAt.max())
+                                                                .from(subRecruitment2)
+                                                                .where(subRecruitment2.club.eq(club))
+                                                )
+                                        )
                         )
                 )
                 .where(
