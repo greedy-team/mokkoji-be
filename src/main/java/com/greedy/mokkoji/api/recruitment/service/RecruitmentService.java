@@ -34,7 +34,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -364,16 +368,8 @@ public class RecruitmentService {
                                 (RecruitmentPreviewResponse response) ->
                                         RecruitStatus.from(response.isAlwaysRecruiting(), response.recruitStart(), response.recruitEnd()).getPriority()
                         )
-                        .thenComparing(RecruitmentPreviewResponse::recruitEnd);
-        Comparator.comparing(
-                        (RecruitmentPreviewResponse response) ->
-                                RecruitStatus.from(response.isAlwaysRecruiting(), response.recruitStart(), response.recruitEnd())
-                                        .getPriority()
-                )
-                .thenComparing(
-                        RecruitmentPreviewResponse::recruitEnd,
-                        Comparator.nullsLast(LocalDateTime::compareTo)
-                );
+                        .thenComparing(RecruitmentPreviewResponse::recruitEnd,
+                                Comparator.nullsLast(LocalDateTime::compareTo));
 
         if (userId != null) {
             comparator = Comparator.comparing(RecruitmentPreviewResponse::isFavorite).reversed()
