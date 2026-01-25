@@ -107,6 +107,10 @@ public class FavoriteService {
 
         final List<Recruitment> recruitments = recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(favoriteClubIds);
 
+        if (recruitments == null || recruitments.isEmpty()) {
+            return null;
+        }
+
         return recruitments.stream()
                 .filter(recruitment -> isSameMonth(recruitment, yearMonth))
                 .map(recruitment -> RecruitClubsResponse.of(
@@ -119,6 +123,8 @@ public class FavoriteService {
     }
 
     private boolean isSameMonth(Recruitment recruitment, YearMonth yearMonth) {
+        if (recruitment.getRecruitStart() == null || recruitment.getRecruitEnd() == null) return false;
+
         YearMonth startMonth = YearMonth.from(recruitment.getRecruitStart());
         if (startMonth.equals(yearMonth)) return true;
 
