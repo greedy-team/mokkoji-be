@@ -2,6 +2,7 @@ package com.greedy.mokkoji.api.club.dto.response;
 
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -18,6 +19,7 @@ public record ClubResponse(
         @Schema(example = "2025-11-25") String recruitStartDate,
         @Schema(example = "2025-12-04") String recruitEndDate,
         @Schema(example = "false") Boolean isAlwaysRecruiting,
+        @Schema(example = "OPEN") RecruitStatus recruitStatus,
         @Schema(example = "https://mokkoji-app-data.s3.ap-northeast-2.amazonaws.com/club-logo/1/greedy_{UUID}.jpg") String logo,
         @Schema(example = "true") Boolean isFavorite
 ) {
@@ -30,6 +32,7 @@ public record ClubResponse(
             final LocalDateTime recruitStartDate,
             final LocalDateTime recruitEndDate,
             final Boolean isAlwaysRecruiting,
+            final RecruitStatus recruitStatus,
             final String logo,
             final Boolean isFavorite) {
 
@@ -42,6 +45,7 @@ public record ClubResponse(
                 .recruitStartDate(recruitStartDate != null ? recruitStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE) : null)
                 .recruitEndDate(recruitEndDate != null ? recruitEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE) : null)
                 .isAlwaysRecruiting(isAlwaysRecruiting)
+                .recruitStatus(recruitStatus)
                 .logo(logo)
                 .isFavorite(isFavorite)
                 .build();
