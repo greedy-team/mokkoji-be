@@ -1,7 +1,15 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.club.dto.response.*;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.*;
+import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubPreviewResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubWithLatestRecruitment;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.LatestRecruitmentInfo;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.RecruitmentPreviewResponse;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -25,7 +33,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -258,6 +270,7 @@ public class ClubService {
                             recruitment != null ? recruitment.getRecruitStart() : null,
                             recruitment != null ? recruitment.getRecruitEnd() : null,
                             recruitment != null ? recruitment.isAlwaysRecruiting() : null,
+                            calculateRecruitStatus(recruitment),
                             appDataS3Client.getPublicUrl(club.getLogo()),
                             isFavorite);
                 })
@@ -371,5 +384,14 @@ public class ClubService {
         return (newLogoKey != null && oldLogoKey != null && !oldLogoKey.equals(newLogoKey))
                 ? appDataS3Client.getPresignedDeleteUrl(oldLogoKey)
                 : null;
+    }
+
+    private RecruitStatus calculateRecruitStatus(final Recruitment recruitment) {
+        if (recruitment == null) return null;
+        return RecruitStatus.from(
+                recruitment.isAlwaysRecruiting(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd()
+        );
     }
 }
