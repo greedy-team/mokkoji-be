@@ -72,6 +72,7 @@ public class FavoriteService {
                             club.getDescription(),
                             recruitment != null ? recruitment.getRecruitStart() : null,
                             recruitment != null ? recruitment.getRecruitEnd() : null,
+                            recruitment != null ? recruitment.isAlwaysRecruiting() : null,
                             appDataS3Client.getPublicUrl(club.getLogo()),
                             true
                     );
