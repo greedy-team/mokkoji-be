@@ -17,6 +17,7 @@ public record ClubResponse(
         @Schema(example = "세종대 최고의 코딩 동아리") String description,
         @Schema(example = "2025-11-25") String recruitStartDate,
         @Schema(example = "2025-12-04") String recruitEndDate,
+        @Schema(example = "false") Boolean isAlwaysRecruiting,
         @Schema(example = "https://mokkoji-app-data.s3.ap-northeast-2.amazonaws.com/club-logo/1/greedy_{UUID}.jpg") String logo,
         @Schema(example = "true") Boolean isFavorite
 ) {
@@ -28,6 +29,7 @@ public record ClubResponse(
             final String description,
             final LocalDateTime recruitStartDate,
             final LocalDateTime recruitEndDate,
+            final Boolean isAlwaysRecruiting,
             final String logo,
             final Boolean isFavorite) {
 
@@ -39,6 +41,7 @@ public record ClubResponse(
                 .description(description)
                 .recruitStartDate(recruitStartDate != null ? recruitStartDate.format(DateTimeFormatter.ISO_LOCAL_DATE) : null)
                 .recruitEndDate(recruitEndDate != null ? recruitEndDate.format(DateTimeFormatter.ISO_LOCAL_DATE) : null)
+                .isAlwaysRecruiting(isAlwaysRecruiting)
                 .logo(logo)
                 .isFavorite(isFavorite)
                 .build();
