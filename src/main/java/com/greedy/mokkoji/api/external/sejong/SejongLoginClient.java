@@ -3,12 +3,13 @@ package com.greedy.mokkoji.api.external.sejong;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.enums.message.FailMessage;
-import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Component
 public class SejongLoginClient {
 
@@ -92,6 +94,7 @@ public class SejongLoginClient {
         }
 
         if (name == null || department == null || grade == null) {
+            log.error("[세종인증] 학생정보 파싱 실패(로그인 실패 가능) - 필드 누락(이름={}, 학과={}, 학년={})", name, department, grade);
             throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
         }
 
@@ -123,7 +126,7 @@ public class SejongLoginClient {
             authenticate(client, id, password);
             return fetchStudentInformation(client);
         } catch (Exception e) {
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH, e);
         }
     }
 
@@ -161,11 +164,12 @@ public class SejongLoginClient {
         try {
             Response response = client.newCall(request).execute();
             if (response.body() == null) {
+                log.error("[세종인증] 실패: 응답 본문 누락 url={}, code={}", request.url(), response.code());
                 throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
             }
             return response;
         } catch (IOException e) {
-            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH);
+            throw new MokkojiException(FailMessage.INTERNAL_SERVER_ERROR_SEJONG_AUTH, e);
         }
     }
 }

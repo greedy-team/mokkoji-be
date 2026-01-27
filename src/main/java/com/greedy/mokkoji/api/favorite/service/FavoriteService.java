@@ -15,6 +15,7 @@ import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,17 +62,19 @@ public class FavoriteService {
         List<ClubResponse> clubResponses = favorites.stream()
                 .map(favorite -> {
                     final Club club = favorite.getClub();
-                    Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(club.getId())
+                    Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(club.getId())
                             .orElse(null);
 
                     return ClubResponse.of(
                             club.getId(),
                             club.getName(),
-                            club.getClubCategory().getDescription(),
-                            club.getClubAffiliation().getDescription(),
+                            club.getClubCategory(),
+                            club.getClubAffiliation(),
                             club.getDescription(),
                             recruitment != null ? recruitment.getRecruitStart() : null,
                             recruitment != null ? recruitment.getRecruitEnd() : null,
+                            recruitment != null ? recruitment.isAlwaysRecruiting() : null,
+                            calculateRecruitStatus(recruitment),
                             appDataS3Client.getPublicUrl(club.getLogo()),
                             true
                     );
@@ -107,6 +110,10 @@ public class FavoriteService {
 
         final List<Recruitment> recruitments = recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(favoriteClubIds);
 
+        if (recruitments == null || recruitments.isEmpty()) {
+            return null;
+        }
+
         return recruitments.stream()
                 .filter(recruitment -> isSameMonth(recruitment, yearMonth))
                 .map(recruitment -> RecruitClubsResponse.of(
@@ -119,6 +126,8 @@ public class FavoriteService {
     }
 
     private boolean isSameMonth(Recruitment recruitment, YearMonth yearMonth) {
+        if (recruitment.getRecruitStart() == null || recruitment.getRecruitEnd() == null) return false;
+
         YearMonth startMonth = YearMonth.from(recruitment.getRecruitStart());
         if (startMonth.equals(yearMonth)) return true;
 
@@ -146,6 +155,15 @@ public class FavoriteService {
                 clubPage.getSize(),
                 clubPage.getTotalPages(),
                 (int) clubPage.getTotalElements()
+        );
+    }
+
+    private RecruitStatus calculateRecruitStatus(final Recruitment recruitment) {
+        if (recruitment == null) return null;
+        return RecruitStatus.from(
+                recruitment.isAlwaysRecruiting(),
+                recruitment.getRecruitStart(),
+                recruitment.getRecruitEnd()
         );
     }
 }

@@ -4,9 +4,10 @@ import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,7 +17,8 @@ public class NotificationService {
     private final NotificationChannel notificationChannel;
     private final FavoriteRepository favoriteRepository;
 
-    @Transactional
+    @Async
+    @Transactional(readOnly = true)
     public void sendNotification(final Club club, final Recruitment recruitment) {
         List<Favorite> favorites = favoriteRepository.findByClubIdWithFetchJoin(club.getId());
 
@@ -33,5 +35,4 @@ public class NotificationService {
                 userEmail, club.getId(), club.getName(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()
         );
     }
-
 }

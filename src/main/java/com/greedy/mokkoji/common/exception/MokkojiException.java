@@ -12,4 +12,9 @@ public class MokkojiException extends RuntimeException {
         super(failMessage.getMessage());
         this.failMessage = failMessage;
     }
+
+    public MokkojiException(final FailMessage failMessage, final Throwable cause) {
+        super(failMessage.getMessage(), cause);
+        this.failMessage = failMessage;
+    }
 }

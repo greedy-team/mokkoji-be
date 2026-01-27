@@ -3,9 +3,13 @@ package com.greedy.mokkoji.user.service;
 import com.greedy.mokkoji.api.external.sejong.SejongLoginRestClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
@@ -22,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +59,8 @@ public class UserServiceTest {
     JwtUtil jwtUtil;
 
     @Test
-    void 로그인을_할_수_있다() {
+    @DisplayName("로그인을 할 수 있다.")
+    void login() {
         //given
         final String studentId = "학번";
         final String password = "비밀번호";
@@ -103,7 +109,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("이미 등록된 사용자가 로그인하면 기존 User객체가 반환된다.")
+    @DisplayName("이미 등록된 사용자가 로그인 시 기존 User 객체가 반환된다.")
     void ReturnUserWhenNotFirstLogin() {
         // given
         String studentId = "학번";
@@ -127,7 +133,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("access토큰을 재발급 받을 수 있다.")
+    @DisplayName("AccessToken을 재발급 받을 수 있다.")
     void refreshAccessToken() {
         // given
         Long userId = 1L;
@@ -146,7 +152,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("access토큰 재발급 시 잘못된 refresh토큰이면 예외가 발생한다.")
+    @DisplayName("AccessToken 재발급 시 잘못된 RefreshToken이면 예외가 발생한다.")
     void wrongRefreshTokenWhenRefreshAccessToken() {
         // given
         Long userId = 1L;
@@ -162,23 +168,89 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("User정보를 업데이트 할 수 있다.")
-    void UpdateUser() {
+    @DisplayName("User의 이메일 정보를 업데이트 할 수 있다.")
+    void updateEmail() {
         // given
         final User user = User.builder()
                 .name("세종")
                 .grade("4")
                 .studentId("학번")
                 .department("컴공과")
-                .email("a@email.com")
+                .email("origin@email.com")
                 .build();
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         // when
-        userService.updateEmail(1L, "b@email.com");
+        userService.updateEmail(1L, "updated@email.com");
 
         // then
-        assertThat(user.getEmail()).isEqualTo("b@email.com");
+        assertThat(user.getEmail()).isEqualTo("updated@email.com");
+    }
+
+    @Test
+    @DisplayName("사용자의 역할을 조회할 수 있다.")
+    void getUserRole() {
+        // given
+        Long userId = 1L;
+
+        User user = User.builder()
+                .name("세종")
+                .grade("4")
+                .studentId("학번")
+                .department("컴공과")
+                .role(UserRole.GREEDY_ADMIN)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        UserRoleResponse actualRole = userService.getUserRole(userId);
+
+        // then
+        assertThat(actualRole.role()).isEqualTo(UserRole.GREEDY_ADMIN);
+    }
+
+    @Test
+    @DisplayName("사용자가 회장으로 관리 중인 동아리를 조회할 수 있다.")
+    void getUserManageClubs() {
+        // given
+        Long userId = 1L;
+
+        User user = User.builder()
+                .name("모꼬지")
+                .studentId("12341234")
+                .grade("4")
+                .department("컴퓨터공학과")
+                .email("모꼬지@test.com")
+                .role(UserRole.GREEDY_ADMIN)
+                .build();
+
+        Club club1 = Club.builder()
+                .name("그리디1")
+                .clubMasterStudentId("12341234")
+                .build();
+
+        Club club2 = Club.builder()
+                .name("그리디2")
+                .clubMasterStudentId("12341234")
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(clubRepository.findByClubMasterStudentId(user.getStudentId())).thenReturn(List.of(club1, club2));
+
+        UserManageClubsResponse expectedResponse = new UserManageClubsResponse(
+                List.of(
+                        new UserManageClubResponse(club1.getId(), club1.getName()),
+                        new UserManageClubResponse(club2.getId(), club2.getName())
+                )
+        );
+
+        // when
+        UserManageClubsResponse actualResponse = userService.getUserManageClubs(userId);
+
+        // then
+        assertThat(actualResponse.clubs()).hasSize(2);
+        assertThat(actualResponse).usingRecursiveComparison().isEqualTo(expectedResponse);
     }
 }

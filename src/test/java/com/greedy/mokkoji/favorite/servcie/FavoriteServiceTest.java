@@ -16,9 +16,6 @@ import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
-
-import java.time.YearMonth;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -35,6 +32,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -240,7 +238,7 @@ public class FavoriteServiceTest {
         final Page<Favorite> favoritePage = new PageImpl<>(List.of(favorite));
 
         BDDMockito.given(favoriteRepository.findByUserId(any(), any())).willReturn(favoritePage);
-        BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByUpdatedAtDesc(any())).willReturn(Optional.of(recruitment));
+        BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(any())).willReturn(Optional.of(recruitment));
         BDDMockito.given(appDataS3Client.getPublicUrl(any())).willReturn("testLogo1");
 
         //when
@@ -249,8 +247,8 @@ public class FavoriteServiceTest {
         //then
         assertThat(favoriteClubs.clubs().size()).isEqualTo(1);
         assertThat(favoriteClubs.clubs().get(0).name()).isEqualTo("동아리 이름");
-        assertThat(favoriteClubs.clubs().get(0).category()).isEqualTo("문화/예술");
-        assertThat(favoriteClubs.clubs().get(0).affiliation()).isEqualTo("중앙");
+        assertThat(favoriteClubs.clubs().get(0).category()).isEqualTo(ClubCategory.CULTURAL_ART);
+        assertThat(favoriteClubs.clubs().get(0).affiliation()).isEqualTo(ClubAffiliation.CENTRAL_CLUB);
         assertThat(favoriteClubs.clubs().get(0).description()).isEqualTo("동아리 설명");
         assertThat(favoriteClubs.clubs().get(0).recruitStartDate()).isEqualTo("2025-02-01");
         assertThat(favoriteClubs.clubs().get(0).recruitEndDate()).isEqualTo("2025-03-30");
@@ -258,7 +256,7 @@ public class FavoriteServiceTest {
         assertThat(favoriteClubs.clubs().get(0).isFavorite()).isEqualTo(true);
 
         BDDMockito.verify(favoriteRepository, times(1)).findByUserId(user.getId(), PageRequest.of(0, 10));
-        BDDMockito.verify(recruitmentRepository, times(1)).findTopByClubIdOrderByUpdatedAtDesc(club.getId());
+        BDDMockito.verify(recruitmentRepository, times(1)).findTopByClubIdOrderByCreatedAtDesc(club.getId());
     }
 
     @DisplayName("특정 연월에 모집 중인 즐겨찾기 동아리의 최신 모집 정보를 조회한다. - 모집 시작일이 겹치는 경우")

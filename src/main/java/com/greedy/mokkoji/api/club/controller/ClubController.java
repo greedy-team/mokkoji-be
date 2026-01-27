@@ -9,8 +9,11 @@ import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
+import com.greedy.mokkoji.enums.club.ClubCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +39,7 @@ public class ClubController implements ClubControllerSwagger {
         );
     }
 
-    @GetMapping
+    @GetMapping("/search")
     public ResponseEntity<APISuccessResponse<ClubsPaginationResponse>> getClubs(
             @Authentication final AuthCredential authCredential,
             @ModelAttribute(value = "clubSearchCond") final ClubSearchCond clubSearchCond,
@@ -56,6 +59,22 @@ public class ClubController implements ClubControllerSwagger {
                 )
         );
     }
+
+    @GetMapping
+    public ResponseEntity<APISuccessResponse<AllClubsResponse>> getAllClubs(
+            @Authentication final AuthCredential authCredential,
+            @RequestParam(value = "affiliation", required = false) final ClubAffiliation affiliation,
+            @RequestParam(value = "category", required = false) final ClubCategory category,
+            @RequestParam(value = "page") final int page,
+            @RequestParam(value = "size") final int size
+    ) {
+        final Pageable pageable = PageRequest.of(page - 1, size);
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                clubService.getAllClubs(authCredential.userId(), affiliation, category, pageable)
+        );
+    }
+
 
     @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createClub(

@@ -113,7 +113,7 @@ public class UserService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
         return UserRoleResponse.of(
-                user.getRole().toString()
+                user.getRole()
         );
     }
 
