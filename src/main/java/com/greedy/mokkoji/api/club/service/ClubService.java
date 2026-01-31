@@ -253,6 +253,7 @@ public class ClubService {
                 .recruitStart(latest.recruitStart())
                 .recruitEnd(latest.recruitEnd())
                 .recruitStatus(RecruitStatus.from(latest.isAlwaysRecruiting(), latest.recruitStart(), latest.recruitEnd()))
+                .isAlwaysRecruiting(latest.isAlwaysRecruiting())
                 .build();
     }
 
