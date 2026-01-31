@@ -101,12 +101,13 @@ public class ClubService {
 
     @Transactional(readOnly = true)
     public AllClubsResponse getAllClubs(
-            Long userId,
-            ClubAffiliation affiliation,
-            ClubCategory category,
-            Pageable pageable
+            final Long userId,
+            final String keyword,
+            final ClubAffiliation affiliation,
+            final ClubCategory category,
+            final Pageable pageable
     ) {
-        List<ClubWithLatestRecruitment> clubs = clubRepository.findAllClubsWithLatestRecruitment(affiliation, category);
+        List<ClubWithLatestRecruitment> clubs = clubRepository.findAllClubsWithLatestRecruitment(keyword, affiliation, category);
 
         Set<Long> favoriteClubIds = loadFavoriteClubIds(userId);
 

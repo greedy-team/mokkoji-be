@@ -63,6 +63,7 @@ public class ClubController implements ClubControllerSwagger {
     @GetMapping
     public ResponseEntity<APISuccessResponse<AllClubsResponse>> getAllClubs(
             @Authentication final AuthCredential authCredential,
+            @RequestParam(value = "keyword", required = false) final String keyword,
             @RequestParam(value = "affiliation", required = false) final ClubAffiliation affiliation,
             @RequestParam(value = "category", required = false) final ClubCategory category,
             @RequestParam(value = "page") final int page,
@@ -71,7 +72,7 @@ public class ClubController implements ClubControllerSwagger {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubService.getAllClubs(authCredential.userId(), affiliation, category, pageable)
+                clubService.getAllClubs(authCredential.userId(), keyword, affiliation, category, pageable)
         );
     }
 
