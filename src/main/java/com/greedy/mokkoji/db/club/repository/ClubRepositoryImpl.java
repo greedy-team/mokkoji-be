@@ -76,7 +76,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     }
 
     @Override
-    public List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(ClubAffiliation affiliation, ClubCategory category) {
+    public List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(final String keyword, final ClubAffiliation affiliation, final ClubCategory category) {
         QRecruitment subRecruitment = new QRecruitment("subRecruitment");
         QRecruitment subRecruitment2 = new QRecruitment("subRecruitment2");
 
@@ -116,6 +116,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                         )
                 )
                 .where(
+                        likeClubName(keyword),
                         equalAffiliation(affiliation),
                         equalCategory(category)
                 )

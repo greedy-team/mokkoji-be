@@ -20,7 +20,8 @@ public interface ClubRepositoryCustom {
     );
 
     List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(
-            ClubAffiliation affiliation,
-            ClubCategory category
+            final String keyword,
+            final ClubAffiliation affiliation,
+            final ClubCategory category
     );
 }
