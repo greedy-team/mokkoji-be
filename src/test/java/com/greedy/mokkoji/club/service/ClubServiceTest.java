@@ -20,6 +20,7 @@ import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -88,6 +89,7 @@ class ClubServiceTest {
                 .content("testContent1")
                 .recruitStart(LocalDateTime.of(2025, 1, 1, 12, 0))
                 .recruitEnd(LocalDateTime.of(2025, 3, 30, 12, 0))
+                .isAlwaysRecruiting(false)
                 .build();
 
         club2 = Club.builder()
@@ -181,6 +183,9 @@ class ClubServiceTest {
         final Long userId = 1L;
         final Long clubId = club1.getId();
 
+        final LocalDateTime createdAt = LocalDateTime.of(2026, 1, 1, 0, 0);
+        ReflectionTestUtils.setField(recruitment1, "createdAt", createdAt);
+
         BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.ofNullable(club1));
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId)).willReturn(Optional.ofNullable(recruitment1));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId)).willReturn(true);
@@ -201,6 +206,14 @@ class ClubServiceTest {
         assertThat(response.isFavorite()).isEqualTo(true);
         assertThat(response.instagram()).isEqualTo("testInstagramURL1");
         assertThat(response.recruitPost()).isEqualTo("testContent1");
+        assertThat(response.status())
+            .isEqualTo(RecruitStatus.from(
+                recruitment1.isAlwaysRecruiting(),
+                recruitment1.getRecruitStart(),
+                recruitment1.getRecruitEnd()
+            ));
+        assertThat(response.createdAt()).isEqualTo(createdAt);
+        assertThat(response.isAlwaysRecruiting()).isEqualTo(false);
 
         verify(clubRepository, times(1)).findById(anyLong());
         verify(recruitmentRepository, times(1)).findTopByClubIdOrderByCreatedAtDesc(anyLong());

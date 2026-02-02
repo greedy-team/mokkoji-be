@@ -1,5 +1,10 @@
 package com.greedy.mokkoji.club.controller;
 
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.greedy.mokkoji.api.club.dto.request.ClubCreateRequest;
 import com.greedy.mokkoji.api.club.dto.request.ClubUpdateRequest;
 import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
@@ -23,6 +28,7 @@ import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import com.greedy.mokkoji.enums.user.UserRole;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,13 +36,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 public class ClubControllerTest extends ControllerTest {
 
@@ -71,27 +70,33 @@ public class ClubControllerTest extends ControllerTest {
 
         //when
         final ExtractableResponse<Response> response = given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .when().get(prefixUrl + "/clubs/{clubId}", club.getId())
-                .then().log().all()
-                .extract();
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .when().get(prefixUrl + "/clubs/{clubId}", club.getId())
+            .then().log().all()
+            .extract();
 
         //then
         final int statusCode = response.statusCode();
         final ClubDetailResponse actual = getDataFromResponse(response, ClubDetailResponse.class); //그리디 로고
         final ClubDetailResponse expected = ClubDetailResponse.of(
-                club.getId(),
-                club.getName(),
-                club.getClubCategory(),
-                club.getClubAffiliation(),
-                club.getDescription(),
+            club.getId(),
+            club.getName(),
+            club.getClubCategory(),
+            club.getClubAffiliation(),
+            club.getDescription(),
+            recruitment.getRecruitStart(),
+            recruitment.getRecruitEnd(),
+            Fixture.FIXTURE_CLUB_LOGO,
+            true,
+            club.getInstagram(),
+            recruitment.getContent(),
+            RecruitStatus.from(
+                recruitment.isAlwaysRecruiting(),
                 recruitment.getRecruitStart(),
-                recruitment.getRecruitEnd(),
-                Fixture.FIXTURE_CLUB_LOGO,
-                true,
-                club.getInstagram(),
-                recruitment.getContent()
+                recruitment.getRecruitEnd()),
+            recruitment.getCreatedAt(),
+            recruitment.isAlwaysRecruiting()
         );
 
         assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -105,46 +110,46 @@ public class ClubControllerTest extends ControllerTest {
         String authorizationForBearer = authorizationForBearerAccessToken(user);
 
         final RecruitmentPreviewResponse recruitmentPreviewResponse =
-                RecruitmentPreviewResponse.builder()
-                        .id(recruitment.getId())
-                        .recruitStart(recruitment.getRecruitStart())
-                        .recruitEnd(recruitment.getRecruitEnd())
-                        .recruitStatus(RecruitStatus.from(
-                                recruitment.isAlwaysRecruiting(),
-                                recruitment.getRecruitStart(),
-                                recruitment.getRecruitEnd()
-                        ))
-                        .build();
+            RecruitmentPreviewResponse.builder()
+                .id(recruitment.getId())
+                .recruitStart(recruitment.getRecruitStart())
+                .recruitEnd(recruitment.getRecruitEnd())
+                .recruitStatus(RecruitStatus.from(
+                    recruitment.isAlwaysRecruiting(),
+                    recruitment.getRecruitStart(),
+                    recruitment.getRecruitEnd()
+                ))
+                .build();
 
         final List<ClubPreviewResponse> clubResponses =
-                List.of(ClubPreviewResponse.builder()
-                        .id(club.getId())
-                        .name(club.getName())
-                        .description(club.getDescription())
-                        .logo(club.getLogo())
-                        .favorite(true)
-                        .recruitmentPreviewResponse(recruitmentPreviewResponse)
-                        .build());
+            List.of(ClubPreviewResponse.builder()
+                .id(club.getId())
+                .name(club.getName())
+                .description(club.getDescription())
+                .logo(club.getLogo())
+                .favorite(true)
+                .recruitmentPreviewResponse(recruitmentPreviewResponse)
+                .build());
 
         final int pageNumber = 1;
         final int pageSize = 10;
         final PageResponse pageResponse = PageResponse.of(
-                pageNumber,
-                pageSize,
-                1,
-                1
+            pageNumber,
+            pageSize,
+            1,
+            1
         );
 
         when(appDataS3Client.getPublicUrl(any())).thenReturn(Fixture.FIXTURE_CLUB_LOGO);
 
         final ExtractableResponse<Response> response = given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .param("page", pageNumber)
-                .param("size", pageSize)
-                .when().get(prefixUrl + "/clubs")
-                .then().log().all()
-                .extract();
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .param("page", pageNumber)
+            .param("size", pageSize)
+            .when().get(prefixUrl + "/clubs")
+            .then().log().all()
+            .extract();
 
         //when
         final int statusCode = response.statusCode();
@@ -160,31 +165,31 @@ public class ClubControllerTest extends ControllerTest {
     void createClub() {
         //given
         final User adminUser = User.builder()
-                .name("관리자")
-                .email("admin@test.com")
-                .studentId("12345678")
-                .grade("4")
-                .department("컴퓨터공학과")
-                .role(UserRole.CLUB_ADMIN)
-                .build();
+            .name("관리자")
+            .email("admin@test.com")
+            .studentId("12345678")
+            .grade("4")
+            .department("컴퓨터공학과")
+            .role(UserRole.CLUB_ADMIN)
+            .build();
         userRepository.save(adminUser);
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
 
         final ClubCreateRequest request = new ClubCreateRequest(
-                "새로운 동아리",
-                ClubCategory.ACADEMIC_CULTURAL,
-                ClubAffiliation.DEPARTMENT_CLUB,
-                adminUser.getStudentId()
+            "새로운 동아리",
+            ClubCategory.ACADEMIC_CULTURAL,
+            ClubAffiliation.DEPARTMENT_CLUB,
+            adminUser.getStudentId()
         );
 
         //when
         final ExtractableResponse<Response> response = given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .body(request)
-                .when().post(prefixUrl + "/clubs")
-                .then().log().all()
-                .extract();
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .body(request)
+            .when().post(prefixUrl + "/clubs")
+            .then().log().all()
+            .extract();
 
         //then
         final int statusCode = response.statusCode();
@@ -201,45 +206,45 @@ public class ClubControllerTest extends ControllerTest {
     void getClubManageDetail() {
         //given
         final User adminUser = User.builder()
-                .name("관리자")
-                .email("admin@test.com")
-                .studentId("12345678")
-                .grade("4")
-                .department("컴퓨터공학과")
-                .role(UserRole.CLUB_ADMIN)
-                .build();
+            .name("관리자")
+            .email("admin@test.com")
+            .studentId("12345678")
+            .grade("4")
+            .department("컴퓨터공학과")
+            .role(UserRole.CLUB_ADMIN)
+            .build();
         userRepository.save(adminUser);
 
         final Club managedClub = Club.builder()
-                .name("관리할 동아리")
-                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
-                .clubCategory(ClubCategory.SPORTS)
-                .clubMasterStudentId(adminUser.getStudentId())
-                .description("동아리 설명")
-                .instagram("instagram.com")
-                .build();
+            .name("관리할 동아리")
+            .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+            .clubCategory(ClubCategory.SPORTS)
+            .clubMasterStudentId(adminUser.getStudentId())
+            .description("동아리 설명")
+            .instagram("instagram.com")
+            .build();
         clubRepository.save(managedClub);
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
         when(appDataS3Client.getPublicUrl(null)).thenReturn(null);
 
         //when
         final ExtractableResponse<Response> response = given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .when().get(prefixUrl + "/clubs/manage/{clubId}", managedClub.getId())
-                .then().log().all()
-                .extract();
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .when().get(prefixUrl + "/clubs/manage/{clubId}", managedClub.getId())
+            .then().log().all()
+            .extract();
 
         //then
         final int statusCode = response.statusCode();
         final ClubManageDetailResponse actual = getDataFromResponse(response, ClubManageDetailResponse.class);
         final ClubManageDetailResponse expected = ClubManageDetailResponse.of(
-                managedClub.getName(),
-                managedClub.getClubCategory(),
-                managedClub.getClubAffiliation(),
-                managedClub.getDescription(),
-                managedClub.getLogo(),
-                managedClub.getInstagram()
+            managedClub.getName(),
+            managedClub.getClubCategory(),
+            managedClub.getClubAffiliation(),
+            managedClub.getDescription(),
+            managedClub.getLogo(),
+            managedClub.getInstagram()
         );
 
         assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
@@ -251,32 +256,32 @@ public class ClubControllerTest extends ControllerTest {
     void updateClub() {
         //given
         final User clubMasterUser = User.builder()
-                .name("동아리장")
-                .email("master@test.com")
-                .grade("3")
-                .studentId("21123456")
-                .role(UserRole.CLUB_MASTER)
-                .build();
+            .name("동아리장")
+            .email("master@test.com")
+            .grade("3")
+            .studentId("21123456")
+            .role(UserRole.CLUB_MASTER)
+            .build();
         userRepository.save(clubMasterUser);
         String authorizationForBearer = authorizationForBearerAccessToken(clubMasterUser);
 
         final Club managedClub = Club.builder()
-                .name("수정할 동아리")
-                .clubCategory(ClubCategory.SPORTS)
-                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
-                .clubMasterStudentId(clubMasterUser.getStudentId())
-                .build();
+            .name("수정할 동아리")
+            .clubCategory(ClubCategory.SPORTS)
+            .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+            .clubMasterStudentId(clubMasterUser.getStudentId())
+            .build();
         ReflectionTestUtils.setField(managedClub, "logo", "logo.jpg");
         clubRepository.save(managedClub);
 
         final ClubUpdateRequest request = new ClubUpdateRequest(
-                "수정된 동아리",
-                ClubCategory.CULTURAL_ART,
-                ClubAffiliation.DEPARTMENT_CLUB,
-                "동아리 수정 완료",
-                "12345678",
-                "new-logo.jpg",
-                "new-instagram.com"
+            "수정된 동아리",
+            ClubCategory.CULTURAL_ART,
+            ClubAffiliation.DEPARTMENT_CLUB,
+            "동아리 수정 완료",
+            "12345678",
+            "new-logo.jpg",
+            "new-instagram.com"
         );
 
         when(appDataS3Client.getPresignedPutUrl(any())).thenReturn("presignedPutUrl");
@@ -284,12 +289,12 @@ public class ClubControllerTest extends ControllerTest {
 
         //when
         final ExtractableResponse<Response> response = given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .body(request)
-                .when().patch(prefixUrl + "/clubs/manage/{clubId}", managedClub.getId())
-                .then().log().all()
-                .extract();
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .body(request)
+            .when().patch(prefixUrl + "/clubs/manage/{clubId}", managedClub.getId())
+            .then().log().all()
+            .extract();
 
         //then
         final int statusCode = response.statusCode();
@@ -317,18 +322,18 @@ public class ClubControllerTest extends ControllerTest {
 
         //when
         final ExtractableResponse<Response> response = given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .when().get(prefixUrl + "/clubs/{clubId}", nonExistentClubId)
-                .then().log().all()
-                .extract();
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .when().get(prefixUrl + "/clubs/{clubId}", nonExistentClubId)
+            .then().log().all()
+            .extract();
 
         //then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-                FailMessage.NOT_FOUND_CLUB.getCode(),
-                FailMessage.NOT_FOUND_CLUB.getMessage()
+            FailMessage.NOT_FOUND_CLUB.getCode(),
+            FailMessage.NOT_FOUND_CLUB.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.NOT_FOUND.value());
@@ -340,38 +345,38 @@ public class ClubControllerTest extends ControllerTest {
     void createClubForbidden() {
         //given
         final User normalUser = User.builder()
-                .name("일반사용자")
-                .email("normal@test.com")
-                .studentId("11112222")
-                .grade("2")
-                .department("소프트웨어학과")
-                .role(UserRole.NORMAL)
-                .build();
+            .name("일반사용자")
+            .email("normal@test.com")
+            .studentId("11112222")
+            .grade("2")
+            .department("소프트웨어학과")
+            .role(UserRole.NORMAL)
+            .build();
         userRepository.save(normalUser);
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         final ClubCreateRequest request = new ClubCreateRequest(
-                "새로운 동아리",
-                ClubCategory.ACADEMIC_CULTURAL,
-                ClubAffiliation.DEPARTMENT_CLUB,
-                null
+            "새로운 동아리",
+            ClubCategory.ACADEMIC_CULTURAL,
+            ClubAffiliation.DEPARTMENT_CLUB,
+            null
         );
 
         //when
         final ExtractableResponse<Response> response = given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .body(request)
-                .when().post(prefixUrl + "/clubs")
-                .then().log().all()
-                .extract();
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .body(request)
+            .when().post(prefixUrl + "/clubs")
+            .then().log().all()
+            .extract();
 
         //then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-                FailMessage.FORBIDDEN_REGISTER_CLUB.getCode(),
-                FailMessage.FORBIDDEN_REGISTER_CLUB.getMessage()
+            FailMessage.FORBIDDEN_REGISTER_CLUB.getCode(),
+            FailMessage.FORBIDDEN_REGISTER_CLUB.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -383,41 +388,41 @@ public class ClubControllerTest extends ControllerTest {
     void updateClubForbidden() {
         //given
         final User normalUser = User.builder()
-                .name("일반사용자")
-                .email("normal2@test.com")
-                .studentId("22223333")
-                .grade("2")
-                .department("소프트웨어학과")
-                .role(UserRole.NORMAL)
-                .build();
+            .name("일반사용자")
+            .email("normal2@test.com")
+            .studentId("22223333")
+            .grade("2")
+            .department("소프트웨어학과")
+            .role(UserRole.NORMAL)
+            .build();
         userRepository.save(normalUser);
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         final ClubUpdateRequest request = new ClubUpdateRequest(
-                "수정된 동아리",
-                ClubCategory.CULTURAL_ART,
-                ClubAffiliation.DEPARTMENT_CLUB,
-                "동아리 수정",
-                null,
-                null,
-                null
+            "수정된 동아리",
+            ClubCategory.CULTURAL_ART,
+            ClubAffiliation.DEPARTMENT_CLUB,
+            "동아리 수정",
+            null,
+            null,
+            null
         );
 
         //when
         final ExtractableResponse<Response> response = given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .body(request)
-                .when().patch(prefixUrl + "/clubs/manage/{clubId}", club.getId())
-                .then().log().all()
-                .extract();
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .body(request)
+            .when().patch(prefixUrl + "/clubs/manage/{clubId}", club.getId())
+            .then().log().all()
+            .extract();
 
         //then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-                FailMessage.FORBIDDEN_MANAGE_CLUB.getCode(),
-                FailMessage.FORBIDDEN_MANAGE_CLUB.getMessage()
+            FailMessage.FORBIDDEN_MANAGE_CLUB.getCode(),
+            FailMessage.FORBIDDEN_MANAGE_CLUB.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -431,38 +436,38 @@ public class ClubControllerTest extends ControllerTest {
         final String nonExistentStudentId = "99999999";
 
         final User adminUser = User.builder()
-                .name("관리자")
-                .email("admin2@test.com")
-                .studentId("99998888")
-                .grade("4")
-                .department("컴퓨터공학과")
-                .role(UserRole.CLUB_ADMIN)
-                .build();
+            .name("관리자")
+            .email("admin2@test.com")
+            .studentId("99998888")
+            .grade("4")
+            .department("컴퓨터공학과")
+            .role(UserRole.CLUB_ADMIN)
+            .build();
         userRepository.save(adminUser);
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
 
         final ClubCreateRequest request = new ClubCreateRequest(
-                "새로운 동아리",
-                ClubCategory.ACADEMIC_CULTURAL,
-                ClubAffiliation.DEPARTMENT_CLUB,
-                nonExistentStudentId
+            "새로운 동아리",
+            ClubCategory.ACADEMIC_CULTURAL,
+            ClubAffiliation.DEPARTMENT_CLUB,
+            nonExistentStudentId
         );
 
         //when
         final ExtractableResponse<Response> response = given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .body(request)
-                .when().post(prefixUrl + "/clubs")
-                .then().log().all()
-                .extract();
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", authorizationForBearer)
+            .body(request)
+            .when().post(prefixUrl + "/clubs")
+            .then().log().all()
+            .extract();
 
         //then
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-                FailMessage.NOT_FOUND_USER.getCode(),
-                FailMessage.NOT_FOUND_USER.getMessage()
+            FailMessage.NOT_FOUND_USER.getCode(),
+            FailMessage.NOT_FOUND_USER.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.NOT_FOUND.value());
