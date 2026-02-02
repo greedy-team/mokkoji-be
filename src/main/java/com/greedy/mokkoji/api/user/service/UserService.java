@@ -78,15 +78,35 @@ public class UserService {
                 });
     }
 
+//    @Transactional
+//    public String refreshAccessToken(String refreshToken) {
+//        final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+//
+//        String storedRefreshToken = tokenService.getRefreshToken(userId);
+//        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+//            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+//        }
+//
+//        return jwtUtil.generateAccessToken(userId);
+//    }
+
     @Transactional
     public String refreshAccessToken(String refreshToken) {
-        final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
-
-        String storedRefreshToken = tokenService.getRefreshToken(userId);
-        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+        log.info("refresh token present: {}", refreshToken != null);
+        if (refreshToken == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
-
+        final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+        log.warn("userID : {}", userId);
+        String storedRefreshToken = tokenService.getRefreshToken(userId);
+        if (storedRefreshToken == null) {
+            log.warn("no refresh token stored for userId={}", userId);
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        }
+        if (!storedRefreshToken.equals(refreshToken)) {
+            log.warn("refresh token mismatch for userId={}", userId);
+            throw new MokkojiException(FailMessage.UNAUTHORIZED);
+        }
         return jwtUtil.generateAccessToken(userId);
     }
 
