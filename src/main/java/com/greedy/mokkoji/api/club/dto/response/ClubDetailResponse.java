@@ -2,6 +2,7 @@ package com.greedy.mokkoji.api.club.dto.response;
 
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -20,7 +21,10 @@ public record ClubDetailResponse(
         @Schema(example = "https://mokkoji-app-data.s3.ap-northeast-2.amazonaws.com/club-logo/1/greedy_{UUID}.jpg") String logo,
         @Schema(example = "true") Boolean isFavorite,
         @Schema(example = "https://instagram.com/greedy_club") String instagram,
-        @Schema(example = "세종대학교 개발 동아리에서 신입 회원을 모집합니다!") String recruitPost
+        @Schema(example = "세종대학교 개발 동아리에서 신입 회원을 모집합니다!") String recruitPost,
+        @Schema(example = "OPEN") RecruitStatus status,
+        @Schema(example = "2025-11-20T10:00:00") LocalDateTime createdAt,
+        @Schema(example = "false") boolean isAlwaysRecruiting
 ) {
     public static ClubDetailResponse of(
             final Long id,
@@ -33,7 +37,10 @@ public record ClubDetailResponse(
             final String logo,
             final Boolean isFavorite,
             final String instagram,
-            final String recruitPost
+            final String recruitPost,
+            final RecruitStatus status,
+            final LocalDateTime createdAt,
+            final boolean isAlwaysRecruiting
     ) {
 
         return ClubDetailResponse.builder()
@@ -48,6 +55,9 @@ public record ClubDetailResponse(
                 .isFavorite(isFavorite)
                 .instagram(instagram)
                 .recruitPost(recruitPost)
+                .status(status)
+                .createdAt(createdAt)
+                .isAlwaysRecruiting(isAlwaysRecruiting)
                 .build();
     }
 }
