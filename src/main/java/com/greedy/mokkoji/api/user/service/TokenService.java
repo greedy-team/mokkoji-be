@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TokenService {
 
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60;
     private final RedisRepository redisRepository;
     private final JwtUtil jwtUtil;
 
