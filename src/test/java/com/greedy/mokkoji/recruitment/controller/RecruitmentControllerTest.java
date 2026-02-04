@@ -341,6 +341,42 @@ public class RecruitmentControllerTest extends ControllerTest {
     }
 
     @Test
+    @DisplayName("동아리의 모집글이 없는 경우 모집글 관련 필드는 null 혹은 빈 값으로 응답한다.")
+    void getRecentRecruitmentOfClub_whenNoRecruitment_shouldReturnNullRecruitmentFields() {
+        // given
+        club = clubRepository.save(Fixture.createClub());
+        User normalUser = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
+        String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
+
+        // when
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .when().get(prefixUrl + "/recruitments/club/recent/{clubId}", club.getId())
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+
+        RecentRecruitmentOfClubResponse recentRecruitmentOfClubResponse = getDataFromResponse(response, RecentRecruitmentOfClubResponse.class);
+
+        assertThat(recentRecruitmentOfClubResponse.clubId()).isEqualTo(club.getId());
+        assertThat(recentRecruitmentOfClubResponse.clubName()).isEqualTo(club.getName());
+
+        assertThat(recentRecruitmentOfClubResponse.id()).isNull();
+        assertThat(recentRecruitmentOfClubResponse.title()).isNull();
+        assertThat(recentRecruitmentOfClubResponse.content()).isNull();
+        assertThat(recentRecruitmentOfClubResponse.recruitStart()).isNull();
+        assertThat(recentRecruitmentOfClubResponse.recruitEnd()).isNull();
+        assertThat(recentRecruitmentOfClubResponse.status()).isNull();
+        assertThat(recentRecruitmentOfClubResponse.createdAt()).isNull();
+        assertThat(recentRecruitmentOfClubResponse.recruitForm()).isNull();
+        assertThat(recentRecruitmentOfClubResponse.isAlwaysRecruiting()).isFalse();
+        assertThat(recentRecruitmentOfClubResponse.imageUrls()).isEmpty();
+    }
+
+    @Test
     @DisplayName("동아리의 최신 모집글을 조회한다.")
     void getRecentRecruitmentOfClub() {
         // given
