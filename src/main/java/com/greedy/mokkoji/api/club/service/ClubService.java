@@ -170,7 +170,7 @@ public class ClubService {
         String updateLogo = generatePresignedPutUrl(newLogoKey);
         String deleteLogo = generatePresignedDeleteUrl(newLogoKey, oldLogoKey);
 
-        return ClubUpdateResponse.of(updateLogo, deleteLogo);
+        return ClubUpdateResponse.of(clubId, updateLogo, deleteLogo);
     }
 
     private Set<Long> loadFavoriteClubIds(Long userId) {
