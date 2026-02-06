@@ -296,6 +296,7 @@ public class ClubControllerTest extends ControllerTest {
         ClubUpdateResponse actual = getDataFromResponse(response, ClubUpdateResponse.class);
 
         assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+        assertThat(actual.id()).isEqualTo(managedClub.getId());
         assertThat(actual.updateLogo()).isEqualTo("presignedPutUrl");
         assertThat(actual.deleteLogo()).isEqualTo("presignedDeleteUrl");
 
