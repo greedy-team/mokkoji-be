@@ -300,9 +300,7 @@ public class RecruitmentService {
     }
 
     private Optional<Recruitment> findRecentRecruitmentOrAlwaysRecruiting(final Long clubId) {
-        return recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId)
-                .or(() -> recruitmentRepository
-                        .findTopByClubIdAndIsAlwaysRecruitingOrderByCreatedAtDesc(clubId, true));
+        return recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId);
     }
 
     private RecentRecruitmentOfClubResponse toResponse(
