@@ -29,6 +29,4 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
     List<Recruitment> findAllByClubId(final Long id);
 
     Optional<Recruitment> findTopByClubIdOrderByCreatedAtDesc(Long clubId);
-
-    Optional<Recruitment> findTopByClubIdAndIsAlwaysRecruitingOrderByCreatedAtDesc(Long clubId, boolean isAlwaysRecruiting);
 }
