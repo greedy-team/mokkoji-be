@@ -31,7 +31,6 @@ public class NotificationService {
                 .filter(email -> email != null)
                 .toList();
 
-
         if (userEmails.isEmpty()) {
             return;
         }
