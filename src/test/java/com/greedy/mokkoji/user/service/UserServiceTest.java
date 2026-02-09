@@ -182,7 +182,7 @@ public class UserServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         // when
-        userService.updateEmail(1L, "updated@email.com");
+        userService.updateUserInformation(1L, "updated@email.com", null);
 
         // then
         assertThat(user.getEmail()).isEqualTo("updated@email.com");
