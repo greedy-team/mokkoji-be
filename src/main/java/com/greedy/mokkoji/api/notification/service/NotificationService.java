@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.greedy.mokkoji.db.favorite.entity.QFavorite.favorite;
+
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -22,17 +24,20 @@ public class NotificationService {
     public void sendNotification(final Club club, final Recruitment recruitment) {
         List<Favorite> favorites = favoriteRepository.findByClubIdWithFetchJoin(club.getId());
 
-        List<String> userEmail = favorites.stream()
-                .map(favorite -> favorite.getUser().getEmail())
+        List<String> userEmails = favorites.stream()
+                .map(favorite -> favorite.getUser())
+                .filter(user -> user.isEmailOn())
+                .map(user -> user.getEmail())
                 .filter(email -> email != null)
                 .toList();
 
-        if (userEmail.isEmpty()) {
+
+        if (userEmails.isEmpty()) {
             return;
         }
 
         notificationChannel.sendNotification(
-                userEmail, club.getId(), club.getName(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()
+                userEmails, club.getId(), club.getName(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()
         );
     }
 }
