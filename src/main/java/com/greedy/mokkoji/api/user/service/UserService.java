@@ -50,6 +50,7 @@ public class UserService {
                             .department(studentInformationResponse.department())
                             .grade(studentInformationResponse.grade())
                             .role(role)
+                            .emailOn(true)
                             .build();
 
                     return userRepository.save(newUser);
