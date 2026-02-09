@@ -77,7 +77,7 @@ public class UserController implements UserControllerSwagger {
             @RequestBody @Valid UpdateUserInformationRequest updateUserInformationRequest
     ) {
         final Long userId = authCredential.userId();
-        userService.updateEmail(userId, updateUserInformationRequest.email());
+        userService.updateUserInformation(userId, updateUserInformationRequest.email(), updateUserInformationRequest.emailOn());
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 

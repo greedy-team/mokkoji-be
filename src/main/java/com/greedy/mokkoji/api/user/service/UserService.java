@@ -78,42 +78,29 @@ public class UserService {
                 });
     }
 
-//    @Transactional
-//    public String refreshAccessToken(String refreshToken) {
-//        final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
-//
-//        String storedRefreshToken = tokenService.getRefreshToken(userId);
-//        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-//            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-//        }
-//
-//        return jwtUtil.generateAccessToken(userId);
-//    }
-
     @Transactional
     public String refreshAccessToken(String refreshToken) {
-        log.info("refresh token present: {}", refreshToken != null);
-        if (refreshToken == null) {
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
         final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
-        log.warn("userID : {}", userId);
+
         String storedRefreshToken = tokenService.getRefreshToken(userId);
-        if (storedRefreshToken == null) {
-            log.warn("no refresh token stored for userId={}", userId);
+        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
-        if (!storedRefreshToken.equals(refreshToken)) {
-            log.warn("refresh token mismatch for userId={}", userId);
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
+
         return jwtUtil.generateAccessToken(userId);
     }
 
     @Transactional
-    public void updateEmail(final Long userId, final String email) {
-        final User user = findUser(userId);
-        user.updateEmail(email);
+    public void updateUserInformation(Long userId, String email, Boolean emailOn) {
+        User user = findUser(userId);
+
+        if (email != null) {
+            user.updateEmail(email);
+        }
+
+        if (emailOn != null) {
+            user.updateEmailOn(emailOn);
+        }
     }
 
     @Transactional(readOnly = true)
