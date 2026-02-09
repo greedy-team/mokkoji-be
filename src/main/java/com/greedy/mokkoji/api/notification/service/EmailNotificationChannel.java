@@ -15,7 +15,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static com.greedy.mokkoji.enums.message.FailMessage.*;
+import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR;
+import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR_SMTP;
+import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR_SMTP_MAIL;
 
 @Slf4j
 @Component

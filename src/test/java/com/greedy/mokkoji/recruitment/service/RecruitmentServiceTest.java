@@ -607,10 +607,10 @@ public class RecruitmentServiceTest {
         );
 
         given(recruitmentRepository.findRecruitments(
-                        filteringByAffiliation,
-                        filteringByCategory,
-                        pageable
-                ))
+                filteringByAffiliation,
+                filteringByCategory,
+                pageable
+        ))
                 .willReturn(page);
 
         given(favoriteRepository.existsByUserIdAndClubId(userId, 1L)).willReturn(true);
