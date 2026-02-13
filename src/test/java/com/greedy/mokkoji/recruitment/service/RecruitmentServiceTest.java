@@ -46,6 +46,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 
 @ExtendWith(MockitoExtension.class)
@@ -92,16 +93,16 @@ public class RecruitmentServiceTest {
                 .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
-        BDDMockito.given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
-        BDDMockito.given(clubRepository.findById(1L)).willReturn(Optional.of(club));
-        BDDMockito.given(recruitmentRepository.save(any(Recruitment.class)))
+        given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
+        given(clubRepository.findById(1L)).willReturn(Optional.of(club));
+        given(recruitmentRepository.save(any(Recruitment.class)))
                 .willAnswer(inv -> {
                     Recruitment recruitment = inv.getArgument(0);
                     ReflectionTestUtils.setField(recruitment, "id", 1L);
                     return recruitment;
                 });
 
-        BDDMockito.given(appDataS3Client.getPresignedPutUrl(any())).willReturn("putUrl");
+        given(appDataS3Client.getPresignedPutUrl(any())).willReturn("putUrl");
 
         // when
         CreateRecruitmentResponse createRecruitmentResponse = recruitmentService.createRecruitment(
@@ -134,7 +135,7 @@ public class RecruitmentServiceTest {
         ReflectionTestUtils.setField(normalUser, "id", 1L);
         ReflectionTestUtils.setField(normalUser, "role", UserRole.NORMAL);
 
-        BDDMockito.given(userRepository.findById(1L)).willReturn(Optional.of(normalUser));
+        given(userRepository.findById(1L)).willReturn(Optional.of(normalUser));
 
         // when, then
         Assertions.assertThatThrownBy(() -> recruitmentService.createRecruitment(
@@ -153,8 +154,8 @@ public class RecruitmentServiceTest {
         ReflectionTestUtils.setField(adminUser, "id", 1L);
         ReflectionTestUtils.setField(adminUser, "role", UserRole.CLUB_MASTER);
 
-        BDDMockito.given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
-        BDDMockito.given(clubRepository.findById(999L)).willReturn(Optional.empty());
+        given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
+        given(clubRepository.findById(999L)).willReturn(Optional.empty());
 
         // when, then
         Assertions.assertThatThrownBy(() -> recruitmentService.createRecruitment(
@@ -199,11 +200,11 @@ public class RecruitmentServiceTest {
         RecruitmentImage oldImage2 = RecruitmentImage.builder().recruitment(recruitment).image("오래된 그리디 모집글 이미지2.jpg")
                 .build();
 
-        BDDMockito.given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
-        BDDMockito.given(recruitmentRepository.findById(1L)).willReturn(Optional.of(recruitment));
-        BDDMockito.given(recruitmentImageRepository.findByRecruitmentId(1L)).willReturn(List.of(oldImage1, oldImage2));
-        BDDMockito.given(appDataS3Client.getPresignedDeleteUrl(any())).willReturn("deleteUrl");
-        BDDMockito.given(appDataS3Client.getPresignedPutUrl(any())).willReturn("putUrl");
+        given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
+        given(recruitmentRepository.findById(1L)).willReturn(Optional.of(recruitment));
+        given(recruitmentImageRepository.findByRecruitmentId(1L)).willReturn(List.of(oldImage1, oldImage2));
+        given(appDataS3Client.getPresignedDeleteUrl(any())).willReturn("deleteUrl");
+        given(appDataS3Client.getPresignedPutUrl(any())).willReturn("putUrl");
 
         // when
         UpdateRecruitmentResponse updateRecruitmentResponse = recruitmentService.updateRecruitment(
@@ -237,8 +238,8 @@ public class RecruitmentServiceTest {
         ReflectionTestUtils.setField(adminUser, "id", 1L);
         ReflectionTestUtils.setField(adminUser, "role", UserRole.CLUB_ADMIN);
 
-        BDDMockito.given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
-        BDDMockito.given(recruitmentRepository.findById(999L)).willReturn(Optional.empty());
+        given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
+        given(recruitmentRepository.findById(999L)).willReturn(Optional.empty());
 
         // when, then
         Assertions.assertThatThrownBy(() -> recruitmentService.updateRecruitment(
@@ -268,10 +269,10 @@ public class RecruitmentServiceTest {
                 .image("그리디 모집글 이미지.jpg")
                 .build();
 
-        BDDMockito.given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
-        BDDMockito.given(recruitmentRepository.findById(1L)).willReturn(Optional.of(recruitment));
-        BDDMockito.given(recruitmentImageRepository.findByRecruitmentId(1L)).willReturn(List.of(recruitmentImage));
-        BDDMockito.given(appDataS3Client.getPresignedDeleteUrl(any())).willReturn("deleteUrl");
+        given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
+        given(recruitmentRepository.findById(1L)).willReturn(Optional.of(recruitment));
+        given(recruitmentImageRepository.findByRecruitmentId(1L)).willReturn(List.of(recruitmentImage));
+        given(appDataS3Client.getPresignedDeleteUrl(any())).willReturn("deleteUrl");
 
         // when
         DeleteRecruitmentResponse result = recruitmentService.deleteRecruitment(1L, 1L);
@@ -328,7 +329,7 @@ public class RecruitmentServiceTest {
                 .image("그리디 모집글 이미지.jpg")
                 .build();
 
-        BDDMockito.given(recruitmentRepository.findAllByClubId(1L))
+        given(recruitmentRepository.findAllByClubId(1L))
                 .willReturn(List.of(olderRecruitment, newerRecruitment));
 
         // when
@@ -393,12 +394,12 @@ public class RecruitmentServiceTest {
                 .image("새 그리디 모집글 이미지.jpg")
                 .build();
 
-        BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(1L))
+        given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(1L))
                 .willReturn(Optional.of(newerRecruitment));
-        BDDMockito.given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(2L))
+        given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(2L))
                 .willReturn(List.of(newerImage));
-        BDDMockito.given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(1L, 1L)).willReturn(true);
+        given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
+        given(favoriteRepository.existsByUserIdAndClubId(1L, 1L)).willReturn(true);
 
         // when
         RecentRecruitmentOfClubResponse recentRecruitmentOfClubResponse = recruitmentService.getRecentRecruitmentOfClub(
@@ -413,8 +414,8 @@ public class RecruitmentServiceTest {
     }
 
     @Test
-    @DisplayName("동아리 최신 모집글이 없으면 상시모집 글을 조회한다.")
-    void getRecentRecruitmentOfClub_fallbackToAlwaysRecruiting() {
+    @DisplayName("동아리 최신 모집글이 없으면 모집글 관련 필드는 null 혹은 빈 값으로 반환한다.")
+    void getRecentRecruitmentOfClub_whenNoRecruitment_shouldReturnEmptyResponse() {
         // given
         Club club = Club.builder()
                 .name("그리디")
@@ -426,30 +427,32 @@ public class RecruitmentServiceTest {
                 .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
-        Recruitment alwaysRecruitment = Recruitment.builder()
-                .club(club)
-                .title("그리디 상시 모집 제목")
-                .content("그리디 상시 모집 내용")
-                .recruitForm("그리디 상시 모집 링크")
-                .isAlwaysRecruiting(true)
-                .build();
-        ReflectionTestUtils.setField(alwaysRecruitment, "id", 1L);
-        ReflectionTestUtils.setField(alwaysRecruitment, "createdAt", LocalDateTime.of(2026, 1, 1, 0, 0));
 
-        BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(1L)).willReturn(Optional.empty());
-        BDDMockito.given(recruitmentRepository.findTopByClubIdAndIsAlwaysRecruitingOrderByCreatedAtDesc(1L, true))
-                .willReturn(Optional.of(alwaysRecruitment));
-        BDDMockito.given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(1L)).willReturn(List.of());
-        BDDMockito.given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(1L, 1L)).willReturn(false);
+        given(clubRepository.findById(1L)).willReturn(Optional.of(club));
+        given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(1L)).willReturn(Optional.empty());
+        given(favoriteRepository.existsByUserIdAndClubId(1L, 1L)).willReturn(false);
+        given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
-        RecentRecruitmentOfClubResponse recentRecruitmentOfClubResponse = recruitmentService.getRecentRecruitmentOfClub(
-                1L, 1L);
+        RecentRecruitmentOfClubResponse response =
+                recruitmentService.getRecentRecruitmentOfClub(1L, 1L);
 
         // then
-        assertThat(recentRecruitmentOfClubResponse.id()).isEqualTo(1L);
-        assertThat(recentRecruitmentOfClubResponse.isAlwaysRecruiting()).isTrue();
+        assertThat(response.clubId()).isEqualTo(1L);
+        assertThat(response.clubName()).isEqualTo("그리디");
+
+        assertThat(response.id()).isNull();
+        assertThat(response.title()).isNull();
+        assertThat(response.content()).isNull();
+        assertThat(response.recruitStart()).isNull();
+        assertThat(response.recruitEnd()).isNull();
+        assertThat(response.status()).isNull();
+        assertThat(response.createdAt()).isNull();
+        assertThat(response.recruitForm()).isNull();
+        assertThat(response.imageUrls()).isNotNull();
+        assertThat(response.imageUrls()).isEmpty();
+        assertThat(response.isAlwaysRecruiting()).isFalse();
+        assertThat(response.isFavorite()).isFalse();
     }
 
     @Test
@@ -480,11 +483,11 @@ public class RecruitmentServiceTest {
         RecruitmentImage recruitmentImage = RecruitmentImage.builder().recruitment(recruitment).image("그리디 모집글 이미지.jpg")
                 .build();
 
-        BDDMockito.given(recruitmentRepository.findRecruitmentById(1L)).willReturn(Optional.of(recruitment));
-        BDDMockito.given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(1L))
+        given(recruitmentRepository.findRecruitmentById(1L)).willReturn(Optional.of(recruitment));
+        given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(1L))
                 .willReturn(List.of(recruitmentImage));
-        BDDMockito.given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(1L, 1L)).willReturn(true);
+        given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
+        given(favoriteRepository.existsByUserIdAndClubId(1L, 1L)).willReturn(true);
 
         // when
         SpecificRecruitmentResponse specificRecruitmentResponse = recruitmentService.getSpecificRecruitment(1L, 1L);
@@ -603,21 +606,21 @@ public class RecruitmentServiceTest {
                 6
         );
 
-        BDDMockito.given(recruitmentRepository.findRecruitments(
-                        filteringByAffiliation,
-                        filteringByCategory,
-                        pageable
-                ))
+        given(recruitmentRepository.findRecruitments(
+                filteringByAffiliation,
+                filteringByCategory,
+                pageable
+        ))
                 .willReturn(page);
 
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, 1L)).willReturn(true);
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, 2L)).willReturn(false);
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, 3L)).willReturn(false);
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, 4L)).willReturn(false);
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, 5L)).willReturn(false);
-        BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, 6L)).willReturn(false);
+        given(favoriteRepository.existsByUserIdAndClubId(userId, 1L)).willReturn(true);
+        given(favoriteRepository.existsByUserIdAndClubId(userId, 2L)).willReturn(false);
+        given(favoriteRepository.existsByUserIdAndClubId(userId, 3L)).willReturn(false);
+        given(favoriteRepository.existsByUserIdAndClubId(userId, 4L)).willReturn(false);
+        given(favoriteRepository.existsByUserIdAndClubId(userId, 5L)).willReturn(false);
+        given(favoriteRepository.existsByUserIdAndClubId(userId, 6L)).willReturn(false);
 
-        BDDMockito.given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
+        given(appDataS3Client.getPublicUrl(any())).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         AllRecruitmentResponse allRecruitmentResponse = recruitmentService.getAllRecruitment(

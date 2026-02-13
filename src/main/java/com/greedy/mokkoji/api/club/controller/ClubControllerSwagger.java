@@ -84,6 +84,7 @@ public interface ClubControllerSwagger {
     @ApiResponse(responseCode = "200", description = "조회 성공")
     ResponseEntity<APISuccessResponse<AllClubsResponse>> getAllClubs(
             @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "keyword", description = "검색 키워드") String keyword,
             @Parameter(name = "affiliation") ClubAffiliation affiliation,
             @Parameter(name = "category") ClubCategory category,
             @Parameter(name = "page", description = "페이지 번호") int page,

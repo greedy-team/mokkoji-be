@@ -19,7 +19,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -63,6 +71,7 @@ public class ClubController implements ClubControllerSwagger {
     @GetMapping
     public ResponseEntity<APISuccessResponse<AllClubsResponse>> getAllClubs(
             @Authentication final AuthCredential authCredential,
+            @RequestParam(value = "keyword", required = false) final String keyword,
             @RequestParam(value = "affiliation", required = false) final ClubAffiliation affiliation,
             @RequestParam(value = "category", required = false) final ClubCategory category,
             @RequestParam(value = "page") final int page,
@@ -71,7 +80,7 @@ public class ClubController implements ClubControllerSwagger {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubService.getAllClubs(authCredential.userId(), affiliation, category, pageable)
+                clubService.getAllClubs(authCredential.userId(), keyword, affiliation, category, pageable)
         );
     }
 

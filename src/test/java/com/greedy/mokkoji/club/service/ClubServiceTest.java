@@ -42,7 +42,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @DisplayName("동아리 검색 및 필터링 서비스 테스트")
 @ExtendWith(MockitoExtension.class)
@@ -147,13 +150,13 @@ class ClubServiceTest {
                 latestRecruitmentInfo2
         );
 
-        BDDMockito.given(clubRepository.findAllClubsWithLatestRecruitment(any(), any())).willReturn(List.of(clubWithRecruitment1, clubWithRecruitment2));
+        BDDMockito.given(clubRepository.findAllClubsWithLatestRecruitment(any(), any(), any())).willReturn(List.of(clubWithRecruitment1, clubWithRecruitment2));
         BDDMockito.given(favoriteRepository.findClubIdsByUserId(userId)).willReturn(List.of(clubId1));
         BDDMockito.given(appDataS3Client.getPublicUrl("testLogo1")).willReturn("testLogo1");
         BDDMockito.given(appDataS3Client.getPublicUrl("testLogo2")).willReturn("testLogo2");
 
         //when
-        AllClubsResponse response = clubService.getAllClubs(userId, null, null, pageable);
+        AllClubsResponse response = clubService.getAllClubs(userId, null, null, null, pageable);
 
         //then
         assertThat(response.clubs()).hasSize(2);
@@ -170,7 +173,7 @@ class ClubServiceTest {
 
         assertThat(response.page().totalElements()).isEqualTo(2);
 
-        verify(clubRepository, times(1)).findAllClubsWithLatestRecruitment(any(), any());
+        verify(clubRepository, times(1)).findAllClubsWithLatestRecruitment(any(), any(), any());
         verify(favoriteRepository, times(1)).findClubIdsByUserId(userId);
     }
 

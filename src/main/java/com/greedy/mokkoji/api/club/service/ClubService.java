@@ -101,12 +101,13 @@ public class ClubService {
 
     @Transactional(readOnly = true)
     public AllClubsResponse getAllClubs(
-            Long userId,
-            ClubAffiliation affiliation,
-            ClubCategory category,
-            Pageable pageable
+            final Long userId,
+            final String keyword,
+            final ClubAffiliation affiliation,
+            final ClubCategory category,
+            final Pageable pageable
     ) {
-        List<ClubWithLatestRecruitment> clubs = clubRepository.findAllClubsWithLatestRecruitment(affiliation, category);
+        List<ClubWithLatestRecruitment> clubs = clubRepository.findAllClubsWithLatestRecruitment(keyword, affiliation, category);
 
         Set<Long> favoriteClubIds = loadFavoriteClubIds(userId);
 
@@ -169,7 +170,7 @@ public class ClubService {
         String updateLogo = generatePresignedPutUrl(newLogoKey);
         String deleteLogo = generatePresignedDeleteUrl(newLogoKey, oldLogoKey);
 
-        return ClubUpdateResponse.of(updateLogo, deleteLogo);
+        return ClubUpdateResponse.of(clubId, updateLogo, deleteLogo);
     }
 
     private Set<Long> loadFavoriteClubIds(Long userId) {
@@ -253,6 +254,7 @@ public class ClubService {
                 .recruitStart(latest.recruitStart())
                 .recruitEnd(latest.recruitEnd())
                 .recruitStatus(RecruitStatus.from(latest.isAlwaysRecruiting(), latest.recruitStart(), latest.recruitEnd()))
+                .isAlwaysRecruiting(latest.isAlwaysRecruiting())
                 .build();
     }
 
