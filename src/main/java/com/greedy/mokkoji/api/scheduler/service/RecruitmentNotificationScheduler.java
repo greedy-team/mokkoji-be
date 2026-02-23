@@ -36,7 +36,7 @@ public class RecruitmentNotificationScheduler {
         List<Recruitment> uniqueAndLatestRecruitments = recruitments.stream()
                 .filter(recruitment -> !recruitment.isAlwaysRecruiting())
                 .collect(Collectors.toMap(
-                        Recruitment::getClub,
+                        recruitment -> recruitment.getClub().getId(),
                         recruitment -> recruitment,
                         (recruitment1, recruitment2) ->
                                 recruitment1.getCreatedAt().isAfter(recruitment2.getCreatedAt())
