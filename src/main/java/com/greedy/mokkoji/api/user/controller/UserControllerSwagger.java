@@ -64,6 +64,7 @@ public interface UserControllerSwagger {
 
     @Operation(
             summary = "사용자 정보 수정 API",
+            description = "전달된 필드만 수정됩니다.",
             security = {@SecurityRequirement(name = "JWT")}
     )
     @ApiResponse(responseCode = "200", description = "사용자 정보 수정 성공")
