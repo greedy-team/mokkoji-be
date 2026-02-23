@@ -49,7 +49,7 @@ public class EmailNotificationChannel implements NotificationChannel {
                 <html>
                 <head>
                     <meta charset="UTF-8">
-                    <title>동아리 모집 안내</title>
+                    <title>%s 모집 안내</title>
                 </head>
                 <body style="font-family: Arial, sans-serif;">
                 
@@ -75,6 +75,7 @@ public class EmailNotificationChannel implements NotificationChannel {
                 </body>
                 </html>
                 """.formatted(
+                clubName,
                 mailBannerUrl,
                 clubName,
                 clubName,
