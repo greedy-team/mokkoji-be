@@ -23,7 +23,7 @@ import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR
 @Component
 @RequiredArgsConstructor
 public class EmailNotificationChannel implements NotificationChannel {
-    private static final String SUBJECT = "동아리 모집 안내";
+    private static final String SUBJECT = " 모집 안내";
     private static final String SENDER_NAME = "모꼬지(mokkoji)";
     private static final String OFFICIAL_EMAIL = "noreply@mokkoji.com";
     private final JavaMailSender mailSender;
@@ -49,7 +49,7 @@ public class EmailNotificationChannel implements NotificationChannel {
                 <html>
                 <head>
                     <meta charset="UTF-8">
-                    <title>%s 모집 안내</title>
+                    <title>동아리 모집 안내</title>
                 </head>
                 <body style="font-family: Arial, sans-serif;">
                 
@@ -75,7 +75,6 @@ public class EmailNotificationChannel implements NotificationChannel {
                 </body>
                 </html>
                 """.formatted(
-                clubName,
                 mailBannerUrl,
                 clubName,
                 clubName,
@@ -105,7 +104,7 @@ public class EmailNotificationChannel implements NotificationChannel {
             final String[] receiverMailsS = receiverMails.toArray(String[]::new);
             helper.setBcc(receiverMailsS);
 
-            helper.setSubject(SUBJECT);
+            helper.setSubject(clubName + SUBJECT);
 
             final String text = generateHtmlText(clubId, clubName, recruitStartTime, recruitEndTime);
             helper.setText(text, true);
