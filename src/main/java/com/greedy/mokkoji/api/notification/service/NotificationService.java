@@ -21,8 +21,8 @@ public class NotificationService {
 
     @Async
     @Transactional(readOnly = true)
-    public void sendNotification(final Club club, final Recruitment recruitment) {
-        List<Favorite> favorites = favoriteRepository.findByClubIdWithFetchJoin(club.getId());
+    public void sendNotification(final Long clubId, final String clubName, final Recruitment recruitment) {
+        List<Favorite> favorites = favoriteRepository.findByClubIdWithFetchJoin(clubId);
 
         List<String> userEmails = favorites.stream()
                 .map(favorite -> favorite.getUser())
@@ -36,7 +36,7 @@ public class NotificationService {
         }
 
         notificationChannel.sendNotification(
-                userEmails, club.getId(), club.getName(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()
+                userEmails, clubId, clubName, recruitment.getRecruitStart(), recruitment.getRecruitEnd()
         );
     }
 }
