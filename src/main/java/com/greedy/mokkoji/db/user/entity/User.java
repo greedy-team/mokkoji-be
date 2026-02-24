@@ -1,14 +1,7 @@
 package com.greedy.mokkoji.db.user.entity;
 
 import com.greedy.mokkoji.enums.user.UserRole;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,14 +37,18 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Column(name = "is_email_on", columnDefinition = "BOOLEAN", nullable = false)
+    private boolean isEmailOn;
+
     @Builder
-    public User(String studentId, String name, String department, String grade, String email, UserRole role) {
+    public User(String studentId, String name, String department, String grade, String email, UserRole role, boolean isEmailOn) {
         this.studentId = studentId;
         this.name = name;
         this.department = department;
         this.grade = grade;
         this.email = email;
         this.role = role;
+        this.isEmailOn = isEmailOn;
     }
 
     public void updateEmail(String email) {
@@ -60,5 +57,9 @@ public class User {
 
     public void updateRole(UserRole newRole) {
         this.role = newRole;
+    }
+
+    public void updateEmailOn(boolean isEmailOn) {
+        this.isEmailOn = isEmailOn;
     }
 }

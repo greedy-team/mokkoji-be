@@ -15,15 +15,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR;
-import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR_SMTP;
-import static com.greedy.mokkoji.enums.message.FailMessage.INTERNAL_SERVER_ERROR_SMTP_MAIL;
+import static com.greedy.mokkoji.enums.message.FailMessage.*;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class EmailNotificationChannel implements NotificationChannel {
-    private static final String SUBJECT = "동아리 모집 안내";
+    private static final String SUBJECT = " 모집 안내";
     private static final String SENDER_NAME = "모꼬지(mokkoji)";
     private static final String OFFICIAL_EMAIL = "noreply@mokkoji.com";
     private final JavaMailSender mailSender;
@@ -104,7 +102,7 @@ public class EmailNotificationChannel implements NotificationChannel {
             final String[] receiverMailsS = receiverMails.toArray(String[]::new);
             helper.setBcc(receiverMailsS);
 
-            helper.setSubject(SUBJECT);
+            helper.setSubject(clubName + SUBJECT);
 
             final String text = generateHtmlText(clubId, clubName, recruitStartTime, recruitEndTime);
             helper.setText(text, true);

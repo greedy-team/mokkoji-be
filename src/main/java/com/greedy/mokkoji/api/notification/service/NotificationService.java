@@ -1,6 +1,5 @@
 package com.greedy.mokkoji.api.notification.service;
 
-import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
@@ -19,20 +18,22 @@ public class NotificationService {
 
     @Async
     @Transactional(readOnly = true)
-    public void sendNotification(final Club club, final Recruitment recruitment) {
-        List<Favorite> favorites = favoriteRepository.findByClubIdWithFetchJoin(club.getId());
+    public void sendNotification(final Long clubId, final String clubName, final Recruitment recruitment) {
+        List<Favorite> favorites = favoriteRepository.findByClubIdWithFetchJoin(clubId);
 
-        List<String> userEmail = favorites.stream()
-                .map(favorite -> favorite.getUser().getEmail())
+        List<String> userEmails = favorites.stream()
+                .map(favorite -> favorite.getUser())
+                .filter(user -> user.isEmailOn())
+                .map(user -> user.getEmail())
                 .filter(email -> email != null)
                 .toList();
 
-        if (userEmail.isEmpty()) {
+        if (userEmails.isEmpty()) {
             return;
         }
 
         notificationChannel.sendNotification(
-                userEmail, club.getId(), club.getName(), recruitment.getRecruitStart(), recruitment.getRecruitEnd()
+                userEmails, clubId, clubName, recruitment.getRecruitStart(), recruitment.getRecruitEnd()
         );
     }
 }

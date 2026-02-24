@@ -92,7 +92,7 @@ public class NotificationTest {
                 .sendNotification(any(), any(), any(), any(), any());
 
         // when
-        notificationService.sendNotification(club, recruitment);
+        notificationService.sendNotification(club.getId(), club.getName(), recruitment);
 
         // then
         BDDMockito.verify(favoriteRepository, times(1))

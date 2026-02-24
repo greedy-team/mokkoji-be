@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ public class RecruitmentNotificationScheduler {
         final LocalDate today = LocalDate.now();
         final LocalDate threeDaysLater = today.plusDays(3);
 
-        List<Recruitment> recruitments = recruitmentRepository.findAllByRecruitStartToday(today);
+        List<Recruitment> recruitments = new ArrayList<>(recruitmentRepository.findAllByRecruitStartToday(today));
 
         recruitments.addAll(recruitmentRepository.findAllByRecruitEndToday(today));
         recruitments.addAll(recruitmentRepository.findAllByRecruitEndInThreeDays(threeDaysLater));
@@ -36,7 +37,7 @@ public class RecruitmentNotificationScheduler {
         List<Recruitment> uniqueAndLatestRecruitments = recruitments.stream()
                 .filter(recruitment -> !recruitment.isAlwaysRecruiting())
                 .collect(Collectors.toMap(
-                        Recruitment::getClub,
+                        recruitment -> recruitment.getClub().getId(),
                         recruitment -> recruitment,
                         (recruitment1, recruitment2) ->
                                 recruitment1.getCreatedAt().isAfter(recruitment2.getCreatedAt())
@@ -50,7 +51,7 @@ public class RecruitmentNotificationScheduler {
         uniqueAndLatestRecruitments.forEach(recruitment -> {
             Club club = recruitment.getClub();
             try {
-                notificationService.sendNotification(club, recruitment);
+                notificationService.sendNotification(club.getId(), club.getName(), recruitment);
             } catch (Exception e) {
                 log.error("[RECRUITMENT NOTI SUBMIT FAILED] clubId={} recruitmentId={} msg={}",
                         club.getId(), recruitment.getId(), e.getMessage(), e);
