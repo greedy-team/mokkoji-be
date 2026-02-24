@@ -1,15 +1,7 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubPreviewResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubWithLatestRecruitment;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.LatestRecruitmentInfo;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.RecruitmentPreviewResponse;
+import com.greedy.mokkoji.api.club.dto.response.*;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.*;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -33,11 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service

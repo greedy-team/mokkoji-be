@@ -1,6 +1,5 @@
 package com.greedy.mokkoji.api.notification.service;
 
-import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
@@ -10,8 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static com.greedy.mokkoji.db.favorite.entity.QFavorite.favorite;
 
 @Service
 @RequiredArgsConstructor
