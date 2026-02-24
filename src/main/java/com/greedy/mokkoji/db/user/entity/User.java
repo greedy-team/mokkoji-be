@@ -37,18 +37,18 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Column(name = "email_on", columnDefinition = "BOOLEAN", nullable = false)
-    private boolean emailOn;
+    @Column(name = "is_email_on", columnDefinition = "BOOLEAN", nullable = false)
+    private boolean isEmailOn;
 
     @Builder
-    public User(String studentId, String name, String department, String grade, String email, UserRole role, boolean emailOn) {
+    public User(String studentId, String name, String department, String grade, String email, UserRole role, boolean isEmailOn) {
         this.studentId = studentId;
         this.name = name;
         this.department = department;
         this.grade = grade;
         this.email = email;
         this.role = role;
-        this.emailOn = emailOn;
+        this.isEmailOn = isEmailOn;
     }
 
     public void updateEmail(String email) {
@@ -59,7 +59,7 @@ public class User {
         this.role = newRole;
     }
 
-    public void updateEmailOn(boolean emailOn) {
-        this.emailOn = emailOn;
+    public void updateEmailOn(boolean isEmailOn) {
+        this.isEmailOn = isEmailOn;
     }
 }

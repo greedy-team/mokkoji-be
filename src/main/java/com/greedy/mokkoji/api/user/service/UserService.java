@@ -50,7 +50,7 @@ public class UserService {
                             .department(studentInformationResponse.department())
                             .grade(studentInformationResponse.grade())
                             .role(role)
-                            .emailOn(true)
+                            .isEmailOn(true)
                             .build();
 
                     return userRepository.save(newUser);
@@ -92,15 +92,15 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserInformation(Long userId, String email, Boolean emailOn) {
+    public void updateUserInformation(Long userId, String email, Boolean isEmailOn) {
         User user = findUser(userId);
 
         if (email != null) {
             user.updateEmail(email);
         }
 
-        if (emailOn != null) {
-            user.updateEmailOn(emailOn);
+        if (isEmailOn != null) {
+            user.updateEmailOn(isEmailOn);
         }
     }
 
