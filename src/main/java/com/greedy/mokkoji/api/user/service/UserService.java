@@ -104,7 +104,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User findUser(final Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
     @Transactional
@@ -114,7 +115,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserRoleResponse getUserRole(final Long userId) {
-        final User user = userRepository.findById(userId).orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+        final User user = userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
         return UserRoleResponse.of(user.getRole());
     }
