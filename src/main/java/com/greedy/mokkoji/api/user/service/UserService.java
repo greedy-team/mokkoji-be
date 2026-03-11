@@ -91,10 +91,8 @@ public class UserService {
     public void updateUserInformation(Long userId, String email, Boolean isEmailOn) {
         User user = findUser(userId);
 
-        if (email.equals("")) {
-            user.updateEmail(null);
-        } else if (email != null) {
-            user.updateEmail(email);
+        if (email != null) {
+            user.updateEmail(email.isBlank() ? null : email);
         }
 
         if (isEmailOn != null) {
