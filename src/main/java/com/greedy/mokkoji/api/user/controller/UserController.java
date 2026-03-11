@@ -61,7 +61,7 @@ public class UserController implements UserControllerSwagger {
         return APISuccessResponse.of(HttpStatus.OK, userInformationResponse);
     }
 
-    @PutMapping
+    @PatchMapping
     public ResponseEntity<APISuccessResponse<Void>> updateUserInformation(
             @Authentication AuthCredential authCredential,
             @RequestBody @Valid UpdateUserInformationRequest updateUserInformationRequest
