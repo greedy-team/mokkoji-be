@@ -42,7 +42,14 @@ public class UserService {
             user.updateRole(role);
             return user;
         }).orElseGet(() -> {
-            final User newUser = User.builder().studentId(studentId).name(studentInformationResponse.name()).department(studentInformationResponse.department()).grade(studentInformationResponse.grade()).role(role).isEmailOn(true).build();
+            final User newUser = User.builder()
+                    .studentId(studentId)
+                    .name(studentInformationResponse.name())
+                    .department(studentInformationResponse.department())
+                    .grade(studentInformationResponse.grade())
+                    .role(role)
+                    .isEmailOn(true)
+                    .build();
 
             return userRepository.save(newUser);
         });
@@ -118,7 +125,9 @@ public class UserService {
 
         String studentId = user.getStudentId();
 
-        List<UserManageClubResponse> clubs = clubRepository.findByClubMasterStudentId(studentId).stream().map(club -> new UserManageClubResponse(club.getId(), club.getName())).toList();
+        List<UserManageClubResponse> clubs = clubRepository.findByClubMasterStudentId(studentId).stream()
+                .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
+                .toList();
 
         return UserManageClubsResponse.of(clubs);
     }
