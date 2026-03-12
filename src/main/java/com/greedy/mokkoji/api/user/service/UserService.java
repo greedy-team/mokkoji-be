@@ -34,49 +34,45 @@ public class UserService {
     @Transactional
     public User login(final String studentId, final String password) {
 
-        final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId,
-                password);
+        final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId, password);
 
         final UserRole role = determineUserRole(studentId);
 
-        return userRepository.findByStudentId(studentId)
-                .map(user -> {
-                    user.updateRole(role);
-                    return user;
-                }).orElseGet(() -> {
-                    final User newUser = User.builder()
-                            .studentId(studentId)
-                            .name(studentInformationResponse.name())
-                            .department(studentInformationResponse.department())
-                            .grade(studentInformationResponse.grade())
-                            .role(role)
-                            .isEmailOn(true)
-                            .build();
+        return userRepository.findByStudentId(studentId).map(user -> {
+            user.updateRole(role);
+            return user;
+        }).orElseGet(() -> {
+            final User newUser = User.builder()
+                    .studentId(studentId)
+                    .name(studentInformationResponse.name())
+                    .department(studentInformationResponse.department())
+                    .grade(studentInformationResponse.grade())
+                    .role(role)
+                    .isEmailOn(true)
+                    .build();
 
-                    return userRepository.save(newUser);
-                });
+            return userRepository.save(newUser);
+        });
     }
 
     private UserRole determineUserRole(final String studentId) {
-        return userRepository.findByStudentId(studentId)
-                .map(user -> {
-                    if (user.getRole() == UserRole.GREEDY_ADMIN) {
-                        return UserRole.GREEDY_ADMIN;
-                    }
-                    if (user.getRole() == UserRole.CLUB_ADMIN) {
-                        return UserRole.CLUB_ADMIN;
-                    }
-                    if (clubRepository.existsByClubMasterStudentId(studentId)) {
-                        return UserRole.CLUB_MASTER;
-                    }
-                    return UserRole.NORMAL;
-                })
-                .orElseGet(() -> {
-                    if (clubRepository.existsByClubMasterStudentId(studentId)) {
-                        return UserRole.CLUB_MASTER;
-                    }
-                    return UserRole.NORMAL;
-                });
+        return userRepository.findByStudentId(studentId).map(user -> {
+            if (user.getRole() == UserRole.GREEDY_ADMIN) {
+                return UserRole.GREEDY_ADMIN;
+            }
+            if (user.getRole() == UserRole.CLUB_ADMIN) {
+                return UserRole.CLUB_ADMIN;
+            }
+            if (clubRepository.existsByClubMasterStudentId(studentId)) {
+                return UserRole.CLUB_MASTER;
+            }
+            return UserRole.NORMAL;
+        }).orElseGet(() -> {
+            if (clubRepository.existsByClubMasterStudentId(studentId)) {
+                return UserRole.CLUB_MASTER;
+            }
+            return UserRole.NORMAL;
+        });
     }
 
     @Transactional
@@ -95,7 +91,9 @@ public class UserService {
     public void updateUserInformation(Long userId, String email, Boolean isEmailOn) {
         User user = findUser(userId);
 
-        if (email != null) {
+        if (email.equals("")) {
+            user.updateEmail(null);
+        } else if (email != null) {
             user.updateEmail(email);
         }
 
@@ -120,15 +118,12 @@ public class UserService {
         final User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
-        return UserRoleResponse.of(
-                user.getRole()
-        );
+        return UserRoleResponse.of(user.getRole());
     }
 
     @Transactional
     public UserManageClubsResponse getUserManageClubs(final Long userId) {
-        final User user = userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+        final User user = userRepository.findById(userId).orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
         String studentId = user.getStudentId();
 
