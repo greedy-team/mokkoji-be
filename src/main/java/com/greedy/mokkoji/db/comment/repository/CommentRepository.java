@@ -10,5 +10,7 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByClub(final Club club);
 
+    List<Comment> findAllByUser(final User user);
+
     boolean existsByClubAndUser(final Club club, final User user);
 }
