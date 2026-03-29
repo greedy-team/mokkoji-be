@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.comment.service;
 
 import com.greedy.mokkoji.api.comment.dto.response.CommentListResponse;
+import com.greedy.mokkoji.api.comment.dto.response.MyCommentListResponse;
 import com.greedy.mokkoji.api.comment.service.CommentService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -161,6 +162,59 @@ public class CommentServiceTest {
 
         BDDMockito.verify(clubRepository, times(1)).findById(clubId);
         BDDMockito.verify(commentRepository, times(1)).findAllByClub(club);
+    }
+
+    @Test
+    @DisplayName("자신이 작성한 댓글 목록을 조회한다")
+    void getAllMyComments() {
+        //given
+        final Long userId = 1L;
+        final Long clubId1 = 1L;
+        final Long clubId2 = 2L;
+
+        final User user = User.builder().build();
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        final Club club1 = Club.builder().build();
+        ReflectionTestUtils.setField(club1, "id", clubId1);
+
+        final Club club2 = Club.builder().build();
+        ReflectionTestUtils.setField(club2, "id", clubId2);
+
+        final Comment comment1 = Comment.builder()
+                .user(user)
+                .club(club1)
+                .rate(5.0)
+                .content("좋은 동아리입니다")
+                .build();
+        ReflectionTestUtils.setField(comment1, "id", 1L);
+        ReflectionTestUtils.setField(comment1, "createdAt", LocalDateTime.of(2025, 11, 1, 10, 0));
+        ReflectionTestUtils.setField(comment1, "updatedAt", LocalDateTime.of(2025, 11, 1, 10, 0));
+
+        final Comment comment2 = Comment.builder()
+                .user(user)
+                .club(club2)
+                .rate(4.0)
+                .content("추천합니다")
+                .build();
+        ReflectionTestUtils.setField(comment2, "id", 2L);
+        ReflectionTestUtils.setField(comment2, "createdAt", LocalDateTime.of(2025, 11, 2, 10, 0));
+        ReflectionTestUtils.setField(comment2, "updatedAt", LocalDateTime.of(2025, 11, 2, 10, 0));
+
+        BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        BDDMockito.given(commentRepository.findAllByUser(user)).willReturn(List.of(comment1, comment2));
+
+        //when
+        MyCommentListResponse response = commentService.getAllMyComments(userId);
+
+        //then
+        assertThat(response.comments()).hasSize(2);
+        assertThat(response.comments())
+                .extracting("commentId")
+                .containsExactlyInAnyOrder(1L, 2L);
+
+        BDDMockito.verify(userRepository, times(1)).findById(userId);
+        BDDMockito.verify(commentRepository, times(1)).findAllByUser(user);
     }
 
     @Test

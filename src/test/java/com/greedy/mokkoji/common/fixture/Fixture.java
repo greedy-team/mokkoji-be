@@ -60,6 +60,18 @@ public class Fixture {
                 .build();
     }
 
+    public static Club createAnotherClub() {
+        return Club.builder()
+                .name("En#")
+                .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
+                .clubAffiliation(ClubAffiliation.DEPARTMENT_CLUB)
+                .logo(FIXTURE_CLUB_LOGO)
+                .description("커리큘럼이 체계적인 코딩 동아리")
+                .instagram("www.En#.com")
+                .clubMasterStudentId("56785678")
+                .build();
+    }
+
     public static Club createClubWithCategoryAndAffiliation(ClubCategory category, ClubAffiliation affiliation) {
         return Club.builder()
                 .name("그리디")
