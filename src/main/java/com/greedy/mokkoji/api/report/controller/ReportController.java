@@ -5,11 +5,13 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.report.dto.request.ReportRequest;
 import com.greedy.mokkoji.api.report.service.ReportService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
-import com.greedy.mokkoji.enums.report.ReportType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
