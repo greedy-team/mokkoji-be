@@ -1,7 +1,6 @@
 package com.greedy.mokkoji.db.report.entity;
 
 import com.greedy.mokkoji.db.BaseTime;
-import com.greedy.mokkoji.enums.report.ReportType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
