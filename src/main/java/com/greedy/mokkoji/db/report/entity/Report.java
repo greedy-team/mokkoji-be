@@ -22,17 +22,16 @@ public class Report extends BaseTime {
     @Column(name = "user_id", columnDefinition = "bigint", nullable = false)
     private Long userId;
 
-    @Column(name = "report_type", columnDefinition = "varchar(20)", nullable = false)
-    @Enumerated(value = EnumType.STRING)
-    private ReportType reportType;
+    @Column(name = "rating", columnDefinition = "int", nullable = false)
+    private int rating;
 
     @Column(name = "content", columnDefinition = "text", nullable = false)
     private String content;
 
     @Builder
-    public Report(Long userId, ReportType reportType, String content) {
+    public Report(Long userId, int rating, String content) {
         this.userId = userId;
-        this.reportType = reportType;
+        this.rating = rating;
         this.content = content;
     }
 }

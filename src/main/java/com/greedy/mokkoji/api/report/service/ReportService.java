@@ -20,14 +20,14 @@ public class ReportService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Void createReport(Long userId, ReportType reportType, String content) {
+    public Void createReport(Long userId, int rating, String content) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
         Report report = Report.builder()
                 .userId(userId)
-                .reportType(reportType)
+                .rating(rating)
                 .content(content)
                 .build();
 
