@@ -5,6 +5,7 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.comment.dto.request.CommentCreateRequest;
 import com.greedy.mokkoji.api.comment.dto.request.CommentUpdateRequest;
 import com.greedy.mokkoji.api.comment.dto.response.CommentListResponse;
+import com.greedy.mokkoji.api.comment.dto.response.MyCommentListResponse;
 import com.greedy.mokkoji.api.comment.service.CommentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import jakarta.validation.Valid;
@@ -43,6 +44,16 @@ public class CommentController implements CommentControllerSwagger {
         return APISuccessResponse.of(
                 HttpStatus.OK,
                 commentService.getComments(authCredential.userId(), clubId)
+        );
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<APISuccessResponse<MyCommentListResponse>> getAllMyComments(
+            @Authentication final AuthCredential authCredential
+    ) {
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                commentService.getAllMyComments(authCredential.userId())
         );
     }
 
