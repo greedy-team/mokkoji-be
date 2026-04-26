@@ -43,17 +43,6 @@ public class SwaggerDescription {
             </details>
             
             <details>
-            <summary><b><span style='color:#4C9900;'>🚨 ReportType (신고 대상 타입)</span></b></summary>
-            <div style="margin-left:10px; line-height:1.6;">
-            ─────────────<br>
-            • CLUB: 동아리<br>
-            • RECRUITMENT: 모집글<br>
-            • COMMENT: 댓글<br>
-            • RATING: 평점<br>
-            </div>
-            </details>
-            
-            <details>
             <summary><b><span style='color:#8B00FF;'>👤 UserRole (사용자 권한)</span></b></summary>
             <div style="margin-left:10px; line-height:1.6;">
             ─────────────<br>
