@@ -1,9 +1,9 @@
-package com.greedy.mokkoji.api.report.controller;
+package com.greedy.mokkoji.api.review.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.report.dto.request.ReportRequest;
-import com.greedy.mokkoji.api.report.service.ReportService;
+import com.greedy.mokkoji.api.review.dto.request.ReviewRequest;
+import com.greedy.mokkoji.api.review.service.ReviewService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,18 +16,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/reports")
-public class ReportController implements ReportControllerSwagger {
+public class ReviewController implements ReviewControllerSwagger {
 
-    private final ReportService reportService;
+    private final ReviewService reviewService;
 
     @PostMapping
-    public ResponseEntity<APISuccessResponse<Void>> createReport(
+    public ResponseEntity<APISuccessResponse<Void>> createReview(
             @Authentication final AuthCredential authCredential,
-            @RequestBody final ReportRequest reportRequest
+            @RequestBody final ReviewRequest reportRequest
     ) {
         return APISuccessResponse.of(
                 HttpStatus.CREATED,
-                reportService.createReport(authCredential.userId(), reportRequest.rating(), reportRequest.content())
+                reviewService.createReport(authCredential.userId(), reportRequest.rating(), reportRequest.content())
         );
     }
 }

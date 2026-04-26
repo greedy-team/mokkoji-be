@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "report")
-public class Report extends BaseTime {
+@Table(name = "review")
+public class Review extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,7 @@ public class Report extends BaseTime {
     private String content;
 
     @Builder
-    public Report(Long userId, int rating, String content) {
+    public Review(Long userId, int rating, String content) {
         this.userId = userId;
         this.rating = rating;
         this.content = content;
