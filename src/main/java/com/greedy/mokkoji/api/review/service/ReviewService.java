@@ -1,8 +1,8 @@
 package com.greedy.mokkoji.api.review.service;
 
 import com.greedy.mokkoji.common.exception.MokkojiException;
-import com.greedy.mokkoji.db.report.entity.Review;
-import com.greedy.mokkoji.db.report.repository.ReviewRepository;
+import com.greedy.mokkoji.db.review.entity.Review;
+import com.greedy.mokkoji.db.review.repository.ReviewRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;

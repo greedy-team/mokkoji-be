@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.db.report.entity;
+package com.greedy.mokkoji.db.review.entity;
 
 import com.greedy.mokkoji.db.BaseTime;
 import jakarta.persistence.*;
