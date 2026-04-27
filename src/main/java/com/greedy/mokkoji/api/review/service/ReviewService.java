@@ -19,7 +19,7 @@ public class ReviewService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Void createReport(Long userId, int rating, String content) {
+    public Void createReview(Long userId, int rating, String content) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));

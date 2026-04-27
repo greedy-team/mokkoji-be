@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/reports")
+@RequestMapping("${api.prefix}/reviews")
 public class ReviewController implements ReviewControllerSwagger {
 
     private final ReviewService reviewService;
@@ -23,11 +23,11 @@ public class ReviewController implements ReviewControllerSwagger {
     @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createReview(
             @Authentication final AuthCredential authCredential,
-            @RequestBody final ReviewRequest reportRequest
+            @RequestBody final ReviewRequest reviewRequest
     ) {
         return APISuccessResponse.of(
                 HttpStatus.CREATED,
-                reviewService.createReport(authCredential.userId(), reportRequest.rating(), reportRequest.content())
+                reviewService.createReview(authCredential.userId(), reviewRequest.rating(), reviewRequest.content())
         );
     }
 }

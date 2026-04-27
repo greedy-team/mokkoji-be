@@ -20,6 +20,6 @@ public interface ReviewControllerSwagger {
     @ApiResponse(responseCode = "201", description = "피드백 생성 성공")
     ResponseEntity<APISuccessResponse<Void>> createReview(
             @Parameter(hidden = true) AuthCredential authCredential,
-            @Parameter(name = "reviewRequest", description = "피드백 내용") ReviewRequest reportRequest
+            @Parameter(name = "reviewRequest", description = "피드백 내용") ReviewRequest reviewRequest
     );
 }
