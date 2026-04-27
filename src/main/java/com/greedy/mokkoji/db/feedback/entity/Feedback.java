@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.db.review.entity;
+package com.greedy.mokkoji.db.feedback.entity;
 
 import com.greedy.mokkoji.db.BaseTime;
 import jakarta.persistence.*;
@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "review")
-public class Review extends BaseTime {
+@Table(name = "feedback")
+public class Feedback extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,7 @@ public class Review extends BaseTime {
     private String content;
 
     @Builder
-    public Review(Long userId, int rating, String content) {
+    public Feedback(Long userId, int rating, String content) {
         this.userId = userId;
         this.rating = rating;
         this.content = content;

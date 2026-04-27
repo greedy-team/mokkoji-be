@@ -6,8 +6,8 @@ import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubPreviewResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.RecruitmentPreviewResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubPfeedbackResponse;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.RecruitmentPfeedbackResponse;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
@@ -104,8 +104,8 @@ public class ClubControllerTest extends ControllerTest {
         //given
         String authorizationForBearer = authorizationForBearerAccessToken(user);
 
-        final RecruitmentPreviewResponse recruitmentPreviewResponse =
-                RecruitmentPreviewResponse.builder()
+        final RecruitmentPfeedbackResponse recruitmentPfeedbackResponse =
+                RecruitmentPfeedbackResponse.builder()
                         .id(recruitment.getId())
                         .recruitStart(recruitment.getRecruitStart())
                         .recruitEnd(recruitment.getRecruitEnd())
@@ -116,14 +116,14 @@ public class ClubControllerTest extends ControllerTest {
                         ))
                         .build();
 
-        final List<ClubPreviewResponse> clubResponses =
-                List.of(ClubPreviewResponse.builder()
+        final List<ClubPfeedbackResponse> clubResponses =
+                List.of(ClubPfeedbackResponse.builder()
                         .id(club.getId())
                         .name(club.getName())
                         .description(club.getDescription())
                         .logo(club.getLogo())
                         .favorite(true)
-                        .recruitmentPreviewResponse(recruitmentPreviewResponse)
+                        .recruitmentPfeedbackResponse(recruitmentPfeedbackResponse)
                         .build());
 
         final int pageNumber = 1;

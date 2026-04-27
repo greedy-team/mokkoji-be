@@ -1,9 +1,9 @@
-package com.greedy.mokkoji.api.review.controller;
+package com.greedy.mokkoji.api.feedback.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.review.dto.request.ReviewRequest;
-import com.greedy.mokkoji.api.review.service.ReviewService;
+import com.greedy.mokkoji.api.feedback.dto.request.FeedbackRequest;
+import com.greedy.mokkoji.api.feedback.service.FeedbackService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,19 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/reviews")
-public class ReviewController implements ReviewControllerSwagger {
+@RequestMapping("${api.prefix}/feedbacks")
+public class FeedbackController implements FeedbackControllerSwagger {
 
-    private final ReviewService reviewService;
+    private final FeedbackService feedbackService;
 
     @PostMapping
-    public ResponseEntity<APISuccessResponse<Void>> createReview(
+    public ResponseEntity<APISuccessResponse<Void>> createFeedback(
             @Authentication final AuthCredential authCredential,
-            @RequestBody final ReviewRequest reviewRequest
+            @RequestBody final FeedbackRequest feedbackRequest
     ) {
         return APISuccessResponse.of(
                 HttpStatus.CREATED,
-                reviewService.createReview(authCredential.userId(), reviewRequest.rating(), reviewRequest.content())
+                feedbackService.createFeedback(authCredential.userId(), feedbackRequest.rating(), feedbackRequest.content())
         );
     }
 }

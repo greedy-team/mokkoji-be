@@ -2,7 +2,7 @@ package com.greedy.mokkoji.recruitment.service;
 
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.RecruitmentPreviewResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.RecruitmentPfeedbackResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
@@ -634,7 +634,7 @@ public class RecruitmentServiceTest {
         assertThat(allRecruitmentResponse.recruitments()).hasSize(6);
 
         List<Long> recruitmentIds = allRecruitmentResponse.recruitments().stream()
-                .map(RecruitmentPreviewResponse::id)
+                .map(RecruitmentPfeedbackResponse::id)
                 .toList();
 
         assertThat(recruitmentIds).containsExactly(1L, 2L, 3L, 4L, 5L, 6L);
