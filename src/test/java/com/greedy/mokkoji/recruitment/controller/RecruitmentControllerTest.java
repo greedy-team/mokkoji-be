@@ -3,7 +3,7 @@ package com.greedy.mokkoji.recruitment.controller;
 import com.greedy.mokkoji.api.recruitment.dto.request.CreateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.request.UpdateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.RecruitmentPfeedbackResponse;
+import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.RecruitmentPreviewResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.recentRecruitment.RecentRecruitmentOfClubResponse;
 import com.greedy.mokkoji.common.ControllerTest;
@@ -474,12 +474,12 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         assertThat(data.recruitments()).hasSize(2);
 
-        assertThat(data.recruitments()).allSatisfy(recruitmentPfeedbackResponse -> {
-            assertThat(recruitmentPfeedbackResponse.club()).isNotNull();
-            assertThat(recruitmentPfeedbackResponse.club().clubAffiliation()).isEqualTo(filteringByAffiliation);
-            assertThat(recruitmentPfeedbackResponse.club().clubCategory()).isEqualTo(filteringByCategory);
-            assertThat(recruitmentPfeedbackResponse.id()).isNotNull();
-            assertThat(recruitmentPfeedbackResponse.title()).isNotBlank();
+        assertThat(data.recruitments()).allSatisfy(recruitmentPreviewResponse -> {
+            assertThat(recruitmentPreviewResponse.club()).isNotNull();
+            assertThat(recruitmentPreviewResponse.club().clubAffiliation()).isEqualTo(filteringByAffiliation);
+            assertThat(recruitmentPreviewResponse.club().clubCategory()).isEqualTo(filteringByCategory);
+            assertThat(recruitmentPreviewResponse.id()).isNotNull();
+            assertThat(recruitmentPreviewResponse.title()).isNotBlank();
         });
     }
 
@@ -513,8 +513,8 @@ public class RecruitmentControllerTest extends ControllerTest {
         AllRecruitmentResponse data = getDataFromResponse(response, AllRecruitmentResponse.class);
         assertThat(data.recruitments()).hasSize(1);
 
-        RecruitmentPfeedbackResponse recruitmentPfeedbackResponse = data.recruitments().get(0);
-        assertThat(recruitmentPfeedbackResponse.id()).isEqualTo(newerRecruitment.getId());
+        RecruitmentPreviewResponse recruitmentPreviewResponse = data.recruitments().get(0);
+        assertThat(recruitmentPreviewResponse.id()).isEqualTo(newerRecruitment.getId());
 
         assertThat(newerRecruitment.getClub().getId()).isEqualTo(targetClub.getId());
     }
@@ -650,7 +650,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         assertThat(data.recruitments()).hasSize(6);
 
         List<Long> ids = data.recruitments().stream()
-                .map(RecruitmentPfeedbackResponse::id)
+                .map(RecruitmentPreviewResponse::id)
                 .toList();
 
         assertThat(ids).containsExactly(

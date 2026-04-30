@@ -104,7 +104,7 @@ public class ClubControllerTest extends ControllerTest {
         //given
         String authorizationForBearer = authorizationForBearerAccessToken(user);
 
-        final RecruitmentPreviewResponse recruitmentPfeedbackResponse =
+        final RecruitmentPreviewResponse recruitmentPreviewResponse =
                 RecruitmentPreviewResponse.builder()
                         .id(recruitment.getId())
                         .recruitStart(recruitment.getRecruitStart())
@@ -123,7 +123,7 @@ public class ClubControllerTest extends ControllerTest {
                         .description(club.getDescription())
                         .logo(club.getLogo())
                         .favorite(true)
-                        .recruitmentPreviewResponse(recruitmentPfeedbackResponse)
+                        .recruitmentPreviewResponse(recruitmentPreviewResponse)
                         .build());
 
         final int pageNumber = 1;
