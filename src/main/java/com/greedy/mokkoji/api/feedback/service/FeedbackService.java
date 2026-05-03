@@ -1,12 +1,11 @@
-package com.greedy.mokkoji.api.report.service;
+package com.greedy.mokkoji.api.feedback.service;
 
 import com.greedy.mokkoji.common.exception.MokkojiException;
-import com.greedy.mokkoji.db.report.entity.Report;
-import com.greedy.mokkoji.db.report.repository.ReportRepository;
+import com.greedy.mokkoji.db.feedback.entity.Feedback;
+import com.greedy.mokkoji.db.feedback.repository.FeedbackRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
-import com.greedy.mokkoji.enums.report.ReportType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,24 +13,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class ReportService {
+public class FeedbackService {
 
-    private final ReportRepository reportRepository;
+    private final FeedbackRepository feedbackRepository;
     private final UserRepository userRepository;
 
     @Transactional
-    public Void createReport(Long userId, ReportType reportType, String content) {
+    public Void createFeedback(Long userId, int rating, String content) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
-        Report report = Report.builder()
+        Feedback feedback = Feedback.builder()
                 .userId(userId)
-                .reportType(reportType)
+                .rating(rating)
                 .content(content)
                 .build();
 
-        reportRepository.save(report);
+        feedbackRepository.save(feedback);
         return null;
     }
 }
