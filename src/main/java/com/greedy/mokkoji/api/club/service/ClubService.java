@@ -285,7 +285,9 @@ public class ClubService {
                             recruitment != null ? recruitment.isAlwaysRecruiting() : null,
                             calculateRecruitStatus(recruitment),
                             appDataS3Client.getPublicUrl(club.getLogo()),
-                            isFavorite);
+                            isFavorite,
+                            club.getUniversity().getName(),
+                            club.getUniversity().getCode());
                 })
                 .sorted(getFavoriteComparator())
                 .toList();

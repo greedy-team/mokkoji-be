@@ -76,7 +76,9 @@ public class FavoriteService {
                             recruitment != null ? recruitment.isAlwaysRecruiting() : null,
                             calculateRecruitStatus(recruitment),
                             appDataS3Client.getPublicUrl(club.getLogo()),
-                            true
+                            true,
+                            club.getUniversity().getName(),
+                            club.getUniversity().getCode()
                     );
                 }).toList();
 

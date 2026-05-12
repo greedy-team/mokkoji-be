@@ -3,6 +3,7 @@ package com.greedy.mokkoji.api.club.dto.response;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -21,7 +22,9 @@ public record ClubResponse(
         @Schema(example = "false") Boolean isAlwaysRecruiting,
         @Schema(example = "OPEN") RecruitStatus recruitStatus,
         @Schema(example = "https://mokkoji-app-data.s3.ap-northeast-2.amazonaws.com/club-logo/1/greedy_{UUID}.jpg") String logo,
-        @Schema(example = "true") Boolean isFavorite
+        @Schema(example = "true") Boolean isFavorite,
+        @Schema(example = "세종대학교") String universityName,
+        @Schema(example = "SEJONG") UniversityCode universityCode
 ) {
     public static ClubResponse of(
             final Long id,
@@ -34,7 +37,9 @@ public record ClubResponse(
             final Boolean isAlwaysRecruiting,
             final RecruitStatus recruitStatus,
             final String logo,
-            final Boolean isFavorite) {
+            final Boolean isFavorite,
+            final String universityName,
+            final UniversityCode universityCode) {
 
         return ClubResponse.builder()
                 .id(id)
@@ -48,6 +53,8 @@ public record ClubResponse(
                 .recruitStatus(recruitStatus)
                 .logo(logo)
                 .isFavorite(isFavorite)
+                .universityName(universityName)
+                .universityCode(universityCode)
                 .build();
     }
 }
