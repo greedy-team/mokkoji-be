@@ -18,6 +18,8 @@ import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
+import com.greedy.mokkoji.db.university.entity.University;
+import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
@@ -49,6 +51,7 @@ public class ClubService {
     private final RecruitmentRepository recruitmentRepository;
     private final FavoriteRepository favoriteRepository;
     private final UserRepository userRepository;
+    private final UniversityRepository universityRepository;
     private final AppDataS3Client appDataS3Client;
 
     private static PageResponse createPageResponse(Pageable pageable, int totalElements) {
@@ -127,9 +130,12 @@ public class ClubService {
 
     @Transactional
     public void createClub(final Long userId, final String name, final ClubCategory category,
-                           final ClubAffiliation affiliation, final String clubMasterStudentId) {
+                           final ClubAffiliation affiliation, final String clubMasterStudentId,
+                           final UniversityCode universityCode) {
         validateClubRegistrar(userId);
         String validStudentId = getValidClubMasterStudentId(clubMasterStudentId);
+        University university = universityRepository.findByCode(universityCode)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
 
         clubRepository.save(
                 Club.builder()
@@ -137,6 +143,7 @@ public class ClubService {
                         .clubCategory(category)
                         .clubAffiliation(affiliation)
                         .clubMasterStudentId(validStudentId)
+                        .university(university)
                         .build()
         );
     }

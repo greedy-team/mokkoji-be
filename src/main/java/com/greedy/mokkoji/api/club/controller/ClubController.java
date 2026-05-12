@@ -99,7 +99,8 @@ public class ClubController implements ClubControllerSwagger {
                 clubCreateRequest.name(),
                 clubCreateRequest.category(),
                 clubCreateRequest.affiliation(),
-                clubCreateRequest.clubMasterStudentId()
+                clubCreateRequest.clubMasterStudentId(),
+                clubCreateRequest.universityCode()
         );
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
