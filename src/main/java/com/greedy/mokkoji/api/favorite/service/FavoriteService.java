@@ -57,6 +57,7 @@ public class FavoriteService {
     @Transactional(readOnly = true)
     public ClubsPaginationResponse findFavoriteClubs(final Long userId, final Pageable pageable) {
         final Page<Favorite> favoritePage = favoriteRepository.findByUserId(userId, pageable);
+        final User user = getUserById(userId);
 
         final List<Favorite> favorites = favoritePage.getContent();
         List<ClubResponse> clubResponses = favorites.stream()
@@ -64,7 +65,6 @@ public class FavoriteService {
                     final Club club = favorite.getClub();
                     Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(club.getId())
                             .orElse(null);
-
                     return ClubResponse.of(
                             club.getId(),
                             club.getName(),
@@ -77,8 +77,7 @@ public class FavoriteService {
                             calculateRecruitStatus(recruitment),
                             appDataS3Client.getPublicUrl(club.getLogo()),
                             true,
-                            club.getUniversity().getName(),
-                            club.getUniversity().getCode()
+                            user.getUniversity() == null ? club.getUniversity().getName() : null
                     );
                 }).toList();
 

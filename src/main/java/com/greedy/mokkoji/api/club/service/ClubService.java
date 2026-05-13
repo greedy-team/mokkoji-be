@@ -286,8 +286,7 @@ public class ClubService {
                             calculateRecruitStatus(recruitment),
                             appDataS3Client.getPublicUrl(club.getLogo()),
                             isFavorite,
-                            club.getUniversity().getName(),
-                            club.getUniversity().getCode());
+                            club.getUniversity().getName());
                 })
                 .sorted(getFavoriteComparator())
                 .toList();

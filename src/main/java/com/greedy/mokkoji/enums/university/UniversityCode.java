@@ -8,6 +8,5 @@ import lombok.Getter;
 public enum UniversityCode {
     SEJONG,
     KONKUK,
-    HANYANG,
-    NO_CHOSEN;
+    HANYANG;
 }
