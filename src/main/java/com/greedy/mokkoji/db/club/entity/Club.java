@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.db.club.entity;
 
 import com.greedy.mokkoji.db.BaseTime;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import jakarta.persistence.*;
@@ -19,6 +20,10 @@ public class Club extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "bigint", nullable = false)
     private Long id;
+
+    @JoinColumn(name = "university_id", columnDefinition = "bigint", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private University university;
 
     @Column(name = "name", columnDefinition = "varchar(50)", nullable = false)
     private String name;
@@ -46,6 +51,7 @@ public class Club extends BaseTime {
     @Builder
     public Club(
             final String name,
+            final University university,
             final ClubCategory clubCategory,
             final ClubAffiliation clubAffiliation,
             final String description,
@@ -54,6 +60,7 @@ public class Club extends BaseTime {
             final String clubMasterStudentId
     ) {
         this.name = name;
+        this.university = university;
         this.clubCategory = clubCategory;
         this.clubAffiliation = clubAffiliation;
         this.description = description;

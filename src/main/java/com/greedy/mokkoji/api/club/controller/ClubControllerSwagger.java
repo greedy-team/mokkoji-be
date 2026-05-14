@@ -12,6 +12,7 @@ import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -41,6 +42,7 @@ public interface ClubControllerSwagger {
     ResponseEntity<APISuccessResponse<ClubsPaginationResponse>> getClubs(
             @Parameter(hidden = true) AuthCredential authCredential,
             @Parameter(name = "clubSearchCond", description = "검색 조건") ClubSearchCond clubSearchCond,
+            @Parameter(name = "universityCode", description = "대학교 코드") UniversityCode universityCode,
             @Parameter(name = "page", description = "페이지 번호") int page,
             @Parameter(name = "size", description = "페이지 크기") int size
     );
@@ -84,6 +86,7 @@ public interface ClubControllerSwagger {
     @ApiResponse(responseCode = "200", description = "조회 성공")
     ResponseEntity<APISuccessResponse<AllClubsResponse>> getAllClubs(
             @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "universityCode", description = "대학교 코드") UniversityCode universityCode,
             @Parameter(name = "keyword", description = "검색 키워드") String keyword,
             @Parameter(name = "affiliation") ClubAffiliation affiliation,
             @Parameter(name = "category") ClubCategory category,

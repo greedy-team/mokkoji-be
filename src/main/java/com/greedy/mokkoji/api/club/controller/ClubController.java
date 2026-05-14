@@ -14,12 +14,21 @@ import com.greedy.mokkoji.api.club.service.ClubService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -43,6 +52,7 @@ public class ClubController implements ClubControllerSwagger {
     public ResponseEntity<APISuccessResponse<ClubsPaginationResponse>> getClubs(
             @Authentication final AuthCredential authCredential,
             @ModelAttribute(value = "clubSearchCond") final ClubSearchCond clubSearchCond,
+            @RequestParam(value = "universityCode") final UniversityCode universityCode,
             @RequestParam(value = "page") final int page,
             @RequestParam(value = "size") final int size
     ) {
@@ -51,6 +61,7 @@ public class ClubController implements ClubControllerSwagger {
                 HttpStatus.OK,
                 clubService.findClubsByConditions(
                         authCredential.userId(),
+                        universityCode,
                         clubSearchCond.keyword(),
                         clubSearchCond.category(),
                         clubSearchCond.affiliation(),
@@ -63,6 +74,7 @@ public class ClubController implements ClubControllerSwagger {
     @GetMapping
     public ResponseEntity<APISuccessResponse<AllClubsResponse>> getAllClubs(
             @Authentication final AuthCredential authCredential,
+            @RequestParam(value = "universityCode") final UniversityCode universityCode,
             @RequestParam(value = "keyword", required = false) final String keyword,
             @RequestParam(value = "affiliation", required = false) final ClubAffiliation affiliation,
             @RequestParam(value = "category", required = false) final ClubCategory category,
@@ -72,7 +84,7 @@ public class ClubController implements ClubControllerSwagger {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubService.getAllClubs(authCredential.userId(), keyword, affiliation, category, pageable)
+                clubService.getAllClubs(authCredential.userId(), universityCode, keyword, affiliation, category, pageable)
         );
     }
 
@@ -87,7 +99,8 @@ public class ClubController implements ClubControllerSwagger {
                 clubCreateRequest.name(),
                 clubCreateRequest.category(),
                 clubCreateRequest.affiliation(),
-                clubCreateRequest.clubMasterStudentId()
+                clubCreateRequest.clubMasterStudentId(),
+                clubCreateRequest.universityCode()
         );
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }

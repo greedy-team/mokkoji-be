@@ -7,8 +7,13 @@ import com.greedy.mokkoji.db.recruitment.entity.QRecruitment;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.*;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.NumberTemplate;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -33,11 +38,13 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Club> findClubsWithLatestRecruitment(final String keyword,
-                                                     final ClubCategory category,
-                                                     final ClubAffiliation affiliation,
-                                                     final RecruitStatus status,
-                                                     final Pageable pageable) {
+    public Page<Club> findClubsWithLatestRecruitment(
+            final UniversityCode universityCode,
+            final String keyword,
+            final ClubCategory category,
+            final ClubAffiliation affiliation,
+            final RecruitStatus status,
+            final Pageable pageable) {
 
         final LocalDateTime now = LocalDateTime.now();
 
@@ -47,7 +54,8 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                         likeClubName(keyword),
                         equalCategory(category),
                         equalAffiliation(affiliation),
-                        filterByRecruitStatus(status, now)
+                        filterByRecruitStatus(status, now),
+                        equalUniversityCode(universityCode)
                 )
                 .orderBy(
                         // TODO:: 정렬 방식: 페이지 마다 다른 시간을 넘겨주는 문제(원자성을 잃을 수 있기에) 이야기 해봐야됨
@@ -67,7 +75,8 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                                 likeClubName(keyword),
                                 equalCategory(category),
                                 equalAffiliation(affiliation),
-                                filterByRecruitStatus(status, now)
+                                filterByRecruitStatus(status, now),
+                                equalUniversityCode(universityCode)
                         )
                         .fetchOne()
         ).orElse(0L);
@@ -76,7 +85,11 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     }
 
     @Override
-    public List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(final String keyword, final ClubAffiliation affiliation, final ClubCategory category) {
+    public List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(
+            final UniversityCode universityCode,
+            final String keyword,
+            final ClubAffiliation affiliation,
+            final ClubCategory category) {
         QRecruitment subRecruitment = new QRecruitment("subRecruitment");
         QRecruitment subRecruitment2 = new QRecruitment("subRecruitment2");
 
@@ -86,6 +99,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                                 ClubWithLatestRecruitment.class,
                                 club.id,
                                 club.name,
+                                club.university.name,
                                 club.description,
                                 club.logo,
                                 Projections.constructor(
@@ -117,6 +131,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                 )
                 .where(
                         likeClubName(keyword),
+                        equalUniversityCode(universityCode),
                         equalAffiliation(affiliation),
                         equalCategory(category)
                 )
@@ -128,6 +143,13 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
             return club.name.like("%" + keyword + "%")
                     .or(club.description.like("%" + keyword + "%"))
                     .or(recruitment.content.like("%" + keyword + "%"));
+        }
+        return null;
+    }
+
+    private BooleanExpression equalUniversityCode(final UniversityCode universityCode) {
+        if (universityCode != null) {
+            return club.university.code.eq(universityCode);
         }
         return null;
     }
