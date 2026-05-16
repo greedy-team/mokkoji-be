@@ -78,7 +78,7 @@ public class UserService {
 
     @Transactional
     public String refreshAccessToken(String refreshToken) {
-        final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+        final Long userId = jwtUtil.getCredentialFromToken(refreshToken).userId();
 
         String storedRefreshToken = tokenService.getRefreshToken(userId);
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
