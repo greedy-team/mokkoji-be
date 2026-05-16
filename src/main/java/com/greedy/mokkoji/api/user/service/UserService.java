@@ -10,6 +10,7 @@ import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
@@ -120,12 +121,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserManageClubsResponse getUserManageClubs(final Long userId) {
+    public UserManageClubsResponse getUserManageClubs(final AuthRole authRole, final Long userId) {
         final User user = userRepository.findById(userId).orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
-        String studentId = user.getStudentId();
-
-        List<UserManageClubResponse> clubs = clubRepository.findByClubMasterStudentId(studentId).stream()
+        List<UserManageClubResponse> clubs = clubRepository.findByMasterId(userId).stream()
                 .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
                 .toList();
 

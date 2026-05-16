@@ -82,6 +82,6 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<UserManageClubsResponse>> getUserManageClubs(
             @Authentication AuthCredential authCredential
     ) {
-        return APISuccessResponse.of(HttpStatus.OK, userService.getUserManageClubs(authCredential.userId()));
+        return APISuccessResponse.of(HttpStatus.OK, userService.getUserManageClubs(authCredential.authRole(), authCredential.userId()));
     }
 }

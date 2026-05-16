@@ -8,7 +8,7 @@ import java.util.List;
 
 @Repository
 public interface ClubRepository extends JpaRepository<Club, Long>, ClubRepositoryCustom {
-    List<Club> findByClubMasterStudentId(String studentId);
+    List<Club> findByMasterId(Long userId);
 
     boolean existsByClubMasterStudentId(String studentId);
 }
