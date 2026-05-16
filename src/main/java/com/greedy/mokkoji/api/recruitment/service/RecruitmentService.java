@@ -59,8 +59,8 @@ public class RecruitmentService {
 
     @Transactional
     public CreateRecruitmentResponse createRecruitment(
-            final Long userId,
             final AuthRole authRole,
+            final Long userId,
             final Long clubId,
             final String title,
             final String content,
@@ -84,8 +84,8 @@ public class RecruitmentService {
 
     @Transactional
     public UpdateRecruitmentResponse updateRecruitment(
-            final Long userId,
             final AuthRole authRole,
+            final Long userId,
             final Long recruitmentId,
             final String title,
             final String content,
@@ -109,8 +109,8 @@ public class RecruitmentService {
     }
 
     @Transactional
-    public DeleteRecruitmentResponse deleteRecruitment(final Long userId, final Long recruitmentId) {
-        validateAdmin(userId);
+    public DeleteRecruitmentResponse deleteRecruitment(final AuthRole authRole, final Long userId, final Long recruitmentId) {
+        validateAdmin(authRole, userId);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
