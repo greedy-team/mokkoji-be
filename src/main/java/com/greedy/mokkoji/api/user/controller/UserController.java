@@ -10,6 +10,7 @@ import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.db.user.entity.User;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class UserController implements UserControllerSwagger {
     @PostMapping("/auth/login")
     public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         final User user = userService.login(request.studentId(), request.password());
-        final LoginResponse loginResponse = tokenService.generateToken(user.getId());
+        final LoginResponse loginResponse = tokenService.generateToken(user.getUniversity().getCode(), AuthRole.USER, user.getId());
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
     }
 
@@ -82,6 +83,6 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<UserManageClubsResponse>> getUserManageClubs(
             @Authentication AuthCredential authCredential
     ) {
-        return APISuccessResponse.of(HttpStatus.OK, userService.getUserManageClubs(authCredential.authRole(), authCredential.userId()));
+        return APISuccessResponse.of(HttpStatus.OK, userService.getUserManageClubs(authCredential.userId()));
     }
 }

@@ -1,8 +1,11 @@
 package com.greedy.mokkoji.api.user.service;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.db.user.repository.RedisRepository;
+import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +17,10 @@ public class TokenService {
     private final RedisRepository redisRepository;
     private final JwtUtil jwtUtil;
 
-    public LoginResponse generateToken(final Long userId) {
-        final String accessToken = jwtUtil.generateAccessToken(userId);
-        final String refreshToken = jwtUtil.generateRefreshToken(userId);
+    public LoginResponse generateToken(final UniversityCode universityCode, final AuthRole authRole, final Long userId) {
+        final AuthCredential credential = new AuthCredential(universityCode, authRole, userId);
+        final String accessToken = jwtUtil.generateAccessToken(credential);
+        final String refreshToken = jwtUtil.generateRefreshToken(credential);
         saveRefreshToken(userId, refreshToken);
         return LoginResponse.of(accessToken, refreshToken);
     }
