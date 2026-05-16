@@ -117,8 +117,8 @@ public class ClubController implements ClubControllerSwagger {
         return APISuccessResponse.of(
                 HttpStatus.OK,
                 clubService.updateClub(
-                        authCredential.userId(),
                         authCredential.authRole(),
+                        authCredential.userId(),
                         clubId,
                         clubUpdateRequest.name(),
                         clubUpdateRequest.category(),

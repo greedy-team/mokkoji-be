@@ -154,7 +154,7 @@ public class ClubService {
 
     @Transactional
     public ClubUpdateResponse updateClub(
-            final Long userId, final AuthRole authRole, final Long clubId, final String name, final ClubCategory category,
+            final AuthRole authRole, final Long userId, final Long clubId, final String name, final ClubCategory category,
             final ClubAffiliation affiliation, final String description, final String logo, final String instagram
     ) {
         Club club = validateClubManagerAuthority(authRole, userId, clubId);

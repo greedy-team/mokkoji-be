@@ -4,8 +4,8 @@ import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 
 public record AuthCredential(
-        Long userId,
         UniversityCode universityCode,
-        AuthRole authRole
+        AuthRole authRole,
+        Long userId
 ) {
 }
