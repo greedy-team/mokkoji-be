@@ -132,7 +132,7 @@ public class ClubService {
     public void createClub(final Long userId, final String name, final ClubCategory category,
                            final ClubAffiliation affiliation, final String clubMasterStudentId,
                            final UniversityCode universityCode) {
-        validateClubRegistrar(userId);
+        validateClubRegister(userId);
         String validStudentId = getValidClubMasterStudentId(clubMasterStudentId);
         University university = universityRepository.findByCode(universityCode)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
@@ -309,7 +309,7 @@ public class ClubService {
         );
     }
 
-    private void validateClubRegistrar(final Long userId) { //권한 부여: GREEDY_ADMIN, CLUB_ADMIN
+    private void validateClubRegister(final Long userId) { //권한 부여: GREEDY_ADMIN, CLUB_ADMIN
         User adminUser = findUserOrThrow(userId);
         if (!adminUser.getRole().canRegisterClub()) {
             throw new MokkojiException(FailMessage.FORBIDDEN_REGISTER_CLUB);
