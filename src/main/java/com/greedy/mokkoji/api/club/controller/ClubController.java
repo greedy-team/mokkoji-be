@@ -118,12 +118,12 @@ public class ClubController implements ClubControllerSwagger {
                 HttpStatus.OK,
                 clubService.updateClub(
                         authCredential.userId(),
+                        authCredential.authRole(),
                         clubId,
                         clubUpdateRequest.name(),
                         clubUpdateRequest.category(),
                         clubUpdateRequest.affiliation(),
                         clubUpdateRequest.description(),
-                        clubUpdateRequest.clubMasterStudentId(),
                         clubUpdateRequest.logo(),
                         clubUpdateRequest.instagram()
                 )

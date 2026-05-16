@@ -74,7 +74,6 @@ public class Club extends BaseTime {
             ClubCategory category,
             ClubAffiliation affiliation,
             String description,
-            String masterId,
             String logo,
             String instagram
     ) {
@@ -82,7 +81,6 @@ public class Club extends BaseTime {
         if (category != null) this.clubCategory = category;
         if (affiliation != null) this.clubAffiliation = affiliation;
         if (description != null && !description.isBlank()) this.description = description;
-        if (masterId != null) this.masterId = masterId;
         if (logo != null && !logo.isBlank()) this.logo = logo;
         if (instagram != null && !instagram.isBlank()) this.instagram = instagram;
     }

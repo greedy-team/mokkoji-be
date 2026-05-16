@@ -154,19 +154,15 @@ public class ClubService {
 
     @Transactional
     public ClubUpdateResponse updateClub(
-            final Long userId, final Long clubId, final String name, final ClubCategory category, final ClubAffiliation affiliation,
-            final String description, final String clubMasterStudentId, final String logo, final String instagram
+            final Long userId, final AuthRole authRole, final Long clubId, final String name, final ClubCategory category,
+            final ClubAffiliation affiliation, final String description, final String logo, final String instagram
     ) {
-        Club club = validateClubManagerAuthority(userId, clubId);
+        Club club = validateClubManagerAuthority(authRole, userId, clubId);
 
         String oldLogoKey = club.getLogo();
         String newLogoKey = extractLogoKey(clubId, logo);
 
-        if (clubMasterStudentId != null) {
-            changeClubMasterRole(club.getClubMasterStudentId(), clubMasterStudentId);
-        }
-
-        club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, newLogoKey, instagram);
+        club.updateIfPresent(name, category, affiliation, description, newLogoKey, instagram);
 
         String updateLogo = generatePresignedPutUrl(newLogoKey);
         String deleteLogo = generatePresignedDeleteUrl(newLogoKey, oldLogoKey);
