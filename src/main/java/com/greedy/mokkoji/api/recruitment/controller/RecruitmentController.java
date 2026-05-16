@@ -60,6 +60,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
     ) {
         UpdateRecruitmentResponse response = recruitmentService.updateRecruitment(
                 authCredential.userId(),
+                authCredential.authRole(),
                 recruitmentId,
                 request.title(),
                 request.content(),

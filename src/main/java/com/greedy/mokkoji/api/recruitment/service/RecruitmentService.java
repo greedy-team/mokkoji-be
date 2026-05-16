@@ -85,6 +85,7 @@ public class RecruitmentService {
     @Transactional
     public UpdateRecruitmentResponse updateRecruitment(
             final Long userId,
+            final AuthRole authRole,
             final Long recruitmentId,
             final String title,
             final String content,
@@ -94,7 +95,7 @@ public class RecruitmentService {
             final String recruitForm,
             final boolean isAlwaysRecruiting
     ) {
-        validateAdmin(userId);
+        validateAdmin(authRole, userId);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
