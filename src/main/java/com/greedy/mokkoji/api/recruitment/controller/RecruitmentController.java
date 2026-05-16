@@ -39,6 +39,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
                 HttpStatus.CREATED,
                 recruitmentService.createRecruitment(
                         authCredential.userId(),
+                        authCredential.authRole(),
                         clubId,
                         request.title(),
                         request.content(),
