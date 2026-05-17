@@ -27,7 +27,6 @@ import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
-import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -95,10 +94,12 @@ public class RecruitmentService {
             final String recruitForm,
             final boolean isAlwaysRecruiting
     ) {
-        validateAdmin(authRole, userId);
+        validateUserRole(authRole);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+
+        validateMaster(recruitment.getClub(), userId);
 
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
 
@@ -110,10 +111,12 @@ public class RecruitmentService {
 
     @Transactional
     public DeleteRecruitmentResponse deleteRecruitment(final AuthRole authRole, final Long userId, final Long recruitmentId) {
-        validateAdmin(authRole, userId);
+        validateUserRole(authRole);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+
+        validateMaster(recruitment.getClub(), userId);
 
         List<String> deleteImageUrls = deleteImages(recruitmentId);
         recruitmentRepository.delete(recruitment);
@@ -213,15 +216,17 @@ public class RecruitmentService {
         return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
     }
 
-    private void validateAdmin(AuthRole authRole, Long userId) {
-        if (!authRole.equals(AuthRole.USER)) {
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
-
+    private void validateMaster(Club club, Long userId) {
         User user = findUserOrThrow(userId);
 
-        if (user.getRole().equals(UserRole.NORMAL)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN);
+        if (!user.canManageClub(club)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
+        }
+    }
+
+    private void validateUserRole(AuthRole authRole) {
+        if (!authRole.equals(AuthRole.USER)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
         }
     }
 
