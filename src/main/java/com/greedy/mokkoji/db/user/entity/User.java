@@ -64,6 +64,6 @@ public class User extends BaseTime {
     }
 
     public boolean canManageClub(Club club) {
-        return this.role == UserRole.CLUB_MASTER && club.getMasterId().equals(this.id);
+        return this.role == UserRole.CLUB_MASTER && club.getMaster().id.equals(this.id);
     }
 }
