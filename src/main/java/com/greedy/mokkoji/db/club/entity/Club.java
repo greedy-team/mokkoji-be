@@ -2,6 +2,7 @@ package com.greedy.mokkoji.db.club.entity;
 
 import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.university.entity.University;
+import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import jakarta.persistence.*;
@@ -45,8 +46,9 @@ public class Club extends BaseTime {
     @Column(name = "instagram", columnDefinition = "text")
     private String instagram;
 
-    @Column(name = "master_id", columnDefinition = "varchar(20)")
-    private String masterId;
+    @Column(name = "master_id", columnDefinition = "bigint")
+    @OneToOne(fetch = FetchType.LAZY)
+    private User master;
 
     @Builder
     public Club(
@@ -57,7 +59,7 @@ public class Club extends BaseTime {
             final String description,
             final String logo,
             final String instagram,
-            final String masterId
+            final User master
     ) {
         this.name = name;
         this.university = university;
@@ -66,7 +68,7 @@ public class Club extends BaseTime {
         this.description = description;
         this.logo = logo;
         this.instagram = instagram;
-        this.masterId = masterId;
+        this.master = master;
     }
 
     public void updateIfPresent(
