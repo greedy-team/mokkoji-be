@@ -303,7 +303,7 @@ public class ClubService {
     }
 
     private Club validateClubManagerAuthority(final AuthRole authRole, final Long userId, final Long clubId) { //권한 부여: CLUB_MASTER
-        if (AuthRole.USER.equals(authRole)) {
+        if (!AuthRole.USER.equals(authRole)) {
             throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
         }
 
