@@ -19,7 +19,6 @@ public class JwtUtil {
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60; // 1시간
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 14; //14일
 
-    private static final String UNIVERSITY_CODE_KEY = "universityCode";
     private static final String AUTH_ROLE_KEY = "authRole";
 
     @Value("${jwt.secret}")
@@ -37,7 +36,6 @@ public class JwtUtil {
     public String generateAccessToken(AuthCredential credential) {
         return Jwts.builder()
                 .setSubject(String.valueOf(credential.userId()))
-                .claim(UNIVERSITY_CODE_KEY, credential.universityCode().name())
                 .claim(AUTH_ROLE_KEY, credential.authRole().name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
@@ -48,7 +46,6 @@ public class JwtUtil {
     public String generateRefreshToken(AuthCredential credential) {
         return Jwts.builder()
                 .setSubject(String.valueOf(credential.userId()))
-                .claim(UNIVERSITY_CODE_KEY, credential.universityCode().name())
                 .claim(AUTH_ROLE_KEY, credential.authRole().name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
@@ -65,10 +62,9 @@ public class JwtUtil {
                     .getBody();
 
             Long userId = Long.parseLong(claims.getSubject());
-            UniversityCode universityCode = UniversityCode.valueOf(claims.get(UNIVERSITY_CODE_KEY, String.class));
             AuthRole authRole = AuthRole.valueOf(claims.get(AUTH_ROLE_KEY, String.class));
 
-            return new AuthCredential(universityCode, authRole, userId);
+            return new AuthCredential(authRole, userId);
 
         } catch (ExpiredJwtException e) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_EXPIRED);
