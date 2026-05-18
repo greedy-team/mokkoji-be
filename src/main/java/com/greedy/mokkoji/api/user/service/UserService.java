@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.user.service;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.external.sejong.SejongLoginRestClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
@@ -10,7 +11,6 @@ import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
-import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
@@ -78,14 +78,15 @@ public class UserService {
 
     @Transactional
     public String refreshAccessToken(String refreshToken) {
-        final Long userId = jwtUtil.getCredentialFromToken(refreshToken).userId();
+        final AuthCredential credential = jwtUtil.getCredentialFromToken(refreshToken);
+        final Long userId = credential.userId();
 
         String storedRefreshToken = tokenService.getRefreshToken(userId);
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
 
-        return jwtUtil.generateAccessToken(userId);
+        return jwtUtil.generateAccessToken(credential);
     }
 
     @Transactional
