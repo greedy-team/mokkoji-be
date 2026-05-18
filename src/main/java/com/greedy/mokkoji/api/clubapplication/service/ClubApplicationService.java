@@ -1,6 +1,8 @@
 package com.greedy.mokkoji.api.clubapplication.service;
 
 import com.greedy.mokkoji.api.clubapplication.dto.request.ClubApplicationCreateRequest;
+import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationResponse;
+import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationsResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.clubapplication.entity.ClubApplication;
 import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepository;
@@ -13,6 +15,8 @@ import com.greedy.mokkoji.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,5 +51,18 @@ public class ClubApplicationService {
                 .build();
 
         clubApplicationRepository.save(clubApplication);
+    }
+
+    @Transactional(readOnly = true)
+    public ClubApplicationsResponse getMyClubApplications(final Long userId) {
+        final User user = userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+
+        final List<ClubApplicationResponse> clubApplications = clubApplicationRepository.findByApplicant(user)
+                .stream()
+                .map(ClubApplicationResponse::from)
+                .toList();
+
+        return ClubApplicationsResponse.of(clubApplications);
     }
 }
