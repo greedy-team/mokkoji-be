@@ -4,7 +4,6 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
-import com.greedy.mokkoji.enums.university.UniversityCode;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;

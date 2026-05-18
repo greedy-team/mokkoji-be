@@ -5,7 +5,6 @@ import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.db.user.repository.RedisRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
-import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

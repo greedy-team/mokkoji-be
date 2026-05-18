@@ -11,7 +11,6 @@ import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.auth.AuthRole;
-import com.greedy.mokkoji.enums.university.UniversityCode;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
