@@ -46,7 +46,7 @@ public class Club extends BaseTime {
     @Column(name = "instagram", columnDefinition = "text")
     private String instagram;
 
-    @Column(name = "master_id", columnDefinition = "bigint")
+    @JoinColumn(name = "master_id", columnDefinition = "bigint")
     @OneToOne(fetch = FetchType.LAZY)
     private User master;
 
