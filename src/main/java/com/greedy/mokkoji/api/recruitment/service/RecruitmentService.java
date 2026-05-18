@@ -69,10 +69,13 @@ public class RecruitmentService {
             final String recruitForm,
             final boolean isAlwaysRecruiting) {
 
-        validateAdmin(authRole, userId);
+        validateUserRole(authRole);
+
 
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+
+        validateMaster(club, userId);
 
         Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm,
                 isAlwaysRecruiting);
