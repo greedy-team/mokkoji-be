@@ -1,0 +1,51 @@
+package com.greedy.mokkoji.api.clubapplication.service;
+
+import com.greedy.mokkoji.api.clubapplication.dto.request.ClubApplicationCreateRequest;
+import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.db.clubapplication.entity.ClubApplication;
+import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepository;
+import com.greedy.mokkoji.db.university.entity.University;
+import com.greedy.mokkoji.db.university.repository.UniversityRepository;
+import com.greedy.mokkoji.db.user.entity.User;
+import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.clubApplication.ClubApplicationStatus;
+import com.greedy.mokkoji.enums.message.FailMessage;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class ClubApplicationService {
+
+    private final ClubApplicationRepository clubApplicationRepository;
+    private final UserRepository userRepository;
+    private final UniversityRepository universityRepository;
+
+    @Transactional
+    public void createClubApplication(final Long userId, final ClubApplicationCreateRequest request) {
+        final User user = userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+
+        final University university = universityRepository.findByCode(request.universityCode())
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
+
+        if (clubApplicationRepository.existsByApplicantAndUniversityAndStatusNot(user, university, ClubApplicationStatus.REJECTED)) {
+            throw new MokkojiException(FailMessage.CONFLICT_CLUB_APPLICATION);
+        }
+
+        final ClubApplication clubApplication = ClubApplication.builder()
+                .university(university)
+                .applicant(user)
+                .applicantName(request.applicantName())
+                .clubName(request.clubName())
+                .clubCategory(request.clubCategory())
+                .clubAffiliation(request.clubAffiliation())
+                .logo(request.logo())
+                .instagram(request.instagram())
+                .description(request.description())
+                .build();
+
+        clubApplicationRepository.save(clubApplication);
+    }
+}
