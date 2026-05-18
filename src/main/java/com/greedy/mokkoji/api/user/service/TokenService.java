@@ -17,8 +17,8 @@ public class TokenService {
     private final RedisRepository redisRepository;
     private final JwtUtil jwtUtil;
 
-    public LoginResponse generateToken(final UniversityCode universityCode, final AuthRole authRole, final Long userId) {
-        final AuthCredential credential = new AuthCredential(universityCode, authRole, userId);
+    public LoginResponse generateToken(final AuthRole authRole, final Long userId) {
+        final AuthCredential credential = new AuthCredential(authRole, userId);
         final String accessToken = jwtUtil.generateAccessToken(credential);
         final String refreshToken = jwtUtil.generateRefreshToken(credential);
         saveRefreshToken(userId, refreshToken);

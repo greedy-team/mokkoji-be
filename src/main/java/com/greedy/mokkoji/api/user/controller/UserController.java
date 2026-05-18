@@ -31,11 +31,7 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
         final User user = userService.login(request.studentId(), request.password());
 
-        UniversityCode universityCode = user.getUniversity() != null
-                ? user.getUniversity().getCode()
-                : null;
-
-        final LoginResponse loginResponse = tokenService.generateToken(universityCode, AuthRole.USER, user.getId());
+        final LoginResponse loginResponse = tokenService.generateToken(AuthRole.USER, user.getId());
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
     }
 
