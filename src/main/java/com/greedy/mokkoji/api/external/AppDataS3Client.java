@@ -34,30 +34,6 @@ public class AppDataS3Client {
         return String.format(urlFormat, bucketName, region) + fileKey;
     }
 
-//    public String getPresignedUrl(final String fileKey) {
-//        if (fileKey == null || fileKey.equals("")) {
-//            return null;
-//        }
-//
-//        final GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-//                .bucket(bucketName)
-//                .key(fileKey)
-//                .build();
-//
-//        final GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
-//                .signatureDuration(Duration.ofMinutes(15)) // 15분 동안 접근 허용
-//                .getObjectRequest(getObjectRequest)
-//                .build();
-//
-//        final PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner
-//                .presignGetObject(getObjectPresignRequest);
-//
-//        //presigned url 반환
-//        final String url = presignedGetObjectRequest.url().toString();
-//
-//        return url;
-//    }
-
     public String getPresignedPutUrl(final String fileKey) {
         if (fileKey == null || fileKey.isBlank()) {
             return null;

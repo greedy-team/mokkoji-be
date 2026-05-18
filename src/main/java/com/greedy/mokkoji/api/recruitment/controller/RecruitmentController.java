@@ -38,6 +38,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
         return APISuccessResponse.of(
                 HttpStatus.CREATED,
                 recruitmentService.createRecruitment(
+                        authCredential.authRole(),
                         authCredential.userId(),
                         clubId,
                         request.title(),
@@ -58,6 +59,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
             @RequestBody UpdateRecruitmentRequest request
     ) {
         UpdateRecruitmentResponse response = recruitmentService.updateRecruitment(
+                authCredential.authRole(),
                 authCredential.userId(),
                 recruitmentId,
                 request.title(),
@@ -77,7 +79,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
             @PathVariable("recruitmentId") final Long recruitmentId
     ) {
         DeleteRecruitmentResponse response =
-                recruitmentService.deleteRecruitment(authCredential.userId(), recruitmentId);
+                recruitmentService.deleteRecruitment(authCredential.authRole(), authCredential.userId(), recruitmentId);
         return APISuccessResponse.of(HttpStatus.OK, response);
     }
 

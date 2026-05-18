@@ -1,15 +1,7 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubPreviewResponse;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubWithLatestRecruitment;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.LatestRecruitmentInfo;
-import com.greedy.mokkoji.api.club.dto.response.allClubs.RecruitmentPreviewResponse;
+import com.greedy.mokkoji.api.club.dto.response.*;
+import com.greedy.mokkoji.api.club.dto.response.allClubs.*;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -22,6 +14,7 @@ import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
@@ -36,11 +29,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -128,11 +117,12 @@ public class ClubService {
         return AllClubsResponse.of(pageContent, pageResponse);
     }
 
+
     @Transactional
     public void createClub(final Long userId, final String name, final ClubCategory category,
                            final ClubAffiliation affiliation, final String clubMasterStudentId,
                            final UniversityCode universityCode) {
-        validateClubRegistrar(userId);
+        validateClubRegister(userId);
         String validStudentId = getValidClubMasterStudentId(clubMasterStudentId);
         University university = universityRepository.findByCode(universityCode)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
@@ -149,8 +139,8 @@ public class ClubService {
     }
 
     @Transactional(readOnly = true)
-    public ClubManageDetailResponse getClubManageDetail(final Long userId, final Long clubId) {
-        Club club = validateClubManagerAuthority(userId, clubId);
+    public ClubManageDetailResponse getClubManageDetail(final AuthRole authRole, final Long userId, final Long clubId) {
+        Club club = validateClubManagerAuthority(authRole, userId, clubId);
 
         return ClubManageDetailResponse.of(
                 club.getName(),
@@ -164,19 +154,15 @@ public class ClubService {
 
     @Transactional
     public ClubUpdateResponse updateClub(
-            final Long userId, final Long clubId, final String name, final ClubCategory category, final ClubAffiliation affiliation,
-            final String description, final String clubMasterStudentId, final String logo, final String instagram
+            final AuthRole authRole, final Long userId, final Long clubId, final String name, final ClubCategory category,
+            final ClubAffiliation affiliation, final String description, final String logo, final String instagram
     ) {
-        Club club = validateClubManagerAuthority(userId, clubId);
+        Club club = validateClubManagerAuthority(authRole, userId, clubId);
 
         String oldLogoKey = club.getLogo();
         String newLogoKey = extractLogoKey(clubId, logo);
 
-        if (clubMasterStudentId != null) {
-            changeClubMasterRole(club.getClubMasterStudentId(), clubMasterStudentId);
-        }
-
-        club.updateIfPresent(name, category, affiliation, description, clubMasterStudentId, newLogoKey, instagram);
+        club.updateIfPresent(name, category, affiliation, description, newLogoKey, instagram);
 
         String updateLogo = generatePresignedPutUrl(newLogoKey);
         String deleteLogo = generatePresignedDeleteUrl(newLogoKey, oldLogoKey);
@@ -309,18 +295,22 @@ public class ClubService {
         );
     }
 
-    private void validateClubRegistrar(final Long userId) { //권한 부여: GREEDY_ADMIN, CLUB_ADMIN
+    private void validateClubRegister(final Long userId) { //권한 부여: GREEDY_ADMIN, CLUB_ADMIN
         User adminUser = findUserOrThrow(userId);
         if (!adminUser.getRole().canRegisterClub()) {
             throw new MokkojiException(FailMessage.FORBIDDEN_REGISTER_CLUB);
         }
     }
 
-    private Club validateClubManagerAuthority(final Long userId, final Long clubId) { //권한 부여: CLUB_MASTER, CLUB_ADMIN
+    private Club validateClubManagerAuthority(final AuthRole authRole, final Long userId, final Long clubId) { //권한 부여: CLUB_MASTER
+        if (!AuthRole.USER.equals(authRole)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
+        }
+
         User user = findUserOrThrow(userId);
         Club club = findClubOrThrow(clubId);
 
-        if (!user.getRole().canManageClub(user, club)) {
+        if (!user.canManageClub(club)) {
             throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
         }
 

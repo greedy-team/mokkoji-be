@@ -1,11 +1,10 @@
 package com.greedy.mokkoji.api.jwt;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -19,6 +18,8 @@ public class JwtUtil {
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 60; // 1시간
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 14; //14일
 
+    private static final String AUTH_ROLE_KEY = "authRole";
+
     @Value("${jwt.secret}")
     private String secretKey;
     private Key key;
@@ -31,35 +32,42 @@ public class JwtUtil {
         key = new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS256.getJcaName());
     }
 
-    public String generateAccessToken(Long userId) {
+    public String generateAccessToken(AuthCredential credential) {
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .setSubject(String.valueOf(credential.userId()))
+                .claim(AUTH_ROLE_KEY, credential.authRole().name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String generateRefreshToken(Long userId) {
+    public String generateRefreshToken(AuthCredential credential) {
         return Jwts.builder()
-                .setSubject(String.valueOf(userId))
+                .setSubject(String.valueOf(credential.userId()))
+                .claim(AUTH_ROLE_KEY, credential.authRole().name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public Long getUserIdFromToken(String token) {
+    public AuthCredential getCredentialFromToken(String token) {
         try {
-            return Long.parseLong(Jwts.parserBuilder()
+            Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
-                    .getBody()
-                    .getSubject());
+                    .getBody();
+
+            Long userId = Long.parseLong(claims.getSubject());
+            AuthRole authRole = AuthRole.valueOf(claims.get(AUTH_ROLE_KEY, String.class));
+
+            return new AuthCredential(authRole, userId);
+
         } catch (ExpiredJwtException e) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_EXPIRED);
-        } catch (JwtException e) {
+        } catch (JwtException | IllegalArgumentException e) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_INVALID_TOKEN);
         }
     }

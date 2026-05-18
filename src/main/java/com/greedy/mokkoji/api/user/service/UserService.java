@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.user.service;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.external.sejong.SejongLoginRestClient;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
@@ -77,14 +78,15 @@ public class UserService {
 
     @Transactional
     public String refreshAccessToken(String refreshToken) {
-        final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+        final AuthCredential credential = jwtUtil.getCredentialFromToken(refreshToken);
+        final Long userId = credential.userId();
 
         String storedRefreshToken = tokenService.getRefreshToken(userId);
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
 
-        return jwtUtil.generateAccessToken(userId);
+        return jwtUtil.generateAccessToken(credential);
     }
 
     @Transactional
@@ -123,9 +125,7 @@ public class UserService {
     public UserManageClubsResponse getUserManageClubs(final Long userId) {
         final User user = userRepository.findById(userId).orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
-        String studentId = user.getStudentId();
-
-        List<UserManageClubResponse> clubs = clubRepository.findByClubMasterStudentId(studentId).stream()
+        List<UserManageClubResponse> clubs = clubRepository.findByMasterId(userId).stream()
                 .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
                 .toList();
 

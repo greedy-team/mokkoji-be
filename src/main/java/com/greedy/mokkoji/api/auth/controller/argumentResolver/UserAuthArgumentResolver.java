@@ -37,13 +37,11 @@ public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
         final String requestURI = request.getRequestURI();
 
         if (isExcludedRequest(requestURI, authHeader)) {
-            return new AuthCredential(null);
+            return new AuthCredential(null, null);
         }
 
         final String token = bearerAuthExtractor.extractTokenValue(authHeader);
-        final Long userId = jwtUtil.getUserIdFromToken(token);
-        return new AuthCredential(userId);
-
+        return jwtUtil.getCredentialFromToken(token);
     }
 
     private boolean isExcludedRequest(String requestURI, String authHeader) {

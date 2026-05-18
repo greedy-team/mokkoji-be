@@ -2,6 +2,7 @@ package com.greedy.mokkoji.db.club.entity;
 
 import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.university.entity.University;
+import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import jakarta.persistence.*;
@@ -45,8 +46,9 @@ public class Club extends BaseTime {
     @Column(name = "instagram", columnDefinition = "text")
     private String instagram;
 
-    @Column(name = "club_master_student_id", columnDefinition = "varchar(20)")
-    private String clubMasterStudentId;
+    @JoinColumn(name = "master_id", columnDefinition = "bigint")
+    @OneToOne(fetch = FetchType.LAZY)
+    private User master;
 
     @Builder
     public Club(
@@ -57,7 +59,7 @@ public class Club extends BaseTime {
             final String description,
             final String logo,
             final String instagram,
-            final String clubMasterStudentId
+            final User master
     ) {
         this.name = name;
         this.university = university;
@@ -66,7 +68,7 @@ public class Club extends BaseTime {
         this.description = description;
         this.logo = logo;
         this.instagram = instagram;
-        this.clubMasterStudentId = clubMasterStudentId;
+        this.master = master;
     }
 
     public void updateIfPresent(
@@ -74,7 +76,6 @@ public class Club extends BaseTime {
             ClubCategory category,
             ClubAffiliation affiliation,
             String description,
-            String clubMasterStudentId,
             String logo,
             String instagram
     ) {
@@ -82,7 +83,6 @@ public class Club extends BaseTime {
         if (category != null) this.clubCategory = category;
         if (affiliation != null) this.clubAffiliation = affiliation;
         if (description != null && !description.isBlank()) this.description = description;
-        if (clubMasterStudentId != null) this.clubMasterStudentId = clubMasterStudentId;
         if (logo != null && !logo.isBlank()) this.logo = logo;
         if (instagram != null && !instagram.isBlank()) this.instagram = instagram;
     }

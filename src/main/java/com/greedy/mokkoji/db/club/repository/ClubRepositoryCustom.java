@@ -19,12 +19,12 @@ public interface ClubRepositoryCustom {
             final ClubAffiliation affiliation,
             final RecruitStatus status,
             final Pageable pageable
-            );
+    );
 
     List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(
             final UniversityCode universityCode,
             final String keyword,
             final ClubAffiliation affiliation,
             final ClubCategory category
-            );
+    );
 }

@@ -22,11 +22,11 @@ import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
-import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,6 +58,7 @@ public class RecruitmentService {
 
     @Transactional
     public CreateRecruitmentResponse createRecruitment(
+            final AuthRole authRole,
             final Long userId,
             final Long clubId,
             final String title,
@@ -68,10 +69,13 @@ public class RecruitmentService {
             final String recruitForm,
             final boolean isAlwaysRecruiting) {
 
-        validateAdmin(userId);
+        validateUserRole(authRole);
+
 
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+
+        validateMaster(club, userId);
 
         Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm,
                 isAlwaysRecruiting);
@@ -82,6 +86,7 @@ public class RecruitmentService {
 
     @Transactional
     public UpdateRecruitmentResponse updateRecruitment(
+            final AuthRole authRole,
             final Long userId,
             final Long recruitmentId,
             final String title,
@@ -92,10 +97,12 @@ public class RecruitmentService {
             final String recruitForm,
             final boolean isAlwaysRecruiting
     ) {
-        validateAdmin(userId);
+        validateUserRole(authRole);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+
+        validateMaster(recruitment.getClub(), userId);
 
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
 
@@ -106,11 +113,13 @@ public class RecruitmentService {
     }
 
     @Transactional
-    public DeleteRecruitmentResponse deleteRecruitment(final Long userId, final Long recruitmentId) {
-        validateAdmin(userId);
+    public DeleteRecruitmentResponse deleteRecruitment(final AuthRole authRole, final Long userId, final Long recruitmentId) {
+        validateUserRole(authRole);
 
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+
+        validateMaster(recruitment.getClub(), userId);
 
         List<String> deleteImageUrls = deleteImages(recruitmentId);
         recruitmentRepository.delete(recruitment);
@@ -210,17 +219,26 @@ public class RecruitmentService {
         return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
     }
 
-    private void validateAdmin(Long userId) {
+    private void validateMaster(Club club, Long userId) {
+        User user = findUserOrThrow(userId);
+
+        if (!user.canManageClub(club)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
+        }
+    }
+
+    private void validateUserRole(AuthRole authRole) {
+        if (!AuthRole.USER.equals(authRole)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
+        }
+    }
+
+    private User findUserOrThrow(Long userId) {
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
-
-        User user = userRepository.findById(userId)
+        return userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-
-        if (user.getRole().equals(UserRole.NORMAL)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN);
-        }
     }
 
     private Recruitment buildAndSaveRecruitment(Club club, String title, String content,

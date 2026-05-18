@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.db.user.entity;
 
 import com.greedy.mokkoji.db.BaseTime;
+import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.enums.user.UserRole;
 import jakarta.persistence.*;
@@ -60,5 +61,9 @@ public class User extends BaseTime {
 
     public void updateEmailOn(boolean isEmailOn) {
         this.isEmailOn = isEmailOn;
+    }
+
+    public boolean canManageClub(Club club) {
+        return this.role == UserRole.CLUB_MASTER && club.getMaster().id.equals(this.id);
     }
 }
