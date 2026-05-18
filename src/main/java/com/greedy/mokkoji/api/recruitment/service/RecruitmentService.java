@@ -228,7 +228,7 @@ public class RecruitmentService {
     }
 
     private void validateUserRole(AuthRole authRole) {
-        if (!authRole.equals(AuthRole.USER)) {
+        if (!AuthRole.USER.equals(authRole)) {
             throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
         }
     }
