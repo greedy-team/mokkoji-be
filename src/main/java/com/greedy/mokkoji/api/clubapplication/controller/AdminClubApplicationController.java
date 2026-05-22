@@ -4,6 +4,7 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.clubapplication.dto.request.ClubApplicationRejectRequest;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationsResponse;
+import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubsResponse;
 import com.greedy.mokkoji.api.clubapplication.service.ClubApplicationService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.enums.clubApplication.ClubApplicationStatus;
@@ -27,6 +28,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminClubApplicationController {
 
     private final ClubApplicationService clubApplicationService;
+
+    @GetMapping("/clubs")
+    public ResponseEntity<APISuccessResponse<AdminClubsResponse>> getAdminClubs(
+            @Authentication final AuthCredential authCredential,
+            @RequestParam(required = false) final UniversityCode universityCode,
+            @RequestParam(value = "page") final int page,
+            @RequestParam(value = "size") final int size
+    ) {
+        final Pageable pageable = PageRequest.of(page - 1, size);
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                clubApplicationService.getAdminClubs(authCredential.authRole(), authCredential.userId(), universityCode, pageable)
+        );
+    }
 
     @GetMapping
     public ResponseEntity<APISuccessResponse<AdminClubApplicationsResponse>> getAdminClubApplications(

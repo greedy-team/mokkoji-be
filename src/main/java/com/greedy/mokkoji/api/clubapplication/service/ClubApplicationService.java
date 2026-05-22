@@ -3,6 +3,8 @@ package com.greedy.mokkoji.api.clubapplication.service;
 import com.greedy.mokkoji.api.clubapplication.dto.request.ClubApplicationCreateRequest;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationsResponse;
+import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubResponse;
+import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubsResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationsResponse;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
@@ -167,6 +169,35 @@ public class ClubApplicationService {
         }
 
         clubApplication.reject(rejectReason);
+    }
+
+    @Transactional(readOnly = true)
+    public AdminClubsResponse getAdminClubs(
+            final AuthRole authRole,
+            final Long adminId,
+            final UniversityCode universityCode,
+            final Pageable pageable
+    ) {
+        if (!AuthRole.ADMIN.equals(authRole)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN);
+        }
+
+        final Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+
+        final UniversityCode targetUniversityCode = resolveUniversityCode(admin, universityCode);
+
+        final Page<Club> page = clubRepository.findClubsForAdmin(targetUniversityCode, pageable);
+
+        final List<AdminClubResponse> clubs = page.getContent()
+                .stream()
+                .map(AdminClubResponse::from)
+                .toList();
+
+        return AdminClubsResponse.of(
+                clubs,
+                PageResponse.of(page.getNumber(), page.getSize(), page.getTotalPages(), (int) page.getTotalElements())
+        );
     }
 
     private UniversityCode resolveUniversityCode(final Admin admin, final UniversityCode universityCode) {
