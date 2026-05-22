@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ClubApplicationRepository extends JpaRepository<ClubApplication, Long> {
+public interface ClubApplicationRepository extends JpaRepository<ClubApplication, Long>, ClubApplicationRepositoryCustom {
 
     boolean existsByApplicantAndUniversityAndStatusNot(User applicant, University university, ClubApplicationStatus status);
 
