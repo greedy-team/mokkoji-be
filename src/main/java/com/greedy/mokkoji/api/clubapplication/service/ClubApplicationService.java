@@ -145,6 +145,30 @@ public class ClubApplicationService {
         clubApplication.approve();
     }
 
+    @Transactional
+    public void rejectClubApplication(final AuthRole authRole, final Long adminId, final Long applicationId, final String rejectReason) {
+        if (!AuthRole.ADMIN.equals(authRole)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN);
+        }
+
+        final Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+
+        final ClubApplication clubApplication = clubApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB_APPLICATION));
+
+        if (admin.getRole() == AdminRole.UNIVERSITY_ADMIN &&
+                !admin.getUniversity().getCode().equals(clubApplication.getUniversity().getCode())) {
+            throw new MokkojiException(FailMessage.FORBIDDEN);
+        }
+
+        if (clubApplication.getStatus() != ClubApplicationStatus.PENDING) {
+            throw new MokkojiException(FailMessage.CONFLICT_CLUB_APPLICATION_STATUS);
+        }
+
+        clubApplication.reject(rejectReason);
+    }
+
     private UniversityCode resolveUniversityCode(final Admin admin, final UniversityCode universityCode) {
         if (admin.getRole() == AdminRole.UNIVERSITY_ADMIN) {
             return admin.getUniversity().getCode();
