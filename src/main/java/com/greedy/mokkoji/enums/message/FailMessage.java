@@ -37,6 +37,7 @@ public enum FailMessage {
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, 40405, "댓글을 찾을 수 없습니다."),
     NOT_FOUNT_RECRUITMENT(HttpStatus.NOT_FOUND, 40406, "모집글을 찾을 수 없습니다."),
     NOT_FOUND_UNIVERSITY(HttpStatus.NOT_FOUND, 40407, "학교를 찾을 수 없습니다."),
+    NOT_FOUND_CLUB_APPLICATION(HttpStatus.NOT_FOUND, 40408, "동아리 생성 신청을 찾을 수 없습니다."),
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 40500, "잘못된 HTTP 메소드 요청입니다."),
@@ -46,6 +47,7 @@ public enum FailMessage {
     CONFLICT_INTEGRITY(HttpStatus.CONFLICT, 40901, "데이터 무결성 위반입니다."),
     CONFLICT_FAVORITE(HttpStatus.CONFLICT, 40902, "이미 즐겨찾기 목록에 추가된 동아리입니다."),
     CONFLICT_CLUB_APPLICATION(HttpStatus.CONFLICT, 40903, "동아리 생성 신청이 이미 진행 중입니다."),
+    CONFLICT_CLUB_APPLICATION_STATUS(HttpStatus.CONFLICT, 40904, "처리 가능한 상태의 신청이 아닙니다."),
 
     //500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다."),

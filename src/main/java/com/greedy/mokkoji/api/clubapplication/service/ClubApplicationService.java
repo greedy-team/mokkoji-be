@@ -11,10 +11,13 @@ import com.greedy.mokkoji.db.admin.entity.Admin;
 import com.greedy.mokkoji.db.admin.repository.AdminRepository;
 import com.greedy.mokkoji.db.clubapplication.entity.ClubApplication;
 import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepository;
+import com.greedy.mokkoji.db.club.entity.Club;
+import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.user.UserRole;
 import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.clubApplication.ClubApplicationStatus;
@@ -33,6 +36,7 @@ import java.util.List;
 public class ClubApplicationService {
 
     private final ClubApplicationRepository clubApplicationRepository;
+    private final ClubRepository clubRepository;
     private final UserRepository userRepository;
     private final UniversityRepository universityRepository;
     private final AdminRepository adminRepository;
@@ -105,6 +109,40 @@ public class ClubApplicationService {
                 applications,
                 PageResponse.of(page.getNumber(), page.getSize(), page.getTotalPages(), (int) page.getTotalElements())
         );
+    }
+
+    @Transactional
+    public void approveClubApplication(final AuthRole authRole, final Long adminId, final Long applicationId) {
+        if (!AuthRole.ADMIN.equals(authRole)) {
+            throw new MokkojiException(FailMessage.FORBIDDEN);
+        }
+
+        adminRepository.findById(adminId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+
+        final ClubApplication clubApplication = clubApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB_APPLICATION));
+
+        if (clubApplication.getStatus() != ClubApplicationStatus.PENDING) {
+            throw new MokkojiException(FailMessage.CONFLICT_CLUB_APPLICATION_STATUS);
+        }
+
+        final User applicant = clubApplication.getApplicant();
+        applicant.updateRole(UserRole.CLUB_MASTER);
+
+        final Club club = Club.builder()
+                .name(clubApplication.getClubName())
+                .university(clubApplication.getUniversity())
+                .clubCategory(clubApplication.getClubCategory())
+                .clubAffiliation(clubApplication.getClubAffiliation())
+                .logo(clubApplication.getLogo())
+                .instagram(clubApplication.getInstagram())
+                .description(clubApplication.getDescription())
+                .master(applicant)
+                .build();
+
+        clubRepository.save(club);
+        clubApplication.approve();
     }
 
     private UniversityCode resolveUniversityCode(final Admin admin, final UniversityCode universityCode) {
