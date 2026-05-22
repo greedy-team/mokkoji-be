@@ -119,11 +119,16 @@ public class ClubApplicationService {
             throw new MokkojiException(FailMessage.FORBIDDEN);
         }
 
-        adminRepository.findById(adminId)
+        final Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
         final ClubApplication clubApplication = clubApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB_APPLICATION));
+
+        if (admin.getRole() == AdminRole.UNIVERSITY_ADMIN &&
+                !admin.getUniversity().getCode().equals(clubApplication.getUniversity().getCode())) {
+            throw new MokkojiException(FailMessage.FORBIDDEN);
+        }
 
         if (clubApplication.getStatus() != ClubApplicationStatus.PENDING) {
             throw new MokkojiException(FailMessage.CONFLICT_CLUB_APPLICATION_STATUS);
