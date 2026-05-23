@@ -36,9 +36,13 @@ public class ClubMasterService {
             final String userName
     ) {
         University university = findUniversityOrThrow(universityCode);
-        Club club = findClubOrThrow(clubId);
-        User user = findUserOrThrow(userId);
 
+        Club club = findClubOrThrow(clubId);
+        if (club.getMaster() != null) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_ALREADY_EXIST_CLUB_MASTER);
+        }
+
+        User user = findUserOrThrow(userId);
         user.updateName(userName);
 
         ClubMasterApplication application = ClubMasterApplication.builder()

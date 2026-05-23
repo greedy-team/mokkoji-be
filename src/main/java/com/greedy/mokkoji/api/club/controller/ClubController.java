@@ -78,7 +78,6 @@ public class ClubController implements ClubControllerSwagger {
         );
     }
 
-
     @PatchMapping("/manage/{clubId}")
     public ResponseEntity<APISuccessResponse<ClubUpdateResponse>> updateClub(
             @PathVariable(name = "clubId") final Long clubId,
