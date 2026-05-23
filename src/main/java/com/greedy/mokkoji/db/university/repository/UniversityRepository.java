@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface UniversityRepository extends JpaRepository<University, Long> {
-
     Optional<University> findByCode(UniversityCode code);
+
+    Optional<University> findByUniversityCode(UniversityCode universityCode);
 }

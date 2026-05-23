@@ -49,15 +49,13 @@ public class ClubMasterApplication extends BaseTime {
             final University university,
             final Club club,
             final User user,
-            final String userName,
-            final String rejectReason
+            final String userName
     ) {
         this.university = university;
         this.club = club;
         this.user = user;
         this.userName = userName;
         this.status = ApplicationStatus.PENDING;
-        this.rejectReason = rejectReason;
     }
 
     public void approve() {
