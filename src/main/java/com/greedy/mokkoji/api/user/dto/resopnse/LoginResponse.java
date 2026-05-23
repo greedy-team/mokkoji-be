@@ -6,12 +6,14 @@ import lombok.Builder;
 @Builder
 public record LoginResponse(
         @Schema(example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...") String accessToken,
-        @Schema(example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...") String refreshToken
+        @Schema(example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...") String refreshToken,
+        @Schema(example = "false") Boolean isNewUser
 ) {
-    public static LoginResponse of(final String accessToken, final String refreshToken) {
+    public static LoginResponse of(final String accessToken, final String refreshToken, final Boolean isNewUser) {
         return LoginResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .isNewUser(isNewUser)
                 .build();
     }
 }

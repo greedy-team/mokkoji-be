@@ -1,8 +1,8 @@
 package com.greedy.mokkoji.api.user.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
-import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
+import com.greedy.mokkoji.api.user.dto.request.kakao.KakaoSocialLoginRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.*;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,12 +17,12 @@ import org.springframework.http.ResponseEntity;
 public interface UserControllerSwagger {
 
     @Operation(
-            summary = "로그인 API",
-            description = "`학번`과 `세종포털 비밀번호`를 통해 로그인을 수행합니다."
+            summary = "카카오 로그인 API",
+            description = "프론트에서 카카오 OAuth 완료 후 받은 `authorization code`를 전달하여 로그인을 수행합니다. "
     )
-    @ApiResponse(responseCode = "200", description = "로그인 성공")
-    ResponseEntity<APISuccessResponse<LoginResponse>> login(
-            @Parameter(name = "request", description = "로그인 요청 본문") LoginRequest request
+    @ApiResponse(responseCode = "200", description = "카카오 로그인 성공")
+    ResponseEntity<APISuccessResponse<LoginResponse>> kakaoLogin(
+            @Parameter(name = "request", description = "카카오 로그인 요청 본문") KakaoSocialLoginRequest request
     );
 
     @Operation(

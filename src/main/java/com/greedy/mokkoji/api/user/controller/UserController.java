@@ -3,14 +3,12 @@ package com.greedy.mokkoji.api.user.controller;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.jwt.BearerAuthExtractor;
-import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
+import com.greedy.mokkoji.api.user.dto.request.kakao.KakaoSocialLoginRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.*;
-import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.db.user.entity.User;
-import com.greedy.mokkoji.enums.auth.AuthRole;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,13 +22,12 @@ public class UserController implements UserControllerSwagger {
 
     private final BearerAuthExtractor bearerAuthExtractor;
     private final UserService userService;
-    private final TokenService tokenService;
 
-    @PostMapping("/auth/login")
-    public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
-        final User user = userService.login(request.studentId(), request.password());
-
-        final LoginResponse loginResponse = tokenService.generateToken(AuthRole.USER, user.getId());
+    @PostMapping("/auth/kakao")
+    public ResponseEntity<APISuccessResponse<LoginResponse>> kakaoLogin(
+            @RequestBody final KakaoSocialLoginRequest request
+    ) {
+        final LoginResponse loginResponse = userService.kakaoLogin(request.code());
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
     }
 

@@ -16,12 +16,12 @@ public class TokenService {
     private final RedisRepository redisRepository;
     private final JwtUtil jwtUtil;
 
-    public LoginResponse generateToken(final AuthRole authRole, final Long userId) {
+    public LoginResponse generateToken(final AuthRole authRole, final Long userId, final boolean isNewUser) {
         final AuthCredential credential = new AuthCredential(authRole, userId);
         final String accessToken = jwtUtil.generateAccessToken(credential);
         final String refreshToken = jwtUtil.generateRefreshToken(credential);
         saveRefreshToken(userId, refreshToken);
-        return LoginResponse.of(accessToken, refreshToken);
+        return LoginResponse.of(accessToken, refreshToken, isNewUser);
     }
 
     private void saveRefreshToken(Long userId, String refreshToken) {
