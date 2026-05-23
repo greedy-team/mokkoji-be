@@ -1,10 +1,10 @@
-package com.greedy.mokkoji.api.clubMasterApplication.dto.response;
+package com.greedy.mokkoji.api.clubMaster.dto.response;
 
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
 
 import java.time.LocalDateTime;
 
-public record GetClubMasterApplicationsResponse(
+public record GetMyClubMasterApplicationsResponse(
         Long id,
         String universityName,
         String clubName,
@@ -12,5 +12,6 @@ public record GetClubMasterApplicationsResponse(
         ApplicationStatus status,
         String rejectReason,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt) {
+        LocalDateTime updatedAt
+) {
 }

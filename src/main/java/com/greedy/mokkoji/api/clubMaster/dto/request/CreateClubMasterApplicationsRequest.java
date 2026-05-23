@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.clubMasterApplication.dto.request;
+package com.greedy.mokkoji.api.clubMaster.dto.request;
 
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import io.swagger.v3.oas.annotations.media.Schema;

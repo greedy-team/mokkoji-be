@@ -1,26 +1,28 @@
-package com.greedy.mokkoji.api.clubMasterApplication.controller;
+package com.greedy.mokkoji.api.clubMaster.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.clubMasterApplication.dto.request.CreateClubMasterApplicationsRequest;
-import com.greedy.mokkoji.api.clubMasterApplication.dto.response.GetMyClubMasterApplicationsResponse;
-import com.greedy.mokkoji.api.clubMasterApplication.service.ClubMasterApplicationService;
+import com.greedy.mokkoji.api.clubMaster.dto.request.CreateClubMasterApplicationsRequest;
+import com.greedy.mokkoji.api.clubMaster.dto.response.GetMyClubMasterApplicationsResponse;
+import com.greedy.mokkoji.api.clubMaster.service.ClubMasterService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/club-master-applications")
-public class ClubMasterApplicationController {
+public class ClubMasterController {
 
-    private final ClubMasterApplicationService clubMasterApplicationService;
+    private final ClubMasterService clubMasterApplicationService;
 
-    @PostMapping
+    @PostMapping("/club-master-applications")
     public ResponseEntity<APISuccessResponse<Void>> createClubMasterApplication(
             @Authentication final AuthCredential authCredential,
             @RequestBody final CreateClubMasterApplicationsRequest request
@@ -35,7 +37,7 @@ public class ClubMasterApplicationController {
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
-    @GetMapping("/me")
+    @GetMapping("/club-master-applications/me")
     public ResponseEntity<APISuccessResponse<List<GetMyClubMasterApplicationsResponse>>> getMyClubMasterApplications(
             @Authentication final AuthCredential authCredential
     ) {
