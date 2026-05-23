@@ -1,7 +1,6 @@
 package com.greedy.mokkoji.api.club.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
-import com.greedy.mokkoji.api.club.dto.request.ClubCreateRequest;
 import com.greedy.mokkoji.api.club.dto.request.ClubSearchCond;
 import com.greedy.mokkoji.api.club.dto.request.ClubUpdateRequest;
 import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
@@ -45,16 +44,6 @@ public interface ClubControllerSwagger {
             @Parameter(name = "universityCode", description = "대학교 코드") UniversityCode universityCode,
             @Parameter(name = "page", description = "페이지 번호") int page,
             @Parameter(name = "size", description = "페이지 크기") int size
-    );
-
-    @Operation(
-            summary = "동아리 생성 API",
-            security = {@SecurityRequirement(name = "JWT")}
-    )
-    @ApiResponse(responseCode = "201", description = "동아리 생성 성공")
-    ResponseEntity<APISuccessResponse<Void>> createClub(
-            @Parameter(name = "clubCreateRequest", description = "동아리 생성 요청") ClubCreateRequest clubCreateRequest,
-            @Parameter(hidden = true) AuthCredential authCredential
     );
 
     @Operation(
