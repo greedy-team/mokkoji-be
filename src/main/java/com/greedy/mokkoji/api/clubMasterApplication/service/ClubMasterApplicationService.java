@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.clubMasterApplication.service;
 
+import com.greedy.mokkoji.api.clubMasterApplication.dto.response.GetMyClubMasterApplicationResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -14,6 +15,8 @@ import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +39,8 @@ public class ClubMasterApplicationService {
         Club club = getClubOrThrow(clubId);
         User user = getUserOrThrow(userId);
 
+        user.updateName(userName);
+
         ClubMasterApplication application = ClubMasterApplication.builder()
                 .university(university)
                 .club(club)
@@ -44,6 +49,27 @@ public class ClubMasterApplicationService {
                 .build();
 
         clubMasterApplicationRepository.save(application);
+    }
+
+    @Transactional
+    public List<GetMyClubMasterApplicationResponse> getMyClubMasterApplication(
+            final Long userId
+    ) {
+        User user = getUserOrThrow(userId);
+        List<ClubMasterApplication> applications = clubMasterApplicationRepository.findByUserId(user.getId());
+
+        return applications.stream()
+                .map(application -> new GetMyClubMasterApplicationResponse(
+                        application.getId(),
+                        application.getUniversity().getName(),
+                        application.getClub().getName(),
+                        application.getUserName(),
+                        application.getStatus(),
+                        application.getRejectReason(),
+                        application.getCreatedAt(),
+                        application.getUpdatedAt()
+                ))
+                .toList();
     }
 
     private University getUniversityOrThrow(final UniversityCode universityCode) {

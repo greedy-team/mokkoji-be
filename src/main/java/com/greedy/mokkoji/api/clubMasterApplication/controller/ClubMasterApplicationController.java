@@ -2,16 +2,16 @@ package com.greedy.mokkoji.api.clubMasterApplication.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.clubMasterApplication.dto.ClubMasterApplicationCreateRequest;
+import com.greedy.mokkoji.api.clubMasterApplication.dto.request.CreateClubMasterApplicationRequest;
+import com.greedy.mokkoji.api.clubMasterApplication.dto.response.GetMyClubMasterApplicationResponse;
 import com.greedy.mokkoji.api.clubMasterApplication.service.ClubMasterApplicationService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class ClubMasterApplicationController {
     @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createClubMasterApplication(
             @Authentication final AuthCredential authCredential,
-            @RequestBody final ClubMasterApplicationCreateRequest request
+            @RequestBody final CreateClubMasterApplicationRequest request
     ) {
         clubMasterApplicationService.createClubMasterApplication(
                 authCredential.userId(),
@@ -33,5 +33,15 @@ public class ClubMasterApplicationController {
         );
 
         return APISuccessResponse.of(HttpStatus.CREATED, null);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<APISuccessResponse<List<GetMyClubMasterApplicationResponse>>> getMyClubMasterApplication(
+            @Authentication final AuthCredential authCredential
+    ) {
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                clubMasterApplicationService.getMyClubMasterApplication(authCredential.userId())
+        );
     }
 }

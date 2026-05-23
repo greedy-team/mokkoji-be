@@ -11,7 +11,9 @@ public record UpdateUserInformationRequest(
         )
         String email,
         @Schema(example = "false")
-        Boolean isEmailOn
+        Boolean isEmailOn,
+        @Schema(example = "김세종")
+        String name
 ) {
 
 }
