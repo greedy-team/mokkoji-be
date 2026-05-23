@@ -9,4 +9,6 @@ public interface ClubMasterApplicationRepository extends JpaRepository<ClubMaste
     List<ClubMasterApplication> findByUserIdOrderByCreatedAtDesc(Long userId);
 
     List<ClubMasterApplication> findByUniversityIdOrderByCreatedAtAsc(Long universityId);
+
+    List<ClubMasterApplication> findAllByOrderByCreatedAtAsc();
 }

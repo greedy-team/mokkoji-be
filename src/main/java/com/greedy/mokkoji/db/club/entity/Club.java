@@ -5,6 +5,7 @@ import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.user.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -69,6 +70,16 @@ public class Club extends BaseTime {
         this.logo = logo;
         this.instagram = instagram;
         this.master = master;
+    }
+
+    public void updateMaster(User nextMaster) {
+        if (this.master != null) {
+            User previousMaster = this.master;
+            previousMaster.updateRole(UserRole.NORMAL);
+        }
+
+        this.master = nextMaster;
+        nextMaster.updateRole(UserRole.CLUB_MASTER);
     }
 
     public void updateIfPresent(

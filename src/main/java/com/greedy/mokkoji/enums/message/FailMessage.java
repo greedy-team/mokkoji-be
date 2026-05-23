@@ -28,6 +28,7 @@ public enum FailMessage {
     FORBIDDEN_ALREADY_EXIST_COMMENT(HttpStatus.FORBIDDEN, 40303, "이미 댓글이 존재합니다."),
     FORBIDDEN_NOT_COMMENT_WRITER(HttpStatus.FORBIDDEN, 40304, "댓글을 작성한 사용자가 아닙니다."),
     FORBIDDEN_MANAGE_UNIVERSITY_CLUB(HttpStatus.FORBIDDEN, 40305, "대학 동아리들을 관리할 수 있는 권한이 없습니다."),
+    FORBIDDEN_MANAGE_THIS_UNIVERSITY_CLUB(HttpStatus.FORBIDDEN, 40306, "해당 대학의 동아리들을 관리할 수 있는 권한이 없습니다."),
 
     //404
     NOT_FOUND(HttpStatus.NOT_FOUND, 40400, "리소스를 찾을 수 없습니다."),
@@ -39,6 +40,7 @@ public enum FailMessage {
     NOT_FOUNT_RECRUITMENT(HttpStatus.NOT_FOUND, 40406, "모집글을 찾을 수 없습니다."),
     NOT_FOUND_UNIVERSITY(HttpStatus.NOT_FOUND, 40407, "학교를 찾을 수 없습니다."),
     NOT_FOUND_ADMIN(HttpStatus.NOT_FOUND, 40408, "관리자를 찾을 수 없습니다."),
+    NOT_FOUND_CLUB_MASTER_APPLICATION(HttpStatus.NOT_FOUND, 40409, "동아리장 신청서를 찾을 수 없습니다."),
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 40500, "잘못된 HTTP 메소드 요청입니다."),

@@ -35,9 +35,9 @@ public class ClubMasterService {
             final Long clubId,
             final String userName
     ) {
-        University university = getUniversityOrThrow(universityCode);
-        Club club = getClubOrThrow(clubId);
-        User user = getUserOrThrow(userId);
+        University university = findUniversityOrThrow(universityCode);
+        Club club = findClubOrThrow(clubId);
+        User user = findUserOrThrow(userId);
 
         user.updateName(userName);
 
@@ -55,7 +55,7 @@ public class ClubMasterService {
     public List<GetMyClubMasterApplicationsResponse> getMyClubMasterApplications(
             final Long userId
     ) {
-        User user = getUserOrThrow(userId);
+        User user = findUserOrThrow(userId);
         List<ClubMasterApplication> applications = clubMasterApplicationRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
 
         return applications.stream()
@@ -72,17 +72,17 @@ public class ClubMasterService {
                 .toList();
     }
 
-    private University getUniversityOrThrow(final UniversityCode universityCode) {
+    private University findUniversityOrThrow(final UniversityCode universityCode) {
         return universityRepository.findByUniversityCode(universityCode)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
     }
 
-    private Club getClubOrThrow(final Long clubId) {
+    private Club findClubOrThrow(final Long clubId) {
         return clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
     }
 
-    private User getUserOrThrow(final Long userId) {
+    private User findUserOrThrow(final Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
