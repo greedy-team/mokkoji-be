@@ -1,10 +1,12 @@
 package com.greedy.mokkoji.user.service;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.RedisRepository;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -17,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,18 +42,16 @@ public class TokenServiceTest {
         // given
         final User expected = User.builder()
                 .name("세종")
-                .grade("4")
-                .studentId("학번")
-                .department("컴공과")
+                .kakaoId("kakao-12341234")
                 .build();
         ReflectionTestUtils.setField(expected, "id", 1L);
 
-        when(jwtUtil.generateAccessToken(expected.getId())).thenReturn("mockAccessToken");
-        when(jwtUtil.generateRefreshToken(expected.getId())).thenReturn("mockRefreshToken");
+        when(jwtUtil.generateAccessToken(any(AuthCredential.class))).thenReturn("mockAccessToken");
+        when(jwtUtil.generateRefreshToken(any(AuthCredential.class))).thenReturn("mockRefreshToken");
         doNothing().when(redisRepository).save(anyString(), anyString(), anyLong());
 
         // when
-        LoginResponse loginResponse = tokenService.generateToken(expected.getId());
+        LoginResponse loginResponse = tokenService.generateToken(AuthRole.USER, expected.getId(), false);
 
         // then
         assertThat(loginResponse).isNotNull();
@@ -66,19 +67,17 @@ public class TokenServiceTest {
         // given
         final User user = User.builder()
                 .name("세종")
-                .grade("4")
-                .studentId("학번")
-                .department("컴공과")
+                .kakaoId("kakao-12341234")
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
 
         Long userId = user.getId();
 
-        when(jwtUtil.generateAccessToken(userId)).thenReturn("mockAccessToken");
-        when(jwtUtil.generateRefreshToken(userId)).thenReturn("mockRefreshToken");
+        when(jwtUtil.generateAccessToken(any(AuthCredential.class))).thenReturn("mockAccessToken");
+        when(jwtUtil.generateRefreshToken(any(AuthCredential.class))).thenReturn("mockRefreshToken");
         doNothing().when(redisRepository).save(anyString(), anyString(), anyLong());
 
-        tokenService.generateToken(userId);
+        tokenService.generateToken(AuthRole.USER, userId, false);
 
         //when
         tokenService.deleteRefreshToken(userId);
