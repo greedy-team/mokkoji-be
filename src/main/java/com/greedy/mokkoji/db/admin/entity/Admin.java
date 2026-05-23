@@ -46,4 +46,8 @@ public class Admin extends BaseTime {
         this.password = password;
         this.role = role;
     }
+
+    public boolean canManageAnyClub() {
+        return AdminRole.MOKKOJI_ADMIN.equals(this.role);
+    }
 }
