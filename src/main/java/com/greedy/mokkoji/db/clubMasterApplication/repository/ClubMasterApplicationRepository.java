@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ClubMasterApplicationRepository extends JpaRepository<ClubMasterApplication, Long> {
-    List<ClubMasterApplication> findByUserId(Long userId);
+    List<ClubMasterApplication> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    List<ClubMasterApplication> findByUniversityIdOrderByCreatedAtAsc(Long universityId);
 }

@@ -2,8 +2,8 @@ package com.greedy.mokkoji.api.clubMasterApplication.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.clubMasterApplication.dto.request.CreateClubMasterApplicationRequest;
-import com.greedy.mokkoji.api.clubMasterApplication.dto.response.GetMyClubMasterApplicationResponse;
+import com.greedy.mokkoji.api.clubMasterApplication.dto.request.CreateClubMasterApplicationsRequest;
+import com.greedy.mokkoji.api.clubMasterApplication.dto.response.GetMyClubMasterApplicationsResponse;
 import com.greedy.mokkoji.api.clubMasterApplication.service.ClubMasterApplicationService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class ClubMasterApplicationController {
     @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createClubMasterApplication(
             @Authentication final AuthCredential authCredential,
-            @RequestBody final CreateClubMasterApplicationRequest request
+            @RequestBody final CreateClubMasterApplicationsRequest request
     ) {
         clubMasterApplicationService.createClubMasterApplication(
                 authCredential.userId(),
@@ -36,12 +36,12 @@ public class ClubMasterApplicationController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<APISuccessResponse<List<GetMyClubMasterApplicationResponse>>> getMyClubMasterApplication(
+    public ResponseEntity<APISuccessResponse<List<GetMyClubMasterApplicationsResponse>>> getMyClubMasterApplications(
             @Authentication final AuthCredential authCredential
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubMasterApplicationService.getMyClubMasterApplication(authCredential.userId())
+                clubMasterApplicationService.getMyClubMasterApplications(authCredential.userId())
         );
     }
 }

@@ -4,7 +4,7 @@ import com.greedy.mokkoji.enums.application.ApplicationStatus;
 
 import java.time.LocalDateTime;
 
-public record GetMyClubMasterApplicationResponse(
+public record GetClubMasterApplicationsResponse(
         Long id,
         String universityName,
         String clubName,
@@ -12,6 +12,5 @@ public record GetMyClubMasterApplicationResponse(
         ApplicationStatus status,
         String rejectReason,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
-) {
+        LocalDateTime updatedAt) {
 }
