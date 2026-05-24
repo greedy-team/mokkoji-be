@@ -101,7 +101,9 @@ public class UserService {
 
     @Transactional
     public UserManageClubsResponse getUserManageClubs(final Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+        if (!userRepository.existsById(userId)) {
+            throw new MokkojiException(FailMessage.NOT_FOUND_USER);
+        }
 
         List<UserManageClubResponse> clubs = clubRepository.findByMasterId(userId).stream()
                 .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
