@@ -1,21 +1,23 @@
 package com.greedy.mokkoji.user.service;
 
-import com.greedy.mokkoji.api.external.sejong.SejongLoginRestClient;
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
-import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
+import com.greedy.mokkoji.api.user.service.kakao.KakaoSocialLoginService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -25,6 +27,7 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,83 +56,66 @@ public class UserServiceTest {
     ClubRepository clubRepository;
 
     @Mock
-    SejongLoginRestClient sejongLoginClient;
+    KakaoSocialLoginService kakaoSocialLoginService;
 
     @Mock
     JwtUtil jwtUtil;
 
     @Test
-    @DisplayName("로그인을 할 수 있다.")
-    void login() {
-        //given
-        final String studentId = "학번";
-        final String password = "비밀번호";
-
-        final User expectedUser = User.builder()
-                .name("세종")
-                .grade("4")
-                .studentId("학번")
-                .department("컴공과")
-                .build();
-
-        BDDMockito.given(userRepository.findByStudentId(any())).willReturn(Optional.ofNullable(expectedUser));
-
-        //when
-        final User actualUser = userService.login(studentId, password);
-
-        //then
-        Assertions.assertThat(actualUser).usingRecursiveComparison().isEqualTo(expectedUser);
-    }
-
-    @Test
-    @DisplayName("처음 로그인 시 새로운 User로 등록된다.")
-    void SaveUserWhenFirstLogin() {
+    @DisplayName("기존 사용자가 카카오 로그인 시 기존 유저로 토큰을 발급한다.")
+    void kakaoLoginExistingUser() {
         // given
-        String studentId = "학번";
-        String password = "비밀번호";
+        final String code = "authCode";
+        final String kakaoId = "kakao-12341234";
 
-        StudentInformationResponse studentInfo = StudentInformationResponse.of("세종", "컴공과", "4");
-        User expectedUser = User.builder()
+        final User existingUser = User.builder()
                 .name("세종")
-                .grade("4")
-                .studentId(studentId)
-                .department("컴공과")
+                .kakaoId(kakaoId)
                 .role(UserRole.NORMAL)
                 .build();
+        ReflectionTestUtils.setField(existingUser, "id", 1L);
 
-        BDDMockito.given(sejongLoginClient.getStudentInformation(any(), any())).willReturn(studentInfo);
-        BDDMockito.given(userRepository.findByStudentId(any())).willReturn(Optional.empty());
-        BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
+
+        BDDMockito.given(kakaoSocialLoginService.login(code))
+                .willReturn(new KakaoUserInfoResponse(kakaoId));
+        BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.of(existingUser));
+        BDDMockito.given(tokenService.generateToken(AuthRole.USER, existingUser.getId(), false))
+                .willReturn(expected);
 
         // when
-        User newUser = userService.login(studentId, password);
+        final LoginResponse actual = userService.kakaoLogin(code);
 
         // then
-        Assertions.assertThat(newUser).usingRecursiveComparison().isEqualTo(expectedUser);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+        BDDMockito.verify(userRepository, BDDMockito.never()).save(any());
     }
 
     @Test
-    @DisplayName("이미 등록된 사용자가 로그인 시 기존 User 객체가 반환된다.")
-    void ReturnUserWhenNotFirstLogin() {
+    @DisplayName("처음 카카오 로그인 시 새로운 User로 등록되고 isNewUser가 true로 발급된다.")
+    void kakaoLoginNewUser() {
         // given
-        String studentId = "학번";
-        String password = "비밀번호";
+        final String code = "authCode";
+        final String kakaoId = "kakao-99999999";
 
-        User existingUser = User.builder()
-                .name("세종")
-                .grade("4")
-                .studentId(studentId)
-                .department("컴공과")
-                .build();
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true);
 
-        BDDMockito.given(userRepository.findByStudentId(any())).willReturn(Optional.of(existingUser));
+        BDDMockito.given(kakaoSocialLoginService.login(code))
+                .willReturn(new KakaoUserInfoResponse(kakaoId));
+        BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.empty());
+        BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> {
+            User saved = invocation.getArgument(0);
+            ReflectionTestUtils.setField(saved, "id", 1L);
+            return saved;
+        });
+        BDDMockito.given(tokenService.generateToken(AuthRole.USER, 1L, true)).willReturn(expected);
 
         // when
-        User returnedUser = userService.login(studentId, password);
+        final LoginResponse actual = userService.kakaoLogin(code);
 
         // then
-        Assertions.assertThat(returnedUser).usingRecursiveComparison().isEqualTo(existingUser);
-        BDDMockito.verify(userRepository, BDDMockito.never()).save(any());
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+        BDDMockito.verify(userRepository, BDDMockito.times(1)).save(any());
     }
 
     @Test
@@ -139,10 +125,11 @@ public class UserServiceTest {
         Long userId = 1L;
         String refreshToken = "refreshToken";
         String newAccessToken = "newAccessToken";
+        AuthCredential credential = new AuthCredential(AuthRole.USER, userId);
 
-        when(jwtUtil.getUserIdFromToken(refreshToken)).thenReturn(userId);
+        when(jwtUtil.getCredentialFromToken(refreshToken)).thenReturn(credential);
         when(tokenService.getRefreshToken(userId)).thenReturn(refreshToken);
-        when(jwtUtil.generateAccessToken(userId)).thenReturn(newAccessToken);
+        when(jwtUtil.generateAccessToken(credential)).thenReturn(newAccessToken);
 
         // when
         String accessToken = userService.refreshAccessToken(refreshToken);
@@ -157,8 +144,9 @@ public class UserServiceTest {
         // given
         Long userId = 1L;
         String invalidRefreshToken = "invalidRefreshToken";
+        AuthCredential credential = new AuthCredential(AuthRole.USER, userId);
 
-        when(jwtUtil.getUserIdFromToken(invalidRefreshToken)).thenReturn(userId);
+        when(jwtUtil.getCredentialFromToken(invalidRefreshToken)).thenReturn(credential);
         when(tokenService.getRefreshToken(userId)).thenReturn("differentStoredToken");
 
         // when & then
@@ -173,9 +161,7 @@ public class UserServiceTest {
         // given
         final User user = User.builder()
                 .name("세종")
-                .grade("4")
-                .studentId("학번")
-                .department("컴공과")
+                .kakaoId("kakao-12341234")
                 .email("origin@email.com")
                 .build();
 
@@ -196,10 +182,8 @@ public class UserServiceTest {
 
         User user = User.builder()
                 .name("세종")
-                .grade("4")
-                .studentId("학번")
-                .department("컴공과")
-                .role(UserRole.GREEDY_ADMIN)
+                .kakaoId("kakao-12341234")
+                .role(UserRole.CLUB_MASTER)
                 .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -208,7 +192,7 @@ public class UserServiceTest {
         UserRoleResponse actualRole = userService.getUserRole(userId);
 
         // then
-        assertThat(actualRole.role()).isEqualTo(UserRole.GREEDY_ADMIN);
+        assertThat(actualRole.role()).isEqualTo(UserRole.CLUB_MASTER);
     }
 
     @Test
@@ -219,25 +203,19 @@ public class UserServiceTest {
 
         User user = User.builder()
                 .name("모꼬지")
-                .studentId("12341234")
-                .grade("4")
-                .department("컴퓨터공학과")
+                .kakaoId("kakao-12341234")
                 .email("모꼬지@test.com")
-                .role(UserRole.GREEDY_ADMIN)
+                .role(UserRole.CLUB_MASTER)
                 .build();
+        ReflectionTestUtils.setField(user, "id", userId);
 
-        Club club1 = Club.builder()
-                .name("그리디1")
-                .clubMasterStudentId("12341234")
-                .build();
-
-        Club club2 = Club.builder()
-                .name("그리디2")
-                .clubMasterStudentId("12341234")
-                .build();
+        Club club1 = Club.builder().name("그리디1").master(user).build();
+        ReflectionTestUtils.setField(club1, "id", 1L);
+        Club club2 = Club.builder().name("그리디2").master(user).build();
+        ReflectionTestUtils.setField(club2, "id", 2L);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(clubRepository.findByClubMasterStudentId(user.getStudentId())).thenReturn(List.of(club1, club2));
+        when(clubRepository.findByMasterId(userId)).thenReturn(List.of(club1, club2));
 
         UserManageClubsResponse expectedResponse = new UserManageClubsResponse(
                 List.of(

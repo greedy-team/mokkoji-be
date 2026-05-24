@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.recruitment.service;
 
+import com.greedy.mokkoji.api.auth.service.ClubManageAuthorizer;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
@@ -20,8 +21,6 @@ import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
-import com.greedy.mokkoji.db.user.entity.User;
-import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
@@ -40,12 +39,12 @@ import java.util.*;
 @RequiredArgsConstructor
 public class RecruitmentService {
 
-    private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final RecruitmentImageRepository recruitmentImageRepository;
     private final AppDataS3Client appDataS3Client;
     private final FavoriteRepository favoriteRepository;
+    private final ClubManageAuthorizer clubManageAuthorizer;
 
     private static PageResponse createPageResponse(Page<Recruitment> recruitmentPage) {
         return PageResponse.of(
@@ -69,13 +68,10 @@ public class RecruitmentService {
             final String recruitForm,
             final boolean isAlwaysRecruiting) {
 
-        validateUserRole(authRole);
-
-
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
 
-        validateMaster(club, userId);
+        clubManageAuthorizer.validateCanManageClub(authRole, userId, club);
 
         Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm,
                 isAlwaysRecruiting);
@@ -97,12 +93,10 @@ public class RecruitmentService {
             final String recruitForm,
             final boolean isAlwaysRecruiting
     ) {
-        validateUserRole(authRole);
-
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
-        validateMaster(recruitment.getClub(), userId);
+        clubManageAuthorizer.validateCanManageClub(authRole, userId, recruitment.getClub());
 
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
 
@@ -114,12 +108,10 @@ public class RecruitmentService {
 
     @Transactional
     public DeleteRecruitmentResponse deleteRecruitment(final AuthRole authRole, final Long userId, final Long recruitmentId) {
-        validateUserRole(authRole);
-
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
 
-        validateMaster(recruitment.getClub(), userId);
+        clubManageAuthorizer.validateCanManageClub(authRole, userId, recruitment.getClub());
 
         List<String> deleteImageUrls = deleteImages(recruitmentId);
         recruitmentRepository.delete(recruitment);
@@ -217,28 +209,6 @@ public class RecruitmentService {
         PageResponse pageResponse = createPageResponse(recruitmentPage);
 
         return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
-    }
-
-    private void validateMaster(Club club, Long userId) {
-        User user = findUserOrThrow(userId);
-
-        if (!user.canManageClub(club)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
-        }
-    }
-
-    private void validateUserRole(AuthRole authRole) {
-        if (!AuthRole.USER.equals(authRole)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
-        }
-    }
-
-    private User findUserOrThrow(Long userId) {
-        if (userId == null) {
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
     private Recruitment buildAndSaveRecruitment(Club club, String title, String content,

@@ -1,9 +1,11 @@
 package com.greedy.mokkoji.user.controller;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.common.response.APIErrorResponse;
 import com.greedy.mokkoji.db.user.entity.User;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -25,6 +27,10 @@ public class AuthInterceptorTest extends ControllerTest {
     }
 
     private void prepareData() {
+        favoriteRepository.deleteAll();
+        recruitmentRepository.deleteAll();
+        clubRepository.deleteAll();
+        userRepository.deleteAll();
         user = userRepository.save(Fixture.createUser());
     }
 
@@ -51,7 +57,7 @@ public class AuthInterceptorTest extends ControllerTest {
 
     @Test
     void 인증_헤더_정보가_Bearer가_아닐때_401을_응답한다() {
-        String accessToken = jwtUtil.generateAccessToken(user.getId());
+        String accessToken = jwtUtil.generateAccessToken(new AuthCredential(AuthRole.USER, user.getId()));
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .when().header("Authorization", "Basic " + accessToken)
