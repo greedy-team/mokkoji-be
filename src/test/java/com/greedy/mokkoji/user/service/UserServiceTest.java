@@ -78,7 +78,7 @@ public class UserServiceTest {
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
 
         BDDMockito.given(kakaoSocialLoginService.login(code))
-                .willReturn(new KakaoUserInfoResponse(kakaoId, null));
+                .willReturn(new KakaoUserInfoResponse(kakaoId));
         BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.of(existingUser));
         BDDMockito.given(tokenService.generateToken(AuthRole.USER, existingUser.getId(), false))
                 .willReturn(expected);
@@ -101,7 +101,7 @@ public class UserServiceTest {
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true);
 
         BDDMockito.given(kakaoSocialLoginService.login(code))
-                .willReturn(new KakaoUserInfoResponse(kakaoId, null));
+                .willReturn(new KakaoUserInfoResponse(kakaoId));
         BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.empty());
         BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> {
             User saved = invocation.getArgument(0);

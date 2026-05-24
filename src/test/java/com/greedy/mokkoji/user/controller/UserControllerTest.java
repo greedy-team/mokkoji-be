@@ -59,7 +59,7 @@ public class UserControllerTest extends ControllerTest {
         //given
         final String code = "authorizationCode";
         when(kakaoSocialLoginService.login(code))
-                .thenReturn(new KakaoUserInfoResponse(user.getKakaoId(), null));
+                .thenReturn(new KakaoUserInfoResponse(user.getKakaoId()));
 
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
         when(tokenService.generateToken(eq(AuthRole.USER), any(), anyBoolean())).thenReturn(expected);
