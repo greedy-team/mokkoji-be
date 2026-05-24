@@ -2,7 +2,6 @@ package com.greedy.mokkoji.club.controller;
 
 import com.greedy.mokkoji.api.club.dto.request.ClubUpdateRequest;
 import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubPreviewResponse;
@@ -157,39 +156,6 @@ public class ClubControllerTest extends ControllerTest {
 
         assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
         assertThat(expected).usingRecursiveComparison().isEqualTo(actual);
-    }
-
-    @Test
-    @DisplayName("동아리장은 자신이 관리 중인 동아리 상세 정보 조회를 할 수 있다.")
-    void getClubManageDetail() {
-        //given
-        final User clubMasterUser = userRepository.save(Fixture.createUserWithRole(UserRole.CLUB_MASTER));
-        final Club managedClub = clubRepository.save(Fixture.createClub(university, clubMasterUser));
-        String authorizationForBearer = authorizationForBearerAccessToken(clubMasterUser);
-        when(appDataS3Client.getPublicUrl(any())).thenReturn(Fixture.FIXTURE_CLUB_LOGO);
-
-        //when
-        final ExtractableResponse<Response> response = given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .when().get(prefixUrl + "/clubs/manage/{clubId}", managedClub.getId())
-                .then().log().all()
-                .extract();
-
-        //then
-        final int statusCode = response.statusCode();
-        final ClubManageDetailResponse actual = getDataFromResponse(response, ClubManageDetailResponse.class);
-        final ClubManageDetailResponse expected = ClubManageDetailResponse.of(
-                managedClub.getName(),
-                managedClub.getClubCategory(),
-                managedClub.getClubAffiliation(),
-                managedClub.getDescription(),
-                Fixture.FIXTURE_CLUB_LOGO,
-                managedClub.getInstagram()
-        );
-
-        assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
-        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test

@@ -113,20 +113,6 @@ public class ClubService {
     }
 
 
-    @Transactional(readOnly = true)
-    public ClubManageDetailResponse getClubManageDetail(final AuthRole authRole, final Long userId, final Long clubId) {
-        Club club = validateClubManagerAuthority(authRole, userId, clubId);
-
-        return ClubManageDetailResponse.of(
-                club.getName(),
-                club.getClubCategory(),
-                club.getClubAffiliation(),
-                club.getDescription(),
-                appDataS3Client.getPublicUrl(club.getLogo()),
-                club.getInstagram()
-        );
-    }
-
     @Transactional
     public ClubUpdateResponse updateClub(
             final AuthRole authRole, final Long userId, final Long clubId, final String name, final ClubCategory category,

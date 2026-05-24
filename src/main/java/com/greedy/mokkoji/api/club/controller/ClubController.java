@@ -5,7 +5,6 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.club.dto.request.ClubSearchCond;
 import com.greedy.mokkoji.api.club.dto.request.ClubUpdateRequest;
 import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
@@ -79,17 +78,6 @@ public class ClubController implements ClubControllerSwagger {
         );
     }
 
-
-    @GetMapping("/manage/{clubId}")
-    public ResponseEntity<APISuccessResponse<ClubManageDetailResponse>> getClubManageDetail(
-            @PathVariable(name = "clubId") final Long clubId,
-            @Authentication final AuthCredential authCredential
-    ) {
-        return APISuccessResponse.of(
-                HttpStatus.OK,
-                clubService.getClubManageDetail(authCredential.authRole(), authCredential.userId(), clubId)
-        );
-    }
 
     @PatchMapping("/manage/{clubId}")
     public ResponseEntity<APISuccessResponse<ClubUpdateResponse>> updateClub(

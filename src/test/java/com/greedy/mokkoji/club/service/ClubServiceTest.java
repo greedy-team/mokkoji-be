@@ -1,7 +1,6 @@
 package com.greedy.mokkoji.club.service;
 
 import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
@@ -269,52 +268,6 @@ class ClubServiceTest {
         verify(clubRepository, times(1)).findById(clubId);
         verify(recruitmentRepository, times(1)).findTopByClubIdOrderByCreatedAtDesc(clubId);
         verify(favoriteRepository, times(1)).existsByUserIdAndClubId(userId, clubId);
-    }
-
-    @Test
-    @DisplayName("권한이 있으면 동아리 관리 상세 정보를 조회한다")
-    void getClubManageDetail() {
-        //given
-        final Long userId = 1L;
-        final Long clubId = club1.getId();
-
-        BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.of(club1));
-        BDDMockito.given(appDataS3Client.getPublicUrl(club1.getLogo())).willReturn("testLogo1");
-
-        //when
-        ClubManageDetailResponse response = clubService.getClubManageDetail(AuthRole.USER, userId, clubId);
-
-        //then
-        assertThat(response).isNotNull();
-        assertThat(response.name()).isEqualTo("testClub1");
-        assertThat(response.category()).isEqualTo(ClubCategory.ACADEMIC_CULTURAL);
-        assertThat(response.affiliation()).isEqualTo(ClubAffiliation.CENTRAL_CLUB);
-        assertThat(response.description()).isEqualTo("testDescription1");
-        assertThat(response.logo()).isEqualTo("testLogo1");
-        assertThat(response.instagram()).isEqualTo("testInstagramURL1");
-
-        verify(clubManageAuthorizer, times(1)).validateCanManageClub(AuthRole.USER, userId, club1);
-        verify(clubRepository, times(1)).findById(clubId);
-    }
-
-    @Test
-    @DisplayName("동아리 관리 권한이 없으면 예외를 던진다")
-    void getClubManageDetailShouldThrowExceptionWhenNoPermission() {
-        //given
-        final Long userId = 1L;
-        final Long clubId = club1.getId();
-
-        BDDMockito.given(clubRepository.findById(clubId)).willReturn(Optional.of(club1));
-        BDDMockito.willThrow(new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB))
-                .given(clubManageAuthorizer).validateCanManageClub(AuthRole.USER, userId, club1);
-
-        //when & then
-        assertThatThrownBy(() -> clubService.getClubManageDetail(AuthRole.USER, userId, clubId))
-                .isInstanceOf(MokkojiException.class)
-                .hasMessage(FailMessage.FORBIDDEN_MANAGE_CLUB.getMessage());
-
-        verify(clubManageAuthorizer, times(1)).validateCanManageClub(AuthRole.USER, userId, club1);
-        verify(clubRepository, times(1)).findById(clubId);
     }
 
     @Test
