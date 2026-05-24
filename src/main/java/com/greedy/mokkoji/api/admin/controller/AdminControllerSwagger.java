@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
-
 @Tag(name = "Admin Controller", description = "관리자 관련 API")
 public interface AdminControllerSwagger {
 
@@ -23,8 +21,10 @@ public interface AdminControllerSwagger {
             security = {@SecurityRequirement(name = "JWT")}
     )
     @ApiResponse(responseCode = "200", description = "조회 성공")
-    ResponseEntity<APISuccessResponse<List<GetClubMasterApplicationsResponse>>> getClubMasterApplications(
-            @Parameter(hidden = true) AuthCredential authCredential
+    ResponseEntity<APISuccessResponse<GetClubMasterApplicationsResponse>> getClubMasterApplications(
+            @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "page", description = "페이지 번호 (1부터 시작)", example = "1") int page,
+            @Parameter(name = "size", description = "페이지 크기", example = "10") int size
     );
 
     @Operation(

@@ -1,6 +1,8 @@
 package com.greedy.mokkoji.api.admin.service;
 
 import com.greedy.mokkoji.api.admin.dto.response.GetClubMasterApplicationsResponse;
+import com.greedy.mokkoji.api.admin.dto.response.ClubMasterApplicationPreviewResponse;
+import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -11,6 +13,8 @@ import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,21 +29,22 @@ public class AdminService {
     private final ClubRepository clubRepository;
 
     @Transactional
-    public List<GetClubMasterApplicationsResponse> getClubMasterApplications(
+    public GetClubMasterApplicationsResponse getClubMasterApplications(
             final AuthRole authRole,
-            final Long userId
+            final Long userId,
+            final Pageable pageable
     ) {
         validateAdminRole(authRole);
 
         User user = findUserOrThrow(userId);
         Long universityId = user.getUniversity().getId();
 
-        List<ClubMasterApplication> applications = (universityId == null)
-                ? clubMasterApplicationRepository.findAllByOrderByCreatedAtAsc()
-                : clubMasterApplicationRepository.findByUniversityIdOrderByCreatedAtAsc(universityId);
+        Page<ClubMasterApplication> applicationPage = (universityId == null)
+                ? clubMasterApplicationRepository.findAllByOrderByCreatedAtAsc(pageable)
+                : clubMasterApplicationRepository.findByUniversityIdOrderByCreatedAtAsc(universityId, pageable);
 
-        return applications.stream()
-                .map(application -> new GetClubMasterApplicationsResponse(
+        List<ClubMasterApplicationPreviewResponse> applications = applicationPage.getContent().stream()
+                .map(application -> new ClubMasterApplicationPreviewResponse(
                         application.getId(),
                         application.getUniversity().getName(),
                         application.getClub().getName(),
@@ -50,6 +55,15 @@ public class AdminService {
                         application.getUpdatedAt()
                 ))
                 .toList();
+
+        PageResponse pageResponse = PageResponse.of(
+                applicationPage.getNumber() + 1,
+                applicationPage.getSize(),
+                applicationPage.getTotalPages(),
+                (int) applicationPage.getTotalElements()
+        );
+
+        return GetClubMasterApplicationsResponse.of(applications, pageResponse);
     }
 
     @Transactional

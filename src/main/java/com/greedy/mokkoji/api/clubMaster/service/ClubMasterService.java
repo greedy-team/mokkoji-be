@@ -78,7 +78,7 @@ public class ClubMasterService {
     }
 
     private University findUniversityOrThrow(final UniversityCode universityCode) {
-        return universityRepository.findByUniversityCode(universityCode)
+        return universityRepository.findByCode(universityCode)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
     }
 
@@ -99,7 +99,7 @@ public class ClubMasterService {
     }
 
     private void validateDuplicateApplication(User user, University university) {
-        if (clubMasterApplicationRepository.existsByApplicantAndUniversityAndStatusNot(user, university, ApplicationStatus.REJECTED)) {
+        if (clubMasterApplicationRepository.existsByUserAndUniversityAndStatusNot(user, university, ApplicationStatus.REJECTED)) {
             throw new MokkojiException(FailMessage.CONFLICT_CLUB_MASTER_APPLICATION);
         }
     }

@@ -1,17 +1,22 @@
 package com.greedy.mokkoji.api.admin.dto.response;
 
-import com.greedy.mokkoji.enums.application.ApplicationStatus;
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.greedy.mokkoji.api.pagination.dto.PageResponse;
+import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
+@Builder
 public record GetClubMasterApplicationsResponse(
-        @Schema(example = "1") Long id,
-        @Schema(example = "세종대") String universityName,
-        @Schema(example = "그리디") String clubName,
-        @Schema(example = "김세종") String userName,
-        @Schema(example = "PENDING") ApplicationStatus status,
-        @Schema(example = "실명을 적어주세요.") String rejectReason,
-        @Schema(example = "2026-04-22T14:00:00") LocalDateTime createdAt,
-        @Schema(example = "2026-04-23T14:00:00") LocalDateTime updatedAt) {
+        List<ClubMasterApplicationPreviewResponse> applications,
+        PageResponse pagination
+) {
+    public static GetClubMasterApplicationsResponse of(
+            final List<ClubMasterApplicationPreviewResponse> applications,
+            final PageResponse pagination
+    ) {
+        return GetClubMasterApplicationsResponse.builder()
+                .applications(applications)
+                .pagination(pagination)
+                .build();
+    }
 }
