@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.api.user.service;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
+import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
@@ -51,7 +52,8 @@ public class UserService {
                 )
         );
 
-        return tokenService.generateToken(AuthRole.USER, user.getId(), isNewUser);
+        final TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, user.getId());
+        return LoginResponse.of(tokenPair.accessToken(), tokenPair.refreshToken(), isNewUser);
     }
 
     @Transactional
@@ -59,7 +61,7 @@ public class UserService {
         final AuthCredential credential = jwtUtil.getCredentialFromToken(refreshToken);
         final Long userId = credential.userId();
 
-        String storedRefreshToken = tokenService.getRefreshToken(userId);
+        String storedRefreshToken = tokenService.getRefreshToken(credential.authRole(), userId);
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
@@ -87,8 +89,8 @@ public class UserService {
     }
 
     @Transactional
-    public void logOut(final Long userId) {
-        tokenService.deleteRefreshToken(userId);
+    public void logOut(final AuthRole authRole, final Long userId) {
+        tokenService.deleteRefreshToken(authRole, userId);
     }
 
     @Transactional(readOnly = true)

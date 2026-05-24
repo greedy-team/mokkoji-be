@@ -45,8 +45,7 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<Void>> logout(
             @Authentication AuthCredential authCredential
     ) {
-        final Long userId = authCredential.userId();
-        userService.logOut(userId);
+        userService.logOut(authCredential.authRole(), authCredential.userId());
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
