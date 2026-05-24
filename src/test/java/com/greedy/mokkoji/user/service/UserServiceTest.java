@@ -2,6 +2,7 @@ package com.greedy.mokkoji.user.service;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
+import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
@@ -80,8 +81,8 @@ public class UserServiceTest {
         BDDMockito.given(kakaoSocialLoginService.login(code))
                 .willReturn(new KakaoUserInfoResponse(kakaoId, null));
         BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.of(existingUser));
-        BDDMockito.given(tokenService.generateToken(AuthRole.USER, existingUser.getId(), false))
-                .willReturn(expected);
+        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, existingUser.getId()))
+                .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
         final LoginResponse actual = userService.kakaoLogin(code);
@@ -108,7 +109,8 @@ public class UserServiceTest {
             ReflectionTestUtils.setField(saved, "id", 1L);
             return saved;
         });
-        BDDMockito.given(tokenService.generateToken(AuthRole.USER, 1L, true)).willReturn(expected);
+        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, 1L))
+                .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
         final LoginResponse actual = userService.kakaoLogin(code);
@@ -128,7 +130,7 @@ public class UserServiceTest {
         AuthCredential credential = new AuthCredential(AuthRole.USER, userId);
 
         when(jwtUtil.getCredentialFromToken(refreshToken)).thenReturn(credential);
-        when(tokenService.getRefreshToken(userId)).thenReturn(refreshToken);
+        when(tokenService.getRefreshToken(AuthRole.USER, userId)).thenReturn(refreshToken);
         when(jwtUtil.generateAccessToken(credential)).thenReturn(newAccessToken);
 
         // when
@@ -147,7 +149,7 @@ public class UserServiceTest {
         AuthCredential credential = new AuthCredential(AuthRole.USER, userId);
 
         when(jwtUtil.getCredentialFromToken(invalidRefreshToken)).thenReturn(credential);
-        when(tokenService.getRefreshToken(userId)).thenReturn("differentStoredToken");
+        when(tokenService.getRefreshToken(AuthRole.USER, userId)).thenReturn("differentStoredToken");
 
         // when & then
         assertThatThrownBy(() -> userService.refreshAccessToken(invalidRefreshToken))

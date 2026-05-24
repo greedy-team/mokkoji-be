@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.user.controller;
 
+import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.request.kakao.KakaoSocialLoginRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.*;
@@ -62,7 +63,7 @@ public class UserControllerTest extends ControllerTest {
                 .thenReturn(new KakaoUserInfoResponse(user.getKakaoId(), null));
 
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
-        when(tokenService.generateToken(eq(AuthRole.USER), any(), anyBoolean())).thenReturn(expected);
+        when(tokenService.issueTokens(eq(AuthRole.USER), any())).thenReturn(new TokenPair("accessToken", "refreshToken"));
 
         final KakaoSocialLoginRequest request = new KakaoSocialLoginRequest(code);
 
@@ -87,7 +88,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String bearerToken = authorizationForBearerRefreshToken(user);
         final String refreshToken = bearerToken.substring("bearer".length()).trim();
-        when(tokenService.getRefreshToken(any())).thenReturn(refreshToken);
+        when(tokenService.getRefreshToken(any(), any())).thenReturn(refreshToken);
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
@@ -108,7 +109,7 @@ public class UserControllerTest extends ControllerTest {
     @DisplayName("로그아웃 성공 여부를 검증한다.")
     void logout() {
         // given
-        doNothing().when(tokenService).deleteRefreshToken(any());
+        doNothing().when(tokenService).deleteRefreshToken(any(), any());
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
