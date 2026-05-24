@@ -34,7 +34,6 @@ public class UserService {
     private final TokenService tokenService;
     private final KakaoSocialLoginService kakaoSocialLoginService;
 
-    @Transactional
     public LoginResponse kakaoLogin(final String code) {
         final KakaoUserInfoResponse kakaoUserInfo = kakaoSocialLoginService.login(code);
         final String kakaoId = kakaoUserInfo.id();
