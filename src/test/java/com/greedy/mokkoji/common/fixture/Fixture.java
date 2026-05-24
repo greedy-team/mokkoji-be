@@ -3,9 +3,11 @@ package com.greedy.mokkoji.common.fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 
 import java.time.LocalDateTime;
@@ -16,65 +18,77 @@ public class Fixture {
     public static final String FIXTURE_CLUB_LOGO = "그리디_로고";
     public static final List<String> FIXTURE_RECRUITMENT_IMAGE_NAME = List.of("모집글_이미지_이름.png");
 
+    public static University createUniversity() {
+        return University.builder()
+                .name("세종대학교")
+                .code(UniversityCode.SEJONG)
+                .logo("세종대_로고")
+                .build();
+    }
+
     public static User createUser() {
         return User.builder()
                 .name("모꼬지")
-                .studentId("12341234")
-                .grade("4")
-                .department("컴퓨터공학과")
+                .kakaoId("kakao-12341234")
                 .email("모꼬지@test.com")
-                .role(UserRole.GREEDY_ADMIN)
+                .isEmailOn(true)
+                .role(UserRole.NORMAL)
                 .build();
     }
 
     public static User createAnotherUser() {
         return User.builder()
                 .name("다른사용자")
-                .studentId("87654321")
-                .grade("3")
-                .department("소프트웨어학과")
+                .kakaoId("kakao-87654321")
                 .email("another@test.com")
+                .isEmailOn(true)
+                .role(UserRole.NORMAL)
                 .build();
     }
 
     public static User createUserWithRole(UserRole role) {
         return User.builder()
                 .name("모꼬지")
-                .studentId("22222222")
-                .grade("4")
-                .department("컴퓨터공학과")
+                .kakaoId("kakao-22222222")
                 .email("모꼬지@test.com")
+                .isEmailOn(true)
                 .role(role)
                 .build();
     }
 
-    public static Club createClub() {
+    public static Club createClub(University university) {
+        return createClub(university, null);
+    }
+
+    public static Club createClub(University university, User master) {
         return Club.builder()
                 .name("그리디")
+                .university(university)
                 .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
                 .clubAffiliation(ClubAffiliation.DEPARTMENT_CLUB)
                 .logo(FIXTURE_CLUB_LOGO)
                 .description("세종대 최고의 코딩 동아리")
                 .instagram("www.그리디.com")
-                .clubMasterStudentId("12341234")
+                .master(master)
                 .build();
     }
 
-    public static Club createAnotherClub() {
+    public static Club createAnotherClub(University university) {
         return Club.builder()
                 .name("En#")
+                .university(university)
                 .clubCategory(ClubCategory.ACADEMIC_CULTURAL)
                 .clubAffiliation(ClubAffiliation.DEPARTMENT_CLUB)
                 .logo(FIXTURE_CLUB_LOGO)
                 .description("커리큘럼이 체계적인 코딩 동아리")
                 .instagram("www.En#.com")
-                .clubMasterStudentId("56785678")
                 .build();
     }
 
-    public static Club createClubWithCategoryAndAffiliation(ClubCategory category, ClubAffiliation affiliation) {
+    public static Club createClubWithCategoryAndAffiliation(University university, ClubCategory category, ClubAffiliation affiliation) {
         return Club.builder()
                 .name("그리디")
+                .university(university)
                 .clubCategory(category)
                 .clubAffiliation(affiliation)
                 .logo(FIXTURE_CLUB_LOGO)

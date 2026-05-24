@@ -18,7 +18,7 @@ import java.util.Set;
 public class WebConfig implements WebMvcConfigurer {
 
     private final Set<String> excludedPaths = Set.of(
-            "/users/auth/login",
+            "/users/auth/kakao",
             "/users/auth/refresh",
             "/clubs/**",
             "/recruitments/**",

@@ -37,7 +37,8 @@ public enum FailMessage {
     NOT_FOUND_COMMENT(HttpStatus.NOT_FOUND, 40405, "댓글을 찾을 수 없습니다."),
     NOT_FOUNT_RECRUITMENT(HttpStatus.NOT_FOUND, 40406, "모집글을 찾을 수 없습니다."),
     NOT_FOUND_UNIVERSITY(HttpStatus.NOT_FOUND, 40407, "학교를 찾을 수 없습니다."),
-    NOT_FOUND_CLUB_APPLICATION(HttpStatus.NOT_FOUND, 40408, "동아리 생성 신청을 찾을 수 없습니다."),
+    NOT_FOUND_ADMIN(HttpStatus.NOT_FOUND, 40408, "관리자를 찾을 수 없습니다."),
+    NOT_FOUND_CLUB_APPLICATION(HttpStatus.NOT_FOUND, 40409, "동아리 생성 신청을 찾을 수 없습니다."),
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 40500, "잘못된 HTTP 메소드 요청입니다."),
@@ -53,7 +54,6 @@ public enum FailMessage {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR_SMTP(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "SMTP 서버 내부 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR_SMTP_MAIL(HttpStatus.INTERNAL_SERVER_ERROR, 50002, "SMTP 메일 생성에 오류가 발생했습니다."),
-    INTERNAL_SERVER_ERROR_SEJONG_AUTH(HttpStatus.INTERNAL_SERVER_ERROR, 50005, "학생 인증 서버 내부 오류가 발생했습니다."),
     INTERNAL_TOKEN_INIT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50010, "SECRET KEY가 초기화되지 않았습니다.");
 
     private final HttpStatus httpStatus;

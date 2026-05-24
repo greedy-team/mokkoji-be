@@ -2,11 +2,9 @@ package com.greedy.mokkoji.api.club.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.club.dto.request.ClubCreateRequest;
 import com.greedy.mokkoji.api.club.dto.request.ClubSearchCond;
 import com.greedy.mokkoji.api.club.dto.request.ClubUpdateRequest;
 import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
-import com.greedy.mokkoji.api.club.dto.response.ClubManageDetailResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
@@ -80,33 +78,6 @@ public class ClubController implements ClubControllerSwagger {
         );
     }
 
-
-    @PostMapping
-    public ResponseEntity<APISuccessResponse<Void>> createClub(
-            @RequestBody final ClubCreateRequest clubCreateRequest,
-            @Authentication final AuthCredential authCredential
-    ) {
-        clubService.createClub(
-                authCredential.userId(),
-                clubCreateRequest.name(),
-                clubCreateRequest.category(),
-                clubCreateRequest.affiliation(),
-                clubCreateRequest.clubMasterStudentId(),
-                clubCreateRequest.universityCode()
-        );
-        return APISuccessResponse.of(HttpStatus.CREATED, null);
-    }
-
-    @GetMapping("/manage/{clubId}")
-    public ResponseEntity<APISuccessResponse<ClubManageDetailResponse>> getClubManageDetail(
-            @PathVariable(name = "clubId") final Long clubId,
-            @Authentication final AuthCredential authCredential
-    ) {
-        return APISuccessResponse.of(
-                HttpStatus.OK,
-                clubService.getClubManageDetail(authCredential.authRole(), authCredential.userId(), clubId)
-        );
-    }
 
     @PatchMapping("/manage/{clubId}")
     public ResponseEntity<APISuccessResponse<ClubUpdateResponse>> updateClub(
