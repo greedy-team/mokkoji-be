@@ -77,6 +77,22 @@ class ClubManageAuthorizerTest {
     }
 
     @Test
+    @DisplayName("존재하지 않는 관리자는 동아리를 관리할 수 없다.")
+    void validateCanManageClubByNotFoundAdmin() {
+        //given
+        final Long adminId = 1L;
+
+        BDDMockito.given(adminRepository.findById(adminId)).willReturn(Optional.empty());
+
+        //when & then
+        assertThatThrownBy(() -> clubManageAuthorizer.validateCanManageClub(AuthRole.ADMIN, adminId, club))
+                .isInstanceOf(MokkojiException.class);
+
+        verify(adminRepository, times(1)).findById(adminId);
+        verifyNoInteractions(userRepository);
+    }
+
+    @Test
     @DisplayName("동아리장은 자신이 관리 중인 동아리를 관리할 수 있다.")
     void validateCanManageClubByClubMaster() {
         //given
