@@ -38,7 +38,7 @@ public class ClubManageAuthorizer {
 
     private void validateMokkojiAdmin(final Long adminId) {
         final Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB));
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_ADMIN));
 
         if (!admin.canManageAnyClub()) {
             throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
