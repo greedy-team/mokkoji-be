@@ -3,6 +3,7 @@ package com.greedy.mokkoji.api.admin.service;
 import com.greedy.mokkoji.api.admin.dto.response.GetClubMasterApplicationsResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
+import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.clubMasterApplication.entity.ClubMasterApplication;
 import com.greedy.mokkoji.db.clubMasterApplication.repository.ClubMasterApplicationRepository;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -21,6 +22,7 @@ import java.util.List;
 public class AdminService {
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final UserRepository userRepository;
+    private final ClubRepository clubRepository;
 
     @Transactional
     public List<GetClubMasterApplicationsResponse> getClubMasterApplications(
