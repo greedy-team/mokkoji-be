@@ -1,7 +1,10 @@
 package com.greedy.mokkoji.api.club.service;
 
 import com.greedy.mokkoji.api.auth.service.ClubManageAuthorizer;
-import com.greedy.mokkoji.api.club.dto.response.*;
+import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.*;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;

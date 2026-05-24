@@ -10,6 +10,7 @@ import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +39,11 @@ public class ClubMasterService {
         University university = findUniversityOrThrow(universityCode);
 
         Club club = findClubOrThrow(clubId);
-        if (club.getMaster() != null) {
-            throw new MokkojiException(FailMessage.FORBIDDEN_ALREADY_EXIST_CLUB_MASTER);
-        }
+        validateClubHasMaster(club);
 
         User user = findUserOrThrow(userId);
+        validateDuplicateApplication(user, university);
+
         user.updateName(userName);
 
         ClubMasterApplication application = ClubMasterApplication.builder()
@@ -89,5 +90,17 @@ public class ClubMasterService {
     private User findUserOrThrow(final Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+    }
+
+    private void validateClubHasMaster(Club club) {
+        if (club.getMaster() != null) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_ALREADY_EXIST_CLUB_MASTER);
+        }
+    }
+
+    private void validateDuplicateApplication(User user, University university) {
+        if (clubMasterApplicationRepository.existsByApplicantAndUniversityAndStatusNot(user, university, ApplicationStatus.REJECTED)) {
+            throw new MokkojiException(FailMessage.CONFLICT_CLUB_MASTER_APPLICATION);
+        }
     }
 }
