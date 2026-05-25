@@ -41,10 +41,10 @@ public class ClubApplication extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     private User applicant;
 
-    @Column(name = "application_name", columnDefinition = "varchar(100)", nullable = false)
+    @Column(name = "application_name", columnDefinition = "varchar(50)", nullable = false)
     private String applicantName;
 
-    @Column(name = "name", columnDefinition = "varchar(100)", nullable = false)
+    @Column(name = "name", columnDefinition = "varchar(50)", nullable = false)
     private String clubName;
 
     @Column(name = "status", columnDefinition = "varchar(20)", nullable = false)
