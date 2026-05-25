@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.notification.service.EmailNotificationChannel;
+import com.greedy.mokkoji.api.notification.service.RecruitmentNotificationEmailChannel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ public class EmailNotificationRealTest {
     private String receivers;
 
     @Autowired
-    private EmailNotificationChannel emailNotificationChannel;
+    private RecruitmentNotificationEmailChannel recruitmentNotificationEmailChannel;
 
     @Test
     @DisplayName("수신자 이메일 노출 확인")
@@ -32,7 +32,7 @@ public class EmailNotificationRealTest {
                 .filter(s -> !s.isBlank())
                 .toList();
 
-        emailNotificationChannel.sendNotification(
+        recruitmentNotificationEmailChannel.sendNotification(
                 receiverMails,
                 1L,
                 "수신자 노출 테스트",

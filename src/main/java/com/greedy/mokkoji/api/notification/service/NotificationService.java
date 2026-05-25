@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
-    private final NotificationChannel notificationChannel;
+    private final RecruitmentNotificationChannel recruitmentNotificationChannel;
     private final FavoriteRepository favoriteRepository;
 
     @Async
@@ -32,7 +32,7 @@ public class NotificationService {
             return;
         }
 
-        notificationChannel.sendNotification(
+        recruitmentNotificationChannel.sendNotification(
                 userEmails, clubId, clubName, recruitment.getRecruitStart(), recruitment.getRecruitEnd()
         );
     }
