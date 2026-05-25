@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.db.clubMasterApplication.entity;
+package com.greedy.mokkoji.db.clubmaster.entity;
 
 import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.club.entity.Club;

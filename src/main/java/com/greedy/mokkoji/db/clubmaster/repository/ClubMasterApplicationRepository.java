@@ -1,6 +1,6 @@
-package com.greedy.mokkoji.db.clubMasterApplication.repository;
+package com.greedy.mokkoji.db.clubmaster.repository;
 
-import com.greedy.mokkoji.db.clubMasterApplication.entity.ClubMasterApplication;
+import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;

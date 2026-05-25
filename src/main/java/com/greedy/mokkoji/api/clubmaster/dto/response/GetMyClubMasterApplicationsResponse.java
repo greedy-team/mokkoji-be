@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.clubMaster.dto.response;
+package com.greedy.mokkoji.api.clubmaster.dto.response;
 
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import io.swagger.v3.oas.annotations.media.Schema;

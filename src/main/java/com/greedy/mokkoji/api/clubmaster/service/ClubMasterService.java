@@ -1,11 +1,11 @@
-package com.greedy.mokkoji.api.clubMaster.service;
+package com.greedy.mokkoji.api.clubmaster.service;
 
-import com.greedy.mokkoji.api.clubMaster.dto.response.GetMyClubMasterApplicationsResponse;
+import com.greedy.mokkoji.api.clubmaster.dto.response.GetMyClubMasterApplicationsResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
-import com.greedy.mokkoji.db.clubMasterApplication.entity.ClubMasterApplication;
-import com.greedy.mokkoji.db.clubMasterApplication.repository.ClubMasterApplicationRepository;
+import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
+import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
