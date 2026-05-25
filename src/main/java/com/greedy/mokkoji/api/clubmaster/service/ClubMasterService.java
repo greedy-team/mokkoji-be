@@ -40,6 +40,8 @@ public class ClubMasterService {
     private final EmailService emailService;
     private final RedisRepository redisRepository;
 
+    private static final long LINK_EXPIRATION = 10 * 60 * 1000; //10분
+
     @Transactional
     public void createClubMasterApplication(
             final Long userId,
@@ -128,9 +130,9 @@ public class ClubMasterService {
     }
 
     private String createClubMasterTransferUrl(Long clubId) {
-        String uuid = UUID.randomUUID().toString().substring(0, 8);
+        String uuid = UUID.randomUUID().toString();
 
-        redisRepository.save("clubTransfer:" + uuid, String.valueOf(clubId), 10 * 60 * 1000);
+        redisRepository.save("clubTransfer:" + uuid, String.valueOf(clubId), LINK_EXPIRATION);
 
         String url = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/club-master-transfer/{uuid}")
