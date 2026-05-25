@@ -88,12 +88,13 @@ public class ClubMasterService {
                 .toList();
     }
 
+    @Transactional
     public void applyClubMasterTransfer(
             final AuthRole authRole,
             final Long userId,
             final Long clubId,
             final String nextClubMasterName,
-            String nextClubMasterEmail
+            final String nextClubMasterEmail
     ) {
         Club club = findClubOrThrow(clubId);
         clubManageAuthorizer.validateCanManageClub(authRole, userId, club);
@@ -109,6 +110,21 @@ public class ClubMasterService {
 
         String url = createClubMasterTransferUrl(clubId);
         emailService.sendClubMasterTransferNotification(nextClubMasterEmail, club.getName(), url);
+    }
+
+    @Transactional
+    public void acceptClubMasterTransfer(final Long userId, final String uuid) {
+        String key = "clubTransfer:" + uuid;
+        String clubId = redisRepository.find(key);
+
+        if (clubId == null) {
+            throw new MokkojiException(FailMessage.BAD_REQUEST_INVALID_LINK);
+        }
+
+        Club club = findClubOrThrow(Long.parseLong(clubId));
+        User nextClubMaster = findUserOrThrow(userId);
+
+        club.updateMaster(nextClubMaster);
     }
 
     private String createClubMasterTransferUrl(Long clubId) {
