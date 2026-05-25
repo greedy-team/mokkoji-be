@@ -4,8 +4,7 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.clubapplication.dto.request.ClubApplicationRejectRequest;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationsResponse;
-import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubsResponse;
-import com.greedy.mokkoji.api.clubapplication.service.ClubApplicationService;
+import com.greedy.mokkoji.api.clubapplication.service.AdminClubApplicationService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.enums.clubApplication.ClubApplicationStatus;
 import com.greedy.mokkoji.enums.university.UniversityCode;
@@ -25,23 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/club-applications")
-public class AdminClubApplicationController {
+public class AdminClubApplicationController implements AdminClubApplicationControllerSwagger {
 
-    private final ClubApplicationService clubApplicationService;
-
-    @GetMapping("/clubs")
-    public ResponseEntity<APISuccessResponse<AdminClubsResponse>> getAdminClubs(
-            @Authentication final AuthCredential authCredential,
-            @RequestParam(required = false) final UniversityCode universityCode,
-            @RequestParam(value = "page") final int page,
-            @RequestParam(value = "size") final int size
-    ) {
-        final Pageable pageable = PageRequest.of(page - 1, size);
-        return APISuccessResponse.of(
-                HttpStatus.OK,
-                clubApplicationService.getAdminClubs(authCredential.authRole(), authCredential.userId(), universityCode, pageable)
-        );
-    }
+    private final AdminClubApplicationService adminClubApplicationService;
 
     @GetMapping
     public ResponseEntity<APISuccessResponse<AdminClubApplicationsResponse>> getAdminClubApplications(
@@ -54,7 +39,7 @@ public class AdminClubApplicationController {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubApplicationService.getAdminClubApplications(authCredential.authRole(), authCredential.userId(), universityCode, status, pageable)
+                adminClubApplicationService.getAdminClubApplications(authCredential.authRole(), authCredential.userId(), universityCode, status, pageable)
         );
     }
 
@@ -63,7 +48,7 @@ public class AdminClubApplicationController {
             @Authentication final AuthCredential authCredential,
             @PathVariable final Long applicationId
     ) {
-        clubApplicationService.approveClubApplication(authCredential.authRole(), authCredential.userId(), applicationId);
+        adminClubApplicationService.approveClubApplication(authCredential.authRole(), authCredential.userId(), applicationId);
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
@@ -73,7 +58,7 @@ public class AdminClubApplicationController {
             @PathVariable final Long applicationId,
             @RequestBody final ClubApplicationRejectRequest request
     ) {
-        clubApplicationService.rejectClubApplication(authCredential.authRole(), authCredential.userId(), applicationId, request.rejectReason());
+        adminClubApplicationService.rejectClubApplication(authCredential.authRole(), authCredential.userId(), applicationId, request.rejectReason());
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 }
