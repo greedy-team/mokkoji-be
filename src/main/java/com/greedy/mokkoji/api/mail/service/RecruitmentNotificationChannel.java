@@ -1,9 +1,9 @@
-package com.greedy.mokkoji.api.notification.service;
+package com.greedy.mokkoji.api.mail.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface NotificationChannel {
+public interface RecruitmentNotificationChannel {
     void sendNotification(
             List<String> receiverMails,
             Long clubId,

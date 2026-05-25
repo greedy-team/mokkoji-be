@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.notification.service;
+package com.greedy.mokkoji.api.mail.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -20,7 +20,7 @@ import static com.greedy.mokkoji.enums.message.FailMessage.*;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class EmailNotificationChannel implements NotificationChannel {
+public class RecruitmentNotificationEmailChannel implements RecruitmentNotificationChannel {
     private static final String SUBJECT = " 모집 안내";
     private static final String SENDER_NAME = "모꼬지(mokkoji)";
     private static final String OFFICIAL_EMAIL = "noreply@mokkoji.com";
