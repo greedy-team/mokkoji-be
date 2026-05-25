@@ -3,6 +3,7 @@ package com.greedy.mokkoji.api.user.service;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.UserInformationResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
@@ -10,10 +11,13 @@ import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.api.user.service.kakao.KakaoSocialLoginService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.university.entity.University;
+import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +34,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
+    private final UniversityRepository universityRepository;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
     private final KakaoSocialLoginService kakaoSocialLoginService;
@@ -67,7 +72,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserInformation(Long userId, String email, Boolean isEmailOn) {
+    public void updateUserInformation(Long userId, String email, Boolean isEmailOn, UniversityCode universityCode) {
         User user = findUser(userId);
 
         if (email != null) {
@@ -77,12 +82,23 @@ public class UserService {
         if (isEmailOn != null) {
             user.updateEmailOn(isEmailOn);
         }
+
+        if (universityCode != null) {
+            University university = findUniversity(universityCode);
+            user.updateUniversity(university);
+        }
     }
 
     @Transactional(readOnly = true)
     public User findUser(final Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+    }
+
+    @Transactional(readOnly = true)
+    public UserInformationResponse getUserInformation(final Long userId) {
+        final User user = findUser(userId);
+        return UserInformationResponse.of(user);
     }
 
     @Transactional
@@ -109,5 +125,10 @@ public class UserService {
                 .toList();
 
         return UserManageClubsResponse.of(clubs);
+    }
+
+    private University findUniversity(final UniversityCode universityCode) {
+        return universityRepository.findByCode(universityCode)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
     }
 }

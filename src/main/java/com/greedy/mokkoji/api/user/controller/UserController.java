@@ -8,7 +8,6 @@ import com.greedy.mokkoji.api.user.dto.request.kakao.KakaoSocialLoginRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.*;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
-import com.greedy.mokkoji.db.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -55,8 +54,7 @@ public class UserController implements UserControllerSwagger {
             @Authentication AuthCredential authCredential
     ) {
         final Long userId = authCredential.userId();
-        final User user = userService.findUser(userId);
-        final UserInformationResponse userInformationResponse = UserInformationResponse.of(user);
+        final UserInformationResponse userInformationResponse = userService.getUserInformation(userId);
         return APISuccessResponse.of(HttpStatus.OK, userInformationResponse);
     }
 
@@ -66,7 +64,12 @@ public class UserController implements UserControllerSwagger {
             @RequestBody @Valid UpdateUserInformationRequest updateUserInformationRequest
     ) {
         final Long userId = authCredential.userId();
-        userService.updateUserInformation(userId, updateUserInformationRequest.email(), updateUserInformationRequest.isEmailOn());
+        userService.updateUserInformation(
+                userId,
+                updateUserInformationRequest.email(),
+                updateUserInformationRequest.isEmailOn(),
+                updateUserInformationRequest.universityCode()
+        );
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
