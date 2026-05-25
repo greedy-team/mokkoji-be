@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.clubapplication.dto.response;
+package com.greedy.mokkoji.api.club.dto.response;
 
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
@@ -15,7 +15,8 @@ public record AdminClubResponse(
         @Schema(example = "CENTRAL_CLUB") ClubAffiliation affiliation,
         @Schema(example = "https://s3.amazonaws.com/.../logo.png") String logo,
         @Schema(example = "1") Long masterId,
-        @Schema(example = "홍길동") String masterName
+        @Schema(example = "홍길동") String masterName,
+        @Schema(example = "master@example.com") String masterEmail
 ) {
     public static AdminClubResponse from(final Club club) {
         return new AdminClubResponse(
@@ -27,7 +28,8 @@ public record AdminClubResponse(
                 club.getClubAffiliation(),
                 club.getLogo(),
                 club.getMaster() != null ? club.getMaster().getId() : null,
-                club.getMaster() != null ? club.getMaster().getName() : null
+                club.getMaster() != null ? club.getMaster().getName() : null,
+                club.getMaster() != null ? club.getMaster().getEmail() : null
         );
     }
 }

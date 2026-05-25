@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.clubapplication.dto.response;
+package com.greedy.mokkoji.api.club.dto.response;
 
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 
