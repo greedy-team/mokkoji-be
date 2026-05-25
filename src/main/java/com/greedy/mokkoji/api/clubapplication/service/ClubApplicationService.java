@@ -10,7 +10,7 @@ import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
-import com.greedy.mokkoji.enums.clubApplication.ClubApplicationStatus;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class ClubApplicationService {
         final University university = universityRepository.findByCode(request.universityCode())
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
 
-        if (clubApplicationRepository.existsByApplicantAndUniversityAndStatusNot(user, university, ClubApplicationStatus.REJECTED)) {
+        if (clubApplicationRepository.existsByApplicantAndUniversityAndStatusNot(user, university, ApplicationStatus.REJECTED)) {
             throw new MokkojiException(FailMessage.CONFLICT_CLUB_APPLICATION);
         }
 

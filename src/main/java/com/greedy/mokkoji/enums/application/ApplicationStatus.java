@@ -1,11 +1,11 @@
-package com.greedy.mokkoji.enums.clubApplication;
+package com.greedy.mokkoji.enums.application;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum ClubApplicationStatus {
+public enum ApplicationStatus {
 
     PENDING("검토 중"),
     APPROVED("승인"),

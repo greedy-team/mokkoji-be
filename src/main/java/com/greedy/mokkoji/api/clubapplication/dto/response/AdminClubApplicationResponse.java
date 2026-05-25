@@ -3,7 +3,7 @@ package com.greedy.mokkoji.api.clubapplication.dto.response;
 import com.greedy.mokkoji.db.clubapplication.entity.ClubApplication;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
-import com.greedy.mokkoji.enums.clubApplication.ClubApplicationStatus;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -16,7 +16,7 @@ public record AdminClubApplicationResponse(
         @Schema(example = "ACADEMIC_CULTURAL") ClubCategory category,
         @Schema(example = "CENTRAL_CLUB") ClubAffiliation affiliation,
         @Schema(example = "https://s3.amazonaws.com/.../logo.png") String logo,
-        @Schema(example = "REJECTED") ClubApplicationStatus status,
+        @Schema(example = "REJECTED") ApplicationStatus status,
         @Schema(example = "서류 미비") String rejectReason,
         @Schema(example = "2026-05-18T13:00:00") LocalDateTime createdAt
 ) {

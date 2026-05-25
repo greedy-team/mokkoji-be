@@ -6,7 +6,7 @@ import com.greedy.mokkoji.api.clubapplication.dto.request.ClubApplicationRejectR
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationsResponse;
 import com.greedy.mokkoji.api.clubapplication.service.AdminClubApplicationService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
-import com.greedy.mokkoji.enums.clubApplication.ClubApplicationStatus;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +32,7 @@ public class AdminClubApplicationController implements AdminClubApplicationContr
     public ResponseEntity<APISuccessResponse<AdminClubApplicationsResponse>> getAdminClubApplications(
             @Authentication final AuthCredential authCredential,
             @RequestParam(required = false) final UniversityCode universityCode,
-            @RequestParam(required = false) final ClubApplicationStatus status,
+            @RequestParam(required = false) final ApplicationStatus status,
             @RequestParam(value = "page") final int page,
             @RequestParam(value = "size") final int size
     ) {

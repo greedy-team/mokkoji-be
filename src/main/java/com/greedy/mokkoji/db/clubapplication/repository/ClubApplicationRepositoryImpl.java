@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.db.clubapplication.repository;
 
 import com.greedy.mokkoji.db.clubapplication.entity.ClubApplication;
-import com.greedy.mokkoji.enums.clubApplication.ClubApplicationStatus;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -25,7 +25,7 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
     @Override
     public Page<ClubApplication> findByConditions(
             final UniversityCode universityCode,
-            final ClubApplicationStatus status,
+            final ApplicationStatus status,
             final Pageable pageable
     ) {
         final List<ClubApplication> content = queryFactory
@@ -60,7 +60,7 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
         return null;
     }
 
-    private BooleanExpression equalStatus(final ClubApplicationStatus status) {
+    private BooleanExpression equalStatus(final ApplicationStatus status) {
         if (status != null) {
             return clubApplication.status.eq(status);
         }

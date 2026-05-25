@@ -13,7 +13,7 @@ import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepositor
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
-import com.greedy.mokkoji.enums.clubApplication.ClubApplicationStatus;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
@@ -38,7 +38,7 @@ public class AdminClubApplicationService {
             final AuthRole authRole,
             final Long adminId,
             final UniversityCode universityCode,
-            final ClubApplicationStatus status,
+            final ApplicationStatus status,
             final Pageable pageable
     ) {
         if (!AuthRole.ADMIN.equals(authRole)) {
@@ -80,7 +80,7 @@ public class AdminClubApplicationService {
             throw new MokkojiException(FailMessage.FORBIDDEN);
         }
 
-        if (clubApplication.getStatus() != ClubApplicationStatus.PENDING) {
+        if (clubApplication.getStatus() != ApplicationStatus.PENDING) {
             throw new MokkojiException(FailMessage.CONFLICT_CLUB_APPLICATION_STATUS);
         }
 
@@ -119,7 +119,7 @@ public class AdminClubApplicationService {
             throw new MokkojiException(FailMessage.FORBIDDEN);
         }
 
-        if (clubApplication.getStatus() != ClubApplicationStatus.PENDING) {
+        if (clubApplication.getStatus() != ApplicationStatus.PENDING) {
             throw new MokkojiException(FailMessage.CONFLICT_CLUB_APPLICATION_STATUS);
         }
 

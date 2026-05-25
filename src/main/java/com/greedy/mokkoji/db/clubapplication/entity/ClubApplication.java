@@ -5,7 +5,7 @@ import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
-import com.greedy.mokkoji.enums.clubApplication.ClubApplicationStatus;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -49,7 +49,7 @@ public class ClubApplication extends BaseTime {
 
     @Column(name = "status", columnDefinition = "varchar(20)", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ClubApplicationStatus status;
+    private ApplicationStatus status;
 
     @Column(name = "reject_reason", columnDefinition = "text")
     private String rejectReason;
@@ -87,7 +87,7 @@ public class ClubApplication extends BaseTime {
         this.applicant = applicant;
         this.applicantName = applicantName;
         this.clubName = clubName;
-        this.status = ClubApplicationStatus.PENDING;
+        this.status = ApplicationStatus.PENDING;
         this.rejectReason = null;
         this.clubCategory = clubCategory;
         this.clubAffiliation = clubAffiliation;
@@ -97,11 +97,11 @@ public class ClubApplication extends BaseTime {
     }
 
     public void approve() {
-        this.status = ClubApplicationStatus.APPROVED;
+        this.status = ApplicationStatus.APPROVED;
     }
 
     public void reject(String rejectReason) {
         this.rejectReason = rejectReason;
-        this.status = ClubApplicationStatus.REJECTED;
+        this.status = ApplicationStatus.REJECTED;
     }
 }
