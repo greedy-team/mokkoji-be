@@ -1,33 +1,44 @@
 package com.greedy.mokkoji.api.clubmaster.service;
 
+import com.greedy.mokkoji.api.auth.service.ClubManageAuthorizer;
 import com.greedy.mokkoji.api.clubmaster.dto.response.GetMyClubMasterApplicationsResponse;
+import com.greedy.mokkoji.api.email.service.EmailService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
+import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterTransfer;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
+import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterTransferRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
+import com.greedy.mokkoji.db.user.repository.RedisRepository;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ClubMasterService {
-
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
+    private final ClubMasterTransferRepository clubMasterTransferRepository;
+    private final ClubManageAuthorizer clubManageAuthorizer;
     private final UniversityRepository universityRepository;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
+    private final RedisRepository redisRepository;
 
     @Transactional
     public void createClubMasterApplication(
@@ -75,6 +86,42 @@ public class ClubMasterService {
                         application.getUpdatedAt()
                 ))
                 .toList();
+    }
+
+    public void applyClubMasterTransfer(
+            final AuthRole authRole,
+            final Long userId,
+            final Long clubId,
+            final String nextClubMasterName,
+            String nextClubMasterEmail
+    ) {
+        Club club = findClubOrThrow(clubId);
+        clubManageAuthorizer.validateCanManageClub(authRole, userId, club);
+        User previousMaster = findUserOrThrow(userId);
+
+        ClubMasterTransfer transfer = ClubMasterTransfer.builder()
+                .club(club)
+                .previousMaster(previousMaster)
+                .nextMasterName(nextClubMasterName)
+                .nextMasterEmail(nextClubMasterEmail)
+                .build();
+        clubMasterTransferRepository.save(transfer);
+
+        String url = createClubMasterTransferUrl(clubId);
+        emailService.sendClubMasterTransferNotification(nextClubMasterEmail, club.getName(), url);
+    }
+
+    private String createClubMasterTransferUrl(Long clubId) {
+        String uuid = UUID.randomUUID().toString().substring(0, 8);
+
+        redisRepository.save("clubTransfer:" + uuid, String.valueOf(clubId), 10 * 60 * 1000);
+
+        String url = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/transfer/club-master/{uuid}")
+                .buildAndExpand(uuid)
+                .toUriString();
+
+        return url;
     }
 
     private University findUniversityOrThrow(final UniversityCode universityCode) {

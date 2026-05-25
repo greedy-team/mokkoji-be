@@ -7,8 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ClubMasterTransferStatus {
     PENDING("승인 전"),
-    APPROVED("승인"),
-    EXPIRED("링크 만료");
+    APPROVED("승인");
 
     private final String description;
 }
