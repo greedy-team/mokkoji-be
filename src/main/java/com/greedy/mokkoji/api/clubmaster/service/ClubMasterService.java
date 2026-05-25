@@ -117,7 +117,7 @@ public class ClubMasterService {
         redisRepository.save("clubTransfer:" + uuid, String.valueOf(clubId), 10 * 60 * 1000);
 
         String url = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/transfer/club-master/{uuid}")
+                .path("/club-master-transfer/{uuid}")
                 .buildAndExpand(uuid)
                 .toUriString();
 
