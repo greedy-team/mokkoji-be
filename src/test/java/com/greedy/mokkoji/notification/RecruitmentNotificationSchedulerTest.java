@@ -81,7 +81,7 @@ public class RecruitmentNotificationSchedulerTest {
 
         BDDMockito.doNothing()
                 .when(emailService)
-                .sendNotification(
+                .sendRecruitmentNotification(
                         nullable(Long.class),
                         any(String.class),
                         any(Recruitment.class)
@@ -95,7 +95,7 @@ public class RecruitmentNotificationSchedulerTest {
                 .findAllByRecruitStartToday(currentDateTime.toLocalDate());
 
         BDDMockito.verify(emailService, times(2))
-                .sendNotification(
+                .sendRecruitmentNotification(
                         nullable(Long.class),
                         any(String.class),
                         any(Recruitment.class)
