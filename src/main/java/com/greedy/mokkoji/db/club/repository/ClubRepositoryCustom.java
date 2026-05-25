@@ -12,6 +12,11 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ClubRepositoryCustom {
+    Page<Club> findClubsForAdmin(
+            final UniversityCode universityCode,
+            final Pageable pageable
+    );
+
     Page<Club> findClubsWithLatestRecruitment(
             final UniversityCode universityCode,
             final String keyword,

@@ -34,6 +34,27 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
+    public Page<Club> findClubsForAdmin(final UniversityCode universityCode, final Pageable pageable) {
+        final List<Club> clubs = queryFactory.selectFrom(club)
+                .leftJoin(club.master).fetchJoin()
+                .leftJoin(club.university).fetchJoin()
+                .where(equalUniversityCode(universityCode))
+                .orderBy(club.id.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        final long total = Optional.ofNullable(
+                queryFactory.select(club.count())
+                        .from(club)
+                        .where(equalUniversityCode(universityCode))
+                        .fetchOne()
+        ).orElse(0L);
+
+        return new PageImpl<>(clubs, pageable, total);
+    }
+
+    @Override
     public Page<Club> findClubsWithLatestRecruitment(
             final UniversityCode universityCode,
             final String keyword,
