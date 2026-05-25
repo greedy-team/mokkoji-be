@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.notification.service;
+package com.greedy.mokkoji.api.mail.service;
 
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationService {
+public class EmailService {
     private final RecruitmentNotificationChannel recruitmentNotificationChannel;
     private final FavoriteRepository favoriteRepository;
 
@@ -37,3 +37,4 @@ public class NotificationService {
         );
     }
 }
+

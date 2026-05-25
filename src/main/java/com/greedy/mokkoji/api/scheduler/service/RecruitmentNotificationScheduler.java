@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.api.scheduler.service;
 
-import com.greedy.mokkoji.api.notification.service.NotificationService;
+import com.greedy.mokkoji.api.mail.service.EmailService;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class RecruitmentNotificationScheduler {
 
     private final RecruitmentRepository recruitmentRepository;
-    private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Scheduled(cron = "${schedules.cron.reward.publish}", zone = "${schedules.cron.reward.zone}")
     @Transactional
@@ -51,7 +51,7 @@ public class RecruitmentNotificationScheduler {
         uniqueAndLatestRecruitments.forEach(recruitment -> {
             Club club = recruitment.getClub();
             try {
-                notificationService.sendNotification(club.getId(), club.getName(), recruitment);
+                emailService.sendNotification(club.getId(), club.getName(), recruitment);
             } catch (Exception e) {
                 log.error("[RECRUITMENT NOTI SUBMIT FAILED] clubId={} recruitmentId={} msg={}",
                         club.getId(), recruitment.getId(), e.getMessage(), e);

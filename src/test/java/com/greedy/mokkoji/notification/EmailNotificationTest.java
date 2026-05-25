@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.notification.service.RecruitmentNotificationEmailChannel;
+import com.greedy.mokkoji.api.mail.service.RecruitmentNotificationEmailChannel;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.*;

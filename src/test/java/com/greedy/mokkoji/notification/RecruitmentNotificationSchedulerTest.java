@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.notification.service.NotificationService;
+import com.greedy.mokkoji.api.mail.service.EmailService;
 import com.greedy.mokkoji.api.scheduler.service.RecruitmentNotificationScheduler;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
@@ -36,7 +36,7 @@ public class RecruitmentNotificationSchedulerTest {
     RecruitmentRepository recruitmentRepository;
 
     @Mock
-    NotificationService notificationService;
+    EmailService emailService;
 
     @Test
     @DisplayName("모집 공고가 오늘인 동아리를 찾아 알림을 보낸다")
@@ -80,7 +80,7 @@ public class RecruitmentNotificationSchedulerTest {
                 .willReturn(List.of(recruitment1, recruitment2));
 
         BDDMockito.doNothing()
-                .when(notificationService)
+                .when(emailService)
                 .sendNotification(
                         nullable(Long.class),
                         any(String.class),
@@ -94,7 +94,7 @@ public class RecruitmentNotificationSchedulerTest {
         BDDMockito.verify(recruitmentRepository, times(1))
                 .findAllByRecruitStartToday(currentDateTime.toLocalDate());
 
-        BDDMockito.verify(notificationService, times(2))
+        BDDMockito.verify(emailService, times(2))
                 .sendNotification(
                         nullable(Long.class),
                         any(String.class),

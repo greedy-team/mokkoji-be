@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.notification.service.RecruitmentNotificationChannel;
-import com.greedy.mokkoji.api.notification.service.NotificationService;
+import com.greedy.mokkoji.api.mail.service.RecruitmentNotificationChannel;
+import com.greedy.mokkoji.api.mail.service.EmailService;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.times;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class NotificationTest {
     @InjectMocks
-    NotificationService notificationService;
+    EmailService emailService;
 
     @Mock
     FavoriteRepository favoriteRepository;
@@ -92,7 +92,7 @@ public class NotificationTest {
                 .sendNotification(any(), any(), any(), any(), any());
 
         // when
-        notificationService.sendNotification(club.getId(), club.getName(), recruitment);
+        emailService.sendNotification(club.getId(), club.getName(), recruitment);
 
         // then
         BDDMockito.verify(favoriteRepository, times(1))

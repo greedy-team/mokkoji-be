@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.notification.service;
+package com.greedy.mokkoji.api.mail.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -20,7 +20,7 @@ import static com.greedy.mokkoji.enums.message.FailMessage.*;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class EmailNotificationChannel implements NotificationChannel {
+public class RecruitmentNotificationEmailChannel implements RecruitmentNotificationChannel {
     private static final String SUBJECT = " 모집 안내";
     private static final String SENDER_NAME = "모꼬지(mokkoji)";
     private static final String OFFICIAL_EMAIL = "noreply@mokkoji.com";
@@ -33,6 +33,53 @@ public class EmailNotificationChannel implements NotificationChannel {
     private String baseUrl;
     @Value("${mokkoji.mail.banner-url}")
     private String mailBannerUrl;
+
+    @Override
+    public void sendNotification(
+            final List<String> receiverMails,
+            final Long clubId,
+            final String clubName,
+            final LocalDateTime recruitStartTime,
+            final LocalDateTime recruitEndTime
+    ) {
+        try {
+            final MimeMessage mimeMessage = mailSender.createMimeMessage();
+            final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+
+            helper.setFrom(senderMail, SENDER_NAME);
+            helper.setTo(OFFICIAL_EMAIL);
+
+            final String[] receiverMailsS = receiverMails.toArray(String[]::new);
+            helper.setBcc(receiverMailsS);
+
+            helper.setSubject(clubName + SUBJECT);
+
+            final String text = generateHtmlText(clubId, clubName, recruitStartTime, recruitEndTime);
+            helper.setText(text, true);
+            mailSender.send(mimeMessage);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            log.error("[MAIL GENERATING ERROR] clubId={} clubName={} receiver={} message={}",
+                    clubId,
+                    clubName,
+                    receiverMails,
+                    e.getMessage());
+            discordNotifier.notifyRecruitmentNotificationEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR_SMTP_MAIL.getMessage());
+        } catch (MailException e) {
+            log.error("[MAIL SEND FAILED] clubId={} clubName={} receiver={} message={}",
+                    clubId,
+                    clubName,
+                    receiverMails,
+                    e.getMessage());
+            discordNotifier.notifyRecruitmentNotificationEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR_SMTP.getMessage());
+        } catch (Exception e) {
+            log.error("[EMAIL UNEXPECTED ERROR] clubId={}, clubName={} receiver={}",
+                    clubId,
+                    clubName,
+                    receiverMails,
+                    e);
+            discordNotifier.notifyRecruitmentNotificationEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR.getMessage());
+        }
+    }
 
     private String generateHtmlText(
             final Long clubId,
@@ -82,53 +129,6 @@ public class EmailNotificationChannel implements NotificationChannel {
                 clubId
         );
 
-    }
-
-    @Override
-    public void sendNotification(
-            final List<String> receiverMails,
-            final Long clubId,
-            final String clubName,
-            final LocalDateTime recruitStartTime,
-            final LocalDateTime recruitEndTime
-    ) {
-        try {
-            final MimeMessage mimeMessage = mailSender.createMimeMessage();
-            final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-
-            helper.setFrom(senderMail, SENDER_NAME);
-            helper.setTo(OFFICIAL_EMAIL);
-
-            final String[] receiverMailsS = receiverMails.toArray(String[]::new);
-            helper.setBcc(receiverMailsS);
-
-            helper.setSubject(clubName + SUBJECT);
-
-            final String text = generateHtmlText(clubId, clubName, recruitStartTime, recruitEndTime);
-            helper.setText(text, true);
-            mailSender.send(mimeMessage);
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            log.error("[MAIL GENERATING ERROR] clubId={} clubName={} receivers={} message={}",
-                    clubId,
-                    clubName,
-                    receiverMails,
-                    e.getMessage());
-            discordNotifier.notifyEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR_SMTP_MAIL.getMessage());
-        } catch (MailException e) {
-            log.error("[MAIL SEND FAILED] clubId={} clubName={} receivers={} message={}",
-                    clubId,
-                    clubName,
-                    receiverMails,
-                    e.getMessage());
-            discordNotifier.notifyEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR_SMTP.getMessage());
-        } catch (Exception e) {
-            log.error("[EMAIL UNEXPECTED ERROR] clubId={}, clubName={} receivers={}",
-                    clubId,
-                    clubName,
-                    receiverMails,
-                    e);
-            discordNotifier.notifyEmailFailure(clubId, clubName, receiverMails.size(), INTERNAL_SERVER_ERROR.getMessage());
-        }
     }
 }
 
