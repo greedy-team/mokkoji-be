@@ -46,7 +46,7 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
         );
     }
 
-    @PostMapping("club-master-transfers")
+    @PostMapping("/club-master-transfers")
     public ResponseEntity<APISuccessResponse<Void>> applyClubMasterTransfer(
             @Authentication final AuthCredential authCredential,
             @RequestBody final ApplyClubMasterTransferRequest request
@@ -62,7 +62,7 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
-    @GetMapping("club-master-transfer/{uuid}")
+    @GetMapping("/club-master-transfer/{uuid}")
     public ResponseEntity<APISuccessResponse<Void>> acceptClubMasterTransfer(
             @Authentication final AuthCredential authCredential,
             @PathVariable("uuid") final String uuid
