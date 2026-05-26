@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class ClubMasterController {
+public class ClubMasterController implements ClubMasterControllerSwagger {
 
     private final ClubMasterService clubMasterApplicationService;
 
