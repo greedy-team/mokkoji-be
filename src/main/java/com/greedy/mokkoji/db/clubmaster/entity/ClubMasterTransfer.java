@@ -23,7 +23,7 @@ public class ClubMasterTransfer {
     private Club club;
 
     @JoinColumn(name = "previous_master_id", columnDefinition = "bigint")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User previousMaster;
 
     @Column(name = "next_master_name", columnDefinition = "varchar(50)", nullable = false)
