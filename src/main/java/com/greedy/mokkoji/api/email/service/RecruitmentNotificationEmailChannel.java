@@ -59,7 +59,7 @@ public class RecruitmentNotificationEmailChannel extends AbstractEmailSender imp
                         <p><strong>모집 기간 : %s ~ %s</strong></p>
                         <p>지금 바로 지원하여 기회를 놓치지 마세요!</p>
                         <p>모꼬지 드림.</p>
-                        <a href="%s/club/%d" style="display: inline-block; padding: 10px 15px; font-size: 14px; color: #000000; background-color: #4AF38A; text-decoration: none; border-radius: 40px; font-weight: 500;">신청하러 가기</a>
+                        <a href="%s/club/%d" style="display: inline-block; padding: 10px 15px; font-size: 14px; color: #000000; background-color: #4AF38A; text-decoration: none; border-radius: 40px; font-weight: 500;"><strong>신청하러 가기</strong></a>
                     </div>
                 </body>
                 </html>
