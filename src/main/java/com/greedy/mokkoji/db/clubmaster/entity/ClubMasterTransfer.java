@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "club_master_application")
+@Table(name = "club_master_transfer")
 public class ClubMasterTransfer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
