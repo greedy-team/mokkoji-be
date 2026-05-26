@@ -1,6 +1,8 @@
 package com.greedy.mokkoji.api.clubmaster.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
+import com.greedy.mokkoji.api.clubmaster.dto.request.ApplyClubMasterTransferRequest;
+import com.greedy.mokkoji.api.clubmaster.dto.request.CreateClubMasterApplicationsRequest;
 import com.greedy.mokkoji.api.clubmaster.dto.request.CreateClubMasterApplicationRequest;
 import com.greedy.mokkoji.api.clubmaster.dto.response.GetMyClubMasterApplicationsResponse;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
@@ -34,5 +36,27 @@ public interface ClubMasterControllerSwagger {
     @ApiResponse(responseCode = "200", description = "조회 성공")
     ResponseEntity<APISuccessResponse<List<GetMyClubMasterApplicationsResponse>>> getMyClubMasterApplications(
             @Parameter(hidden = true) AuthCredential authCredential
+    );
+
+    @Operation(
+            summary = "동아리 회장 권한 위임 신청 API",
+            description = "현재 동아리장이 차기 동아리장에게 권한 위임을 신청합니다.",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
+    @ApiResponse(responseCode = "201", description = "위임 신청 성공")
+    ResponseEntity<APISuccessResponse<Void>> applyClubMasterTransfer(
+            @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "applyClubMasterTransferRequest", description = "회장 권한 위임 요청 본문") ApplyClubMasterTransferRequest request
+    );
+
+    @Operation(
+            summary = "동아리 회장 권한 위임 수락 API",
+            description = "초대 링크를 통해 위임 요청을 최종 수락합니다.",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
+    @ApiResponse(responseCode = "200", description = "위임 수락 성공")
+    ResponseEntity<APISuccessResponse<Void>> acceptClubMasterTransfer(
+            @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "uuid", description = "동아리 식별용 고유 UUID") String uuid
     );
 }
