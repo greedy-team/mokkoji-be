@@ -89,7 +89,7 @@ public class UserService {
     }
 
     @Transactional
-    public void logOut(final AuthRole authRole, final Long userId) {
+    public void logout(final AuthRole authRole, final Long userId) {
         tokenService.deleteRefreshToken(authRole, userId);
     }
 
