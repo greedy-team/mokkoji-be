@@ -1,11 +1,10 @@
-package com.greedy.mokkoji.api.admin.service;
+package com.greedy.mokkoji.api.clubmaster.service;
 
 import com.greedy.mokkoji.api.admin.dto.response.ClubMasterApplicationPreviewResponse;
 import com.greedy.mokkoji.api.admin.dto.response.GetClubMasterApplicationsResponse;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
-import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -23,10 +22,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AdminService {
+public class AdminClubMasterService {
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final UserRepository userRepository;
-    private final ClubRepository clubRepository;
 
     @Transactional
     public GetClubMasterApplicationsResponse getClubMasterApplications(
