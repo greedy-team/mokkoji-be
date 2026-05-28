@@ -39,7 +39,7 @@ public class ClubMasterService {
         University university = findUniversityOrThrow(universityCode);
 
         Club club = findClubOrThrow(clubId);
-        validateClubHasMaster(club);
+        validateClubMasterNotExists(club);
 
         User user = findUserOrThrow(userId);
         validateDuplicateApplication(user, university);
@@ -92,7 +92,7 @@ public class ClubMasterService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
-    private void validateClubHasMaster(Club club) {
+    private void validateClubMasterNotExists(Club club) {
         if (club.getMaster() != null) {
             throw new MokkojiException(FailMessage.FORBIDDEN_ALREADY_EXIST_CLUB_MASTER);
         }
