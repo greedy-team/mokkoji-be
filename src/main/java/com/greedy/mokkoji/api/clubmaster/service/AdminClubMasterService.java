@@ -9,6 +9,7 @@ import com.greedy.mokkoji.db.admin.repository.AdminRepository;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +74,11 @@ public class AdminClubMasterService {
         validateAdminRole(authRole);
 
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
+
+        if (application.getStatus() != ApplicationStatus.PENDING) {
+            throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
+        }
+
         Admin admin = findAdminOrThrow(userId);
 
         validateAdmin(admin, application.getUniversityId());

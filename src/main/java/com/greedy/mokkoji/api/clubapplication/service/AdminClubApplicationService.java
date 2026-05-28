@@ -81,7 +81,7 @@ public class AdminClubApplicationService {
         }
 
         if (clubApplication.getStatus() != ApplicationStatus.PENDING) {
-            throw new MokkojiException(FailMessage.CONFLICT_CLUB_APPLICATION_STATUS);
+            throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
         }
 
         final User applicant = clubApplication.getApplicant();
@@ -120,7 +120,7 @@ public class AdminClubApplicationService {
         }
 
         if (clubApplication.getStatus() != ApplicationStatus.PENDING) {
-            throw new MokkojiException(FailMessage.CONFLICT_CLUB_APPLICATION_STATUS);
+            throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
         }
 
         clubApplication.reject(rejectReason);
