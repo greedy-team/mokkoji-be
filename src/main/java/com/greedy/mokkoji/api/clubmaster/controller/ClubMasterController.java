@@ -9,20 +9,18 @@ import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("${api.prefix}/club-master-applications")
 public class ClubMasterController implements ClubMasterControllerSwagger {
 
     private final ClubMasterService clubMasterApplicationService;
 
-    @PostMapping("${api.prefix}/club-master-applications")
+    @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createClubMasterApplication(
             @Authentication final AuthCredential authCredential,
             @RequestBody final CreateClubMasterApplicationsRequest request
@@ -37,7 +35,7 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
-    @GetMapping("/club-master-applications/me")
+    @GetMapping("/me")
     public ResponseEntity<APISuccessResponse<List<GetMyClubMasterApplicationsResponse>>> getMyClubMasterApplications(
             @Authentication final AuthCredential authCredential
     ) {
