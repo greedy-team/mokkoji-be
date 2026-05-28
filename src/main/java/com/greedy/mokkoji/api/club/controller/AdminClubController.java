@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/clubs")
+@RequestMapping("${api.prefix}/admin/clubs")
 public class AdminClubController implements AdminClubControllerSwagger {
 
     private final AdminClubService adminClubService;

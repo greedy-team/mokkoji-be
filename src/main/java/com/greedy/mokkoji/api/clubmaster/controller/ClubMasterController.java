@@ -22,7 +22,7 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
 
     private final ClubMasterService clubMasterApplicationService;
 
-    @PostMapping("/club-master-applications")
+    @PostMapping("${api.prefix}/club-master-applications")
     public ResponseEntity<APISuccessResponse<Void>> createClubMasterApplication(
             @Authentication final AuthCredential authCredential,
             @RequestBody final CreateClubMasterApplicationsRequest request

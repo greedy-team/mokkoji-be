@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/club-applications")
+@RequestMapping("${api.prefix}/club-applications")
 public class ClubApplicationController implements ClubApplicationControllerSwagger {
 
     private final ClubApplicationService clubApplicationService;
