@@ -2,7 +2,7 @@ package com.greedy.mokkoji.api.admin.controller;
 
 import com.greedy.mokkoji.api.admin.dto.request.AdminLoginRequest;
 import com.greedy.mokkoji.api.admin.dto.response.AdminLoginResponse;
-import com.greedy.mokkoji.api.admin.service.AdminAuthService;
+import com.greedy.mokkoji.api.admin.service.AdminService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("${api.prefix}/admin")
 public class AdminController implements AdminControllerSwagger {
-    private final AdminAuthService adminAuthService;
+    private final AdminService adminAuthService;
 
     @PostMapping("/auth/login")
     public ResponseEntity<APISuccessResponse<AdminLoginResponse>> login(
