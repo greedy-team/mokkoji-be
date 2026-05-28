@@ -4,11 +4,11 @@ import com.greedy.mokkoji.api.admin.dto.response.ClubMasterApplicationPreviewRes
 import com.greedy.mokkoji.api.admin.dto.response.GetClubMasterApplicationsResponse;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.db.admin.entity.Admin;
+import com.greedy.mokkoji.db.admin.repository.AdminRepository;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
-import com.greedy.mokkoji.db.user.entity.User;
-import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class AdminClubMasterService {
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
-    private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
 
     @Transactional
     public GetClubMasterApplicationsResponse getClubMasterApplications(
@@ -34,8 +34,8 @@ public class AdminClubMasterService {
     ) {
         validateAdminRole(authRole);
 
-        User user = findUserOrThrow(userId);
-        Long universityId = user.getUniversity().getId();
+        Admin admin = findAdminOrThrow(userId);
+        Long universityId = admin.getUniversityId();
 
         Page<ClubMasterApplication> applicationPage = (universityId == null)
                 ? clubMasterApplicationRepository.findAllByOrderByCreatedAtAsc(pageable)
@@ -73,12 +73,12 @@ public class AdminClubMasterService {
         validateAdminRole(authRole);
 
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
-        User user = findUserOrThrow(userId);
+        Admin admin = findAdminOrThrow(userId);
 
-        validateAdmin(user, application.getUniversityId());
+        validateAdmin(admin, application.getUniversityId());
         Club club = application.getClub();
 
-        application.approve(club, user);
+        application.approve(club, application.getUser());
     }
 
     public void rejectClubMasterApplication(
@@ -90,9 +90,9 @@ public class AdminClubMasterService {
         validateAdminRole(authRole);
 
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
-        User user = findUserOrThrow(userId);
+        Admin admin = findAdminOrThrow(userId);
 
-        validateAdmin(user, application.getUniversityId());
+        validateAdmin(admin, application.getUniversityId());
 
         application.reject(rejectReason);
     }
@@ -103,15 +103,15 @@ public class AdminClubMasterService {
         }
     }
 
-    private void validateAdmin(User user, Long universityId) {
-        if (universityId != null && !universityId.equals(user.getUniversity().getId())) {
+    private void validateAdmin(Admin admin, Long universityId) {
+        if (universityId != null && !universityId.equals(admin.getUniversityId())) {
             throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_THIS_UNIVERSITY_CLUB);
         }
     }
 
-    private User findUserOrThrow(final Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+    private Admin findAdminOrThrow(final Long userId) {
+        return adminRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_ADMIN));
     }
 
     private ClubMasterApplication findClubMasterApplicationOrThrow(final Long applicationId) {
