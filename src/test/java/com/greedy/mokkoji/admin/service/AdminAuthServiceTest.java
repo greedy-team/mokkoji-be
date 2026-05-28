@@ -69,7 +69,7 @@ class AdminAuthServiceTest {
     }
 
     @Test
-    @DisplayName("등록되지 않은 계정이면 NOT_FOUND 예외를 던진다.")
+    @DisplayName("등록되지 않은 계정이면 로그인 예외를 던진다.")
     void login_notFoundEmail() {
         //given
         final String loginId = "unknown@konkuk.ac.kr";
@@ -78,7 +78,7 @@ class AdminAuthServiceTest {
         //when & then
         assertThatThrownBy(() -> adminAuthService.login(loginId, "rawPassword123!"))
                 .isInstanceOf(MokkojiException.class)
-                .hasMessage(FailMessage.NOT_FOUND_ADMIN.getMessage());
+                .hasMessage(FailMessage.UNAUTHORIZED_ADMIN_LOGIN.getMessage());
 
         verifyNoInteractions(tokenService);
     }
