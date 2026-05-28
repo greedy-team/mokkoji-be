@@ -1,18 +1,21 @@
 package com.greedy.mokkoji.api.admin.controller;
 
+import com.greedy.mokkoji.api.admin.dto.request.AdminLoginRequest;
 import com.greedy.mokkoji.api.admin.dto.request.RejectClubMasterApplicationRequest;
+import com.greedy.mokkoji.api.admin.dto.response.AdminLoginResponse;
 import com.greedy.mokkoji.api.admin.dto.response.GetClubMasterApplicationsResponse;
+import com.greedy.mokkoji.api.admin.service.AdminAuthService;
 import com.greedy.mokkoji.api.admin.service.AdminService;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,20 +24,20 @@ public class AdminController implements AdminControllerSwagger {
 
     private final AdminService adminService;
     private final AdminAuthService adminAuthService;
-  
+
     @PostMapping("/auth/login")
     public ResponseEntity<APISuccessResponse<AdminLoginResponse>> login(
             @RequestBody @Valid final AdminLoginRequest request
     ) {
         final AdminLoginResponse response = adminAuthService.login(request.loginId(), request.password());
         return APISuccessResponse.of(HttpStatus.OK, response);
+    }
 
     @GetMapping("club-master-applications")
     public ResponseEntity<APISuccessResponse<GetClubMasterApplicationsResponse>> getClubMasterApplications(
             @Authentication final AuthCredential authCredential,
             @RequestParam(value = "page") final int page,
-            @RequestParam(value = "size") final int size
-    ) {
+            @RequestParam(value = "size") final int size) {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,

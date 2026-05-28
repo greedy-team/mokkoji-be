@@ -2,8 +2,8 @@ package com.greedy.mokkoji.api.club.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.club.service.AdminClubService;
 import com.greedy.mokkoji.api.club.dto.response.AdminClubsResponse;
+import com.greedy.mokkoji.api.club.service.AdminClubService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
