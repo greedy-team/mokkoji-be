@@ -1,8 +1,8 @@
 package com.greedy.mokkoji.user.service;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
+import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
-import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.RedisRepository;
@@ -38,7 +38,7 @@ public class TokenServiceTest {
 
     @Test
     @DisplayName("로그인 시 토큰을 발급 받을 수 있다")
-    void generateToken() {
+    void issueTokens() {
         // given
         final User expected = User.builder()
                 .name("세종")
@@ -51,15 +51,15 @@ public class TokenServiceTest {
         doNothing().when(redisRepository).save(anyString(), anyString(), anyLong());
 
         // when
-        LoginResponse loginResponse = tokenService.generateToken(AuthRole.USER, expected.getId(), false);
+        TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, expected.getId());
 
         // then
-        assertThat(loginResponse).isNotNull();
-        assertThat(loginResponse.accessToken()).isNotBlank();
-        assertThat(loginResponse.refreshToken()).isNotBlank();
+        assertThat(tokenPair).isNotNull();
+        assertThat(tokenPair.accessToken()).isNotBlank();
+        assertThat(tokenPair.refreshToken()).isNotBlank();
 
         BDDMockito.verify(redisRepository, times(1))
-                .save(eq("refreshToken" + expected.getId()), eq("mockRefreshToken"), anyLong());
+                .save(eq("refreshToken:USER:" + expected.getId()), eq("mockRefreshToken"), anyLong());
     }
 
     @Test
@@ -77,17 +77,17 @@ public class TokenServiceTest {
         when(jwtUtil.generateRefreshToken(any(AuthCredential.class))).thenReturn("mockRefreshToken");
         doNothing().when(redisRepository).save(anyString(), anyString(), anyLong());
 
-        tokenService.generateToken(AuthRole.USER, userId, false);
+        tokenService.issueTokens(AuthRole.USER, userId);
 
         //when
-        tokenService.deleteRefreshToken(userId);
+        tokenService.deleteRefreshToken(AuthRole.USER, userId);
 
         //then
-        assertThat(tokenService.getRefreshToken(user.getId())).isNull();
+        assertThat(tokenService.getRefreshToken(AuthRole.USER, user.getId())).isNull();
 
         BDDMockito.verify(redisRepository, times(1))
-                .save(eq("refreshToken" + userId), eq("mockRefreshToken"), anyLong());
+                .save(eq("refreshToken:USER:" + userId), eq("mockRefreshToken"), anyLong());
         BDDMockito.verify(redisRepository, times(1))
-                .delete("refreshToken" + userId);
+                .delete("refreshToken:USER:" + userId);
     }
 }

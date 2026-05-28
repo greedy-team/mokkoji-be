@@ -20,6 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final Set<String> excludedPaths = Set.of(
             "/users/auth/kakao",
             "/users/auth/refresh",
+            "/admin/auth/login",
             "/clubs/**",
             "/recruitments/**",
             "/comments/**",

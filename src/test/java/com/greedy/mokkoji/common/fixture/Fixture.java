@@ -1,10 +1,12 @@
 package com.greedy.mokkoji.common.fixture;
 
+import com.greedy.mokkoji.db.admin.entity.Admin;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
+import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.university.UniversityCode;
@@ -53,6 +55,14 @@ public class Fixture {
                 .email("모꼬지@test.com")
                 .isEmailOn(true)
                 .role(role)
+                .build();
+    }
+
+    public static Admin createAdmin() {
+        return Admin.builder()
+                .loginId("admin@konkuk.ac.kr")
+                .password("encodedPassword")
+                .role(AdminRole.MOKKOJI_ADMIN)
                 .build();
     }
 

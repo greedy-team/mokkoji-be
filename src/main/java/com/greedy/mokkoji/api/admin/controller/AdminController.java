@@ -12,13 +12,22 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin")
+@RequestMapping("${api.prefix}/admin")
 public class AdminController implements AdminControllerSwagger {
 
     private final AdminService adminService;
+    private final AdminAuthService adminAuthService;
+  
+    @PostMapping("/auth/login")
+    public ResponseEntity<APISuccessResponse<AdminLoginResponse>> login(
+            @RequestBody @Valid final AdminLoginRequest request
+    ) {
+        final AdminLoginResponse response = adminAuthService.login(request.loginId(), request.password());
+        return APISuccessResponse.of(HttpStatus.OK, response);
 
     @GetMapping("club-master-applications")
     public ResponseEntity<APISuccessResponse<GetClubMasterApplicationsResponse>> getClubMasterApplications(
