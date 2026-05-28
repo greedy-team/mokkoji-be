@@ -24,7 +24,7 @@ public class AdminAuthService {
     @Transactional(readOnly = true)
     public AdminLoginResponse login(final String loginId, final String password) {
         final Admin admin = adminRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_ADMIN));
+                .orElseThrow(() -> new MokkojiException(FailMessage.UNAUTHORIZED_ADMIN_LOGIN));
 
         if (!passwordEncoder.matches(password, admin.getPassword())) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_ADMIN_LOGIN);
