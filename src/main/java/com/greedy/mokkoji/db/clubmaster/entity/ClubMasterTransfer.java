@@ -22,7 +22,7 @@ public class ClubMasterTransfer {
     @ManyToOne(fetch = FetchType.LAZY)
     private Club club;
 
-    @JoinColumn(name = "previous_master_id", columnDefinition = "bigint")
+    @JoinColumn(name = "previous_master_id", columnDefinition = "bigint", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private User previousMaster;
 
