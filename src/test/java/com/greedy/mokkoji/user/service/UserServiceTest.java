@@ -14,10 +14,13 @@ import com.greedy.mokkoji.api.user.service.kakao.KakaoSocialLoginService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.university.entity.University;
+import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -61,6 +64,9 @@ public class UserServiceTest {
 
     @Mock
     JwtUtil jwtUtil;
+
+    @Mock
+    UniversityRepository universityRepository;
 
     @Test
     @DisplayName("기존 사용자가 카카오 로그인 시 기존 유저로 토큰을 발급한다.")
@@ -158,7 +164,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("User의 이메일 정보를 업데이트 할 수 있다.")
+    @DisplayName("사용자의 이메일 정보를 업데이트 할 수 있다.")
     void updateEmail() {
         // given
         final User user = User.builder()
@@ -170,10 +176,51 @@ public class UserServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         // when
-        userService.updateUserInformation(1L, "updated@email.com", null);
+        userService.updateUserInformation(1L, "updated@email.com", null, null);
 
         // then
         assertThat(user.getEmail()).isEqualTo("updated@email.com");
+    }
+
+    @Test
+    @DisplayName("사용자의 소속 학교를 업데이트 할 수 있다")
+    void updateUniversity() {
+        // given
+        final User user = User.builder()
+                .name("세종")
+                .kakaoId("kakao-12341234")
+                .build();
+        final University konkuk = University.builder()
+                .name("건국대학교")
+                .code(UniversityCode.KONKUK)
+                .build();
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(universityRepository.findByCode(UniversityCode.KONKUK)).thenReturn(Optional.of(konkuk));
+
+        // when
+        userService.updateUserInformation(1L, null, null, UniversityCode.KONKUK);
+
+        // then
+        assertThat(user.getUniversity()).isEqualTo(konkuk);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 학교 코드로 변경 시 예외가 발생한다.")
+    void updateUniversityNotFound() {
+        // given
+        final User user = User.builder()
+                .name("세종")
+                .kakaoId("kakao-12341234")
+                .build();
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+        when(universityRepository.findByCode(UniversityCode.KONKUK)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> userService.updateUserInformation(1L, null, null, UniversityCode.KONKUK))
+                .isInstanceOf(MokkojiException.class)
+                .hasMessage(FailMessage.NOT_FOUND_UNIVERSITY.getMessage());
     }
 
     @Test
