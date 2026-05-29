@@ -24,6 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
             "/clubs/**",
             "/recruitments/**",
             "/comments/**",
+            "/universities/**",
             "/test/health-check/**"
     );
 
