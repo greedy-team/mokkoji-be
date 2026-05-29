@@ -2,6 +2,7 @@ package com.greedy.mokkoji.api.clubmaster.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
+import com.greedy.mokkoji.api.clubmaster.dto.request.ApplyClubMasterTransferRequest;
 import com.greedy.mokkoji.api.clubmaster.dto.request.CreateClubMasterApplicationRequest;
 import com.greedy.mokkoji.api.clubmaster.dto.response.GetMyClubMasterApplicationsResponse;
 import com.greedy.mokkoji.api.clubmaster.service.ClubMasterService;
@@ -15,12 +16,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/club-master-applications")
+@RequestMapping("${api.prefix}")
 public class ClubMasterController implements ClubMasterControllerSwagger {
 
     private final ClubMasterService clubMasterApplicationService;
 
-    @PostMapping
+    @PostMapping("/club-master-applications")
     public ResponseEntity<APISuccessResponse<Void>> createClubMasterApplication(
             @Authentication final AuthCredential authCredential,
             @RequestBody final CreateClubMasterApplicationRequest request
@@ -35,7 +36,7 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
-    @GetMapping("/me")
+    @GetMapping("/club-master-applications/me")
     public ResponseEntity<APISuccessResponse<List<GetMyClubMasterApplicationsResponse>>> getMyClubMasterApplications(
             @Authentication final AuthCredential authCredential
     ) {
@@ -44,4 +45,21 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
                 clubMasterApplicationService.getMyClubMasterApplications(authCredential.userId())
         );
     }
+
+    @PostMapping("club-master-transfers")
+    public ResponseEntity<APISuccessResponse<Void>> applyClubMasterTransfer(
+            @Authentication final AuthCredential authCredential,
+            @RequestBody final ApplyClubMasterTransferRequest request
+    ) {
+        clubMasterApplicationService.applyClubMasterTransfer(
+                authCredential.authRole(),
+                authCredential.userId(),
+                request.clubId(),
+                request.nextClubMasterName(),
+                request.nextClubMasterEmail()
+        );
+
+        return APISuccessResponse.of(HttpStatus.CREATED, null);
+    }
+
 }
