@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.api.university.controller;
 
-import com.greedy.mokkoji.api.university.dto.response.UniversitiesResponse;
+import com.greedy.mokkoji.api.university.dto.response.GetUniversitiesResponse;
 import com.greedy.mokkoji.api.university.service.UniversityService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class UniversityController implements UniversityControllerSwagger {
     private final UniversityService universityService;
 
     @GetMapping
-    public ResponseEntity<APISuccessResponse<UniversitiesResponse>> getUniversities() {
+    public ResponseEntity<APISuccessResponse<GetUniversitiesResponse>> getUniversities() {
         return APISuccessResponse.of(
                 HttpStatus.OK,
                 universityService.getUniversities()

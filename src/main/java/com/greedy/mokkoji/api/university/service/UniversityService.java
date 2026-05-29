@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.api.university.service;
 
-import com.greedy.mokkoji.api.university.dto.response.UniversitiesResponse;
-import com.greedy.mokkoji.api.university.dto.response.UniversityResponse;
+import com.greedy.mokkoji.api.university.dto.response.GetUniversitiesResponse;
+import com.greedy.mokkoji.api.university.dto.response.GetUniversityResponse;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,11 +16,11 @@ public class UniversityService {
     private final UniversityRepository universityRepository;
 
     @Transactional(readOnly = true)
-    public UniversitiesResponse getUniversities() {
-        final List<UniversityResponse> universities = universityRepository.findAll().stream()
-                .map(UniversityResponse::from)
+    public GetUniversitiesResponse getUniversities() {
+        final List<GetUniversityResponse> universities = universityRepository.findAll().stream()
+                .map(GetUniversityResponse::from)
                 .toList();
 
-        return UniversitiesResponse.of(universities);
+        return GetUniversitiesResponse.of(universities);
     }
 }
