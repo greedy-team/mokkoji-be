@@ -7,8 +7,10 @@ import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,34 +22,43 @@ public class ManageAuthorizer {
     private final AdminRepository adminRepository;
 
     public void validateCanManageClub(final AuthRole authRole, final Long userId, final Club club) {
-        if (userId == null) {
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
+        validateAuthenticated(userId);
 
         if (AuthRole.ADMIN.equals(authRole)) {
             Admin admin = findAdminOrThrow(userId);
-            admin.canManageAllUniversitiesAndClubs();
+            if (AdminRole.MOKKOJI_ADMIN.equals(admin.getRole())) return;
         }
 
         if (AuthRole.USER.equals(authRole)) {
             User user = findUserOrThrow(userId);
-            user.canManageClub(club);
+            if (user.getRole() == UserRole.CLUB_MASTER && club.getMasterId().equals(userId)) return;
         }
 
         throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
     }
 
-    public void validateCanManageUniversity(final AuthRole authRole, final Long userId, final University university) {
+    public void validateAdminAuth(final AuthRole authRole, final Long userId) {
+        validateAuthenticated(userId);
+
+        if (AuthRole.ADMIN.equals(authRole)) return;
+
+        throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_UNIVERSITY_CLUB);
+    }
+
+    public void validateCanManageUniversity(final Long adminId, final University university) {
+        Admin admin = findAdminOrThrow(adminId);
+
+        if (AdminRole.MOKKOJI_ADMIN.equals(admin.getRole())) return;
+
+        if (university != null && university.getId().equals(admin.getUniversityId())) return;
+
+        throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
+    }
+
+    private void validateAuthenticated(final Long userId) {
         if (userId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
-
-        if (!AuthRole.ADMIN.equals(authRole)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_UNIVERSITY_CLUB);
-        }
-
-        Admin admin = findAdminOrThrow(userId);
-        admin.canManageUniversity(university);
     }
 
     private Admin findAdminOrThrow(final Long userId) {

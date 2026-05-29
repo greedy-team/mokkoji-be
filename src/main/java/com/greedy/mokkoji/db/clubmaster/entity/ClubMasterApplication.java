@@ -58,12 +58,8 @@ public class ClubMasterApplication extends BaseTime {
         this.status = ApplicationStatus.PENDING;
     }
 
-    public Long getUniversityId() {
-        return university.getId();
-    }
-
-    public void approve(Club club, User user) {
-        club.updateMaster(user);
+    public void approve(User user) {
+        this.club.updateMaster(user);
         this.status = ApplicationStatus.APPROVED;
     }
 

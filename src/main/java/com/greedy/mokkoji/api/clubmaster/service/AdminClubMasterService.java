@@ -2,11 +2,11 @@ package com.greedy.mokkoji.api.clubmaster.service;
 
 import com.greedy.mokkoji.api.admin.dto.response.ClubMasterApplicationPreviewResponse;
 import com.greedy.mokkoji.api.admin.dto.response.GetClubMasterApplicationsResponse;
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.admin.entity.Admin;
 import com.greedy.mokkoji.db.admin.repository.AdminRepository;
-import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
@@ -26,6 +26,7 @@ import java.util.List;
 public class AdminClubMasterService {
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final AdminRepository adminRepository;
+    private ManageAuthorizer manageAuthorizer;
 
     @Transactional
     public GetClubMasterApplicationsResponse getClubMasterApplications(
@@ -33,7 +34,7 @@ public class AdminClubMasterService {
             final Long userId,
             final Pageable pageable
     ) {
-        validateAdminRole(authRole);
+        manageAuthorizer.validateAdminAuth(authRole, userId);
 
         Admin admin = findAdminOrThrow(userId);
         Long universityId = admin.getUniversityId();
@@ -71,20 +72,12 @@ public class AdminClubMasterService {
             final Long userId,
             final Long applicationId
     ) {
-        validateAdminRole(authRole);
-
+        manageAuthorizer.validateAdminAuth(authRole, userId);
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
+        manageAuthorizer.validateCanManageUniversity(userId, application.getUniversity());
 
-        if (application.getStatus() != ApplicationStatus.PENDING) {
-            throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
-        }
-
-        Admin admin = findAdminOrThrow(userId);
-
-        validateAdmin(admin, application.getUniversityId());
-        Club club = application.getClub();
-
-        application.approve(club, application.getUser());
+        validateCanChangeApplicationStatus(application);
+        application.approve(application.getUser());
     }
 
     public void rejectClubMasterApplication(
@@ -93,25 +86,17 @@ public class AdminClubMasterService {
             final Long applicationId,
             final String rejectReason
     ) {
-        validateAdminRole(authRole);
-
+        manageAuthorizer.validateAdminAuth(authRole, userId);
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
-        Admin admin = findAdminOrThrow(userId);
+        manageAuthorizer.validateCanManageUniversity(userId, application.getUniversity());
 
-        validateAdmin(admin, application.getUniversityId());
-
+        validateCanChangeApplicationStatus(application);
         application.reject(rejectReason);
     }
 
-    private void validateAdminRole(AuthRole authRole) {
-        if (!AuthRole.ADMIN.equals(authRole)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_UNIVERSITY_CLUB);
-        }
-    }
-
-    private void validateAdmin(Admin admin, Long universityId) {
-        if (universityId != null && !universityId.equals(admin.getUniversityId())) {
-            throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_THIS_UNIVERSITY_CLUB);
+    private void validateCanChangeApplicationStatus(ClubMasterApplication application) {
+        if (application.getStatus() != ApplicationStatus.PENDING) {
+            throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
         }
     }
 

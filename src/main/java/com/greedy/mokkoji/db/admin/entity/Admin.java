@@ -47,17 +47,6 @@ public class Admin extends BaseTime {
         this.role = role;
     }
 
-    public boolean canManageUniversity(University university) {
-        if (university == null) {
-            return AdminRole.MOKKOJI_ADMIN.equals(this.role);
-        }
-        return university.getId().equals(this.getUniversityId());
-    }
-
-    public boolean canManageAllUniversitiesAndClubs() {
-        return AdminRole.MOKKOJI_ADMIN.equals(this.role);
-    }
-
     public Long getUniversityId() {
         if (university == null) return null;
         return university.getId();
