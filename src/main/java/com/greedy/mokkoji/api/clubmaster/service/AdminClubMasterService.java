@@ -23,13 +23,12 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AdminClubMasterService {
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final AdminRepository adminRepository;
     private ManageAuthorizer manageAuthorizer;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public GetClubMasterApplicationsResponse getClubMasterApplications(
             final AuthRole authRole,
             final Long userId,
