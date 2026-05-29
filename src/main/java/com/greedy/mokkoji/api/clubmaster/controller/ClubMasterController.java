@@ -2,7 +2,7 @@ package com.greedy.mokkoji.api.clubmaster.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
-import com.greedy.mokkoji.api.clubmaster.dto.request.CreateClubMasterApplicationsRequest;
+import com.greedy.mokkoji.api.clubmaster.dto.request.CreateClubMasterApplicationRequest;
 import com.greedy.mokkoji.api.clubmaster.dto.response.GetMyClubMasterApplicationsResponse;
 import com.greedy.mokkoji.api.clubmaster.service.ClubMasterService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
@@ -23,7 +23,7 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
     @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createClubMasterApplication(
             @Authentication final AuthCredential authCredential,
-            @RequestBody final CreateClubMasterApplicationsRequest request
+            @RequestBody final CreateClubMasterApplicationRequest request
     ) {
         clubMasterApplicationService.createClubMasterApplication(
                 authCredential.userId(),
