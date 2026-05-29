@@ -32,7 +32,7 @@ public class ClubMasterApplication extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     private Club club;
 
-    @JoinColumn(name = "user_id", columnDefinition = "bigint")
+    @JoinColumn(name = "user_id", columnDefinition = "bigint", nullable = false)
     @OneToOne(fetch = FetchType.LAZY)
     private User user;
 
