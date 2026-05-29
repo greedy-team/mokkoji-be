@@ -12,6 +12,7 @@ import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -153,7 +154,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final String updatedEmail = "updatedEmail@test.com";
-        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(updatedEmail, null);
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(updatedEmail, null, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -176,7 +177,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final String invalidUpdatedEmail = "updatedEmail.com";
-        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(invalidUpdatedEmail, null);
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(invalidUpdatedEmail, null, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -191,6 +192,58 @@ public class UserControllerTest extends ControllerTest {
 
         // then
         assertThat(statusCode).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("사용자 소속 학교 업데이트 성공 여부를 검증한다.")
+    void updateUserInfoWithUniversity() {
+        // given
+        universityRepository.save(Fixture.createUniversity());
+        final String authorizationForBearer = authorizationForBearerAccessToken(user);
+        final UpdateUserInformationRequest updateUserInformationRequest =
+                new UpdateUserInformationRequest(null, null, UniversityCode.SEJONG);
+
+        // when
+        RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .body(updateUserInformationRequest)
+                .when().patch(prefixUrl + "/users")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
+
+        final ExtractableResponse<Response> getResponse = RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .when().get(prefixUrl + "/users")
+                .then().log().all()
+                .extract();
+
+        final UserInformationResponse actual = getDataFromResponse(getResponse, UserInformationResponse.class);
+
+        // then
+        assertThat(actual.universityCode()).isEqualTo(UniversityCode.SEJONG);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 학교 코드로 변경 시 404를 반환한다.")
+    void updateUserInfoWithNotFoundUniversity() {
+        // given
+        final String authorizationForBearer = authorizationForBearerAccessToken(user);
+        final UpdateUserInformationRequest updateUserInformationRequest =
+                new UpdateUserInformationRequest(null, null, UniversityCode.KONKUK);
+
+        // when
+        final ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .body(updateUserInformationRequest)
+                .when().patch(prefixUrl + "/users")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Test

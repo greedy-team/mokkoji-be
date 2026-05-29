@@ -59,6 +59,8 @@ public class User extends BaseTime {
         this.email = email;
     }
 
+    public void updateUniversity(University university) {this.university = university;}
+
     public void updateRole(UserRole newRole) {
         this.role = newRole;
     }
