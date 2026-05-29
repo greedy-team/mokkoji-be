@@ -80,6 +80,7 @@ public class AdminClubMasterService {
         application.approve(application.getUser());
     }
 
+    @Transactional
     public void rejectClubMasterApplication(
             final AuthRole authRole,
             final Long userId,
