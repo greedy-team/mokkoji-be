@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.api.scheduler.service;
 
-import com.greedy.mokkoji.api.mail.service.EmailService;
+import com.greedy.mokkoji.api.email.service.EmailService;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;

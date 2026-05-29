@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.mail.service;
+package com.greedy.mokkoji.api.email.service;
 
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;

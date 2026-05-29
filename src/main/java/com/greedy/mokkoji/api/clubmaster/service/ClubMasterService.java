@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.api.clubmaster.service;
 
 import com.greedy.mokkoji.api.auth.service.ClubManageAuthorizer;
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.clubmaster.dto.response.GetMyClubMasterApplicationsResponse;
 import com.greedy.mokkoji.api.email.service.EmailService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -33,7 +34,7 @@ import java.util.UUID;
 public class ClubMasterService {
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final ClubMasterTransferRepository clubMasterTransferRepository;
-    private final ClubManageAuthorizer clubManageAuthorizer;
+    private final ManageAuthorizer manageAuthorizer;
     private final UniversityRepository universityRepository;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
@@ -99,7 +100,7 @@ public class ClubMasterService {
             final String nextClubMasterEmail
     ) {
         Club club = findClubOrThrow(clubId);
-        clubManageAuthorizer.validateCanManageClub(authRole, userId, club);
+        //clubManageAuthorizer.validateCanManageClub(authRole, userId, club);
         User previousMaster = findUserOrThrow(userId);
 
         ClubMasterTransfer transfer = ClubMasterTransfer.builder()
@@ -126,7 +127,7 @@ public class ClubMasterService {
         Club club = findClubOrThrow(Long.parseLong(clubId));
         User nextClubMaster = findUserOrThrow(userId);
 
-        club.updateMaster(nextClubMaster);
+        //club.updateMaster(nextClubMaster);
     }
 
     private String createClubMasterTransferUrl(Long clubId) {

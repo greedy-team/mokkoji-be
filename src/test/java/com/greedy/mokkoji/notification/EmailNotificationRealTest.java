@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.mail.service.RecruitmentNotificationEmailChannel;
+import com.greedy.mokkoji.api.email.service.RecruitmentNotificationEmailChannel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.mail.service;
+package com.greedy.mokkoji.api.email.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;

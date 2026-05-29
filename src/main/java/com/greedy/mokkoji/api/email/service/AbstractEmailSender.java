@@ -1,4 +1,4 @@
-package com.greedy.mokkoji.api.mail.service;
+package com.greedy.mokkoji.api.email.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

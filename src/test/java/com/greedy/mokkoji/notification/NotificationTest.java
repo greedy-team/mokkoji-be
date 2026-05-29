@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.mail.service.RecruitmentNotificationChannel;
-import com.greedy.mokkoji.api.mail.service.EmailService;
+import com.greedy.mokkoji.api.email.service.RecruitmentNotificationChannel;
+import com.greedy.mokkoji.api.email.service.EmailService;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
