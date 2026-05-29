@@ -118,7 +118,7 @@ public class UserService {
             throw new MokkojiException(FailMessage.NOT_FOUND_USER);
         }
 
-        List<UserManageClubResponse> clubs = clubRepository.findByMasterId(userId).stream()
+        List<UserManageClubResponse> clubs = clubRepository.findByMaster_Id(userId).stream()
                 .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
                 .toList();
 
