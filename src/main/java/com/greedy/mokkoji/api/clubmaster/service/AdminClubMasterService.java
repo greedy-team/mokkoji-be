@@ -26,7 +26,7 @@ import java.util.List;
 public class AdminClubMasterService {
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final AdminRepository adminRepository;
-    private ManageAuthorizer manageAuthorizer;
+    private final ManageAuthorizer manageAuthorizer;
 
     @Transactional(readOnly = true)
     public GetClubMasterApplicationsResponse getClubMasterApplications(
