@@ -1,6 +1,5 @@
 package com.greedy.mokkoji.api.clubmaster.service;
 
-import com.greedy.mokkoji.api.auth.service.ClubManageAuthorizer;
 import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.clubmaster.dto.response.GetMyClubMasterApplicationsResponse;
 import com.greedy.mokkoji.api.email.service.EmailService;
@@ -20,6 +19,7 @@ import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
+import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,7 +100,7 @@ public class ClubMasterService {
             final String nextClubMasterEmail
     ) {
         Club club = findClubOrThrow(clubId);
-        //clubManageAuthorizer.validateCanManageClub(authRole, userId, club);
+        manageAuthorizer.validateCanManageClub(authRole, userId, club);
         User previousMaster = findUserOrThrow(userId);
 
         ClubMasterTransfer transfer = ClubMasterTransfer.builder()
@@ -125,9 +125,13 @@ public class ClubMasterService {
         }
 
         Club club = findClubOrThrow(Long.parseLong(clubId));
-        User nextClubMaster = findUserOrThrow(userId);
 
-        //club.updateMaster(nextClubMaster);
+        User clubMaster = club.getMaster();
+        clubMaster.updateRole(UserRole.NORMAL);
+
+        User nextClubMaster = findUserOrThrow(userId);
+        nextClubMaster.updateRole(UserRole.CLUB_MASTER);
+        club.updateMaster(nextClubMaster);
     }
 
     private String createClubMasterTransferUrl(Long clubId) {
