@@ -1,11 +1,12 @@
 package com.greedy.mokkoji.db.club.entity;
 
+import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
-import com.greedy.mokkoji.enums.user.UserRole;
+import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -72,14 +73,12 @@ public class Club extends BaseTime {
         this.master = master;
     }
 
-    public void updateMaster(User nextMaster) {
+    public void assignMaster(final User newMaster) {
         if (this.master != null) {
-            User previousMaster = this.master;
-            previousMaster.updateRole(UserRole.NORMAL);
+            throw new MokkojiException(FailMessage.FORBIDDEN_ALREADY_EXIST_CLUB_MASTER);
         }
 
-        this.master = nextMaster;
-        nextMaster.updateRole(UserRole.CLUB_MASTER);
+        this.master = newMaster;
     }
 
     public void updateIfPresent(

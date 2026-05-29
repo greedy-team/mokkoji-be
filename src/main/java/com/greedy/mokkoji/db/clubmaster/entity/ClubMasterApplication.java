@@ -1,10 +1,12 @@
 package com.greedy.mokkoji.db.clubmaster.entity;
 
+import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
+import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -58,13 +60,21 @@ public class ClubMasterApplication extends BaseTime {
         this.status = ApplicationStatus.PENDING;
     }
 
-    public void approve(User user) {
-        this.club.updateMaster(user);
+    public void approve() {
+        validatePendingStatus();
         this.status = ApplicationStatus.APPROVED;
     }
 
     public void reject(final String rejectReason) {
+        validatePendingStatus();
+
         this.status = ApplicationStatus.REJECTED;
         this.rejectReason = rejectReason;
+    }
+
+    private void validatePendingStatus() {
+        if (this.getStatus() != ApplicationStatus.PENDING) {
+            throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
+        }
     }
 }

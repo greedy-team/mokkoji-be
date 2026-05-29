@@ -9,9 +9,10 @@ import com.greedy.mokkoji.db.admin.entity.Admin;
 import com.greedy.mokkoji.db.admin.repository.AdminRepository;
 import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
-import com.greedy.mokkoji.enums.application.ApplicationStatus;
+import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -76,8 +77,11 @@ public class AdminClubMasterService {
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
         manageAuthorizer.validateCanManageUniversity(userId, application.getUniversity());
 
-        validateCanChangeApplicationStatus(application);
-        application.approve(application.getUser());
+        application.approve();
+
+        User applicant = application.getUser();
+        application.getClub().assignMaster(applicant);
+        applicant.updateRole(UserRole.CLUB_MASTER);
     }
 
     @Transactional
@@ -91,14 +95,7 @@ public class AdminClubMasterService {
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
         manageAuthorizer.validateCanManageUniversity(userId, application.getUniversity());
 
-        validateCanChangeApplicationStatus(application);
         application.reject(rejectReason);
-    }
-
-    private void validateCanChangeApplicationStatus(ClubMasterApplication application) {
-        if (application.getStatus() != ApplicationStatus.PENDING) {
-            throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
-        }
     }
 
     private Admin findAdminOrThrow(final Long userId) {
