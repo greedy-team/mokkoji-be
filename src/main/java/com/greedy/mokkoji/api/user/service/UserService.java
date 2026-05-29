@@ -84,7 +84,7 @@ public class UserService {
         }
 
         if (universityCode != null) {
-            University university = findUniversity(universityCode);
+            University university = findUniversityOrThrow(universityCode);
             user.updateUniversity(university);
         }
     }
@@ -127,7 +127,7 @@ public class UserService {
         return UserManageClubsResponse.of(clubs);
     }
 
-    private University findUniversity(final UniversityCode universityCode) {
+    private University findUniversityOrThrow(final UniversityCode universityCode) {
         return universityRepository.findByCode(universityCode)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
     }
