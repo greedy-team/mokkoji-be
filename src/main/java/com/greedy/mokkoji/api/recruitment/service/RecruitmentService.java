@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.api.recruitment.service;
 
-import com.greedy.mokkoji.api.auth.service.ClubManageAuthorizer;
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
@@ -44,7 +44,7 @@ public class RecruitmentService {
     private final RecruitmentImageRepository recruitmentImageRepository;
     private final AppDataS3Client appDataS3Client;
     private final FavoriteRepository favoriteRepository;
-    private final ClubManageAuthorizer clubManageAuthorizer;
+    private final ManageAuthorizer clubManageAuthorizer;
 
     private static PageResponse createPageResponse(Page<Recruitment> recruitmentPage) {
         return PageResponse.of(

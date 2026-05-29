@@ -97,4 +97,8 @@ public class Club extends BaseTime {
         if (logo != null && !logo.isBlank()) this.logo = logo;
         if (instagram != null && !instagram.isBlank()) this.instagram = instagram;
     }
+
+    public Long getMasterId() {
+        return this.master.getId();
+    }
 }

@@ -6,7 +6,7 @@ import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.ClubWithLatestRecruitment;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.LatestRecruitmentInfo;
-import com.greedy.mokkoji.api.auth.service.ClubManageAuthorizer;
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.club.service.ClubService;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -63,7 +63,7 @@ class ClubServiceTest {
     private FavoriteRepository favoriteRepository;
 
     @Mock
-    private ClubManageAuthorizer clubManageAuthorizer;
+    private ManageAuthorizer clubManageAuthorizer;
 
     @Mock
     private AppDataS3Client appDataS3Client;
