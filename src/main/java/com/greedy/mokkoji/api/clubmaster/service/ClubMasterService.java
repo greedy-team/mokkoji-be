@@ -42,6 +42,8 @@ public class ClubMasterService {
     private final RedisRepository redisRepository;
 
     private static final long LINK_EXPIRATION = 10 * 60 * 1000; //10분
+    private static final String CLUB_TRANSFER_KEY_PREFIX = "clubTransfer";
+    private static final String KEY_DELIMITER = ":";
 
     @Transactional
     public void createClubMasterApplication(
@@ -117,7 +119,7 @@ public class ClubMasterService {
 
     @Transactional
     public void acceptClubMasterTransfer(final Long userId, final String uuid) {
-        String key = "clubTransfer:" + uuid;
+        String key = CLUB_TRANSFER_KEY_PREFIX + KEY_DELIMITER + uuid;
         String clubId = redisRepository.find(key);
 
         if (clubId == null) {
@@ -137,7 +139,7 @@ public class ClubMasterService {
     private String createClubMasterTransferUrl(Long clubId) {
         String uuid = UUID.randomUUID().toString();
 
-        redisRepository.save("clubTransfer:" + uuid, String.valueOf(clubId), LINK_EXPIRATION);
+        redisRepository.save(CLUB_TRANSFER_KEY_PREFIX + KEY_DELIMITER + uuid, String.valueOf(clubId), LINK_EXPIRATION);
 
         String url = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/club-master-transfer/{uuid}")
