@@ -43,6 +43,7 @@ public class UserService {
     public LoginResponse kakaoLogin(final String code) {
         final KakaoUserInfoResponse kakaoUserInfo = kakaoSocialLoginService.login(code);
         final String kakaoId = kakaoUserInfo.id();
+        final String name = kakaoUserInfo.nickname();
 
         final Optional<User> existingUser = userRepository.findByKakaoId(kakaoId);
         final boolean isNewUser = existingUser.isEmpty();
@@ -50,6 +51,7 @@ public class UserService {
                 () -> userRepository.save(
                         User.builder()
                                 .kakaoId(kakaoId)
+                                .name(name)
                                 .isEmailOn(true)
                                 .role(UserRole.NORMAL)
                                 .build()
