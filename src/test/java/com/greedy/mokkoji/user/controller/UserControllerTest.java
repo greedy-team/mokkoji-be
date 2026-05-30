@@ -4,7 +4,6 @@ import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.request.kakao.KakaoSocialLoginRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.*;
-import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.api.user.service.kakao.KakaoSocialLoginService;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
@@ -61,7 +60,7 @@ public class UserControllerTest extends ControllerTest {
         //given
         final String code = "authorizationCode";
         when(kakaoSocialLoginService.login(code))
-                .thenReturn(new KakaoUserInfoResponse(user.getKakaoId()));
+                .thenReturn(Fixture.createKakaoUserInfoResponse(user.getKakaoId(), user.getName()));
 
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
         when(tokenService.issueTokens(eq(AuthRole.USER), any())).thenReturn(new TokenPair("accessToken", "refreshToken"));

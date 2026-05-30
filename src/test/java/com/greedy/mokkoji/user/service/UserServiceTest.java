@@ -7,11 +7,11 @@ import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.api.user.service.kakao.KakaoSocialLoginService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.university.entity.University;
@@ -27,6 +27,7 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -76,7 +77,7 @@ public class UserServiceTest {
         final String kakaoId = "kakao-12341234";
 
         final User existingUser = User.builder()
-                .name("세종")
+                .name("모꼬지")
                 .kakaoId(kakaoId)
                 .role(UserRole.NORMAL)
                 .build();
@@ -85,7 +86,7 @@ public class UserServiceTest {
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
 
         BDDMockito.given(kakaoSocialLoginService.login(code))
-                .willReturn(new KakaoUserInfoResponse(kakaoId));
+                .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, "모꼬지"));
         BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.of(existingUser));
         BDDMockito.given(tokenService.issueTokens(AuthRole.USER, existingUser.getId()))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
@@ -104,11 +105,12 @@ public class UserServiceTest {
         // given
         final String code = "authCode";
         final String kakaoId = "kakao-99999999";
+        final String nickname = "모꼬지";
 
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true);
 
         BDDMockito.given(kakaoSocialLoginService.login(code))
-                .willReturn(new KakaoUserInfoResponse(kakaoId));
+                .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, nickname));
         BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.empty());
         BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> {
             User saved = invocation.getArgument(0);
@@ -123,7 +125,10 @@ public class UserServiceTest {
 
         // then
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
-        BDDMockito.verify(userRepository, BDDMockito.times(1)).save(any());
+
+        final ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        BDDMockito.verify(userRepository, BDDMockito.times(1)).save(userCaptor.capture());
+        assertThat(userCaptor.getValue().getName()).isEqualTo(nickname);
     }
 
     @Test
@@ -168,7 +173,7 @@ public class UserServiceTest {
     void updateEmail() {
         // given
         final User user = User.builder()
-                .name("세종")
+                .name("모꼬지")
                 .kakaoId("kakao-12341234")
                 .email("origin@email.com")
                 .build();
@@ -187,7 +192,7 @@ public class UserServiceTest {
     void updateUniversity() {
         // given
         final User user = User.builder()
-                .name("세종")
+                .name("모꼬지")
                 .kakaoId("kakao-12341234")
                 .build();
         final University konkuk = University.builder()
@@ -210,7 +215,7 @@ public class UserServiceTest {
     void updateUniversityNotFound() {
         // given
         final User user = User.builder()
-                .name("세종")
+                .name("모꼬지")
                 .kakaoId("kakao-12341234")
                 .build();
 
@@ -230,7 +235,7 @@ public class UserServiceTest {
         Long userId = 1L;
 
         User user = User.builder()
-                .name("세종")
+                .name("모꼬지")
                 .kakaoId("kakao-12341234")
                 .role(UserRole.CLUB_MASTER)
                 .build();

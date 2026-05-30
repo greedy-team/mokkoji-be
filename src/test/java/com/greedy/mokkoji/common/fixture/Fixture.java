@@ -1,5 +1,8 @@
 package com.greedy.mokkoji.common.fixture;
 
+import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoAccountResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoProfileResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.db.admin.entity.Admin;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
@@ -56,6 +59,15 @@ public class Fixture {
                 .isEmailOn(true)
                 .role(role)
                 .build();
+    }
+
+    public static KakaoUserInfoResponse createKakaoUserInfoResponse(final String kakaoId, final String nickname) {
+        return new KakaoUserInfoResponse(
+                kakaoId,
+                new KakaoAccountResponse(
+                        new KakaoProfileResponse(nickname)
+                )
+        );
     }
 
     public static Admin createAdmin() {
