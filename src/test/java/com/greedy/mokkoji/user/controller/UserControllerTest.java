@@ -153,7 +153,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final String updatedEmail = "updatedEmail@test.com";
-        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(updatedEmail, null, null);
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, updatedEmail, null, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -176,7 +176,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final String invalidUpdatedEmail = "updatedEmail.com";
-        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(invalidUpdatedEmail, null, null);
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, invalidUpdatedEmail, null, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -200,7 +200,7 @@ public class UserControllerTest extends ControllerTest {
         universityRepository.save(Fixture.createUniversity());
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final UpdateUserInformationRequest updateUserInformationRequest =
-                new UpdateUserInformationRequest(null, null, UniversityCode.SEJONG);
+                new UpdateUserInformationRequest(null, null, null, UniversityCode.SEJONG);
 
         // when
         RestAssured.given().log().all()
@@ -230,7 +230,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final UpdateUserInformationRequest updateUserInformationRequest =
-                new UpdateUserInformationRequest(null, null, UniversityCode.KONKUK);
+                new UpdateUserInformationRequest(null, null, null, UniversityCode.KONKUK);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()

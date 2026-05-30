@@ -70,6 +70,13 @@ public class Fixture {
         );
     }
 
+    public static KakaoUserInfoResponse createKakaoUserInfoResponseWithoutNickname(final String kakaoId) {
+        return new KakaoUserInfoResponse(
+                kakaoId,
+                new KakaoAccountResponse(null)
+        );
+    }
+
     public static Admin createAdmin() {
         return Admin.builder()
                 .loginId("admin@konkuk.ac.kr")

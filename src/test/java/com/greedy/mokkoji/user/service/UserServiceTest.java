@@ -132,6 +132,37 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("카카오 정보 제공 미동의 시 이름 없이 신규 가입된다.")
+    void kakaoLoginNewUserWithoutNicknameConsent() {
+        // given
+        final String code = "authCode";
+        final String kakaoId = "kakao-00000000";
+
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true);
+
+        BDDMockito.given(kakaoSocialLoginService.login(code))
+                .willReturn(Fixture.createKakaoUserInfoResponseWithoutNickname(kakaoId));
+        BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.empty());
+        BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> {
+            User saved = invocation.getArgument(0);
+            ReflectionTestUtils.setField(saved, "id", 1L);
+            return saved;
+        });
+        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, 1L))
+                .willReturn(new TokenPair("accessToken", "refreshToken"));
+
+        // when
+        final LoginResponse actual = userService.kakaoLogin(code);
+
+        // then
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+
+        final ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        BDDMockito.verify(userRepository, BDDMockito.times(1)).save(userCaptor.capture());
+        assertThat(userCaptor.getValue().getName()).isNull();
+    }
+
+    @Test
     @DisplayName("AccessToken을 재발급 받을 수 있다.")
     void refreshAccessToken() {
         // given
@@ -181,10 +212,28 @@ public class UserServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         // when
-        userService.updateUserInformation(1L, "updated@email.com", null, null);
+        userService.updateUserInformation(1L, null, "updated@email.com", null, null);
 
         // then
         assertThat(user.getEmail()).isEqualTo("updated@email.com");
+    }
+
+    @Test
+    @DisplayName("사용자의 이름 정보를 업데이트 할 수 있다.")
+    void updateName() {
+        // given
+        final User user = User.builder()
+                .name("모꼬지")
+                .kakaoId("kakao-12341234")
+                .build();
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        // when
+        userService.updateUserInformation(1L, "변경된이름", null, null, null);
+
+        // then
+        assertThat(user.getName()).isEqualTo("변경된이름");
     }
 
     @Test
@@ -204,7 +253,7 @@ public class UserServiceTest {
         when(universityRepository.findByCode(UniversityCode.KONKUK)).thenReturn(Optional.of(konkuk));
 
         // when
-        userService.updateUserInformation(1L, null, null, UniversityCode.KONKUK);
+        userService.updateUserInformation(1L, null, null, null, UniversityCode.KONKUK);
 
         // then
         assertThat(user.getUniversity()).isEqualTo(konkuk);
@@ -223,7 +272,7 @@ public class UserServiceTest {
         when(universityRepository.findByCode(UniversityCode.KONKUK)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> userService.updateUserInformation(1L, null, null, UniversityCode.KONKUK))
+        assertThatThrownBy(() -> userService.updateUserInformation(1L, null, null, null, UniversityCode.KONKUK))
                 .isInstanceOf(MokkojiException.class)
                 .hasMessage(FailMessage.NOT_FOUND_UNIVERSITY.getMessage());
     }
