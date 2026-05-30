@@ -51,6 +51,10 @@ public class User extends BaseTime {
         this.role = role;
     }
 
+    public void updateName(String name) {
+        this.name = name;
+    }
+
     public void updateEmail(String email) {
         this.email = email;
     }

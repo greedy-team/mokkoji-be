@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
 
 public record UpdateUserInformationRequest(
+        @Schema(example = "모꼬지") String name,
         @Schema(example = "user@sejong.ac.kr")
         @Pattern(
                 regexp = "(^$)|(^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$)",

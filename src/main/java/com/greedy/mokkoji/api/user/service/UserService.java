@@ -76,8 +76,12 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserInformation(Long userId, String email, Boolean isEmailOn, UniversityCode universityCode) {
+    public void updateUserInformation(Long userId, String name, String email, Boolean isEmailOn, UniversityCode universityCode) {
         User user = findUser(userId);
+
+        if (name != null) {
+            user.updateName(name.isBlank() ? null : name);
+        }
 
         if (email != null) {
             user.updateEmail(email.isBlank() ? null : email);
