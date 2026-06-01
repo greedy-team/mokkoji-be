@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 
-@Tag(name = "Admin Club Application Controller", description = "관리자용 동아리 생성 신청 관련 API")
+@Tag(name = "Admin Club Application Controller", description = "관리자: 동아리 생성 신청 관련 API")
 public interface AdminClubApplicationControllerSwagger {
 
     @Operation(

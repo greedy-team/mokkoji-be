@@ -3,20 +3,10 @@ package com.greedy.mokkoji.db.clubapplication.entity;
 import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
-import com.greedy.mokkoji.enums.application.ApplicationStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -81,8 +71,7 @@ public class ClubApplication extends BaseTime {
             ClubAffiliation clubAffiliation,
             String logo,
             String instagram,
-            String description)
-    {
+            String description) {
         this.university = university;
         this.applicant = applicant;
         this.applicantName = applicantName;

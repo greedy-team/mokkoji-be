@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.auth.service;
 
-import com.greedy.mokkoji.api.auth.service.ClubManageAuthorizer;
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.admin.entity.Admin;
 import com.greedy.mokkoji.db.admin.repository.AdminRepository;
@@ -24,10 +24,10 @@ import static org.mockito.Mockito.*;
 
 @DisplayName("동아리 관리 권한 검증 테스트")
 @ExtendWith(MockitoExtension.class)
-class ClubManageAuthorizerTest {
+class ManageAuthorizerTest {
 
     @InjectMocks
-    private ClubManageAuthorizer clubManageAuthorizer;
+    private ManageAuthorizer clubManageAuthorizer;
 
     @Mock
     private UserRepository userRepository;
@@ -46,14 +46,14 @@ class ClubManageAuthorizerTest {
         final Admin admin = mock(Admin.class);
 
         BDDMockito.given(adminRepository.findById(adminId)).willReturn(Optional.of(admin));
-        BDDMockito.given(admin.canManageAnyClub()).willReturn(true);
+        BDDMockito.given(admin.canManageAllUniversitiesAndClubs()).willReturn(true);
 
         //when & then
         assertThatCode(() -> clubManageAuthorizer.validateCanManageClub(AuthRole.ADMIN, adminId, club))
                 .doesNotThrowAnyException();
 
         verify(adminRepository, times(1)).findById(adminId);
-        verify(admin, times(1)).canManageAnyClub();
+        verify(admin, times(1)).canManageAllUniversitiesAndClubs();
         verifyNoInteractions(userRepository);
     }
 
@@ -65,14 +65,14 @@ class ClubManageAuthorizerTest {
         final Admin admin = mock(Admin.class);
 
         BDDMockito.given(adminRepository.findById(adminId)).willReturn(Optional.of(admin));
-        BDDMockito.given(admin.canManageAnyClub()).willReturn(false);
+        BDDMockito.given(admin.canManageAllUniversitiesAndClubs()).willReturn(false);
 
         //when & then
         assertThatThrownBy(() -> clubManageAuthorizer.validateCanManageClub(AuthRole.ADMIN, adminId, club))
                 .isInstanceOf(MokkojiException.class);
 
         verify(adminRepository, times(1)).findById(adminId);
-        verify(admin, times(1)).canManageAnyClub();
+        verify(admin, times(1)).canManageAllUniversitiesAndClubs();
         verifyNoInteractions(userRepository);
     }
 

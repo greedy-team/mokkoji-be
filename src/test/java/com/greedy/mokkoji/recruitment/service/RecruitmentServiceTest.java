@@ -10,7 +10,7 @@ import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteR
 import com.greedy.mokkoji.api.recruitment.dto.response.recentRecruitment.RecentRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
-import com.greedy.mokkoji.api.auth.service.ClubManageAuthorizer;
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -57,7 +57,7 @@ public class RecruitmentServiceTest {
     RecruitmentService recruitmentService;
 
     @Mock
-    ClubManageAuthorizer clubManageAuthorizer;
+    ManageAuthorizer clubManageAuthorizer;
 
     @Mock
     ClubRepository clubRepository;

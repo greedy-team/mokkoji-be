@@ -1,9 +1,9 @@
 package com.greedy.mokkoji.api.clubapplication.dto.response;
 
 import com.greedy.mokkoji.db.clubapplication.entity.ClubApplication;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
-import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;

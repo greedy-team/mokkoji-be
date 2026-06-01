@@ -3,11 +3,7 @@ package com.greedy.mokkoji.api.user.service;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
-import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserInformationResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.*;
 import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.api.user.service.kakao.KakaoSocialLoginService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -122,7 +118,7 @@ public class UserService {
             throw new MokkojiException(FailMessage.NOT_FOUND_USER);
         }
 
-        List<UserManageClubResponse> clubs = clubRepository.findByMasterId(userId).stream()
+        List<UserManageClubResponse> clubs = clubRepository.findByMaster_Id(userId).stream()
                 .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
                 .toList();
 

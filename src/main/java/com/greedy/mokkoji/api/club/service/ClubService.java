@@ -1,7 +1,10 @@
 package com.greedy.mokkoji.api.club.service;
 
-import com.greedy.mokkoji.api.auth.service.ClubManageAuthorizer;
-import com.greedy.mokkoji.api.club.dto.response.*;
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
+import com.greedy.mokkoji.api.club.dto.response.ClubDetailResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
+import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.*;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
@@ -36,7 +39,7 @@ public class ClubService {
     private final RecruitmentRepository recruitmentRepository;
     private final FavoriteRepository favoriteRepository;
     private final AppDataS3Client appDataS3Client;
-    private final ClubManageAuthorizer clubManageAuthorizer;
+    private final ManageAuthorizer clubManageAuthorizer;
 
     private static PageResponse createPageResponse(Pageable pageable, int totalElements) {
         int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());

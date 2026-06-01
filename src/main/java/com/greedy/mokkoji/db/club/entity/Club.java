@@ -1,10 +1,12 @@
 package com.greedy.mokkoji.db.club.entity;
 
+import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -71,6 +73,14 @@ public class Club extends BaseTime {
         this.master = master;
     }
 
+    public void assignMaster(final User newMaster) {
+        if (this.master != null) {
+            throw new MokkojiException(FailMessage.FORBIDDEN_ALREADY_EXIST_CLUB_MASTER);
+        }
+
+        this.master = newMaster;
+    }
+
     public void updateIfPresent(
             String name,
             ClubCategory category,
@@ -85,5 +95,9 @@ public class Club extends BaseTime {
         if (description != null && !description.isBlank()) this.description = description;
         if (logo != null && !logo.isBlank()) this.logo = logo;
         if (instagram != null && !instagram.isBlank()) this.instagram = instagram;
+    }
+
+    public Long getMasterId() {
+        return this.master.getId();
     }
 }

@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Admin Controller", description = "관리자 관련 API")
 public interface AdminControllerSwagger {
-
     @Operation(
             summary = "관리자 로그인 API",
             description = "총동연·그리디 개발자 전용 로그인입니다. 카카오 로그인과는 별도 엔드포인트로 운영됩니다."

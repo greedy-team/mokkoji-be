@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface ClubRepository extends JpaRepository<Club, Long>, ClubRepositoryCustom {
-    List<Club> findByMasterId(Long userId);
+    List<Club> findByMaster_Id(Long userId);
 }

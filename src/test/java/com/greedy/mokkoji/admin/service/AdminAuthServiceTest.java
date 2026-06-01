@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.admin.service;
 
 import com.greedy.mokkoji.api.admin.dto.response.AdminLoginResponse;
-import com.greedy.mokkoji.api.admin.service.AdminAuthService;
+import com.greedy.mokkoji.api.admin.service.AdminService;
 import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 class AdminAuthServiceTest {
 
     @InjectMocks
-    private AdminAuthService adminAuthService;
+    private AdminService adminAuthService;
 
     @Mock
     private AdminRepository adminRepository;
