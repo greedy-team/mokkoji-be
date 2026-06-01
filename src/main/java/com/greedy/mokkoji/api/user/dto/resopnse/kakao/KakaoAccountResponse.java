@@ -4,11 +4,10 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record KakaoUserInfoResponse(
-        String id,
-        KakaoAccountResponse kakaoAccount
+public record KakaoAccountResponse(
+        KakaoProfileResponse profile
 ) {
     public String nickname() {
-        return kakaoAccount == null ? null : kakaoAccount.nickname();
+        return profile == null ? null : profile.nickname();
     }
 }

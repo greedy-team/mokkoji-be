@@ -65,6 +65,7 @@ public class UserController implements UserControllerSwagger {
         final Long userId = authCredential.userId();
         userService.updateUserInformation(
                 userId,
+                updateUserInformationRequest.name(),
                 updateUserInformationRequest.email(),
                 updateUserInformationRequest.isEmailOn(),
                 updateUserInformationRequest.universityCode()

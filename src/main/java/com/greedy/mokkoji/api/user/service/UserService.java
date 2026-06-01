@@ -39,6 +39,7 @@ public class UserService {
     public LoginResponse kakaoLogin(final String code) {
         final KakaoUserInfoResponse kakaoUserInfo = kakaoSocialLoginService.login(code);
         final String kakaoId = kakaoUserInfo.id();
+        final String name = kakaoUserInfo.nickname();
 
         final Optional<User> existingUser = userRepository.findByKakaoId(kakaoId);
         final boolean isNewUser = existingUser.isEmpty();
@@ -46,6 +47,7 @@ public class UserService {
                 () -> userRepository.save(
                         User.builder()
                                 .kakaoId(kakaoId)
+                                .name(name)
                                 .isEmailOn(true)
                                 .role(UserRole.NORMAL)
                                 .build()
@@ -70,8 +72,12 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserInformation(Long userId, String email, Boolean isEmailOn, UniversityCode universityCode) {
+    public void updateUserInformation(Long userId, String name, String email, Boolean isEmailOn, UniversityCode universityCode) {
         User user = findUser(userId);
+
+        if (name != null) {
+            user.updateName(name.isBlank() ? null : name);
+        }
 
         if (email != null) {
             user.updateEmail(email.isBlank() ? null : email);
