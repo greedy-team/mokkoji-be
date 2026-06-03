@@ -134,6 +134,8 @@ public class ClubMasterService {
         User nextClubMaster = findUserOrThrow(userId);
         nextClubMaster.updateRole(UserRole.CLUB_MASTER);
         club.updateMaster(nextClubMaster);
+        
+        redisRepository.delete(key);
     }
 
     private String createClubMasterTransferUrl(Long clubId) {
