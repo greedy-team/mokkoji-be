@@ -48,11 +48,16 @@ public class ClubMasterTransferEmailChannel extends AbstractEmailSender {
                     <div style="margin: 40px">
                         <h3>📣 %s 동아리장 권한 위임 요청</h3>
                         <p>안녕하세요! <strong>모꼬지</strong>입니다:)</p>
+                        <br>
                         <p><strong>%s</strong>의 동아리장 권한 위임 요청이 도착했습니다.</p>
                         <p>아래 버튼을 클릭하여 권한을 수락해주세요.</p>
+                        <br>
+                        <a href="%s%s" style="display: inline-block; padding: 10px 15px; font-size: 14px; color: #000000; background-color: #4AF38A; text-decoration: none; border-radius: 40px; font-weight: 500;"><strong>권한 수락하러 가기</strong></a>
+                        <p></p>
+                        <br>
                         <p><strong>⚠️ 링크는 10분 후 만료됩니다.</strong></p>
+                        <br>
                         <p>모꼬지 드림.</p>
-                        <a href="%s/%s" style="display: inline-block; padding: 10px 15px; font-size: 14px; color: #000000; background-color: #4AF38A; text-decoration: none; border-radius: 40px; font-weight: 500;"><strong>권한 수락하러 가기</strong></a>  
                     </div>
                 </body>
                 </html>
