@@ -102,6 +102,6 @@ public class Club extends BaseTime {
     }
 
     public Long getMasterId() {
-        return this.master.getId();
+        return this.master == null ? null : this.master.getId();
     }
 }
