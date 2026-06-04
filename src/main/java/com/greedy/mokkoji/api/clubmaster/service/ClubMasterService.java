@@ -32,6 +32,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ClubMasterService {
+    private static final long LINK_EXPIRATION = 10 * 60 * 1000; //10분
+    private static final String CLUB_TRANSFER_KEY_PREFIX = "clubTransfer";
+    private static final String KEY_DELIMITER = ":";
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final ClubMasterTransferRepository clubMasterTransferRepository;
     private final ManageAuthorizer manageAuthorizer;
@@ -40,10 +43,6 @@ public class ClubMasterService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final RedisRepository redisRepository;
-
-    private static final long LINK_EXPIRATION = 10 * 60 * 1000; //10분
-    private static final String CLUB_TRANSFER_KEY_PREFIX = "clubTransfer";
-    private static final String KEY_DELIMITER = ":";
 
     @Transactional
     public void createClubMasterApplication(
@@ -113,8 +112,8 @@ public class ClubMasterService {
                 .build();
         clubMasterTransferRepository.save(transfer);
 
-        String url = createClubMasterTransferUrl(clubId);
-        emailService.sendClubMasterTransferNotification(nextClubMasterEmail, club.getName(), url);
+        String uri = createClubMasterTransferUri(clubId);
+        emailService.sendClubMasterTransferNotification(nextClubMasterEmail, club.getName(), uri);
     }
 
     @Transactional
@@ -134,21 +133,19 @@ public class ClubMasterService {
         User nextClubMaster = findUserOrThrow(userId);
         nextClubMaster.updateRole(UserRole.CLUB_MASTER);
         club.updateMaster(nextClubMaster);
-        
+
         redisRepository.delete(key);
     }
 
-    private String createClubMasterTransferUrl(Long clubId) {
+    private String createClubMasterTransferUri(Long clubId) {
         String uuid = UUID.randomUUID().toString();
 
         redisRepository.save(CLUB_TRANSFER_KEY_PREFIX + KEY_DELIMITER + uuid, String.valueOf(clubId), LINK_EXPIRATION);
 
-        String url = ServletUriComponentsBuilder.fromCurrentContextPath()
+        return ServletUriComponentsBuilder.newInstance()
                 .path("/club-master-transfer/{uuid}")
                 .buildAndExpand(uuid)
                 .toUriString();
-
-        return url;
     }
 
     private University findUniversityOrThrow(final UniversityCode universityCode) {

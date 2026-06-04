@@ -23,10 +23,10 @@ public class ClubMasterTransferEmailChannel extends AbstractEmailSender {
     public void sendClubMasterTransferEmail(
             final String nextClubMasterEmail,
             final String clubName,
-            final String clubMasterTransferLink
+            final String clubMasterTransferUri
     ) {
         String subject = clubName + SUBJECT_SUFFIX;
-        String htmlContent = generateHtmlText(clubName, clubMasterTransferLink);
+        String htmlContent = generateHtmlText(clubName, clubMasterTransferUri);
 
         sendEmailInternal(
                 List.of(nextClubMasterEmail),
@@ -38,7 +38,7 @@ public class ClubMasterTransferEmailChannel extends AbstractEmailSender {
         );
     }
 
-    private String generateHtmlText(String clubName, String clubMasterTransferLink) {
+    private String generateHtmlText(String clubName, String clubMasterTransferUri) {
         return """
                 <!DOCTYPE html>
                 <html>
@@ -61,6 +61,6 @@ public class ClubMasterTransferEmailChannel extends AbstractEmailSender {
                     </div>
                 </body>
                 </html>
-                """.formatted(mailBannerUrl, clubName, clubName, baseUrl, clubMasterTransferLink);
+                """.formatted(mailBannerUrl, clubName, clubName, baseUrl, clubMasterTransferUri);
     }
 }

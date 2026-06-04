@@ -40,14 +40,14 @@ public class EmailService {
     public void sendClubMasterTransferNotification(
             final String nextClubMasterEmail,
             final String clubName,
-            final String clubMasterTransferLink
+            final String clubMasterTransferUri
     ) {
         if (nextClubMasterEmail == null || nextClubMasterEmail.isBlank()) {
             return;
         }
 
         clubMasterTransferEmailChannel.sendClubMasterTransferEmail(
-                nextClubMasterEmail, clubName, clubMasterTransferLink
+                nextClubMasterEmail, clubName, clubMasterTransferUri
         );
     }
 }
