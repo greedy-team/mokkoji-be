@@ -29,7 +29,7 @@ public class ClubMasterTransfer {
     @Column(name = "next_master_name", columnDefinition = "varchar(50)", nullable = false)
     private String nextMasterName;
 
-    @Column(name = "next_master_email", columnDefinition = "varchar(50)")
+    @Column(name = "next_master_email", columnDefinition = "varchar(50)", nullable = false)
     private String nextMasterEmail;
 
     @Builder
