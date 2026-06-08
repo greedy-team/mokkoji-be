@@ -81,6 +81,10 @@ public class Club extends BaseTime {
         this.master = newMaster;
     }
 
+    public void updateMaster(final User nextMaster) {
+        this.master = nextMaster;
+    }
+
     public void updateIfPresent(
             String name,
             ClubCategory category,
@@ -98,6 +102,6 @@ public class Club extends BaseTime {
     }
 
     public Long getMasterId() {
-        return this.master.getId();
+        return this.master == null ? null : this.master.getId();
     }
 }
