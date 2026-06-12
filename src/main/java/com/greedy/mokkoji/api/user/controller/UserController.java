@@ -73,6 +73,14 @@ public class UserController implements UserControllerSwagger {
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
+    @DeleteMapping
+    public ResponseEntity<APISuccessResponse<Void>> withdraw(
+            @Authentication AuthCredential authCredential
+    ) {
+        userService.withdraw(authCredential.authRole(), authCredential.userId());
+        return APISuccessResponse.of(HttpStatus.OK, null);
+    }
+
     @GetMapping("/roles")
     public ResponseEntity<APISuccessResponse<UserRoleResponse>> getUserRole(
             @Authentication AuthCredential authCredential
