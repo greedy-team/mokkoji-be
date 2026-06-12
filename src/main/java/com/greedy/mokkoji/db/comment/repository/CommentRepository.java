@@ -15,4 +15,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findAllByUser(final User user);
 
     boolean existsByClubAndUser(final Club club, final User user);
+
+    void deleteByUserId(final Long userId);
 }
