@@ -128,7 +128,7 @@ public class UserService {
                 .forEach(club -> club.updateMaster(null));
 
         favoriteRepository.deleteByUserId(userId);
-        commentRepository.deleteByUserId(userId);
+        commentRepository.detachUserByUserId(userId);
         clubApplicationRepository.deleteByApplicantId(userId);
         clubMasterApplicationRepository.deleteByUserId(userId);
         clubMasterTransferRepository.deleteByPreviousMasterId(userId);
