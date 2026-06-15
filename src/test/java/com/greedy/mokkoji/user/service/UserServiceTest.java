@@ -319,7 +319,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("회원 탈퇴 시 연관 데이터를 삭제하고 RefreshToken을 제거한 뒤 유저를 삭제한다.")
+    @DisplayName("회원 탈퇴 시 댓글은 작성자만 해제하고 나머지 연관 데이터를 삭제한 뒤 유저를 삭제한다.")
     void withdraw() {
         // given
         final Long userId = 1L;
@@ -338,7 +338,7 @@ public class UserServiceTest {
 
         // then
         BDDMockito.verify(favoriteRepository).deleteByUserId(userId);
-        BDDMockito.verify(commentRepository).deleteByUserId(userId);
+        BDDMockito.verify(commentRepository).detachUserByUserId(userId);
         BDDMockito.verify(clubApplicationRepository).deleteByApplicantId(userId);
         BDDMockito.verify(clubMasterApplicationRepository).deleteByUserId(userId);
         BDDMockito.verify(clubMasterTransferRepository).deleteByPreviousMasterId(userId);
