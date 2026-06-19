@@ -14,6 +14,7 @@ import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -68,6 +69,9 @@ public class UserServiceTest {
 
     @Mock
     UniversityRepository universityRepository;
+
+    @Mock
+    FavoriteRepository favoriteRepository;
 
     @Test
     @DisplayName("기존 사용자가 카카오 로그인 시 기존 유저로 토큰을 발급한다.")
@@ -296,6 +300,67 @@ public class UserServiceTest {
 
         // then
         assertThat(actualRole.role()).isEqualTo(UserRole.CLUB_MASTER);
+    }
+
+    @Test
+    @DisplayName("대학교가 변경되면 즐겨찾기가 삭제된다.")
+    void updateUniversityDeletesFavorites() {
+        // given
+        final Long userId = 1L;
+        final University sejong = University.builder()
+                .name("세종대학교")
+                .code(UniversityCode.SEJONG)
+                .build();
+        ReflectionTestUtils.setField(sejong, "id", 1L);
+
+        final University konkuk = University.builder()
+                .name("건국대학교")
+                .code(UniversityCode.KONKUK)
+                .build();
+        ReflectionTestUtils.setField(konkuk, "id", 2L);
+
+        final User user = User.builder()
+                .name("모꼬지")
+                .kakaoId("kakao-12341234")
+                .university(sejong)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(universityRepository.findByCode(UniversityCode.KONKUK)).thenReturn(Optional.of(konkuk));
+
+        // when
+        userService.updateUserInformation(userId, null, null, null, UniversityCode.KONKUK);
+
+        // then
+        BDDMockito.verify(favoriteRepository).deleteByUserId(userId);
+        assertThat(user.getUniversity()).isEqualTo(konkuk);
+    }
+
+    @Test
+    @DisplayName("같은 대학교로 변경하면 즐겨찾기가 삭제되지 않는다.")
+    void updateUniversitySameUniversityDoesNotDeleteFavorites() {
+        // given
+        final Long userId = 1L;
+        final University sejong = University.builder()
+                .name("세종대학교")
+                .code(UniversityCode.SEJONG)
+                .build();
+        ReflectionTestUtils.setField(sejong, "id", 1L);
+
+        final User user = User.builder()
+                .name("모꼬지")
+                .kakaoId("kakao-12341234")
+                .university(sejong)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(universityRepository.findByCode(UniversityCode.SEJONG)).thenReturn(Optional.of(sejong));
+
+        // when
+        userService.updateUserInformation(userId, null, null, null, UniversityCode.SEJONG);
+
+        // then
+        BDDMockito.verify(favoriteRepository, BDDMockito.never()).deleteByUserId(userId);
     }
 
     @Test
