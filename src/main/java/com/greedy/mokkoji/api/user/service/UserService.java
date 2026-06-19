@@ -8,6 +8,7 @@ import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.api.user.service.kakao.KakaoSocialLoginService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -32,6 +33,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final UniversityRepository universityRepository;
+    private final FavoriteRepository favoriteRepository;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
     private final KakaoSocialLoginService kakaoSocialLoginService;
@@ -89,6 +91,9 @@ public class UserService {
 
         if (universityCode != null) {
             University university = findUniversityOrThrow(universityCode);
+            if (user.getUniversity() == null || !user.getUniversity().getId().equals(university.getId())) {
+                favoriteRepository.deleteByUserId(userId);
+            }
             user.updateUniversity(university);
         }
     }
