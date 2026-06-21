@@ -320,7 +320,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("회원 탈퇴 시 댓글은 작성자만 해제하고 나머지 연관 데이터를 삭제한 뒤 유저를 삭제한다.")
-    void withdraw() {
+    void deleteUser() {
         // given
         final Long userId = 1L;
         final User user = User.builder()
@@ -334,7 +334,7 @@ public class UserServiceTest {
         when(clubRepository.findByMaster_Id(userId)).thenReturn(List.of());
 
         // when
-        userService.withdraw(AuthRole.USER, userId);
+        userService.deleteUser(AuthRole.USER, userId);
 
         // then
         BDDMockito.verify(favoriteRepository).deleteByUserId(userId);
@@ -348,7 +348,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("회원 탈퇴 시 동아리장으로 등록된 동아리의 동아리장은 해제된다.")
-    void withdrawReleasesClubMaster() {
+    void deleteUserReleasesClubMaster() {
         // given
         final Long userId = 1L;
         final User user = User.builder()
@@ -365,7 +365,7 @@ public class UserServiceTest {
         when(clubRepository.findByMaster_Id(userId)).thenReturn(List.of(club));
 
         // when
-        userService.withdraw(AuthRole.USER, userId);
+        userService.deleteUser(AuthRole.USER, userId);
 
         // then
         assertThat(club.getMaster()).isNull();
@@ -374,13 +374,13 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("존재하지 않는 유저가 탈퇴를 시도하면 예외가 발생한다.")
-    void withdrawNotFoundUser() {
+    void deleteUserNotFoundUser() {
         // given
         final Long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> userService.withdraw(AuthRole.USER, userId))
+        assertThatThrownBy(() -> userService.deleteUser(AuthRole.USER, userId))
                 .isInstanceOf(MokkojiException.class)
                 .hasMessage(FailMessage.NOT_FOUND_USER.getMessage());
 

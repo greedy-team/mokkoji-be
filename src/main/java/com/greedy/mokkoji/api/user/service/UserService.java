@@ -121,7 +121,7 @@ public class UserService {
     }
 
     @Transactional
-    public void withdraw(final AuthRole authRole, final Long userId) {
+    public void deleteUser(final AuthRole authRole, final Long userId) {
         final User user = findUser(userId);
 
         clubRepository.findByMaster_Id(userId)

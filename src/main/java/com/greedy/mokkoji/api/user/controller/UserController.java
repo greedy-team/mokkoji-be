@@ -74,10 +74,10 @@ public class UserController implements UserControllerSwagger {
     }
 
     @DeleteMapping
-    public ResponseEntity<APISuccessResponse<Void>> withdraw(
+    public ResponseEntity<APISuccessResponse<Void>> deleteUser(
             @Authentication AuthCredential authCredential
     ) {
-        userService.withdraw(authCredential.authRole(), authCredential.userId());
+        userService.deleteUser(authCredential.authRole(), authCredential.userId());
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 

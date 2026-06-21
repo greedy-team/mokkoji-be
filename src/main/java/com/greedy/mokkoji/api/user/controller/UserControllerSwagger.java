@@ -77,7 +77,7 @@ public interface UserControllerSwagger {
             security = {@SecurityRequirement(name = "JWT")}
     )
     @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공")
-    ResponseEntity<APISuccessResponse<Void>> withdraw(
+    ResponseEntity<APISuccessResponse<Void>> deleteUser(
             @Parameter(hidden = true) AuthCredential authCredential
     );
 
