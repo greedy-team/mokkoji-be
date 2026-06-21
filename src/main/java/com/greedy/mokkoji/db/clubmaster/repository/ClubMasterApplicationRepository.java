@@ -18,4 +18,6 @@ public interface ClubMasterApplicationRepository extends JpaRepository<ClubMaste
     Page<ClubMasterApplication> findAllByOrderByCreatedAtAsc(Pageable pageable);
 
     boolean existsByUserAndUniversityAndStatusNot(User user, University university, ApplicationStatus status);
+
+    void deleteByUserId(final Long userId);
 }

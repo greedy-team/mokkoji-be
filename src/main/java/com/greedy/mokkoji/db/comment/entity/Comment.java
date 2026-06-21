@@ -30,7 +30,7 @@ public class Comment extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     private Club club;
 
-    @JoinColumn(name = "user_id", columnDefinition = "bigint", nullable = false)
+    @JoinColumn(name = "user_id", columnDefinition = "bigint")
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
