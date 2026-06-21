@@ -8,6 +8,10 @@ import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.api.user.service.kakao.KakaoSocialLoginService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepository;
+import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
+import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterTransferRepository;
+import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
@@ -34,6 +38,10 @@ public class UserService {
     private final ClubRepository clubRepository;
     private final UniversityRepository universityRepository;
     private final FavoriteRepository favoriteRepository;
+    private final CommentRepository commentRepository;
+    private final ClubApplicationRepository clubApplicationRepository;
+    private final ClubMasterApplicationRepository clubMasterApplicationRepository;
+    private final ClubMasterTransferRepository clubMasterTransferRepository;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
     private final KakaoSocialLoginService kakaoSocialLoginService;
@@ -116,6 +124,24 @@ public class UserService {
     @Transactional
     public void logout(final AuthRole authRole, final Long userId) {
         tokenService.deleteRefreshToken(authRole, userId);
+    }
+
+    @Transactional
+    public void deleteUser(final AuthRole authRole, final Long userId) {
+        final User user = findUser(userId);
+
+        clubRepository.findByMaster_Id(userId)
+                .forEach(club -> club.updateMaster(null));
+
+        favoriteRepository.deleteByUserId(userId);
+        commentRepository.detachUserByUserId(userId);
+        clubApplicationRepository.deleteByApplicantId(userId);
+        clubMasterApplicationRepository.deleteByUserId(userId);
+        clubMasterTransferRepository.deleteByPreviousMasterId(userId);
+
+        tokenService.deleteRefreshToken(authRole, userId);
+
+        userRepository.delete(user);
     }
 
     @Transactional(readOnly = true)

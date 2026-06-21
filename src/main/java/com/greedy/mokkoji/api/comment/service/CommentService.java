@@ -97,7 +97,7 @@ public class CommentService {
     }
 
     private boolean isCommentWriter(final Long userId, final Comment comment) {
-        if (userId == null) {
+        if (userId == null || comment.getUser() == null) {
             return false;
         }
         return comment.getUser().getId().equals(userId);

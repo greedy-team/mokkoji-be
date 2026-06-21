@@ -15,4 +15,6 @@ public interface ClubApplicationRepository extends JpaRepository<ClubApplication
     boolean existsByApplicantAndUniversityAndStatusNot(User applicant, University university, ApplicationStatus status);
 
     List<ClubApplication> findByApplicant(User applicant);
+
+    void deleteByApplicantId(final Long applicantId);
 }

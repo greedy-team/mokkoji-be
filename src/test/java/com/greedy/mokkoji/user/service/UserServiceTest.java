@@ -14,6 +14,10 @@ import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepository;
+import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
+import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterTransferRepository;
+import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
@@ -62,6 +66,21 @@ public class UserServiceTest {
     ClubRepository clubRepository;
 
     @Mock
+    FavoriteRepository favoriteRepository;
+
+    @Mock
+    CommentRepository commentRepository;
+
+    @Mock
+    ClubApplicationRepository clubApplicationRepository;
+
+    @Mock
+    ClubMasterApplicationRepository clubMasterApplicationRepository;
+
+    @Mock
+    ClubMasterTransferRepository clubMasterTransferRepository;
+
+    @Mock
     KakaoSocialLoginService kakaoSocialLoginService;
 
     @Mock
@@ -69,9 +88,6 @@ public class UserServiceTest {
 
     @Mock
     UniversityRepository universityRepository;
-
-    @Mock
-    FavoriteRepository favoriteRepository;
 
     @Test
     @DisplayName("기존 사용자가 카카오 로그인 시 기존 유저로 토큰을 발급한다.")
@@ -364,6 +380,75 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("회원 탈퇴 시 댓글은 작성자만 해제하고 나머지 연관 데이터를 삭제한 뒤 유저를 삭제한다.")
+    void deleteUser() {
+        // given
+        final Long userId = 1L;
+        final User user = User.builder()
+                .name("모꼬지")
+                .kakaoId("kakao-12341234")
+                .role(UserRole.NORMAL)
+                .build();
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(clubRepository.findByMaster_Id(userId)).thenReturn(List.of());
+
+        // when
+        userService.deleteUser(AuthRole.USER, userId);
+
+        // then
+        BDDMockito.verify(favoriteRepository).deleteByUserId(userId);
+        BDDMockito.verify(commentRepository).detachUserByUserId(userId);
+        BDDMockito.verify(clubApplicationRepository).deleteByApplicantId(userId);
+        BDDMockito.verify(clubMasterApplicationRepository).deleteByUserId(userId);
+        BDDMockito.verify(clubMasterTransferRepository).deleteByPreviousMasterId(userId);
+        BDDMockito.verify(tokenService).deleteRefreshToken(AuthRole.USER, userId);
+        BDDMockito.verify(userRepository).delete(user);
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 시 동아리장으로 등록된 동아리의 동아리장은 해제된다.")
+    void deleteUserReleasesClubMaster() {
+        // given
+        final Long userId = 1L;
+        final User user = User.builder()
+                .name("모꼬지")
+                .kakaoId("kakao-12341234")
+                .role(UserRole.CLUB_MASTER)
+                .build();
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        final Club club = Club.builder().name("그리디").master(user).build();
+        ReflectionTestUtils.setField(club, "id", 1L);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(clubRepository.findByMaster_Id(userId)).thenReturn(List.of(club));
+
+        // when
+        userService.deleteUser(AuthRole.USER, userId);
+
+        // then
+        assertThat(club.getMaster()).isNull();
+        BDDMockito.verify(userRepository).delete(user);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 유저가 탈퇴를 시도하면 예외가 발생한다.")
+    void deleteUserNotFoundUser() {
+        // given
+        final Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> userService.deleteUser(AuthRole.USER, userId))
+                .isInstanceOf(MokkojiException.class)
+                .hasMessage(FailMessage.NOT_FOUND_USER.getMessage());
+
+        BDDMockito.verify(userRepository, BDDMockito.never()).delete(any());
+    }
+
+    @Test
     @DisplayName("사용자가 회장으로 관리 중인 동아리를 조회할 수 있다.")
     void getUserManageClubs() {
         // given
@@ -383,7 +468,7 @@ public class UserServiceTest {
         ReflectionTestUtils.setField(club2, "id", 2L);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(clubRepository.findByMasterId(userId)).thenReturn(List.of(club1, club2));
+        when(clubRepository.findByMaster_Id(userId)).thenReturn(List.of(club1, club2));
 
         UserManageClubsResponse expectedResponse = new UserManageClubsResponse(
                 List.of(

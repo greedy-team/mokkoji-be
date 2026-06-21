@@ -70,6 +70,18 @@ public interface UserControllerSwagger {
     );
 
     @Operation(
+            summary = "회원 탈퇴 API",
+            description = "회원과 회원의 연관 데이터를 삭제합니다.\n"
+                    + "* 댓글은 삭제하지 않습니다.\n"
+                    + "* 탈퇴 회원이 동아리장인 경우 해당 동아리의 동아리장은 해제됩니다.",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
+    @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공")
+    ResponseEntity<APISuccessResponse<Void>> deleteUser(
+            @Parameter(hidden = true) AuthCredential authCredential
+    );
+
+    @Operation(
             summary = "사용자 권한 조회 API",
             security = {@SecurityRequirement(name = "JWT")}
     )
