@@ -319,6 +319,67 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("대학교가 변경되면 즐겨찾기가 삭제된다.")
+    void updateUniversityDeletesFavorites() {
+        // given
+        final Long userId = 1L;
+        final University sejong = University.builder()
+                .name("세종대학교")
+                .code(UniversityCode.SEJONG)
+                .build();
+        ReflectionTestUtils.setField(sejong, "id", 1L);
+
+        final University konkuk = University.builder()
+                .name("건국대학교")
+                .code(UniversityCode.KONKUK)
+                .build();
+        ReflectionTestUtils.setField(konkuk, "id", 2L);
+
+        final User user = User.builder()
+                .name("모꼬지")
+                .kakaoId("kakao-12341234")
+                .university(sejong)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(universityRepository.findByCode(UniversityCode.KONKUK)).thenReturn(Optional.of(konkuk));
+
+        // when
+        userService.updateUserInformation(userId, null, null, null, UniversityCode.KONKUK);
+
+        // then
+        BDDMockito.verify(favoriteRepository).deleteByUserId(userId);
+        assertThat(user.getUniversity()).isEqualTo(konkuk);
+    }
+
+    @Test
+    @DisplayName("같은 대학교로 변경하면 즐겨찾기가 삭제되지 않는다.")
+    void updateUniversitySameUniversityDoesNotDeleteFavorites() {
+        // given
+        final Long userId = 1L;
+        final University sejong = University.builder()
+                .name("세종대학교")
+                .code(UniversityCode.SEJONG)
+                .build();
+        ReflectionTestUtils.setField(sejong, "id", 1L);
+
+        final User user = User.builder()
+                .name("모꼬지")
+                .kakaoId("kakao-12341234")
+                .university(sejong)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(universityRepository.findByCode(UniversityCode.SEJONG)).thenReturn(Optional.of(sejong));
+
+        // when
+        userService.updateUserInformation(userId, null, null, null, UniversityCode.SEJONG);
+
+        // then
+        BDDMockito.verify(favoriteRepository, BDDMockito.never()).deleteByUserId(userId);
+    }
+
+    @Test
     @DisplayName("회원 탈퇴 시 댓글은 작성자만 해제하고 나머지 연관 데이터를 삭제한 뒤 유저를 삭제한다.")
     void deleteUser() {
         // given

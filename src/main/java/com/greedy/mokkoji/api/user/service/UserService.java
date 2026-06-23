@@ -98,7 +98,13 @@ public class UserService {
         }
 
         if (universityCode != null) {
-            University university = findUniversityOrThrow(universityCode);
+
+            final University university = findUniversityOrThrow(universityCode);
+
+            if (isDifferentUniversity(user, university)) {
+                favoriteRepository.deleteByUserId(userId);
+            }
+
             user.updateUniversity(university);
         }
     }
@@ -162,5 +168,10 @@ public class UserService {
     private University findUniversityOrThrow(final UniversityCode universityCode) {
         return universityRepository.findByCode(universityCode)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
+    }
+
+    private boolean isDifferentUniversity(final User user, final University university) {
+        return user.getUniversity() == null
+                || !user.getUniversity().getId().equals(university.getId());
     }
 }
