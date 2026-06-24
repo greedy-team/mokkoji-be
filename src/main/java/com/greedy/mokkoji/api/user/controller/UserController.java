@@ -7,9 +7,11 @@ import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.request.kakao.KakaoSocialLoginRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.*;
 import com.greedy.mokkoji.api.user.service.UserService;
+import com.greedy.mokkoji.api.user.service.kakao.KakaoRedirectUriResolver;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,12 +23,15 @@ public class UserController implements UserControllerSwagger {
 
     private final BearerAuthExtractor bearerAuthExtractor;
     private final UserService userService;
+    private final KakaoRedirectUriResolver kakaoRedirectUriResolver;
 
     @PostMapping("/auth/kakao")
     public ResponseEntity<APISuccessResponse<LoginResponse>> kakaoLogin(
+            @RequestHeader(value = HttpHeaders.ORIGIN, required = false) final String origin,
             @RequestBody final KakaoSocialLoginRequest request
     ) {
-        final LoginResponse loginResponse = userService.kakaoLogin(request.code());
+        final String redirectUri = kakaoRedirectUriResolver.resolve(origin);
+        final LoginResponse loginResponse = userService.kakaoLogin(request.code(), redirectUri);
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
     }
 

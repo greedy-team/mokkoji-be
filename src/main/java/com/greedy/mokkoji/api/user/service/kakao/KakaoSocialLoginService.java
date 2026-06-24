@@ -17,19 +17,17 @@ public class KakaoSocialLoginService {
     private final KakaoUserInfoClient kakaoUserInfoClient;
     @Value("${kakao.client-id}")
     private String kakaoClientId;
-    @Value("${kakao.redirect-uri}")
-    private String kakaoRedirectUri;
     @Value("${kakao.content-type}")
     private String kakaoContentType;
     @Value("${kakao.grant-type}")
     private String kakaoGrantType;
 
-    public KakaoUserInfoResponse login(final String code) {
+    public KakaoUserInfoResponse login(final String code, final String redirectUri) {
         final KakaoAccessTokenResponse kakaoAccessTokenResponse = kakaoAccessTokenClient.kakaoAuth(
                 kakaoContentType,
                 code,
                 kakaoClientId,
-                kakaoRedirectUri,
+                redirectUri,
                 kakaoGrantType
         );
 
