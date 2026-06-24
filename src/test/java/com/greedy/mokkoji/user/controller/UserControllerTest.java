@@ -59,7 +59,10 @@ public class UserControllerTest extends ControllerTest {
     void kakaoLoginSuccessful() {
         //given
         final String code = "authorizationCode";
-        when(kakaoSocialLoginService.login(code))
+        final String origin = "http://localhost:3000";
+        final String expectedRedirectUri = origin + "/api/auth/callback/kakao";
+
+        when(kakaoSocialLoginService.login(code, expectedRedirectUri))
                 .thenReturn(Fixture.createKakaoUserInfoResponse(user.getKakaoId(), user.getName()));
 
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
@@ -70,6 +73,7 @@ public class UserControllerTest extends ControllerTest {
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
                 .contentType(ContentType.JSON)
+                .header("Origin", origin)
                 .body(request)
                 .when().post(prefixUrl + "/users/auth/kakao")
                 .then().log().all()
@@ -80,6 +84,21 @@ public class UserControllerTest extends ControllerTest {
 
         //then
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Origin 헤더가 없으면 카카오 로그인은 400 응답을 반환한다.")
+    void kakaoLoginWithoutOrigin() {
+        //given
+        final KakaoSocialLoginRequest request = new KakaoSocialLoginRequest("authorizationCode");
+
+        //when & then
+        RestAssured.given().log().ifValidationFails()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when().post(prefixUrl + "/users/auth/kakao")
+                .then().log().all()
+                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
