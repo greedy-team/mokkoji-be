@@ -82,7 +82,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserInformation(Long userId, String name, String email, Boolean isEmailOn, UniversityCode universityCode) {
+    public void updateUserInformation(Long userId, String name, String email, Boolean isEmailOn, UniversityCode universityCode, Boolean clearUniversityCode) {
         User user = findUser(userId);
 
         if (name != null) {
@@ -97,14 +97,14 @@ public class UserService {
             user.updateEmailOn(isEmailOn);
         }
 
-        if (universityCode != null) {
-
+        if (Boolean.TRUE.equals(clearUniversityCode)) {
+            favoriteRepository.deleteByUserId(userId);
+            user.updateUniversity(null);
+        } else if (universityCode != null) {
             final University university = findUniversityOrThrow(universityCode);
-
             if (isDifferentUniversity(user, university)) {
                 favoriteRepository.deleteByUserId(userId);
             }
-
             user.updateUniversity(university);
         }
     }

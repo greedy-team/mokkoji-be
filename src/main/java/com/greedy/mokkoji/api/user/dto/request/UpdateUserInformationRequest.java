@@ -13,7 +13,8 @@ public record UpdateUserInformationRequest(
         )
         String email,
         @Schema(example = "false") Boolean isEmailOn,
-        @Schema(example = "SEJONG", description = "학교 코드") UniversityCode universityCode
+        @Schema(example = "SEJONG", description = "학교 코드") UniversityCode universityCode,
+        @Schema(example = "false", description = "true 설정 시 학교 정보를 초기화합니다") Boolean clearUniversityCode
 ) {
 
 }
