@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.clubapplication.service;
 
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationsResponse;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
@@ -32,6 +33,7 @@ public class AdminClubApplicationService {
     private final ClubApplicationRepository clubApplicationRepository;
     private final ClubRepository clubRepository;
     private final AdminRepository adminRepository;
+    private final ManageAuthorizer manageAuthorizer;
 
     @Transactional(readOnly = true)
     public AdminClubApplicationsResponse getAdminClubApplications(
@@ -41,9 +43,7 @@ public class AdminClubApplicationService {
             final ApplicationStatus status,
             final Pageable pageable
     ) {
-        if (!AuthRole.ADMIN.equals(authRole)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN);
-        }
+        manageAuthorizer.validateAdminAuth(authRole, adminId);
 
         final Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
@@ -65,20 +65,9 @@ public class AdminClubApplicationService {
 
     @Transactional
     public void approveClubApplication(final AuthRole authRole, final Long adminId, final Long applicationId) {
-        if (!AuthRole.ADMIN.equals(authRole)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN);
-        }
-
-        final Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-
-        final ClubApplication clubApplication = clubApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB_APPLICATION));
-
-        if (admin.getRole() == AdminRole.UNIVERSITY_ADMIN &&
-                !admin.getUniversity().getCode().equals(clubApplication.getUniversity().getCode())) {
-            throw new MokkojiException(FailMessage.FORBIDDEN);
-        }
+        manageAuthorizer.validateAdminAuth(authRole, adminId);
+        final ClubApplication clubApplication = findClubApplicationOrThrow(applicationId);
+        manageAuthorizer.validateCanManageUniversity(adminId, clubApplication.getUniversity());
 
         if (clubApplication.getStatus() != ApplicationStatus.PENDING) {
             throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
@@ -104,20 +93,9 @@ public class AdminClubApplicationService {
 
     @Transactional
     public void rejectClubApplication(final AuthRole authRole, final Long adminId, final Long applicationId, final String rejectReason) {
-        if (!AuthRole.ADMIN.equals(authRole)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN);
-        }
-
-        final Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-
-        final ClubApplication clubApplication = clubApplicationRepository.findById(applicationId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB_APPLICATION));
-
-        if (admin.getRole() == AdminRole.UNIVERSITY_ADMIN &&
-                !admin.getUniversity().getCode().equals(clubApplication.getUniversity().getCode())) {
-            throw new MokkojiException(FailMessage.FORBIDDEN);
-        }
+        manageAuthorizer.validateAdminAuth(authRole, adminId);
+        final ClubApplication clubApplication = findClubApplicationOrThrow(applicationId);
+        manageAuthorizer.validateCanManageUniversity(adminId, clubApplication.getUniversity());
 
         if (clubApplication.getStatus() != ApplicationStatus.PENDING) {
             throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
@@ -131,5 +109,10 @@ public class AdminClubApplicationService {
             return admin.getUniversity().getCode();
         }
         return universityCode;
+    }
+
+    private ClubApplication findClubApplicationOrThrow(final Long applicationId) {
+        return clubApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB_APPLICATION));
     }
 }
