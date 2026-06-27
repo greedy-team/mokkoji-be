@@ -112,20 +112,23 @@ public class ClubMasterService {
                 .build();
         clubMasterTransferRepository.save(transfer);
 
-        String uri = createClubMasterTransferUri(clubId);
+        String uri = createClubMasterTransferUri(transfer.getId());
         emailService.sendClubMasterTransferNotification(nextClubMasterEmail, club.getName(), uri);
     }
 
     @Transactional
     public void acceptClubMasterTransfer(final Long userId, final String uuid) {
         String key = CLUB_TRANSFER_KEY_PREFIX + KEY_DELIMITER + uuid;
-        String clubId = redisRepository.find(key);
+        String transferId = redisRepository.find(key);
 
-        if (clubId == null) {
+        if (transferId == null) {
             throw new MokkojiException(FailMessage.BAD_REQUEST_INVALID_LINK);
         }
 
-        Club club = findClubOrThrow(Long.parseLong(clubId));
+        ClubMasterTransfer transfer = findClubMasterTransferOrThrow(Long.parseLong(transferId));
+        transfer.approve();
+
+        Club club = transfer.getClub();
 
         User clubMaster = club.getMaster();
         clubMaster.updateRole(UserRole.NORMAL);
@@ -137,10 +140,10 @@ public class ClubMasterService {
         redisRepository.delete(key);
     }
 
-    private String createClubMasterTransferUri(Long clubId) {
+    private String createClubMasterTransferUri(Long transferId) {
         String uuid = UUID.randomUUID().toString();
 
-        redisRepository.save(CLUB_TRANSFER_KEY_PREFIX + KEY_DELIMITER + uuid, String.valueOf(clubId), LINK_EXPIRATION);
+        redisRepository.save(CLUB_TRANSFER_KEY_PREFIX + KEY_DELIMITER + uuid, String.valueOf(transferId), LINK_EXPIRATION);
 
         return ServletUriComponentsBuilder.newInstance()
                 .path("/club-master-transfer/{uuid}")
@@ -161,6 +164,11 @@ public class ClubMasterService {
     private User findUserOrThrow(final Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+    }
+
+    private ClubMasterTransfer findClubMasterTransferOrThrow(final Long transferId) {
+        return clubMasterTransferRepository.findById(transferId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB_MASTER_TRANSFER));
     }
 
     private void validateClubMasterNotExists(Club club) {
