@@ -46,8 +46,8 @@ public class UserService {
     private final TokenService tokenService;
     private final KakaoSocialLoginService kakaoSocialLoginService;
 
-    public LoginResponse kakaoLogin(final String code) {
-        final KakaoUserInfoResponse kakaoUserInfo = kakaoSocialLoginService.login(code);
+    public LoginResponse kakaoLogin(final String code, final String redirectUri) {
+        final KakaoUserInfoResponse kakaoUserInfo = kakaoSocialLoginService.login(code, redirectUri);
         final String kakaoId = kakaoUserInfo.id();
         final String name = kakaoUserInfo.nickname();
 

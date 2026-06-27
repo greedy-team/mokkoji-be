@@ -94,6 +94,7 @@ public class UserServiceTest {
     void kakaoLoginExistingUser() {
         // given
         final String code = "authCode";
+        final String redirectUri = "http://localhost:3000/api/auth/callback/kakao";
         final String kakaoId = "kakao-12341234";
 
         final User existingUser = User.builder()
@@ -105,14 +106,14 @@ public class UserServiceTest {
 
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
 
-        BDDMockito.given(kakaoSocialLoginService.login(code))
+        BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, "모꼬지"));
         BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.of(existingUser));
         BDDMockito.given(tokenService.issueTokens(AuthRole.USER, existingUser.getId()))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
-        final LoginResponse actual = userService.kakaoLogin(code);
+        final LoginResponse actual = userService.kakaoLogin(code, redirectUri);
 
         // then
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
@@ -124,12 +125,13 @@ public class UserServiceTest {
     void kakaoLoginNewUser() {
         // given
         final String code = "authCode";
+        final String redirectUri = "http://localhost:3000/api/auth/callback/kakao";
         final String kakaoId = "kakao-99999999";
         final String nickname = "모꼬지";
 
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true);
 
-        BDDMockito.given(kakaoSocialLoginService.login(code))
+        BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, nickname));
         BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.empty());
         BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> {
@@ -141,7 +143,7 @@ public class UserServiceTest {
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
-        final LoginResponse actual = userService.kakaoLogin(code);
+        final LoginResponse actual = userService.kakaoLogin(code, redirectUri);
 
         // then
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
@@ -156,11 +158,12 @@ public class UserServiceTest {
     void kakaoLoginNewUserWithoutNicknameConsent() {
         // given
         final String code = "authCode";
+        final String redirectUri = "http://localhost:3000/api/auth/callback/kakao";
         final String kakaoId = "kakao-00000000";
 
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true);
 
-        BDDMockito.given(kakaoSocialLoginService.login(code))
+        BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponseWithoutNickname(kakaoId));
         BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.empty());
         BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> {
@@ -172,7 +175,7 @@ public class UserServiceTest {
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
-        final LoginResponse actual = userService.kakaoLogin(code);
+        final LoginResponse actual = userService.kakaoLogin(code, redirectUri);
 
         // then
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);

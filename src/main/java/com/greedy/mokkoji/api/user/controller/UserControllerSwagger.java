@@ -18,10 +18,13 @@ public interface UserControllerSwagger {
 
     @Operation(
             summary = "카카오 로그인 API",
-            description = "프론트에서 카카오 OAuth 완료 후 받은 `authorization code`를 전달하여 로그인을 수행합니다. "
+            description = "프론트에서 카카오 OAuth 완료 후 받은 `authorization code`를 전달하여 로그인을 수행합니다.\n"
+                    + "* `redirect_uri`는 요청의 `Origin` 헤더와 서버에 설정된 콜백 경로를 합쳐 동적으로 구성됩니다.\n"
+                    + "* 예: `Origin: http://localhost:3000` → `redirect_uri = http://localhost:3000/api/auth/callback/kakao`\n"
     )
     @ApiResponse(responseCode = "200", description = "카카오 로그인 성공")
     ResponseEntity<APISuccessResponse<LoginResponse>> kakaoLogin(
+            @Parameter(hidden = true) String origin,
             @Parameter(name = "request", description = "카카오 로그인 요청 본문") KakaoSocialLoginRequest request
     );
 
