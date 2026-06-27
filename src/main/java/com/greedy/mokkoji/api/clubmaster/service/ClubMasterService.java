@@ -59,8 +59,6 @@ public class ClubMasterService {
         User user = findUserOrThrow(userId);
         validateDuplicateApplication(user, university);
 
-        user.updateName(userName);
-
         ClubMasterApplication application = ClubMasterApplication.builder()
                 .university(university)
                 .club(club)
