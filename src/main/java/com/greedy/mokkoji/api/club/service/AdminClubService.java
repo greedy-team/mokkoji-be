@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.club.service;
 
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.club.dto.response.AdminClubResponse;
 import com.greedy.mokkoji.api.club.dto.response.AdminClubsResponse;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
@@ -26,6 +27,7 @@ public class AdminClubService {
 
     private final ClubRepository clubRepository;
     private final AdminRepository adminRepository;
+    private final ManageAuthorizer manageAuthorizer;
 
     @Transactional(readOnly = true)
     public AdminClubsResponse getAdminClubs(
@@ -34,9 +36,7 @@ public class AdminClubService {
             final UniversityCode universityCode,
             final Pageable pageable
     ) {
-        if (!AuthRole.ADMIN.equals(authRole)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN);
-        }
+        manageAuthorizer.validateAdminAuth(authRole, adminId);
 
         final Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));

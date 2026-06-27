@@ -50,7 +50,9 @@ public class ManageAuthorizer {
 
         if (AdminRole.MOKKOJI_ADMIN.equals(admin.getRole())) return;
 
-        if (university != null && university.getId().equals(admin.getUniversityId())) return;
+        if (AdminRole.UNIVERSITY_ADMIN.equals(admin.getRole())
+                && university != null
+                && university.getId().equals(admin.getUniversityId())) return;
 
         throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
     }
