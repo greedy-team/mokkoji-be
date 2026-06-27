@@ -100,8 +100,12 @@ public class UserService {
         if (Boolean.TRUE.equals(clearUniversityCode)) {
             favoriteRepository.deleteByUserId(userId);
             user.updateUniversity(null);
-        } else if (universityCode != null) {
+            return;
+        }
+
+        if (universityCode != null) {
             final University university = findUniversityOrThrow(universityCode);
+
             if (isDifferentUniversity(user, university)) {
                 favoriteRepository.deleteByUserId(userId);
             }
