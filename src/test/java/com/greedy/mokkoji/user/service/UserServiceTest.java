@@ -235,7 +235,7 @@ public class UserServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         // when
-        userService.updateUserInformation(1L, null, "updated@email.com", null, null);
+        userService.updateUserInformation(1L, null, "updated@email.com", null, null, null);
 
         // then
         assertThat(user.getEmail()).isEqualTo("updated@email.com");
@@ -253,7 +253,7 @@ public class UserServiceTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 
         // when
-        userService.updateUserInformation(1L, "변경된이름", null, null, null);
+        userService.updateUserInformation(1L, "변경된이름", null, null, null, null);
 
         // then
         assertThat(user.getName()).isEqualTo("변경된이름");
@@ -276,7 +276,7 @@ public class UserServiceTest {
         when(universityRepository.findByCode(UniversityCode.KONKUK)).thenReturn(Optional.of(konkuk));
 
         // when
-        userService.updateUserInformation(1L, null, null, null, UniversityCode.KONKUK);
+        userService.updateUserInformation(1L, null, null, null, UniversityCode.KONKUK, null);
 
         // then
         assertThat(user.getUniversity()).isEqualTo(konkuk);
@@ -295,7 +295,7 @@ public class UserServiceTest {
         when(universityRepository.findByCode(UniversityCode.KONKUK)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> userService.updateUserInformation(1L, null, null, null, UniversityCode.KONKUK))
+        assertThatThrownBy(() -> userService.updateUserInformation(1L, null, null, null, UniversityCode.KONKUK, null))
                 .isInstanceOf(MokkojiException.class)
                 .hasMessage(FailMessage.NOT_FOUND_UNIVERSITY.getMessage());
     }
@@ -348,7 +348,7 @@ public class UserServiceTest {
         when(universityRepository.findByCode(UniversityCode.KONKUK)).thenReturn(Optional.of(konkuk));
 
         // when
-        userService.updateUserInformation(userId, null, null, null, UniversityCode.KONKUK);
+        userService.updateUserInformation(userId, null, null, null, UniversityCode.KONKUK, null);
 
         // then
         BDDMockito.verify(favoriteRepository).deleteByUserId(userId);
@@ -376,9 +376,90 @@ public class UserServiceTest {
         when(universityRepository.findByCode(UniversityCode.SEJONG)).thenReturn(Optional.of(sejong));
 
         // when
-        userService.updateUserInformation(userId, null, null, null, UniversityCode.SEJONG);
+        userService.updateUserInformation(userId, null, null, null, UniversityCode.SEJONG, null);
 
         // then
+        BDDMockito.verify(favoriteRepository, BDDMockito.never()).deleteByUserId(userId);
+    }
+
+    @Test
+    @DisplayName("clearUniversityCode가 true이면 학교 정보가 초기화된다.")
+    void clearUniversityCode() {
+        // given
+        final Long userId = 1L;
+        final University sejong = University.builder()
+                .name("세종대학교")
+                .code(UniversityCode.SEJONG)
+                .build();
+        ReflectionTestUtils.setField(sejong, "id", 1L);
+
+        final User user = User.builder()
+                .name("모꼬지")
+                .kakaoId("kakao-12341234")
+                .university(sejong)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        userService.updateUserInformation(userId, null, null, null, null, true);
+
+        // then
+        assertThat(user.getUniversity()).isNull();
+        BDDMockito.verify(favoriteRepository).deleteByUserId(userId);
+    }
+
+    @Test
+    @DisplayName("clearUniversityCode가 true이면 universityCode가 함께 전달되어도 학교 정보가 초기화된다.")
+    void clearUniversityCodeTakesPrecedenceOverUniversityCode() {
+        // given
+        final Long userId = 1L;
+        final University sejong = University.builder()
+                .name("세종대학교")
+                .code(UniversityCode.SEJONG)
+                .build();
+        ReflectionTestUtils.setField(sejong, "id", 1L);
+
+        final User user = User.builder()
+                .name("모꼬지")
+                .kakaoId("kakao-12341234")
+                .university(sejong)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        userService.updateUserInformation(userId, null, null, null, UniversityCode.KONKUK, true);
+
+        // then
+        assertThat(user.getUniversity()).isNull();
+        BDDMockito.verify(universityRepository, BDDMockito.never()).findByCode(any());
+    }
+
+    @Test
+    @DisplayName("clearUniversityCode가 false이면 학교 정보가 변경되지 않는다.")
+    void clearUniversityCodeFalseDoesNotClearUniversity() {
+        // given
+        final Long userId = 1L;
+        final University sejong = University.builder()
+                .name("세종대학교")
+                .code(UniversityCode.SEJONG)
+                .build();
+        ReflectionTestUtils.setField(sejong, "id", 1L);
+
+        final User user = User.builder()
+                .name("모꼬지")
+                .kakaoId("kakao-12341234")
+                .university(sejong)
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        // when
+        userService.updateUserInformation(userId, null, null, null, null, false);
+
+        // then
+        assertThat(user.getUniversity()).isEqualTo(sejong);
         BDDMockito.verify(favoriteRepository, BDDMockito.never()).deleteByUserId(userId);
     }
 
