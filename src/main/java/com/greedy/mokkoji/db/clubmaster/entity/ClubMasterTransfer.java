@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.db.clubmaster.entity;
 
 import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.clubmaster.TransferStatus;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "club_master_transfer")
-public class ClubMasterTransfer {
+public class ClubMasterTransfer extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "bigint", nullable = false)
