@@ -43,6 +43,7 @@ public enum FailMessage {
     NOT_FOUND_ADMIN(HttpStatus.NOT_FOUND, 40408, "관리자를 찾을 수 없습니다."),
     NOT_FOUND_CLUB_APPLICATION(HttpStatus.NOT_FOUND, 40409, "동아리 생성 신청을 찾을 수 없습니다."),
     NOT_FOUND_CLUB_MASTER_APPLICATION(HttpStatus.NOT_FOUND, 40410, "동아리장 신청서를 찾을 수 없습니다."),
+    NOT_FOUND_CLUB_MASTER_TRANSFER(HttpStatus.NOT_FOUND, 40411, "동아리장 위임 요청을 찾을 수 없습니다."),
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 40500, "잘못된 HTTP 메소드 요청입니다."),
@@ -54,6 +55,7 @@ public enum FailMessage {
     CONFLICT_CLUB_APPLICATION(HttpStatus.CONFLICT, 40903, "동아리 생성 신청이 이미 진행 중입니다."),
     CONFLICT_APPLICATION_STATUS(HttpStatus.CONFLICT, 40904, "처리 가능한 상태의 신청이 아닙니다."),
     CONFLICT_CLUB_MASTER_APPLICATION(HttpStatus.CONFLICT, 40905, "동아리장 신청이 이미 진행 중입니다."),
+    CONFLICT_CLUB_MASTER_TRANSFER_STATUS(HttpStatus.CONFLICT, 40906, "처리 가능한 상태의 위임 요청이 아닙니다."),
 
     //500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다."),
