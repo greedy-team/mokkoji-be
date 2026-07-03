@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.db.clubmaster.repository;
 
+import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
-import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import org.springframework.data.domain.Page;
@@ -17,7 +17,7 @@ public interface ClubMasterApplicationRepository extends JpaRepository<ClubMaste
 
     Page<ClubMasterApplication> findAllByOrderByCreatedAtAsc(Pageable pageable);
 
-    boolean existsByUserAndUniversityAndStatusNot(User user, University university, ApplicationStatus status);
+    boolean existsByUserAndClubAndStatusNot(User user, Club club, ApplicationStatus status);
 
     void deleteByUserId(final Long userId);
 }

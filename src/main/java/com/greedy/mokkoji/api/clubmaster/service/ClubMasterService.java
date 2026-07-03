@@ -57,7 +57,7 @@ public class ClubMasterService {
         validateClubMasterNotExists(club);
 
         User user = findUserOrThrow(userId);
-        validateDuplicateApplication(user, university);
+        validateDuplicateApplication(user, club);
 
         ClubMasterApplication application = ClubMasterApplication.builder()
                 .university(university)
@@ -173,8 +173,8 @@ public class ClubMasterService {
         }
     }
 
-    private void validateDuplicateApplication(User user, University university) {
-        if (clubMasterApplicationRepository.existsByUserAndUniversityAndStatusNot(user, university, ApplicationStatus.REJECTED)) {
+    private void validateDuplicateApplication(User user, Club club) {
+        if (clubMasterApplicationRepository.existsByUserAndClubAndStatusNot(user, club, ApplicationStatus.REJECTED)) {
             throw new MokkojiException(FailMessage.CONFLICT_CLUB_MASTER_APPLICATION);
         }
     }
