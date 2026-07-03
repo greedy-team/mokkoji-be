@@ -34,7 +34,9 @@ public class ClubApplicationService {
         final University university = universityRepository.findByCode(request.universityCode())
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
 
-        if (clubApplicationRepository.existsByApplicantAndUniversityAndStatusNot(user, university, ApplicationStatus.REJECTED)) {
+        final String clubName = request.clubName();
+
+        if (clubApplicationRepository.existsByApplicantAndUniversityAndClubNameAndStatusNot(user, university, clubName, ApplicationStatus.REJECTED)) {
             throw new MokkojiException(FailMessage.CONFLICT_CLUB_APPLICATION);
         }
 
@@ -42,7 +44,7 @@ public class ClubApplicationService {
                 .university(university)
                 .applicant(user)
                 .applicantName(request.applicantName())
-                .clubName(request.clubName())
+                .clubName(clubName)
                 .clubCategory(request.clubCategory())
                 .clubAffiliation(request.clubAffiliation())
                 .logo(request.logo())
