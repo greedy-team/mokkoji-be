@@ -127,13 +127,13 @@ public class ClubMasterService {
         transfer.approve();
 
         Club club = transfer.getClub();
-
-        User clubMaster = club.getMaster();
-        clubMaster.updateRole(UserRole.NORMAL);
-
+        User previousMaster = club.getMaster();
         User nextClubMaster = findUserOrThrow(userId);
+
         nextClubMaster.updateRole(UserRole.CLUB_MASTER);
         club.updateMaster(nextClubMaster);
+
+        updatePreviousMasterRoleIfNeeded(previousMaster, nextClubMaster);
     }
 
     private String createClubMasterTransferUri(Long transferId) {
@@ -145,6 +145,20 @@ public class ClubMasterService {
                 .path("/club-master-transfer/{uuid}")
                 .buildAndExpand(uuid)
                 .toUriString();
+    }
+
+    private void updatePreviousMasterRoleIfNeeded(
+            final User previousMaster,
+            final User nextClubMaster
+    ) {
+        if (previousMaster == null || previousMaster.getId().equals(nextClubMaster.getId())) {
+            return;
+        }
+
+        boolean isStillClubMaster = clubRepository.existsByMasterId(previousMaster.getId());
+        if (!isStillClubMaster) {
+            previousMaster.updateRole(UserRole.NORMAL);
+        }
     }
 
     private University findUniversityOrThrow(final UniversityCode universityCode) {
