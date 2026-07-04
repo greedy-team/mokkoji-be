@@ -10,5 +10,5 @@ import java.util.List;
 public interface ClubRepository extends JpaRepository<Club, Long>, ClubRepositoryCustom {
     List<Club> findByMaster_Id(Long userId);
 
-    boolean existsByMasterId(Long masterId);
+    boolean existsByMaster_Id(Long masterId);
 }

@@ -155,7 +155,7 @@ public class ClubMasterService {
             return;
         }
 
-        boolean isStillClubMaster = clubRepository.existsByMasterId(previousMaster.getId());
+        boolean isStillClubMaster = clubRepository.existsByMaster_Id(previousMaster.getId());
         if (!isStillClubMaster) {
             previousMaster.updateRole(UserRole.NORMAL);
         }
