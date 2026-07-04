@@ -63,8 +63,8 @@ public class ManageAuthorizer {
         }
     }
 
-    private Admin findAdminOrThrow(final Long userId) {
-        return adminRepository.findById(userId)
+    private Admin findAdminOrThrow(final Long adminId) {
+        return adminRepository.findById(adminId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_ADMIN));
     }
 
