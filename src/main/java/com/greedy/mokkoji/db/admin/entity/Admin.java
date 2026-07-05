@@ -3,6 +3,7 @@ package com.greedy.mokkoji.db.admin.entity;
 import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.enums.admin.AdminRole;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -50,5 +51,10 @@ public class Admin extends BaseTime {
     public Long getUniversityId() {
         if (university == null) return null;
         return university.getId();
+    }
+
+    public UniversityCode getUniversityCode() {
+        if (university == null) return null;
+        return university.getCode();
     }
 }
