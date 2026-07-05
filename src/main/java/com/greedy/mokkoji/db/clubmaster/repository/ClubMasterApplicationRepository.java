@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.db.clubmaster.repository;
 
+import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
-import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;

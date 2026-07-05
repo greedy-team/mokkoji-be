@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface ClubApplicationRepository extends JpaRepository<ClubApplication, Long>, ClubApplicationRepositoryCustom {
 
-    boolean existsByApplicantAndUniversityAndStatusNot(User applicant, University university, ApplicationStatus status);
+    boolean existsByApplicantAndUniversityAndClubNameAndStatusNot(User applicant, University university, String clubName, ApplicationStatus status);
 
     List<ClubApplication> findByApplicant(User applicant);
 

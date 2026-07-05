@@ -57,7 +57,7 @@ public class ClubMasterService {
         validateClubMasterNotExists(club);
 
         User user = findUserOrThrow(userId);
-        validateDuplicateApplication(user, university);
+        validateDuplicateApplication(user, club);
 
         ClubMasterApplication application = ClubMasterApplication.builder()
                 .university(university)
@@ -127,13 +127,13 @@ public class ClubMasterService {
         transfer.approve();
 
         Club club = transfer.getClub();
-
-        User clubMaster = club.getMaster();
-        clubMaster.updateRole(UserRole.NORMAL);
-
+        User previousMaster = club.getMaster();
         User nextClubMaster = findUserOrThrow(userId);
+
         nextClubMaster.updateRole(UserRole.CLUB_MASTER);
         club.updateMaster(nextClubMaster);
+
+        updatePreviousMasterRoleIfNeeded(previousMaster, nextClubMaster);
     }
 
     private String createClubMasterTransferUri(Long transferId) {
@@ -145,6 +145,20 @@ public class ClubMasterService {
                 .path("/club-master-transfer/{uuid}")
                 .buildAndExpand(uuid)
                 .toUriString();
+    }
+
+    private void updatePreviousMasterRoleIfNeeded(
+            final User previousMaster,
+            final User nextClubMaster
+    ) {
+        if (previousMaster == null || previousMaster.getId().equals(nextClubMaster.getId())) {
+            return;
+        }
+
+        boolean isStillClubMaster = clubRepository.existsByMaster_Id(previousMaster.getId());
+        if (!isStillClubMaster) {
+            previousMaster.updateRole(UserRole.NORMAL);
+        }
     }
 
     private University findUniversityOrThrow(final UniversityCode universityCode) {
@@ -173,8 +187,8 @@ public class ClubMasterService {
         }
     }
 
-    private void validateDuplicateApplication(User user, University university) {
-        if (clubMasterApplicationRepository.existsByUserAndUniversityAndStatusNot(user, university, ApplicationStatus.REJECTED)) {
+    private void validateDuplicateApplication(User user, Club club) {
+        if (clubMasterApplicationRepository.existsByUserAndClubAndStatusNot(user, club, ApplicationStatus.REJECTED)) {
             throw new MokkojiException(FailMessage.CONFLICT_CLUB_MASTER_APPLICATION);
         }
     }
