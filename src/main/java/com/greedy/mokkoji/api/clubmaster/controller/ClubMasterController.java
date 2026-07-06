@@ -55,21 +55,10 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
                 authCredential.authRole(),
                 authCredential.userId(),
                 request.clubId(),
-                request.nextClubMasterName(),
-                request.nextClubMasterEmail()
+                request.nextClubMasterUserCode()
         );
 
         return APISuccessResponse.of(HttpStatus.CREATED, null);
-    }
-
-    @GetMapping("/club-master-transfer/{uuid}")
-    public ResponseEntity<APISuccessResponse<Void>> acceptClubMasterTransfer(
-            @Authentication final AuthCredential authCredential,
-            @PathVariable("uuid") final String uuid
-    ) {
-        clubMasterApplicationService.acceptClubMasterTransfer(authCredential.userId(), uuid);
-
-        return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
 }
