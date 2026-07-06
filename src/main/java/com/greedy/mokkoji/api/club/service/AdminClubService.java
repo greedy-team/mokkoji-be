@@ -52,7 +52,7 @@ public class AdminClubService {
 
         return AdminClubsResponse.of(
                 clubs,
-                PageResponse.of(page.getNumber(), page.getSize(), page.getTotalPages(), (int) page.getTotalElements())
+                PageResponse.of(page.getNumber() + 1, page.getSize(), page.getTotalPages(), (int) page.getTotalElements())
         );
     }
 
