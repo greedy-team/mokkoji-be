@@ -89,7 +89,7 @@ public class ClubMasterService {
         manageAuthorizer.validateCanManageClub(authRole, userId, club);
 
         User previousMaster = club.getMaster();
-        User nextClubMaster = findUserByUserCodeOrThrow(nextClubMasterUserCode);
+        User nextClubMaster = findUserByCodeOrThrow(nextClubMasterUserCode);
 
         nextClubMaster.updateRole(UserRole.CLUB_MASTER);
         club.updateMaster(nextClubMaster);
@@ -126,8 +126,8 @@ public class ClubMasterService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
-    private User findUserByUserCodeOrThrow(final String userCode) {
-        return userRepository.findByUserCode(userCode)
+    private User findUserByCodeOrThrow(final String code) {
+        return userRepository.findByCode(code)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 

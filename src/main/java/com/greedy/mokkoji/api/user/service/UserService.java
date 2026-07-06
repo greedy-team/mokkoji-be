@@ -55,7 +55,7 @@ public class UserService {
         final User user = existingUser.orElseGet(
                 () -> userRepository.save(
                         User.builder()
-                                .userCode(UUID.randomUUID().toString())
+                                .code(UUID.randomUUID().toString())
                                 .kakaoId(kakaoId)
                                 .name(name)
                                 .isEmailOn(true)

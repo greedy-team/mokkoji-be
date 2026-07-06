@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByKakaoId(String kakaoId);
 
-    Optional<User> findByUserCode(String userCode);
+    Optional<User> findByCode(String code);
 }

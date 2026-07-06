@@ -21,7 +21,7 @@ public record UserInformationResponse(
 
         return new UserInformationResponse(
                 user.getId(),
-                user.getUserCode(),
+                user.getCode(),
                 user.getName(),
                 user.getEmail(),
                 user.getRole(),

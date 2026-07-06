@@ -70,7 +70,7 @@ public class ClubMasterServiceTest {
 
         nextMaster = Fixture.createAnotherUser();
         ReflectionTestUtils.setField(nextMaster, "id", NEXT_MASTER_ID);
-        ReflectionTestUtils.setField(nextMaster, "userCode", NEXT_MASTER_USER_CODE);
+        ReflectionTestUtils.setField(nextMaster, "code", NEXT_MASTER_USER_CODE);
 
         club = Fixture.createClub(university, master);
         ReflectionTestUtils.setField(club, "id", CLUB_ID);
@@ -85,7 +85,7 @@ public class ClubMasterServiceTest {
         prepareTransferContext(previousMaster);
 
         BDDMockito.given(clubRepository.findById(CLUB_ID)).willReturn(Optional.of(club));
-        BDDMockito.given(userRepository.findByUserCode(NEXT_MASTER_USER_CODE)).willReturn(Optional.of(nextMaster));
+        BDDMockito.given(userRepository.findByCode(NEXT_MASTER_USER_CODE)).willReturn(Optional.of(nextMaster));
         BDDMockito.given(clubRepository.existsByMaster_Id(PREVIOUS_MASTER_ID)).willReturn(false);
 
         // when
@@ -106,7 +106,7 @@ public class ClubMasterServiceTest {
         prepareTransferContext(previousMaster);
 
         BDDMockito.given(clubRepository.findById(CLUB_ID)).willReturn(Optional.of(club));
-        BDDMockito.given(userRepository.findByUserCode(NEXT_MASTER_USER_CODE)).willReturn(Optional.of(nextMaster));
+        BDDMockito.given(userRepository.findByCode(NEXT_MASTER_USER_CODE)).willReturn(Optional.of(nextMaster));
         BDDMockito.given(clubRepository.existsByMaster_Id(PREVIOUS_MASTER_ID)).willReturn(true);
 
         // when
@@ -129,7 +129,7 @@ public class ClubMasterServiceTest {
                 .isInstanceOf(MokkojiException.class)
                 .hasMessage(FailMessage.NOT_FOUND_CLUB.getMessage());
 
-        BDDMockito.verify(userRepository, BDDMockito.never()).findByUserCode(anyString());
+        BDDMockito.verify(userRepository, BDDMockito.never()).findByCode(anyString());
     }
 
     @Test
@@ -141,7 +141,7 @@ public class ClubMasterServiceTest {
         prepareTransferContext(previousMaster);
 
         BDDMockito.given(clubRepository.findById(CLUB_ID)).willReturn(Optional.of(club));
-        BDDMockito.given(userRepository.findByUserCode(NEXT_MASTER_USER_CODE)).willReturn(Optional.empty());
+        BDDMockito.given(userRepository.findByCode(NEXT_MASTER_USER_CODE)).willReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> clubMasterService.transferClubMaster(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE))
@@ -168,7 +168,7 @@ public class ClubMasterServiceTest {
                 .isInstanceOf(MokkojiException.class)
                 .hasMessage(FailMessage.FORBIDDEN_MANAGE_CLUB.getMessage());
 
-        BDDMockito.verify(userRepository, BDDMockito.never()).findByUserCode(anyString());
+        BDDMockito.verify(userRepository, BDDMockito.never()).findByCode(anyString());
         assertThat(club.getMaster()).isEqualTo(previousMaster);
     }
 }
