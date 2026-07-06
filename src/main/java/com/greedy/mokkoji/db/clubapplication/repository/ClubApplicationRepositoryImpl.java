@@ -30,6 +30,7 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
     ) {
         final List<ClubApplication> content = queryFactory
                 .selectFrom(clubApplication)
+                .join(clubApplication.university).fetchJoin()
                 .where(
                         equalUniversityCode(universityCode),
                         equalStatus(status)
