@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 public record UserInformationResponse(
         @Schema(example = "1") Long id,
+        @Schema(example = "550e8400-e29b-41d4-a716-446655440000") String userCode,
         @Schema(example = "모꼬지") String name,
         @Schema(example = "user@sejong.ac.kr") String email,
         @Schema(example = "NORMAL") UserRole role,
@@ -20,6 +21,7 @@ public record UserInformationResponse(
 
         return new UserInformationResponse(
                 user.getId(),
+                user.getUserCode(),
                 user.getName(),
                 user.getEmail(),
                 user.getRole(),
