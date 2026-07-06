@@ -43,7 +43,7 @@ public interface ClubMasterControllerSwagger {
             security = {@SecurityRequirement(name = "JWT")}
     )
     @ApiResponse(responseCode = "201", description = "위임 성공")
-    ResponseEntity<APISuccessResponse<Void>> applyClubMasterTransfer(
+    ResponseEntity<APISuccessResponse<Void>> transferClubMaster(
             @Parameter(hidden = true) AuthCredential authCredential,
             @Parameter(name = "applyClubMasterTransferRequest", description = "회장 권한 위임 요청 본문") ApplyClubMasterTransferRequest request
     );

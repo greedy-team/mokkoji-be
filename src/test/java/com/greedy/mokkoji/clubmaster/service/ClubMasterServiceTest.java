@@ -78,7 +78,7 @@ public class ClubMasterServiceTest {
 
     @Test
     @DisplayName("동아리장이 대상자의 user_code를 입력하면 즉시 권한이 위임된다.")
-    void applyClubMasterTransfer() {
+    void transferClubMaster() {
         // given
         previousMaster = Fixture.createUserWithRole(UserRole.CLUB_MASTER);
         ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
@@ -89,7 +89,7 @@ public class ClubMasterServiceTest {
         BDDMockito.given(clubRepository.existsByMaster_Id(PREVIOUS_MASTER_ID)).willReturn(false);
 
         // when
-        clubMasterService.applyClubMasterTransfer(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE);
+        clubMasterService.transferClubMaster(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE);
 
         // then
         assertThat(nextMaster.getRole()).isEqualTo(UserRole.CLUB_MASTER);
@@ -99,7 +99,7 @@ public class ClubMasterServiceTest {
 
     @Test
     @DisplayName("기존 동아리장이 다른 동아리의 동아리장이면 권한이 유지된다.")
-    void applyClubMasterTransferKeepsPreviousMasterRole() {
+    void transferClubMasterKeepsPreviousMasterRole() {
         // given
         previousMaster = Fixture.createUserWithRole(UserRole.CLUB_MASTER);
         ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
@@ -110,7 +110,7 @@ public class ClubMasterServiceTest {
         BDDMockito.given(clubRepository.existsByMaster_Id(PREVIOUS_MASTER_ID)).willReturn(true);
 
         // when
-        clubMasterService.applyClubMasterTransfer(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE);
+        clubMasterService.transferClubMaster(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE);
 
         // then
         assertThat(nextMaster.getRole()).isEqualTo(UserRole.CLUB_MASTER);
@@ -120,12 +120,12 @@ public class ClubMasterServiceTest {
 
     @Test
     @DisplayName("존재하지 않는 동아리로 위임을 시도하면 예외가 발생한다.")
-    void applyClubMasterTransferClubNotFound() {
+    void transferClubMasterClubNotFound() {
         // given
         BDDMockito.given(clubRepository.findById(CLUB_ID)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> clubMasterService.applyClubMasterTransfer(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE))
+        assertThatThrownBy(() -> clubMasterService.transferClubMaster(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE))
                 .isInstanceOf(MokkojiException.class)
                 .hasMessage(FailMessage.NOT_FOUND_CLUB.getMessage());
 
@@ -134,7 +134,7 @@ public class ClubMasterServiceTest {
 
     @Test
     @DisplayName("존재하지 않는 user_code로 위임을 시도하면 예외가 발생한다.")
-    void applyClubMasterTransferUserCodeNotFound() {
+    void transferClubMasterUserCodeNotFound() {
         // given
         previousMaster = Fixture.createUserWithRole(UserRole.CLUB_MASTER);
         ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
@@ -144,7 +144,7 @@ public class ClubMasterServiceTest {
         BDDMockito.given(userRepository.findByUserCode(NEXT_MASTER_USER_CODE)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> clubMasterService.applyClubMasterTransfer(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE))
+        assertThatThrownBy(() -> clubMasterService.transferClubMaster(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE))
                 .isInstanceOf(MokkojiException.class)
                 .hasMessage(FailMessage.NOT_FOUND_USER.getMessage());
 
@@ -153,7 +153,7 @@ public class ClubMasterServiceTest {
 
     @Test
     @DisplayName("동아리를 관리할 권한이 없으면 위임이 이루어지지 않는다.")
-    void applyClubMasterTransferForbidden() {
+    void transferClubMasterForbidden() {
         // given
         previousMaster = Fixture.createUserWithRole(UserRole.CLUB_MASTER);
         ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
@@ -164,7 +164,7 @@ public class ClubMasterServiceTest {
                 .given(manageAuthorizer).validateCanManageClub(any(), anyLong(), any());
 
         // when & then
-        assertThatThrownBy(() -> clubMasterService.applyClubMasterTransfer(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE))
+        assertThatThrownBy(() -> clubMasterService.transferClubMaster(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE))
                 .isInstanceOf(MokkojiException.class)
                 .hasMessage(FailMessage.FORBIDDEN_MANAGE_CLUB.getMessage());
 

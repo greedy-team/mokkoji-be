@@ -47,11 +47,11 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
     }
 
     @PostMapping("/club-master-transfers")
-    public ResponseEntity<APISuccessResponse<Void>> applyClubMasterTransfer(
+    public ResponseEntity<APISuccessResponse<Void>> transferClubMaster(
             @Authentication final AuthCredential authCredential,
             @RequestBody final ApplyClubMasterTransferRequest request
     ) {
-        clubMasterApplicationService.applyClubMasterTransfer(
+        clubMasterApplicationService.transferClubMaster(
                 authCredential.authRole(),
                 authCredential.userId(),
                 request.clubId(),

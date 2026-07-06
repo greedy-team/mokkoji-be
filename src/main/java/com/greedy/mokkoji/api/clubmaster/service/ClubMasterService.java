@@ -79,7 +79,7 @@ public class ClubMasterService {
     }
 
     @Transactional
-    public void applyClubMasterTransfer(
+    public void transferClubMaster(
             final AuthRole authRole,
             final Long userId,
             final Long clubId,
