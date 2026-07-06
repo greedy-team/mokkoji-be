@@ -24,6 +24,9 @@ public class User extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     private University university;
 
+    @Column(name = "user_code", columnDefinition = "varchar(50)", nullable = false, unique = true)
+    private String userCode;
+
     @Column(name = "kakao_id", columnDefinition = "varchar(50)", nullable = false, unique = true)
     private String kakaoId;
 
@@ -41,8 +44,9 @@ public class User extends BaseTime {
     private UserRole role;
 
     @Builder
-    public User(University university, String kakaoId, String name, String email, boolean isEmailOn, UserRole role) {
+    public User(University university, String userCode, String kakaoId, String name, String email, boolean isEmailOn, UserRole role) {
         this.university = university;
+        this.userCode = userCode;
         this.kakaoId = kakaoId;
         this.name = name;
         this.email = email;

@@ -10,7 +10,6 @@ import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepository;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
-import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterTransferRepository;
 import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.university.entity.University;
@@ -28,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -41,7 +41,6 @@ public class UserService {
     private final CommentRepository commentRepository;
     private final ClubApplicationRepository clubApplicationRepository;
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
-    private final ClubMasterTransferRepository clubMasterTransferRepository;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
     private final KakaoSocialLoginService kakaoSocialLoginService;
@@ -56,6 +55,7 @@ public class UserService {
         final User user = existingUser.orElseGet(
                 () -> userRepository.save(
                         User.builder()
+                                .userCode(UUID.randomUUID().toString())
                                 .kakaoId(kakaoId)
                                 .name(name)
                                 .isEmailOn(true)
@@ -141,7 +141,6 @@ public class UserService {
         commentRepository.detachUserByUserId(userId);
         clubApplicationRepository.deleteByApplicantId(userId);
         clubMasterApplicationRepository.deleteByUserId(userId);
-        clubMasterTransferRepository.deleteByPreviousMasterId(userId);
 
         tokenService.deleteRefreshToken(authRole, userId);
 
