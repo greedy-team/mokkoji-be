@@ -124,7 +124,7 @@ public class ClubControllerTest extends ControllerTest {
                         .name(club.getName())
                         .description(club.getDescription())
                         .logo(club.getLogo())
-                        .favorite(true)
+                        .isFavorite(true)
                         .recruitmentPreviewResponse(recruitmentPreviewResponse)
                         .build());
 
