@@ -1,7 +1,9 @@
 package com.greedy.mokkoji.api.admin.service;
 
 import com.greedy.mokkoji.api.admin.dto.response.AdminLoginResponse;
+import com.greedy.mokkoji.api.admin.dto.response.AdminInfoResponse;
 import com.greedy.mokkoji.api.auth.dto.TokenPair;
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.admin.entity.Admin;
@@ -20,6 +22,7 @@ public class AdminService {
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final ManageAuthorizer manageAuthorizer;
 
     @Transactional
     public AdminLoginResponse login(final String loginId, final String password) {
@@ -32,5 +35,15 @@ public class AdminService {
 
         final TokenPair tokenPair = tokenService.issueTokens(AuthRole.ADMIN, admin.getId());
         return AdminLoginResponse.of(tokenPair.accessToken(), tokenPair.refreshToken());
+    }
+
+    @Transactional(readOnly = true)
+    public AdminInfoResponse getAdminInfo(final AuthRole authRole, final Long adminId) {
+        manageAuthorizer.validateAdminAuth(authRole, adminId);
+
+        final Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_ADMIN));
+
+        return AdminInfoResponse.of(admin.getRole(), admin.getUniversityCode());
     }
 }

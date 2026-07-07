@@ -42,7 +42,7 @@ public class ManageAuthorizer {
 
         if (AuthRole.ADMIN.equals(authRole)) return;
 
-        throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_UNIVERSITY_CLUB);
+        throw new MokkojiException(FailMessage.FORBIDDEN_ADMIN);
     }
 
     public void validateCanManageUniversity(final Long adminId, final University university) {
