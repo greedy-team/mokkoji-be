@@ -6,6 +6,8 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.clubmaster.service.AdminClubMasterService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,12 +24,14 @@ public class AdminClubMasterController implements AdminClubMasterSwagger {
     @GetMapping
     public ResponseEntity<APISuccessResponse<GetClubMasterApplicationsResponse>> getClubMasterApplications(
             @Authentication final AuthCredential authCredential,
+            @RequestParam(required = false) final UniversityCode universityCode,
+            @RequestParam(required = false) final ApplicationStatus status,
             @RequestParam(value = "page") final int page,
             @RequestParam(value = "size") final int size) {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                adminClubMasterService.getClubMasterApplications(authCredential.authRole(), authCredential.userId(), pageable)
+                adminClubMasterService.getClubMasterApplications(authCredential.authRole(), authCredential.userId(), universityCode, status, pageable)
         );
     }
 
