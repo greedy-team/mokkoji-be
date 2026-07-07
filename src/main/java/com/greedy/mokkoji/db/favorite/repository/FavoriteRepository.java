@@ -30,4 +30,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     List<Long> findClubIdsByUserId(@Param("userId") Long userId);
 
     void deleteByUserId(final Long userId);
+
+    void deleteByClubId(final Long clubId);
 }

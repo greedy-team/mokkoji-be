@@ -11,4 +11,8 @@ public interface RecruitmentImageRepository extends JpaRepository<RecruitmentIma
     List<RecruitmentImage> findByRecruitmentIdOrderByCreatedAtAsc(Long recruitmentId);
 
     List<RecruitmentImage> findByRecruitmentId(Long recruitmentId);
+
+    List<RecruitmentImage> findByRecruitmentIdIn(final List<Long> recruitmentIds);
+
+    void deleteByRecruitmentIdIn(final List<Long> recruitmentIds);
 }

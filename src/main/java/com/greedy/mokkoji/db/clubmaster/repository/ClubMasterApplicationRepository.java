@@ -20,4 +20,6 @@ public interface ClubMasterApplicationRepository extends JpaRepository<ClubMaste
     boolean existsByUserAndClubAndStatusNot(User user, Club club, ApplicationStatus status);
 
     void deleteByUserId(final Long userId);
+
+    void deleteByClubId(final Long clubId);
 }
