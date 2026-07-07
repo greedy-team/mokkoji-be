@@ -3,29 +3,25 @@ services:
     container_name: redis
     image: redis:alpine
     hostname: redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
 
   blue:
     container_name: blue
     image: mokkojiteam/mokkoji
-    expose:
-      - 8080
-      - 9292
     ports:
       - "8081:8080"
-      - "9293:9292"
+      - "9091:9090"
     depends_on:
       - redis
 
   green:
     container_name: green
     image: mokkojiteam/mokkoji
-    expose:
-      - 8080
-      - 9292
     ports:
       - "8082:8080"
-      - "9292:9292"
+      - "9092:9090"
     depends_on:
       - redis
+

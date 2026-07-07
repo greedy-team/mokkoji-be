@@ -32,6 +32,7 @@ jobs:
         with:
           distribution: 'corretto'
           java-version: '21'
+          cache: 'gradle'
 
       - name: application.yml 생성
         run: |
