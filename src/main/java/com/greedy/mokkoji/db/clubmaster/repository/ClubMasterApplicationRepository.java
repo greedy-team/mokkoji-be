@@ -11,7 +11,7 @@ import java.util.List;
 public interface ClubMasterApplicationRepository extends JpaRepository<ClubMasterApplication, Long>, ClubMasterApplicationRepositoryCustom {
     List<ClubMasterApplication> findByUserIdOrderByCreatedAtDesc(Long userId);
 
-    boolean existsByUserAndUniversityAndStatusNot(User user, University university, ApplicationStatus status);
+    boolean existsByUserAndClubAndStatusNot(User user, Club club, ApplicationStatus status);
 
     void deleteByUserId(final Long userId);
 }
