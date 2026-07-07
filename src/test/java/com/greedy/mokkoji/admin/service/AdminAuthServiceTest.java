@@ -156,13 +156,13 @@ class AdminAuthServiceTest {
     @DisplayName("관리자 권한이 없으면 예외를 던지고 관리자를 조회하지 않는다.")
     void getAdminInfo_notAdmin() {
         //given
-        willThrow(new MokkojiException(FailMessage.FORBIDDEN_MANAGE_UNIVERSITY_CLUB))
+        willThrow(new MokkojiException(FailMessage.FORBIDDEN_ADMIN))
                 .given(manageAuthorizer).validateAdminAuth(AuthRole.USER, 1L);
 
         //when & then
         assertThatThrownBy(() -> adminAuthService.getAdminInfo(AuthRole.USER, 1L))
                 .isInstanceOf(MokkojiException.class)
-                .hasMessage(FailMessage.FORBIDDEN_MANAGE_UNIVERSITY_CLUB.getMessage());
+                .hasMessage(FailMessage.FORBIDDEN_ADMIN.getMessage());
 
         verifyNoInteractions(adminRepository);
     }
