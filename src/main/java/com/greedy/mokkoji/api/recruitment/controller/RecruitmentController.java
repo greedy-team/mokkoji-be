@@ -39,7 +39,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
                 HttpStatus.CREATED,
                 recruitmentService.createRecruitment(
                         authCredential.authRole(),
-                        authCredential.userId(),
+                        authCredential.accountId(),
                         clubId,
                         request.title(),
                         request.content(),
@@ -60,7 +60,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
     ) {
         UpdateRecruitmentResponse response = recruitmentService.updateRecruitment(
                 authCredential.authRole(),
-                authCredential.userId(),
+                authCredential.accountId(),
                 recruitmentId,
                 request.title(),
                 request.content(),
@@ -79,7 +79,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
             @PathVariable("recruitmentId") final Long recruitmentId
     ) {
         DeleteRecruitmentResponse response =
-                recruitmentService.deleteRecruitment(authCredential.authRole(), authCredential.userId(), recruitmentId);
+                recruitmentService.deleteRecruitment(authCredential.authRole(), authCredential.accountId(), recruitmentId);
         return APISuccessResponse.of(HttpStatus.OK, response);
     }
 
@@ -100,7 +100,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getRecentRecruitmentOfClub(clubId, authCredential.userId())
+                recruitmentService.getRecentRecruitmentOfClub(clubId, authCredential.accountId())
         );
     }
 
@@ -111,7 +111,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getSpecificRecruitment(authCredential.userId(), recruitmentId)
+                recruitmentService.getSpecificRecruitment(authCredential.accountId(), recruitmentId)
         );
     }
 
@@ -126,7 +126,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getAllRecruitment(authCredential.userId(), affiliation, category, pageable)
+                recruitmentService.getAllRecruitment(authCredential.accountId(), affiliation, category, pageable)
         );
     }
 }

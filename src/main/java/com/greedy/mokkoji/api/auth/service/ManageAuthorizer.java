@@ -21,24 +21,24 @@ public class ManageAuthorizer {
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
 
-    public void validateCanManageClub(final AuthRole authRole, final Long userId, final Club club) {
-        validateAuthenticated(userId);
+    public void validateCanManageClub(final AuthRole authRole, final Long accountId, final Club club) {
+        validateAuthenticated(accountId);
 
         if (AuthRole.ADMIN.equals(authRole)) {
-            Admin admin = findAdminOrThrow(userId);
+            Admin admin = findAdminOrThrow(accountId);
             if (AdminRole.MOKKOJI_ADMIN.equals(admin.getRole())) return;
         }
 
         if (AuthRole.USER.equals(authRole)) {
-            User user = findUserOrThrow(userId);
-            if (user.getRole() == UserRole.CLUB_MASTER && club.getMasterId().equals(userId)) return;
+            User user = findUserOrThrow(accountId);
+            if (user.getRole() == UserRole.CLUB_MASTER && club.getMasterId().equals(accountId)) return;
         }
 
         throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
     }
 
-    public void validateAdminAuth(final AuthRole authRole, final Long userId) {
-        validateAuthenticated(userId);
+    public void validateAdminAuth(final AuthRole authRole, final Long accountId) {
+        validateAuthenticated(accountId);
 
         if (AuthRole.ADMIN.equals(authRole)) return;
 
@@ -57,14 +57,14 @@ public class ManageAuthorizer {
         throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
     }
 
-    private void validateAuthenticated(final Long userId) {
-        if (userId == null) {
+    private void validateAuthenticated(final Long accountId) {
+        if (accountId == null) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
     }
 
-    private Admin findAdminOrThrow(final Long userId) {
-        return adminRepository.findById(userId)
+    private Admin findAdminOrThrow(final Long adminId) {
+        return adminRepository.findById(adminId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_ADMIN));
     }
 

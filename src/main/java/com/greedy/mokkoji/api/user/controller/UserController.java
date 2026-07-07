@@ -49,7 +49,7 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<Void>> logout(
             @Authentication AuthCredential authCredential
     ) {
-        userService.logout(authCredential.authRole(), authCredential.userId());
+        userService.logout(authCredential.authRole(), authCredential.accountId());
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
@@ -57,7 +57,7 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<UserInformationResponse>> getUserInformation(
             @Authentication AuthCredential authCredential
     ) {
-        final Long userId = authCredential.userId();
+        final Long userId = authCredential.accountId();
         final UserInformationResponse userInformationResponse = userService.getUserInformation(userId);
         return APISuccessResponse.of(HttpStatus.OK, userInformationResponse);
     }
@@ -67,7 +67,7 @@ public class UserController implements UserControllerSwagger {
             @Authentication AuthCredential authCredential,
             @RequestBody @Valid UpdateUserInformationRequest updateUserInformationRequest
     ) {
-        final Long userId = authCredential.userId();
+        final Long userId = authCredential.accountId();
         userService.updateUserInformation(
                 userId,
                 updateUserInformationRequest.name(),
@@ -83,7 +83,7 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<Void>> deleteUser(
             @Authentication AuthCredential authCredential
     ) {
-        userService.deleteUser(authCredential.authRole(), authCredential.userId());
+        userService.deleteUser(authCredential.authRole(), authCredential.accountId());
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
@@ -91,13 +91,13 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<UserRoleResponse>> getUserRole(
             @Authentication AuthCredential authCredential
     ) {
-        return APISuccessResponse.of(HttpStatus.OK, userService.getUserRole(authCredential.userId()));
+        return APISuccessResponse.of(HttpStatus.OK, userService.getUserRole(authCredential.accountId()));
     }
 
     @GetMapping("/manage/clubs")
     public ResponseEntity<APISuccessResponse<UserManageClubsResponse>> getUserManageClubs(
             @Authentication AuthCredential authCredential
     ) {
-        return APISuccessResponse.of(HttpStatus.OK, userService.getUserManageClubs(authCredential.userId()));
+        return APISuccessResponse.of(HttpStatus.OK, userService.getUserManageClubs(authCredential.accountId()));
     }
 }

@@ -19,35 +19,35 @@ public class TokenService {
     private final RedisRepository redisRepository;
     private final JwtUtil jwtUtil;
 
-    public TokenPair issueTokens(final AuthRole authRole, final Long userId) {
-        final AuthCredential credential = new AuthCredential(authRole, userId);
+    public TokenPair issueTokens(final AuthRole authRole, final Long accountId) {
+        final AuthCredential credential = new AuthCredential(authRole, accountId);
         final String accessToken = jwtUtil.generateAccessToken(credential);
         final String refreshToken = jwtUtil.generateRefreshToken(credential);
-        saveRefreshToken(authRole, userId, refreshToken);
+        saveRefreshToken(authRole, accountId, refreshToken);
         return new TokenPair(accessToken, refreshToken);
     }
 
-    private void saveRefreshToken(final AuthRole authRole, final Long userId, final String refreshToken) {
+    private void saveRefreshToken(final AuthRole authRole, final Long accountId, final String refreshToken) {
         redisRepository.save(
-                refreshTokenKey(authRole, userId),
+                refreshTokenKey(authRole, accountId),
                 refreshToken,
                 REFRESH_TOKEN_EXPIRATION
         );
     }
 
-    public String getRefreshToken(final AuthRole authRole, final Long userId) {
-        return redisRepository.find(refreshTokenKey(authRole, userId));
+    public String getRefreshToken(final AuthRole authRole, final Long accountId) {
+        return redisRepository.find(refreshTokenKey(authRole, accountId));
     }
 
-    public void deleteRefreshToken(final AuthRole authRole, final Long userId) {
-        redisRepository.delete(refreshTokenKey(authRole, userId));
+    public void deleteRefreshToken(final AuthRole authRole, final Long accountId) {
+        redisRepository.delete(refreshTokenKey(authRole, accountId));
     }
 
-    private String refreshTokenKey(final AuthRole authRole, final Long userId) {
+    private String refreshTokenKey(final AuthRole authRole, final Long accountId) {
         return REFRESH_TOKEN_KEY_PREFIX
                 + KEY_DELIMITER
                 + authRole.name()
                 + KEY_DELIMITER
-                + userId;
+                + accountId;
     }
 }
