@@ -41,7 +41,7 @@ public class ClubMasterServiceTest {
     private static final Long CLUB_ID = 10L;
     private static final Long PREVIOUS_MASTER_ID = 1L;
     private static final Long NEXT_MASTER_ID = 2L;
-    private static final String NEXT_MASTER_USER_CODE = "next-user-code";
+    private static final String NEXT_MASTER_USER_CODE = "Gh3456";
 
     @InjectMocks
     ClubMasterService clubMasterService;

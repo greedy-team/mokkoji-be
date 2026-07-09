@@ -33,7 +33,7 @@ public class Fixture {
 
     public static User createUser() {
         return User.builder()
-                .code("user-code-12341234")
+                .code("Ab1234")
                 .name("모꼬지")
                 .kakaoId("kakao-12341234")
                 .email("모꼬지@test.com")
@@ -44,7 +44,7 @@ public class Fixture {
 
     public static User createAnotherUser() {
         return User.builder()
-                .code("user-code-87654321")
+                .code("cD5678")
                 .name("다른사용자")
                 .kakaoId("kakao-87654321")
                 .email("another@test.com")
@@ -55,7 +55,7 @@ public class Fixture {
 
     public static User createUserWithRole(UserRole role) {
         return User.builder()
-                .code("user-code-22222222")
+                .code("Ed9012")
                 .name("모꼬지")
                 .kakaoId("kakao-22222222")
                 .email("모꼬지@test.com")

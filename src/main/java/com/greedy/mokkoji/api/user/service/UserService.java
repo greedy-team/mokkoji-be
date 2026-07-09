@@ -22,12 +22,12 @@ import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -55,7 +55,7 @@ public class UserService {
         final User user = existingUser.orElseGet(
                 () -> userRepository.save(
                         User.builder()
-                                .code(UUID.randomUUID().toString())
+                                .code(RandomStringUtils.randomAlphanumeric(6))
                                 .kakaoId(kakaoId)
                                 .name(name)
                                 .isEmailOn(true)
