@@ -172,12 +172,12 @@ class ClubServiceTest {
         assertThat(response.clubs().get(0).name()).isEqualTo("testClub1");
         assertThat(response.clubs().get(0).description()).isEqualTo("testDescription1");
         assertThat(response.clubs().get(0).logo()).isEqualTo("testLogo1");
-        assertThat(response.clubs().get(0).favorite()).isTrue();
+        assertThat(response.clubs().get(0).isFavorite()).isTrue();
 
         assertThat(response.clubs().get(1).name()).isEqualTo("testClub2");
         assertThat(response.clubs().get(1).description()).isEqualTo("testDescription2");
         assertThat(response.clubs().get(1).logo()).isEqualTo("testLogo2");
-        assertThat(response.clubs().get(1).favorite()).isFalse();
+        assertThat(response.clubs().get(1).isFavorite()).isFalse();
 
         assertThat(response.page().totalElements()).isEqualTo(2);
 
