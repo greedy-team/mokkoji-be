@@ -161,7 +161,7 @@ public class ClubService {
                 .name(c.name())
                 .description(c.description())
                 .logo(appDataS3Client.getPublicUrl(c.logo()))
-                .favorite(isFavorite)
+                .isFavorite(isFavorite)
                 .recruitmentPreviewResponse(
                         mapToLatestRecruitmentPreviewResponse(c.latestRecruitmentInfo())
                 )
@@ -197,7 +197,7 @@ public class ClubService {
 
         if (userId == null) return recruitmentComparator;
 
-        return Comparator.comparing(ClubPreviewResponse::favorite)
+        return Comparator.comparing(ClubPreviewResponse::isFavorite)
                 .reversed()
                 .thenComparing(recruitmentComparator);
     }
