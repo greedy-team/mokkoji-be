@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
 import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
@@ -124,5 +125,20 @@ public class AppDataS3Client {
 
     private boolean isInvalidFileKey(String fileKey) {
         return fileKey == null || fileKey.isBlank();
+    }
+
+    public void copyObject(final String sourceKey, final String destKey) {
+        if (isInvalidFileKey(sourceKey) || isInvalidFileKey(destKey)) {
+            return;
+        }
+
+        final CopyObjectRequest copyObjectRequest = CopyObjectRequest.builder()
+                .sourceBucket(bucketName)
+                .sourceKey(sourceKey)
+                .destinationBucket(bucketName)
+                .destinationKey(destKey)
+                .build();
+
+        s3Client.copyObject(copyObjectRequest);
     }
 }

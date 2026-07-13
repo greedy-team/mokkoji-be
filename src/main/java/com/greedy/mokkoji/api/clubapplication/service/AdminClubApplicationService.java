@@ -3,6 +3,7 @@ package com.greedy.mokkoji.api.clubapplication.service;
 import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationsResponse;
+import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.admin.entity.Admin;
@@ -34,6 +35,7 @@ public class AdminClubApplicationService {
     private final ClubRepository clubRepository;
     private final AdminRepository adminRepository;
     private final ManageAuthorizer manageAuthorizer;
+    private final AppDataS3Client appDataS3Client;
 
     @Transactional(readOnly = true)
     public AdminClubApplicationsResponse getAdminClubApplications(
@@ -79,14 +81,29 @@ public class AdminClubApplicationService {
                 .university(clubApplication.getUniversity())
                 .clubCategory(clubApplication.getClubCategory())
                 .clubAffiliation(clubApplication.getClubAffiliation())
-                .logo(clubApplication.getLogo())
+                .logo(null)
                 .instagram(clubApplication.getInstagram())
                 .description(clubApplication.getDescription())
                 .master(applicant)
                 .build();
 
         clubRepository.save(club);
+
+        moveLogoToClub(clubApplication.getLogo(), club);
+
         clubApplication.approve();
+    }
+
+    private void moveLogoToClub(final String applicationLogoKey, final Club club) {
+        if (applicationLogoKey == null || applicationLogoKey.isBlank()) {
+            return;
+        }
+
+        final String fileName = applicationLogoKey.substring(applicationLogoKey.lastIndexOf('/') + 1);
+        final String clubLogoKey = String.format("club-logo/%d/%s", club.getId(), fileName);
+
+        appDataS3Client.copyObject(applicationLogoKey, clubLogoKey);
+        club.updateIfPresent(null, null, null, null, clubLogoKey, null);
     }
 
     @Transactional
