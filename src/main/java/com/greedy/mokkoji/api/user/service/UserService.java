@@ -71,7 +71,7 @@ public class UserService {
     @Transactional
     public String refreshAccessToken(String refreshToken) {
         final AuthCredential credential = jwtUtil.getCredentialFromToken(refreshToken);
-        final Long userId = credential.userId();
+        final Long userId = credential.accountId();
 
         String storedRefreshToken = tokenService.getRefreshToken(credential.authRole(), userId);
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {

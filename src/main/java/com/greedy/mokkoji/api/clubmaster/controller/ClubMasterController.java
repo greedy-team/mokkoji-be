@@ -27,7 +27,7 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
             @RequestBody final CreateClubMasterApplicationRequest request
     ) {
         clubMasterApplicationService.createClubMasterApplication(
-                authCredential.userId(),
+                authCredential.accountId(),
                 request.universityCode(),
                 request.clubId(),
                 request.userName()
@@ -42,7 +42,7 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubMasterApplicationService.getMyClubMasterApplications(authCredential.userId())
+                clubMasterApplicationService.getMyClubMasterApplications(authCredential.accountId())
         );
     }
 
@@ -53,12 +53,11 @@ public class ClubMasterController implements ClubMasterControllerSwagger {
     ) {
         clubMasterApplicationService.transferClubMaster(
                 authCredential.authRole(),
-                authCredential.userId(),
+                authCredential.accountId(),
                 request.clubId(),
                 request.nextClubMasterUserCode()
         );
 
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
-
 }

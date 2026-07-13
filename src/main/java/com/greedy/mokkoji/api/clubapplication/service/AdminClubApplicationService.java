@@ -45,9 +45,7 @@ public class AdminClubApplicationService {
     ) {
         manageAuthorizer.validateAdminAuth(authRole, adminId);
 
-        final Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-
+        final Admin admin = findAdminOrThrow(adminId);
         final UniversityCode targetUniversityCode = resolveUniversityCode(admin, universityCode);
 
         final Page<ClubApplication> page = clubApplicationRepository.findByConditions(targetUniversityCode, status, pageable);
@@ -59,7 +57,7 @@ public class AdminClubApplicationService {
 
         return AdminClubApplicationsResponse.of(
                 applications,
-                PageResponse.of(page.getNumber(), page.getSize(), page.getTotalPages(), (int) page.getTotalElements())
+                PageResponse.of(page.getNumber() + 1, page.getSize(), page.getTotalPages(), (int) page.getTotalElements())
         );
     }
 
@@ -109,6 +107,11 @@ public class AdminClubApplicationService {
             return admin.getUniversity().getCode();
         }
         return universityCode;
+    }
+
+    private Admin findAdminOrThrow(final Long adminId) {
+        return adminRepository.findById(adminId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_ADMIN));
     }
 
     private ClubApplication findClubApplicationOrThrow(final Long applicationId) {

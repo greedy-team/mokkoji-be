@@ -33,7 +33,7 @@ public class AdminClubApplicationController implements AdminClubApplicationContr
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                adminClubApplicationService.getAdminClubApplications(authCredential.authRole(), authCredential.userId(), universityCode, status, pageable)
+                adminClubApplicationService.getAdminClubApplications(authCredential.authRole(), authCredential.accountId(), universityCode, status, pageable)
         );
     }
 
@@ -42,7 +42,7 @@ public class AdminClubApplicationController implements AdminClubApplicationContr
             @Authentication final AuthCredential authCredential,
             @PathVariable final Long applicationId
     ) {
-        adminClubApplicationService.approveClubApplication(authCredential.authRole(), authCredential.userId(), applicationId);
+        adminClubApplicationService.approveClubApplication(authCredential.authRole(), authCredential.accountId(), applicationId);
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
@@ -52,7 +52,7 @@ public class AdminClubApplicationController implements AdminClubApplicationContr
             @PathVariable final Long applicationId,
             @RequestBody final ClubApplicationRejectRequest request
     ) {
-        adminClubApplicationService.rejectClubApplication(authCredential.authRole(), authCredential.userId(), applicationId, request.rejectReason());
+        adminClubApplicationService.rejectClubApplication(authCredential.authRole(), authCredential.accountId(), applicationId, request.rejectReason());
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 }

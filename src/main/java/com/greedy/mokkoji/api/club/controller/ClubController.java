@@ -34,7 +34,7 @@ public class ClubController implements ClubControllerSwagger {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubService.findClub(authCredential.userId(), clubId)
+                clubService.findClub(authCredential.accountId(), clubId)
         );
     }
 
@@ -50,7 +50,7 @@ public class ClubController implements ClubControllerSwagger {
         return APISuccessResponse.of(
                 HttpStatus.OK,
                 clubService.findClubsByConditions(
-                        authCredential.userId(),
+                        authCredential.accountId(),
                         universityCode,
                         clubSearchCond.keyword(),
                         clubSearchCond.category(),
@@ -74,7 +74,7 @@ public class ClubController implements ClubControllerSwagger {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubService.getAllClubs(authCredential.userId(), universityCode, keyword, affiliation, category, pageable)
+                clubService.getAllClubs(authCredential.accountId(), universityCode, keyword, affiliation, category, pageable)
         );
     }
 
@@ -88,7 +88,7 @@ public class ClubController implements ClubControllerSwagger {
                 HttpStatus.OK,
                 clubService.updateClub(
                         authCredential.authRole(),
-                        authCredential.userId(),
+                        authCredential.accountId(),
                         clubId,
                         clubUpdateRequest.name(),
                         clubUpdateRequest.category(),

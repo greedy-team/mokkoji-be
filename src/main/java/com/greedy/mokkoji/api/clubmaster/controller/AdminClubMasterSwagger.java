@@ -4,6 +4,8 @@ import com.greedy.mokkoji.api.admin.dto.request.RejectClubMasterApplicationReque
 import com.greedy.mokkoji.api.admin.dto.response.GetClubMasterApplicationsResponse;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import com.greedy.mokkoji.enums.application.ApplicationStatus;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,6 +23,8 @@ public interface AdminClubMasterSwagger {
     @ApiResponse(responseCode = "200", description = "조회 성공")
     ResponseEntity<APISuccessResponse<GetClubMasterApplicationsResponse>> getClubMasterApplications(
             @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "universityCode", description = "대학교 코드") UniversityCode universityCode,
+            @Parameter(name = "status", description = "신청 상태") ApplicationStatus status,
             @Parameter(name = "page", description = "페이지 번호 (1부터 시작)", example = "1") int page,
             @Parameter(name = "size", description = "페이지 크기", example = "10") int size
     );

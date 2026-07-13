@@ -23,7 +23,7 @@ public class ClubApplicationController implements ClubApplicationControllerSwagg
             @RequestBody final ClubApplicationCreateRequest request,
             @Authentication final AuthCredential authCredential
     ) {
-        clubApplicationService.createClubApplication(authCredential.userId(), request);
+        clubApplicationService.createClubApplication(authCredential.accountId(), request);
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
@@ -33,7 +33,7 @@ public class ClubApplicationController implements ClubApplicationControllerSwagg
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                clubApplicationService.getMyClubApplications(authCredential.userId())
+                clubApplicationService.getMyClubApplications(authCredential.accountId())
         );
     }
 }
