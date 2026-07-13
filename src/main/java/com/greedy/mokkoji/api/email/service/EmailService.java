@@ -14,7 +14,6 @@ import java.util.List;
 public class EmailService {
 
     private final RecruitmentNotificationChannel recruitmentNotificationChannel;
-    private final ClubMasterTransferEmailChannel clubMasterTransferEmailChannel;
     private final FavoriteRepository favoriteRepository;
 
     @Transactional(readOnly = true)
@@ -34,20 +33,6 @@ public class EmailService {
 
         recruitmentNotificationChannel.sendNotification(
                 userEmails, clubId, clubName, recruitment.getRecruitStart(), recruitment.getRecruitEnd()
-        );
-    }
-
-    public void sendClubMasterTransferNotification(
-            final String nextClubMasterEmail,
-            final String clubName,
-            final String clubMasterTransferUri
-    ) {
-        if (nextClubMasterEmail == null || nextClubMasterEmail.isBlank()) {
-            return;
-        }
-
-        clubMasterTransferEmailChannel.sendClubMasterTransferEmail(
-                nextClubMasterEmail, clubName, clubMasterTransferUri
         );
     }
 }
