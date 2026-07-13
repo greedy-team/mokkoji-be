@@ -14,8 +14,6 @@ import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationReposito
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterTransferRepository;
 import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
-import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
-import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -109,13 +107,10 @@ public class AdminClubService {
     private List<String> collectS3KeysToDelete(final Club club) {
         final List<String> s3KeysToDelete = new ArrayList<>();
 
-        final List<Long> recruitmentIds = recruitmentRepository.findAllByClubId(club.getId()).stream()
-                .map(Recruitment::getId)
-                .toList();
+        final List<Long> recruitmentIds = recruitmentRepository.findIdsByClubId(club.getId());
 
-        recruitmentImageRepository.findByRecruitmentIdIn(recruitmentIds).stream()
-                .map(RecruitmentImage::getImage)
-                .forEach(s3KeysToDelete::add);
+        final List<String> recruitmentImageKeys = recruitmentImageRepository.findImagesByRecruitmentIdIn(recruitmentIds);
+        s3KeysToDelete.addAll(recruitmentImageKeys);
 
         if (club.getLogo() != null && !club.getLogo().isBlank()) {
             s3KeysToDelete.add(club.getLogo());
@@ -125,12 +120,9 @@ public class AdminClubService {
     }
 
     private void deleteClubAssociations(final Long clubId) {
-        final List<Recruitment> recruitments = recruitmentRepository.findAllByClubId(clubId);
-        final List<Long> recruitmentIds = recruitments.stream()
-                .map(Recruitment::getId)
-                .toList();
+        final List<Long> recruitmentIds = recruitmentRepository.findIdsByClubId(clubId);
         recruitmentImageRepository.deleteByRecruitmentIdIn(recruitmentIds);
-        recruitmentRepository.deleteAll(recruitments);
+        recruitmentRepository.deleteByClubId(clubId);
 
         commentRepository.deleteByClubId(clubId);
 

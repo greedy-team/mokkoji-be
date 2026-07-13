@@ -2,6 +2,8 @@ package com.greedy.mokkoji.db.recruitment.repository;
 
 import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,7 +14,10 @@ public interface RecruitmentImageRepository extends JpaRepository<RecruitmentIma
 
     List<RecruitmentImage> findByRecruitmentId(Long recruitmentId);
 
-    List<RecruitmentImage> findByRecruitmentIdIn(final List<Long> recruitmentIds);
+    @Query("SELECT ri.image FROM RecruitmentImage ri WHERE ri.recruitment.id IN :recruitmentIds")
+    List<String> findImagesByRecruitmentIdIn(final List<Long> recruitmentIds);
 
+    @Modifying
+    @Query("DELETE FROM RecruitmentImage ri WHERE ri.recruitment.id IN :recruitmentIds")
     void deleteByRecruitmentIdIn(final List<Long> recruitmentIds);
 }

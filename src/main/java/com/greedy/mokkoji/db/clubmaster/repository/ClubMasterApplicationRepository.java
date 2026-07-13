@@ -7,6 +7,8 @@ import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -21,5 +23,7 @@ public interface ClubMasterApplicationRepository extends JpaRepository<ClubMaste
 
     void deleteByUserId(final Long userId);
 
+    @Modifying
+    @Query("DELETE FROM ClubMasterApplication cma WHERE cma.club.id = :clubId")
     void deleteByClubId(final Long clubId);
 }
