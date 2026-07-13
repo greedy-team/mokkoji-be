@@ -84,10 +84,11 @@ public class AdminClubService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
         manageAuthorizer.validateCanManageUniversity(adminId, club.getUniversity());
 
-        final List<String> s3KeysToDelete = collectS3KeysToDelete(club);
+        final List<Long> recruitmentIds = recruitmentRepository.findIdsByClubId(clubId);
+        final List<String> s3KeysToDelete = collectS3KeysToDelete(club, recruitmentIds);
         final User master = club.getMaster();
 
-        deleteClubAssociations(clubId);
+        deleteClubAssociations(clubId, recruitmentIds);
         clubRepository.delete(club);
 
         updateMasterRoleIfNeeded(master);
@@ -104,10 +105,8 @@ public class AdminClubService {
         return universityCode;
     }
 
-    private List<String> collectS3KeysToDelete(final Club club) {
+    private List<String> collectS3KeysToDelete(final Club club, final List<Long> recruitmentIds) {
         final List<String> s3KeysToDelete = new ArrayList<>();
-
-        final List<Long> recruitmentIds = recruitmentRepository.findIdsByClubId(club.getId());
 
         final List<String> recruitmentImageKeys = recruitmentImageRepository.findImagesByRecruitmentIdIn(recruitmentIds);
         s3KeysToDelete.addAll(recruitmentImageKeys);
@@ -119,8 +118,7 @@ public class AdminClubService {
         return s3KeysToDelete;
     }
 
-    private void deleteClubAssociations(final Long clubId) {
-        final List<Long> recruitmentIds = recruitmentRepository.findIdsByClubId(clubId);
+    private void deleteClubAssociations(final Long clubId, final List<Long> recruitmentIds) {
         recruitmentImageRepository.deleteByRecruitmentIdIn(recruitmentIds);
         recruitmentRepository.deleteByClubId(clubId);
 
