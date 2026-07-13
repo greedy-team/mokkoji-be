@@ -85,6 +85,10 @@ public class ClubApplication extends BaseTime {
         this.description = description;
     }
 
+    public void updateLogo(final String logo) {
+        this.logo = logo;
+    }
+
     public void approve() {
         this.status = ApplicationStatus.APPROVED;
     }

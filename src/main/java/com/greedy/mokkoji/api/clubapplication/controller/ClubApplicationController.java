@@ -3,6 +3,7 @@ package com.greedy.mokkoji.api.clubapplication.controller;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.clubapplication.dto.request.ClubApplicationCreateRequest;
+import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationCreateResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationsResponse;
 import com.greedy.mokkoji.api.clubapplication.service.ClubApplicationService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
@@ -19,12 +20,14 @@ public class ClubApplicationController implements ClubApplicationControllerSwagg
     private final ClubApplicationService clubApplicationService;
 
     @PostMapping
-    public ResponseEntity<APISuccessResponse<Void>> createClubApplication(
+    public ResponseEntity<APISuccessResponse<ClubApplicationCreateResponse>> createClubApplication(
             @RequestBody final ClubApplicationCreateRequest request,
             @Authentication final AuthCredential authCredential
     ) {
-        clubApplicationService.createClubApplication(authCredential.accountId(), request);
-        return APISuccessResponse.of(HttpStatus.CREATED, null);
+        return APISuccessResponse.of(
+                HttpStatus.CREATED,
+                clubApplicationService.createClubApplication(authCredential.accountId(), request)
+        );
     }
 
     @GetMapping("/me")

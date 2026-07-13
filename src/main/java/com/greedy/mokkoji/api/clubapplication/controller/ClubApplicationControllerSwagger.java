@@ -2,6 +2,7 @@ package com.greedy.mokkoji.api.clubapplication.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.clubapplication.dto.request.ClubApplicationCreateRequest;
+import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationCreateResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationsResponse;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +20,7 @@ public interface ClubApplicationControllerSwagger {
             security = @SecurityRequirement(name = "JWT")
     )
     @ApiResponse(responseCode = "201", description = "신청 성공")
-    ResponseEntity<APISuccessResponse<Void>> createClubApplication(
+    ResponseEntity<APISuccessResponse<ClubApplicationCreateResponse>> createClubApplication(
             @Parameter(name = "request", description = "동아리 생성 신청 요청 본문") ClubApplicationCreateRequest request,
             @Parameter(hidden = true) AuthCredential authCredential
     );
