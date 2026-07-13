@@ -22,12 +22,12 @@ public class AfterCommitS3Cleaner {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override
                 public void afterCommit() {
-                    fileKeys.forEach(appDataS3Client::deleteObject);
+                    appDataS3Client.deleteObjectsAsync(fileKeys);
                 }
             });
             return;
         }
 
-        fileKeys.forEach(appDataS3Client::deleteObject);
+        appDataS3Client.deleteObjectsAsync(fileKeys);
     }
 }
