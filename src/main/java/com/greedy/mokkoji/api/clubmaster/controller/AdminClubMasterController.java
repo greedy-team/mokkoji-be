@@ -31,7 +31,7 @@ public class AdminClubMasterController implements AdminClubMasterSwagger {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                adminClubMasterService.getClubMasterApplications(authCredential.authRole(), authCredential.userId(), universityCode, status, pageable)
+                adminClubMasterService.getClubMasterApplications(authCredential.authRole(), authCredential.accountId(), universityCode, status, pageable)
         );
     }
 
@@ -40,7 +40,7 @@ public class AdminClubMasterController implements AdminClubMasterSwagger {
             @Authentication final AuthCredential authCredential,
             @PathVariable(name = "applicationId") final Long applicationId
     ) {
-        adminClubMasterService.approveClubMasterApplication(authCredential.authRole(), authCredential.userId(), applicationId);
+        adminClubMasterService.approveClubMasterApplication(authCredential.authRole(), authCredential.accountId(), applicationId);
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 
@@ -50,7 +50,7 @@ public class AdminClubMasterController implements AdminClubMasterSwagger {
             @PathVariable(name = "applicationId") final Long applicationId,
             @RequestBody RejectClubMasterApplicationRequest request
     ) {
-        adminClubMasterService.rejectClubMasterApplication(authCredential.authRole(), authCredential.userId(), applicationId, request.rejectReason());
+        adminClubMasterService.rejectClubMasterApplication(authCredential.authRole(), authCredential.accountId(), applicationId, request.rejectReason());
         return APISuccessResponse.of(HttpStatus.CREATED, null);
     }
 }

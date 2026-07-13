@@ -28,7 +28,7 @@ public class CommentController implements CommentControllerSwagger {
             @Authentication final AuthCredential authCredential
     ) {
         commentService.createComment(
-                authCredential.userId(),
+                authCredential.accountId(),
                 clubId,
                 commentCreateRequest.rate(),
                 commentCreateRequest.content()
@@ -43,7 +43,7 @@ public class CommentController implements CommentControllerSwagger {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                commentService.getComments(authCredential.userId(), clubId)
+                commentService.getComments(authCredential.accountId(), clubId)
         );
     }
 
@@ -53,7 +53,7 @@ public class CommentController implements CommentControllerSwagger {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                commentService.getAllMyComments(authCredential.userId())
+                commentService.getAllMyComments(authCredential.accountId())
         );
     }
 
@@ -64,7 +64,7 @@ public class CommentController implements CommentControllerSwagger {
             @Authentication final AuthCredential authCredential
     ) {
         commentService.updateComment(
-                authCredential.userId(),
+                authCredential.accountId(),
                 commentId,
                 commentUpdateRequest.rate(),
                 commentUpdateRequest.content()
@@ -77,7 +77,7 @@ public class CommentController implements CommentControllerSwagger {
             @PathVariable(name = "commentId") final Long commentId,
             @Authentication final AuthCredential authCredential
     ) {
-        commentService.deleteComment(authCredential.userId(), commentId);
+        commentService.deleteComment(authCredential.accountId(), commentId);
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 }

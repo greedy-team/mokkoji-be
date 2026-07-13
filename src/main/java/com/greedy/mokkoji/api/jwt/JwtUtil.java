@@ -34,7 +34,7 @@ public class JwtUtil {
 
     public String generateAccessToken(AuthCredential credential) {
         return Jwts.builder()
-                .setSubject(String.valueOf(credential.userId()))
+                .setSubject(String.valueOf(credential.accountId()))
                 .claim(AUTH_ROLE_KEY, credential.authRole().name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
@@ -44,7 +44,7 @@ public class JwtUtil {
 
     public String generateRefreshToken(AuthCredential credential) {
         return Jwts.builder()
-                .setSubject(String.valueOf(credential.userId()))
+                .setSubject(String.valueOf(credential.accountId()))
                 .claim(AUTH_ROLE_KEY, credential.authRole().name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
@@ -60,10 +60,10 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
 
-            Long userId = Long.parseLong(claims.getSubject());
+            Long accountId = Long.parseLong(claims.getSubject());
             AuthRole authRole = AuthRole.valueOf(claims.get(AUTH_ROLE_KEY, String.class));
 
-            return new AuthCredential(authRole, userId);
+            return new AuthCredential(authRole, accountId);
 
         } catch (ExpiredJwtException e) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_EXPIRED);

@@ -33,7 +33,7 @@ public class AdminClubController implements AdminClubControllerSwagger {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                adminClubService.getAdminClubs(authCredential.authRole(), authCredential.userId(), universityCode, pageable)
+                adminClubService.getAdminClubs(authCredential.authRole(), authCredential.accountId(), universityCode, pageable)
         );
     }
 }

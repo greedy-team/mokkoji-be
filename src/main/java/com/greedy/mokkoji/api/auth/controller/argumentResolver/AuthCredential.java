@@ -4,6 +4,6 @@ import com.greedy.mokkoji.enums.auth.AuthRole;
 
 public record AuthCredential(
         AuthRole authRole,
-        Long userId
+        Long accountId
 ) {
 }
