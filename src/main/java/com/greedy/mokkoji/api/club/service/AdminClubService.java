@@ -18,10 +18,12 @@ import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
+import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
+import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -85,9 +87,12 @@ public class AdminClubService {
         manageAuthorizer.validateCanManageUniversity(adminId, club.getUniversity());
 
         final List<String> s3KeysToDelete = collectS3KeysToDelete(club);
+        final User master = club.getMaster();
 
         deleteClubAssociations(clubId);
         clubRepository.delete(club);
+
+        updateMasterRoleIfNeeded(master);
 
         afterCommitS3Cleaner.deleteAfterCommit(s3KeysToDelete);
 
@@ -133,5 +138,16 @@ public class AdminClubService {
 
         clubMasterApplicationRepository.deleteByClubId(clubId);
         clubMasterTransferRepository.deleteByClubId(clubId);
+    }
+
+    private void updateMasterRoleIfNeeded(final User master) {
+        if (master == null) {
+            return;
+        }
+
+        boolean isStillClubMaster = clubRepository.existsByMaster_Id(master.getId());
+        if (!isStillClubMaster) {
+            master.updateRole(UserRole.NORMAL);
+        }
     }
 }
