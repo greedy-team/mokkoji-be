@@ -16,27 +16,32 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
 
-    @Override
-    public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(300);
-        executor.setThreadNamePrefix("email-async-");
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAwaitTerminationSeconds(60);
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.initialize();
-        return executor;
+    @Bean("emailExecutor")
+    public Executor emailExecutor() {
+        return buildExecutor("email-async-", 5, 10, 300);
+    }
+
+    @Bean("discordExecutor")
+    public Executor discordExecutor() {
+        return buildExecutor("discord-async-", 1, 2, 50);
     }
 
     @Bean("s3DeleteExecutor")
     public Executor s3DeleteExecutor() {
+        return buildExecutor("s3-delete-", 1, 2, 50);
+    }
+
+    private Executor buildExecutor(
+            final String threadNamePrefix,
+            final int corePoolSize,
+            final int maxPoolSize,
+            final int queueCapacity
+    ) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(1);
-        executor.setMaxPoolSize(2);
-        executor.setQueueCapacity(50);
-        executor.setThreadNamePrefix("s3-delete-");
+        executor.setCorePoolSize(corePoolSize);
+        executor.setMaxPoolSize(maxPoolSize);
+        executor.setQueueCapacity(queueCapacity);
+        executor.setThreadNamePrefix(threadNamePrefix);
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setAwaitTerminationSeconds(60);
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());

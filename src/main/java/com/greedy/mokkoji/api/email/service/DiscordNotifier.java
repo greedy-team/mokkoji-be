@@ -31,7 +31,7 @@ public class DiscordNotifier {
     private boolean clubMasterTransferMailEnabled;
 
 
-    @Async
+    @Async("discordExecutor")
     public void notifyRecruitmentNotificationEmailFailure(Long clubId, String clubName, int receiverCount, String errorMessage) {
         if (!recruitmentNotificationMailEnabled ||
                 recruitmentNotificationMailFailWebhookUrl == null
@@ -55,7 +55,7 @@ public class DiscordNotifier {
         sendToDiscord(content, recruitmentNotificationMailFailWebhookUrl);
     }
 
-    @Async
+    @Async("discordExecutor")
     public void notifyClubMasterTransferEmailFailure(String clubName, String nextClubMasterEmail, String errorMessage) {
         if (!clubMasterTransferMailEnabled ||
                 clubMasterTransferMailFailWebhookUrl == null ||

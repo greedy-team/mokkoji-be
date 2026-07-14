@@ -21,7 +21,7 @@ public class RecruitmentNotificationEmailChannel extends AbstractEmailSender imp
         super(mailSender, discordNotifier);
     }
 
-    @Async
+    @Async("emailExecutor")
     @Override
     public void sendNotification(
             final List<String> receiverMails,

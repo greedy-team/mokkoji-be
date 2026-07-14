@@ -19,7 +19,7 @@ public class ClubMasterTransferEmailChannel extends AbstractEmailSender {
         super(mailSender, discordNotifier);
     }
 
-    @Async
+    @Async("emailExecutor")
     public void sendClubMasterTransferEmail(
             final String nextClubMasterEmail,
             final String clubName,
