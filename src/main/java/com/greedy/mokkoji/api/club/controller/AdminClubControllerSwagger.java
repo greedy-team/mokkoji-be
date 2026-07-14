@@ -26,4 +26,16 @@ public interface AdminClubControllerSwagger {
             @Parameter(name = "page", description = "페이지 번호") int page,
             @Parameter(name = "size", description = "페이지 크기") int size
     );
+
+    @Operation(
+            summary = "관리자용 동아리 삭제 API",
+            description = "모꼬지 관리자는 전체 동아리를, 대학 관리자는 소속 대학 동아리를 삭제할 수 있습니다.\n\n"
+                    + "연관된 데이터를 모두 삭제하며, 모집글 이미지 S3 객체는 서버가 트랜잭션 커밋 후 직접 삭제합니다.",
+            security = @SecurityRequirement(name = "JWT")
+    )
+    @ApiResponse(responseCode = "204", description = "삭제 성공")
+    ResponseEntity<APISuccessResponse<Void>> deleteClub(
+            @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "clubId", description = "삭제할 동아리 ID") Long clubId
+    );
 }

@@ -27,7 +27,7 @@ public class DiscordNotifier {
     private boolean recruitmentNotificationMailEnabled;
 
 
-    @Async
+    @Async("discordExecutor")
     public void notifyRecruitmentNotificationEmailFailure(Long clubId, String clubName, int receiverCount, String errorMessage) {
         if (!recruitmentNotificationMailEnabled ||
                 recruitmentNotificationMailFailWebhookUrl == null
