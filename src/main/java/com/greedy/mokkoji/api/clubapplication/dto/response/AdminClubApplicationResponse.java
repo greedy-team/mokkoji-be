@@ -16,6 +16,8 @@ public record AdminClubApplicationResponse(
         @Schema(example = "ACADEMIC_CULTURAL") ClubCategory category,
         @Schema(example = "CENTRAL_CLUB") ClubAffiliation affiliation,
         @Schema(example = "https://s3.amazonaws.com/.../logo.png") String logo,
+        @Schema(example = "즐거운 학술 동아리입니다.") String description,
+        @Schema(example = "https://instagram.com/greedy") String instagram,
         @Schema(example = "REJECTED") ApplicationStatus status,
         @Schema(example = "서류 미비") String rejectReason,
         @Schema(example = "2026-05-18T13:00:00") LocalDateTime createdAt
@@ -29,6 +31,8 @@ public record AdminClubApplicationResponse(
                 clubApplication.getClubCategory(),
                 clubApplication.getClubAffiliation(),
                 clubApplication.getLogo(),
+                clubApplication.getDescription(),
+                clubApplication.getInstagram(),
                 clubApplication.getStatus(),
                 clubApplication.getRejectReason(),
                 clubApplication.getCreatedAt()
