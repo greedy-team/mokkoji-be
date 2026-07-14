@@ -31,7 +31,7 @@ public class ManageAuthorizer {
 
         if (AuthRole.USER.equals(authRole)) {
             User user = findUserOrThrow(accountId);
-            if (user.getRole() == UserRole.CLUB_MASTER && club.getMasterId().equals(accountId)) return;
+            if (user.getRole() == UserRole.CLUB_MASTER && accountId.equals(club.getMasterId())) return;
         }
 
         throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
