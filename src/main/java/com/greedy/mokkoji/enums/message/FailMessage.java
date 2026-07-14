@@ -14,7 +14,6 @@ public enum FailMessage {
     BAD_REQUEST_MISSING_PARAM(HttpStatus.BAD_REQUEST, 40002, "필수 파라미터가 없습니다."),
     BAD_REQUEST_METHOD_ARGUMENT_TYPE(HttpStatus.BAD_REQUEST, 40003, "메서드 인자타입이 잘못되었습니다."),
     BAD_REQUEST_NOT_READABLE(HttpStatus.BAD_REQUEST, 40004, "Json 오류 혹은 요청본문 필드 오류 입니다. "),
-    BAD_REQUEST_INVALID_LINK(HttpStatus.BAD_REQUEST, 40005, "유효하지 않거나 만료된 링크입니다."),
 
     //401
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증이 필요합니다."),
@@ -28,7 +27,7 @@ public enum FailMessage {
     FORBIDDEN_MANAGE_CLUB(HttpStatus.FORBIDDEN, 40301, "동아리를 관리할 수 있는 권한이 없습니다."),
     FORBIDDEN_ALREADY_EXIST_COMMENT(HttpStatus.FORBIDDEN, 40302, "이미 댓글이 존재합니다."),
     FORBIDDEN_NOT_COMMENT_WRITER(HttpStatus.FORBIDDEN, 40303, "댓글을 작성한 사용자가 아닙니다."),
-    FORBIDDEN_MANAGE_UNIVERSITY_CLUB(HttpStatus.FORBIDDEN, 40304, "대학 동아리들을 관리할 수 있는 권한이 없습니다."),
+    FORBIDDEN_ADMIN(HttpStatus.FORBIDDEN, 40304, "관리자 권한이 없습니다."),
     FORBIDDEN_ALREADY_EXIST_CLUB_MASTER(HttpStatus.FORBIDDEN, 40305, "해당 동아리에 이미 등록된 동아리장이 존재합니다."),
 
     //404
@@ -43,7 +42,6 @@ public enum FailMessage {
     NOT_FOUND_ADMIN(HttpStatus.NOT_FOUND, 40408, "관리자를 찾을 수 없습니다."),
     NOT_FOUND_CLUB_APPLICATION(HttpStatus.NOT_FOUND, 40409, "동아리 생성 신청을 찾을 수 없습니다."),
     NOT_FOUND_CLUB_MASTER_APPLICATION(HttpStatus.NOT_FOUND, 40410, "동아리장 신청서를 찾을 수 없습니다."),
-    NOT_FOUND_CLUB_MASTER_TRANSFER(HttpStatus.NOT_FOUND, 40411, "동아리장 위임 요청을 찾을 수 없습니다."),
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 40500, "잘못된 HTTP 메소드 요청입니다."),
@@ -55,7 +53,6 @@ public enum FailMessage {
     CONFLICT_CLUB_APPLICATION(HttpStatus.CONFLICT, 40903, "동아리 생성 신청이 이미 진행 중입니다."),
     CONFLICT_APPLICATION_STATUS(HttpStatus.CONFLICT, 40904, "처리 가능한 상태의 신청이 아닙니다."),
     CONFLICT_CLUB_MASTER_APPLICATION(HttpStatus.CONFLICT, 40905, "동아리장 신청이 이미 진행 중입니다."),
-    CONFLICT_CLUB_MASTER_TRANSFER_STATUS(HttpStatus.CONFLICT, 40906, "처리 가능한 상태의 위임 요청이 아닙니다."),
 
     //500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다."),

@@ -11,7 +11,6 @@ import com.greedy.mokkoji.db.admin.repository.AdminRepository;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
-import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterTransferRepository;
 import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
@@ -42,7 +41,6 @@ public class AdminClubService {
     private final RecruitmentRepository recruitmentRepository;
     private final RecruitmentImageRepository recruitmentImageRepository;
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
-    private final ClubMasterTransferRepository clubMasterTransferRepository;
     private final AfterCommitS3Cleaner afterCommitS3Cleaner;
     private final ManageAuthorizer manageAuthorizer;
 
@@ -69,7 +67,7 @@ public class AdminClubService {
 
         return AdminClubsResponse.of(
                 clubs,
-                PageResponse.of(page.getNumber(), page.getSize(), page.getTotalPages(), (int) page.getTotalElements())
+                PageResponse.of(page.getNumber() + 1, page.getSize(), page.getTotalPages(), (int) page.getTotalElements())
         );
     }
 
@@ -127,7 +125,6 @@ public class AdminClubService {
         favoriteRepository.deleteByClubId(clubId);
 
         clubMasterApplicationRepository.deleteByClubId(clubId);
-        clubMasterTransferRepository.deleteByClubId(clubId);
     }
 
     private void updateMasterRoleIfNeeded(final User master) {

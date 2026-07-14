@@ -2,18 +2,14 @@ package com.greedy.mokkoji.api.clubmaster.service;
 
 import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.clubmaster.dto.response.GetMyClubMasterApplicationsResponse;
-import com.greedy.mokkoji.api.email.service.EmailService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
-import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterTransfer;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
-import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterTransferRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
-import com.greedy.mokkoji.db.user.repository.RedisRepository;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.auth.AuthRole;
@@ -23,26 +19,18 @@ import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ClubMasterService {
-    private static final long LINK_EXPIRATION = 10 * 60 * 1000; //10분
-    private static final String CLUB_TRANSFER_KEY_PREFIX = "clubTransfer";
-    private static final String KEY_DELIMITER = ":";
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
-    private final ClubMasterTransferRepository clubMasterTransferRepository;
     private final ManageAuthorizer manageAuthorizer;
     private final UniversityRepository universityRepository;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
-    private final EmailService emailService;
-    private final RedisRepository redisRepository;
 
     @Transactional
     public void createClubMasterApplication(
@@ -91,60 +79,22 @@ public class ClubMasterService {
     }
 
     @Transactional
-    public void applyClubMasterTransfer(
+    public void transferClubMaster(
             final AuthRole authRole,
             final Long userId,
             final Long clubId,
-            final String nextClubMasterName,
-            final String nextClubMasterEmail
+            final String nextClubMasterUserCode
     ) {
         Club club = findClubOrThrow(clubId);
         manageAuthorizer.validateCanManageClub(authRole, userId, club);
-        User previousMaster = findUserOrThrow(userId);
 
-        ClubMasterTransfer transfer = ClubMasterTransfer.builder()
-                .club(club)
-                .previousMaster(previousMaster)
-                .nextMasterName(nextClubMasterName)
-                .nextMasterEmail(nextClubMasterEmail)
-                .build();
-        clubMasterTransferRepository.save(transfer);
-
-        String uri = createClubMasterTransferUri(transfer.getId());
-        emailService.sendClubMasterTransferNotification(nextClubMasterEmail, club.getName(), uri);
-    }
-
-    @Transactional
-    public void acceptClubMasterTransfer(final Long userId, final String uuid) {
-        String key = CLUB_TRANSFER_KEY_PREFIX + KEY_DELIMITER + uuid;
-        String transferId = redisRepository.find(key);
-
-        if (transferId == null) {
-            throw new MokkojiException(FailMessage.BAD_REQUEST_INVALID_LINK);
-        }
-
-        ClubMasterTransfer transfer = findClubMasterTransferOrThrow(Long.parseLong(transferId));
-        transfer.approve();
-
-        Club club = transfer.getClub();
         User previousMaster = club.getMaster();
-        User nextClubMaster = findUserOrThrow(userId);
+        User nextClubMaster = findUserByCodeOrThrow(nextClubMasterUserCode);
 
         nextClubMaster.updateRole(UserRole.CLUB_MASTER);
         club.updateMaster(nextClubMaster);
 
         updatePreviousMasterRoleIfNeeded(previousMaster, nextClubMaster);
-    }
-
-    private String createClubMasterTransferUri(Long transferId) {
-        String uuid = UUID.randomUUID().toString();
-
-        redisRepository.save(CLUB_TRANSFER_KEY_PREFIX + KEY_DELIMITER + uuid, String.valueOf(transferId), LINK_EXPIRATION);
-
-        return ServletUriComponentsBuilder.newInstance()
-                .path("/club-master-transfer/{uuid}")
-                .buildAndExpand(uuid)
-                .toUriString();
     }
 
     private void updatePreviousMasterRoleIfNeeded(
@@ -176,9 +126,9 @@ public class ClubMasterService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
-    private ClubMasterTransfer findClubMasterTransferOrThrow(final Long transferId) {
-        return clubMasterTransferRepository.findById(transferId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB_MASTER_TRANSFER));
+    private User findUserByCodeOrThrow(final String code) {
+        return userRepository.findByCode(code)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
     private void validateClubMasterNotExists(Club club) {

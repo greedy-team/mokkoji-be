@@ -25,10 +25,6 @@ public class DiscordNotifier {
     private String recruitmentNotificationMailFailWebhookUrl;
     @Value("${discord.webhook.recruitment-notification-mail-fail.enabled}")
     private boolean recruitmentNotificationMailEnabled;
-    @Value("${discord.webhook.club-master-transfer-mail-fail.url}")
-    private String clubMasterTransferMailFailWebhookUrl;
-    @Value("${discord.webhook.club-master-transfer-mail-fail.enabled}")
-    private boolean clubMasterTransferMailEnabled;
 
 
     @Async("discordExecutor")
@@ -53,29 +49,6 @@ public class DiscordNotifier {
                 clubId, clubName, receiverCount, errorMessage, timestamp
         );
         sendToDiscord(content, recruitmentNotificationMailFailWebhookUrl);
-    }
-
-    @Async("discordExecutor")
-    public void notifyClubMasterTransferEmailFailure(String clubName, String nextClubMasterEmail, String errorMessage) {
-        if (!clubMasterTransferMailEnabled ||
-                clubMasterTransferMailFailWebhookUrl == null ||
-                clubMasterTransferMailFailWebhookUrl.isEmpty()) {
-            return;
-        }
-
-        String timestamp = LocalDateTime.now().format(FORMATTER);
-
-        String content = String.format(
-                "🚨 **동아리장 권한 위임 이메일 발송 실패 알림**\n" +
-                        "```text\n" +
-                        "동아리명        : %s\n" +
-                        "수신자 이메일  : %s\n" +
-                        "에러 내용      : %s\n" +
-                        "발생 시간      : %s\n" +
-                        "```",
-                clubName, nextClubMasterEmail, errorMessage, timestamp
-        );
-        sendToDiscord(content, clubMasterTransferMailFailWebhookUrl);
     }
 
     private void sendToDiscord(String content, String webhookUrl) {
