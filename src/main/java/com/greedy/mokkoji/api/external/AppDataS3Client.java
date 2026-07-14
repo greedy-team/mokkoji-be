@@ -93,7 +93,7 @@ public class AppDataS3Client {
         return presignedDeleteObjectRequest.url().toString();
     }
 
-    @Async
+    @Async("s3DeleteExecutor")
     public void deleteObjectsAsync(final List<String> fileKeys) {
         final List<String> validFileKeys = fileKeys.stream()
                 .filter(fileKey -> !isInvalidFileKey(fileKey))

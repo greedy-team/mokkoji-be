@@ -2,6 +2,7 @@ package com.greedy.mokkoji.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -22,6 +23,20 @@ public class AsyncConfig implements AsyncConfigurer {
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(300);
         executor.setThreadNamePrefix("email-async-");
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(60);
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean("s3DeleteExecutor")
+    public Executor s3DeleteExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("s3-delete-");
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setAwaitTerminationSeconds(60);
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
