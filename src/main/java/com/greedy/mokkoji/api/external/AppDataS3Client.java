@@ -123,10 +123,6 @@ public class AppDataS3Client {
         }
     }
 
-    private boolean isInvalidFileKey(String fileKey) {
-        return fileKey == null || fileKey.isBlank();
-    }
-
     public void copyObject(final String sourceKey, final String destKey) {
         if (isInvalidFileKey(sourceKey) || isInvalidFileKey(destKey)) {
             return;
@@ -140,5 +136,9 @@ public class AppDataS3Client {
                 .build();
 
         s3Client.copyObject(copyObjectRequest);
+    }
+
+    private boolean isInvalidFileKey(String fileKey) {
+        return fileKey == null || fileKey.isBlank();
     }
 }

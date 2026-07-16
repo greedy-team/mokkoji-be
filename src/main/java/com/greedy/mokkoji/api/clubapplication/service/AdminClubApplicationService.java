@@ -3,6 +3,7 @@ package com.greedy.mokkoji.api.clubapplication.service;
 import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationsResponse;
+import com.greedy.mokkoji.api.external.AfterCommitS3Cleaner;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -36,6 +37,7 @@ public class AdminClubApplicationService {
     private final AdminRepository adminRepository;
     private final ManageAuthorizer manageAuthorizer;
     private final AppDataS3Client appDataS3Client;
+    private final AfterCommitS3Cleaner afterCommitS3Cleaner;
 
     @Transactional(readOnly = true)
     public AdminClubApplicationsResponse getAdminClubApplications(
@@ -104,6 +106,8 @@ public class AdminClubApplicationService {
 
         appDataS3Client.copyObject(applicationLogoKey, clubLogoKey);
         club.updateIfPresent(null, null, null, null, clubLogoKey, null);
+
+        afterCommitS3Cleaner.deleteAfterCommit(List.of(applicationLogoKey));
     }
 
     @Transactional
