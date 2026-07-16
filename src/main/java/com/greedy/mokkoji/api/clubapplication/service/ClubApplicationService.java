@@ -74,6 +74,10 @@ public class ClubApplicationService {
         }
 
         final int dotIndex = logo.lastIndexOf('.');
+        if (dotIndex == -1) {
+            throw new MokkojiException(FailMessage.BAD_REQUEST_INVALID_LOGO_FILENAME);
+        }
+
         final String prevDot = logo.substring(0, dotIndex);
         final String nextDot = logo.substring(dotIndex);
         final String uuid = UUID.randomUUID().toString();
