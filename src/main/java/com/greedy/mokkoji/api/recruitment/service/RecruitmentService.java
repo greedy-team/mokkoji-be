@@ -255,6 +255,10 @@ public class RecruitmentService {
 
     private String extractImageKey(Recruitment recruitment, String fileName) {
         int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex == -1) {
+            throw new MokkojiException(FailMessage.BAD_REQUEST_INVALID_IMAGE_FILENAME);
+        }
+
         String nextDot = fileName.substring(dotIndex); //jpg와 같은 확장자 부분
 
         String uuid = UUID.randomUUID().toString();

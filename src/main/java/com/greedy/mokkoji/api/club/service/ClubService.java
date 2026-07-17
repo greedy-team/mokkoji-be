@@ -288,6 +288,10 @@ public class ClubService {
         }
 
         int dotIndex = logo.lastIndexOf('.');
+        if (dotIndex == -1) {
+            throw new MokkojiException(FailMessage.BAD_REQUEST_INVALID_LOGO_FILENAME);
+        }
+
         String prevDot = logo.substring(0, dotIndex);
         String nextDot = logo.substring(dotIndex); //jpg와 같은 확장자 부분
         String uuid = UUID.randomUUID().toString();
