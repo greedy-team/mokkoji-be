@@ -13,7 +13,7 @@ description: 이슈 생성 (작업코드 컨벤션에 맞춰 gh issue create 실
 
 ## 2. 제목 생성
 
-- `docs/work-convention.md`와 `.github/ISSUE_TEMPLATE/issue-template.md`를 **병렬로 동시에** 읽기 (Read 2회를 한 메시지에서 호출)
+- `docs/work-convention.md`와 `.github/ISSUE_TEMPLATE/issue-template.md`를 병렬로 동시에 읽기 (Read 2회를 한 메시지에서 호출)
 - `docs/work-convention.md` 참고, `작업코드: 작업내용` 형식으로 이슈 제목 생성
 
 ## 3. 초안 작성
