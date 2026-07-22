@@ -30,10 +30,11 @@ CREATE TABLE `user`
     `name`          varchar(50)      DEFAULT NULL,
     `email`         varchar(50)      DEFAULT NULL,
     `is_email_on`   tinyint(1)  NOT NULL,
-    `role`          varchar(50)      DEFAULT NULL,
+    `role`          varchar(50) NOT NULL,
     `university_id` bigint           DEFAULT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_user_user_code` (`code`),
+    UNIQUE KEY `uk_user_code` (`code`),
+    UNIQUE KEY `uk_user_kakao_id` (`kakao_id`),
     KEY `FK6egtfhd9smck1965dxo86hpa` (`university_id`),
     CONSTRAINT `FK6egtfhd9smck1965dxo86hpa` FOREIGN KEY (`university_id`) REFERENCES `university` (`id`)
 ) ENGINE = InnoDB
