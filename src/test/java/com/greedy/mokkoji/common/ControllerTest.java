@@ -1,9 +1,11 @@
 package com.greedy.mokkoji.common;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.db.user.entity.User;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -39,12 +41,12 @@ public abstract class ControllerTest extends AbstractTest {
     }
 
     protected String authorizationForBearerAccessToken(final User user) {
-        final String accessToken = jwtUtil.generateAccessToken(user.getId());
+        final String accessToken = jwtUtil.generateAccessToken(new AuthCredential(AuthRole.USER, user.getId()));
         return "Bearer " + accessToken;
     }
 
     protected String authorizationForBearerRefreshToken(final User user) {
-        final String refreshToken = jwtUtil.generateRefreshToken(user.getId());
+        final String refreshToken = jwtUtil.generateRefreshToken(new AuthCredential(AuthRole.USER, user.getId()));
         return "Bearer " + refreshToken;
     }
 

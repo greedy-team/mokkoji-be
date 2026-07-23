@@ -1,14 +1,9 @@
 package com.greedy.mokkoji.db.user.entity;
 
+import com.greedy.mokkoji.db.BaseTime;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.enums.user.UserRole;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,47 +13,64 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "`user`")
-public class User {
+public class User extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", columnDefinition = "bigint", nullable = false)
     private Long id;
 
-    @Column(name = "student_id", columnDefinition = "varchar(20)", nullable = true)
-    private String studentId;
+    @JoinColumn(name = "university_id", columnDefinition = "bigint")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private University university;
 
-    @Column(name = "name", columnDefinition = "varchar(50)", nullable = true)
+    @Column(name = "code", columnDefinition = "varchar(50)", nullable = false, unique = true)
+    private String code;
+
+    @Column(name = "kakao_id", columnDefinition = "varchar(50)", nullable = false, unique = true)
+    private String kakaoId;
+
+    @Column(name = "name", columnDefinition = "varchar(50)")
     private String name;
 
-    @Column(name = "department", columnDefinition = "varchar(50)", nullable = true)
-    private String department;
-
-    @Column(name = "grade", columnDefinition = "varchar(10)", nullable = true)
-    private String grade;
-
-    @Column(name = "email", columnDefinition = "varchar(50)", nullable = true)
+    @Column(name = "email", columnDefinition = "varchar(50)")
     private String email;
 
-    @Column(name = "role", columnDefinition = "varchar(50)", nullable = true)
+    @Column(name = "is_email_on", columnDefinition = "BOOLEAN", nullable = false)
+    private boolean isEmailOn;
+
+    @Column(name = "role", columnDefinition = "varchar(50)", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
     @Builder
-    public User(String studentId, String name, String department, String grade, String email, UserRole role) {
-        this.studentId = studentId;
+    public User(University university, String code, String kakaoId, String name, String email, boolean isEmailOn, UserRole role) {
+        this.university = university;
+        this.code = code;
+        this.kakaoId = kakaoId;
         this.name = name;
-        this.department = department;
-        this.grade = grade;
         this.email = email;
+        this.isEmailOn = isEmailOn;
         this.role = role;
+    }
+
+    public void updateName(String name) {
+        this.name = name;
     }
 
     public void updateEmail(String email) {
         this.email = email;
     }
 
+    public void updateUniversity(University university) {
+        this.university = university;
+    }
+
     public void updateRole(UserRole newRole) {
         this.role = newRole;
+    }
+
+    public void updateEmailOn(boolean isEmailOn) {
+        this.isEmailOn = isEmailOn;
     }
 }

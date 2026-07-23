@@ -1,23 +1,33 @@
 package com.greedy.mokkoji.api.user.service;
 
-import com.greedy.mokkoji.api.external.sejong.SejongLoginRestClient;
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
+import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
-import com.greedy.mokkoji.api.user.dto.resopnse.StudentInformationResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
+import com.greedy.mokkoji.api.user.dto.resopnse.*;
+import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
+import com.greedy.mokkoji.api.user.service.kakao.KakaoSocialLoginService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepository;
+import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
+import com.greedy.mokkoji.db.comment.repository.CommentRepository;
+import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
+import com.greedy.mokkoji.db.university.entity.University;
+import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -26,94 +36,81 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
+    private final UniversityRepository universityRepository;
+    private final FavoriteRepository favoriteRepository;
+    private final CommentRepository commentRepository;
+    private final ClubApplicationRepository clubApplicationRepository;
+    private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
-    private final SejongLoginRestClient sejongLoginClient;
+    private final KakaoSocialLoginService kakaoSocialLoginService;
 
-    //ToDo: 생 유저 정보를 넘기는 게 아니라 DTO처리해서 넘기는 것도 좋아보임
-    @Transactional
-    public User login(final String studentId, final String password) {
+    public LoginResponse kakaoLogin(final String code, final String redirectUri) {
+        final KakaoUserInfoResponse kakaoUserInfo = kakaoSocialLoginService.login(code, redirectUri);
+        final String kakaoId = kakaoUserInfo.id();
+        final String name = kakaoUserInfo.nickname();
 
-        final StudentInformationResponse studentInformationResponse = sejongLoginClient.getStudentInformation(studentId,
-                password);
+        final Optional<User> existingUser = userRepository.findByKakaoId(kakaoId);
+        final boolean isNewUser = existingUser.isEmpty();
+        final User user = existingUser.orElseGet(
+                () -> userRepository.save(
+                        User.builder()
+                                .code(RandomStringUtils.randomAlphanumeric(6))
+                                .kakaoId(kakaoId)
+                                .name(name)
+                                .isEmailOn(true)
+                                .role(UserRole.NORMAL)
+                                .build()
+                )
+        );
 
-        final UserRole role = determineUserRole(studentId);
-
-        return userRepository.findByStudentId(studentId)
-                .map(user -> {
-                    user.updateRole(role);
-                    return user;
-                }).orElseGet(() -> {
-                    final User newUser = User.builder()
-                            .studentId(studentId)
-                            .name(studentInformationResponse.name())
-                            .department(studentInformationResponse.department())
-                            .grade(studentInformationResponse.grade())
-                            .role(role)
-                            .build();
-
-                    return userRepository.save(newUser);
-                });
+        final TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, user.getId());
+        return LoginResponse.of(tokenPair.accessToken(), tokenPair.refreshToken(), isNewUser);
     }
-
-    private UserRole determineUserRole(final String studentId) {
-        return userRepository.findByStudentId(studentId)
-                .map(user -> {
-                    if (user.getRole() == UserRole.GREEDY_ADMIN) {
-                        return UserRole.GREEDY_ADMIN;
-                    }
-                    if (user.getRole() == UserRole.CLUB_ADMIN) {
-                        return UserRole.CLUB_ADMIN;
-                    }
-                    if (clubRepository.existsByClubMasterStudentId(studentId)) {
-                        return UserRole.CLUB_MASTER;
-                    }
-                    return UserRole.NORMAL;
-                })
-                .orElseGet(() -> {
-                    if (clubRepository.existsByClubMasterStudentId(studentId)) {
-                        return UserRole.CLUB_MASTER;
-                    }
-                    return UserRole.NORMAL;
-                });
-    }
-
-//    @Transactional
-//    public String refreshAccessToken(String refreshToken) {
-//        final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
-//
-//        String storedRefreshToken = tokenService.getRefreshToken(userId);
-//        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-//            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-//        }
-//
-//        return jwtUtil.generateAccessToken(userId);
-//    }
 
     @Transactional
     public String refreshAccessToken(String refreshToken) {
-        log.info("refresh token present: {}", refreshToken != null);
-        if (refreshToken == null) {
+        final AuthCredential credential = jwtUtil.getCredentialFromToken(refreshToken);
+        final Long userId = credential.accountId();
+
+        String storedRefreshToken = tokenService.getRefreshToken(credential.authRole(), userId);
+        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
-        final Long userId = jwtUtil.getUserIdFromToken(refreshToken);
-        log.warn("userID : {}", userId);
-        String storedRefreshToken = tokenService.getRefreshToken(userId);
-        if (storedRefreshToken == null) {
-            log.warn("no refresh token stored for userId={}", userId);
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
-        if (!storedRefreshToken.equals(refreshToken)) {
-            log.warn("refresh token mismatch for userId={}", userId);
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
-        return jwtUtil.generateAccessToken(userId);
+
+        return jwtUtil.generateAccessToken(credential);
     }
 
     @Transactional
-    public void updateEmail(final Long userId, final String email) {
-        final User user = findUser(userId);
-        user.updateEmail(email);
+    public void updateUserInformation(Long userId, String name, String email, Boolean isEmailOn, UniversityCode universityCode, Boolean clearUniversityCode) {
+        User user = findUser(userId);
+
+        if (name != null) {
+            user.updateName(name.isBlank() ? null : name);
+        }
+
+        if (email != null) {
+            user.updateEmail(email.isBlank() ? null : email);
+        }
+
+        if (isEmailOn != null) {
+            user.updateEmailOn(isEmailOn);
+        }
+
+        if (Boolean.TRUE.equals(clearUniversityCode)) {
+            favoriteRepository.deleteByUserId(userId);
+            user.updateUniversity(null);
+            return;
+        }
+
+        if (universityCode != null) {
+            final University university = findUniversityOrThrow(universityCode);
+
+            if (isDifferentUniversity(user, university)) {
+                favoriteRepository.deleteByUserId(userId);
+            }
+            user.updateUniversity(university);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -122,9 +119,32 @@ public class UserService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
     }
 
+    @Transactional(readOnly = true)
+    public UserInformationResponse getUserInformation(final Long userId) {
+        final User user = findUser(userId);
+        return UserInformationResponse.of(user);
+    }
+
     @Transactional
-    public void logOut(final Long userId) {
-        tokenService.deleteRefreshToken(userId);
+    public void logout(final AuthRole authRole, final Long userId) {
+        tokenService.deleteRefreshToken(authRole, userId);
+    }
+
+    @Transactional
+    public void deleteUser(final AuthRole authRole, final Long userId) {
+        final User user = findUser(userId);
+
+        clubRepository.findByMaster_Id(userId)
+                .forEach(club -> club.updateMaster(null));
+
+        favoriteRepository.deleteByUserId(userId);
+        commentRepository.detachUserByUserId(userId);
+        clubApplicationRepository.deleteByApplicantId(userId);
+        clubMasterApplicationRepository.deleteByUserId(userId);
+
+        tokenService.deleteRefreshToken(authRole, userId);
+
+        userRepository.delete(user);
     }
 
     @Transactional(readOnly = true)
@@ -132,23 +152,29 @@ public class UserService {
         final User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
-        return UserRoleResponse.of(
-                user.getRole()
-        );
+        return UserRoleResponse.of(user.getRole());
     }
 
     @Transactional
     public UserManageClubsResponse getUserManageClubs(final Long userId) {
-        final User user = userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+        if (!userRepository.existsById(userId)) {
+            throw new MokkojiException(FailMessage.NOT_FOUND_USER);
+        }
 
-        String studentId = user.getStudentId();
-
-        List<UserManageClubResponse> clubs = clubRepository.findByClubMasterStudentId(studentId).stream()
+        List<UserManageClubResponse> clubs = clubRepository.findByMaster_Id(userId).stream()
                 .map(club -> new UserManageClubResponse(club.getId(), club.getName()))
                 .toList();
 
         return UserManageClubsResponse.of(clubs);
     }
-}
 
+    private University findUniversityOrThrow(final UniversityCode universityCode) {
+        return universityRepository.findByCode(universityCode)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_UNIVERSITY));
+    }
+
+    private boolean isDifferentUniversity(final User user, final University university) {
+        return user.getUniversity() == null
+                || !user.getUniversity().getId().equals(university.getId());
+    }
+}

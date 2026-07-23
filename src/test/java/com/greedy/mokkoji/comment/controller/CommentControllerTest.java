@@ -4,6 +4,8 @@ import com.greedy.mokkoji.api.comment.dto.request.CommentCreateRequest;
 import com.greedy.mokkoji.api.comment.dto.request.CommentUpdateRequest;
 import com.greedy.mokkoji.api.comment.dto.response.CommentListResponse;
 import com.greedy.mokkoji.api.comment.dto.response.CommentResponse;
+import com.greedy.mokkoji.api.comment.dto.response.MyCommentListResponse;
+import com.greedy.mokkoji.api.comment.dto.response.MyCommentResponse;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.common.response.APIErrorResponse;
@@ -30,6 +32,7 @@ public class CommentControllerTest extends ControllerTest {
     private User user;
     private User anotherUser;
     private Club club;
+    private Club anotherClub;
 
     @BeforeEach
     void setUp() {
@@ -45,6 +48,7 @@ public class CommentControllerTest extends ControllerTest {
         user = userRepository.save(Fixture.createUser());
         anotherUser = userRepository.save(Fixture.createAnotherUser());
         club = clubRepository.save(Fixture.createClub());
+        anotherClub = clubRepository.save(Fixture.createAnotherClub());
     }
 
     @Test
@@ -154,6 +158,53 @@ public class CommentControllerTest extends ControllerTest {
                 .containsExactlyInAnyOrder(
                         Tuple.tuple("좋은 동아리입니다", 5.0, true),
                         Tuple.tuple("추천합니다", 4.0, false)
+                );
+    }
+
+    @Test
+    @DisplayName("자신이 작성한 동아리의 댓글 목록을 조회할 수 있다.")
+    void getAllMyComments() {
+        //given
+        final Comment comment1 = Comment.builder()
+                .user(user)
+                .club(club)
+                .rate(5.0)
+                .content("좋은 동아리입니다")
+                .build();
+        final Comment comment2 = Comment.builder()
+                .user(user)
+                .club(anotherClub)
+                .rate(4.0)
+                .content("추천합니다")
+                .build();
+        commentRepository.save(comment1);
+        commentRepository.save(comment2);
+
+        String authorizationForBearer = authorizationForBearerAccessToken(user);
+
+        //when
+        final ExtractableResponse<Response> response = given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .when().get(prefixUrl + "/comments/my")
+
+                .then().log().all()
+                .extract();
+
+        //then
+        final int statusCode = response.statusCode();
+        final MyCommentListResponse actual = getDataFromResponse(response, MyCommentListResponse.class);
+
+        assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+        assertThat(actual.comments()).hasSize(2);
+        assertThat(actual.comments())
+                .extracting(
+                        MyCommentResponse::name,
+                        MyCommentResponse::description
+                )
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple(club.getName(), club.getDescription()),
+                        Tuple.tuple(anotherClub.getName(), anotherClub.getDescription())
                 );
     }
 

@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.notification.service.NotificationService;
+import com.greedy.mokkoji.api.mail.service.EmailService;
 import com.greedy.mokkoji.api.scheduler.service.RecruitmentNotificationScheduler;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 
 
@@ -35,7 +36,7 @@ public class RecruitmentNotificationSchedulerTest {
     RecruitmentRepository recruitmentRepository;
 
     @Mock
-    NotificationService notificationService;
+    EmailService emailService;
 
     @Test
     @DisplayName("모집 공고가 오늘인 동아리를 찾아 알림을 보낸다")
@@ -78,7 +79,13 @@ public class RecruitmentNotificationSchedulerTest {
         BDDMockito.given(recruitmentRepository.findAllByRecruitStartToday(currentDateTime.toLocalDate()))
                 .willReturn(List.of(recruitment1, recruitment2));
 
-        BDDMockito.doNothing().when(notificationService).sendNotification(any(Club.class), any(Recruitment.class));
+        BDDMockito.doNothing()
+                .when(emailService)
+                .sendRecruitmentNotification(
+                        nullable(Long.class),
+                        any(String.class),
+                        any(Recruitment.class)
+                );
 
         // when
         recruitmentNotificationScheduler.sendDailyRecruitmentNotifications();
@@ -87,6 +94,11 @@ public class RecruitmentNotificationSchedulerTest {
         BDDMockito.verify(recruitmentRepository, times(1))
                 .findAllByRecruitStartToday(currentDateTime.toLocalDate());
 
-        BDDMockito.verify(notificationService, times(2)).sendNotification(any(Club.class), any(Recruitment.class));
+        BDDMockito.verify(emailService, times(2))
+                .sendRecruitmentNotification(
+                        nullable(Long.class),
+                        any(String.class),
+                        any(Recruitment.class)
+                );
     }
 }

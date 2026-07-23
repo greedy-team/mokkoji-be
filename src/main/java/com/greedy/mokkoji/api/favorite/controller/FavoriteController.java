@@ -11,13 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.YearMonth;
 import java.util.List;
@@ -34,7 +28,7 @@ public class FavoriteController implements FavoriteControllerSwagger {
             @Authentication final AuthCredential authCredential,
             @PathVariable(name = "clubId") final Long clubId
     ) {
-        return APISuccessResponse.of(HttpStatus.CREATED, favoriteService.addFavorite(authCredential.userId(), clubId));
+        return APISuccessResponse.of(HttpStatus.CREATED, favoriteService.addFavorite(authCredential.accountId(), clubId));
     }
 
     @GetMapping
@@ -44,7 +38,7 @@ public class FavoriteController implements FavoriteControllerSwagger {
             @RequestParam(value = "size") final int size
     ) {
         final Pageable pageable = PageRequest.of(page - 1, size);
-        return APISuccessResponse.of(HttpStatus.OK, favoriteService.findFavoriteClubs(authCredential.userId(), pageable));
+        return APISuccessResponse.of(HttpStatus.OK, favoriteService.findFavoriteClubs(authCredential.accountId(), pageable));
     }
 
     @DeleteMapping("/{clubId}")
@@ -52,7 +46,7 @@ public class FavoriteController implements FavoriteControllerSwagger {
             @Authentication final AuthCredential authCredential,
             @PathVariable(name = "clubId") final Long clubId
     ) {
-        return APISuccessResponse.of(HttpStatus.NO_CONTENT, favoriteService.deleteFavorite(authCredential.userId(), clubId));
+        return APISuccessResponse.of(HttpStatus.NO_CONTENT, favoriteService.deleteFavorite(authCredential.accountId(), clubId));
     }
 
     @GetMapping("/recruit")
@@ -60,6 +54,6 @@ public class FavoriteController implements FavoriteControllerSwagger {
             @Authentication final AuthCredential authCredential,
             @RequestParam(name = "yearMonth") YearMonth yearMonth
     ) {
-        return APISuccessResponse.of(HttpStatus.OK, favoriteService.getRecruitClubs(authCredential.userId(), yearMonth));
+        return APISuccessResponse.of(HttpStatus.OK, favoriteService.getRecruitClubs(authCredential.accountId(), yearMonth));
     }
 }

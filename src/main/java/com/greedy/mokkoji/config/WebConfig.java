@@ -18,11 +18,13 @@ import java.util.Set;
 public class WebConfig implements WebMvcConfigurer {
 
     private final Set<String> excludedPaths = Set.of(
-            "/users/auth/login",
+            "/users/auth/kakao",
             "/users/auth/refresh",
+            "/admin/auth/login",
             "/clubs/**",
             "/recruitments/**",
             "/comments/**",
+            "/universities/**",
             "/test/health-check/**"
     );
 

@@ -5,13 +5,20 @@ import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ClubRepositoryCustom {
+    Page<Club> findClubsForAdmin(
+            final UniversityCode universityCode,
+            final Pageable pageable
+    );
+
     Page<Club> findClubsWithLatestRecruitment(
+            final UniversityCode universityCode,
             final String keyword,
             final ClubCategory category,
             final ClubAffiliation affiliation,
@@ -20,6 +27,7 @@ public interface ClubRepositoryCustom {
     );
 
     List<ClubWithLatestRecruitment> findAllClubsWithLatestRecruitment(
+            final UniversityCode universityCode,
             final String keyword,
             final ClubAffiliation affiliation,
             final ClubCategory category

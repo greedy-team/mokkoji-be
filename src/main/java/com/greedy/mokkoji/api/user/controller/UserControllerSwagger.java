@@ -1,13 +1,9 @@
 package com.greedy.mokkoji.api.user.controller;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
-import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
-import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.RefreshResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserInformationResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
+import com.greedy.mokkoji.api.user.dto.request.kakao.KakaoSocialLoginRequest;
+import com.greedy.mokkoji.api.user.dto.resopnse.*;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,12 +17,15 @@ import org.springframework.http.ResponseEntity;
 public interface UserControllerSwagger {
 
     @Operation(
-            summary = "로그인 API",
-            description = "`학번`과 `세종포털 비밀번호`를 통해 로그인을 수행합니다."
+            summary = "카카오 로그인 API",
+            description = "프론트에서 카카오 OAuth 완료 후 받은 `authorization code`를 전달하여 로그인을 수행합니다.\n"
+                    + "* `redirect_uri`는 요청의 `Origin` 헤더와 서버에 설정된 콜백 경로를 합쳐 동적으로 구성됩니다.\n"
+                    + "* 예: `Origin: http://localhost:3000` → `redirect_uri = http://localhost:3000/api/auth/callback/kakao`\n"
     )
-    @ApiResponse(responseCode = "200", description = "로그인 성공")
-    ResponseEntity<APISuccessResponse<LoginResponse>> login(
-            @Parameter(name = "request", description = "로그인 요청 본문") LoginRequest request
+    @ApiResponse(responseCode = "200", description = "카카오 로그인 성공")
+    ResponseEntity<APISuccessResponse<LoginResponse>> kakaoLogin(
+            @Parameter(hidden = true) String origin,
+            @Parameter(name = "request", description = "카카오 로그인 요청 본문") KakaoSocialLoginRequest request
     );
 
     @Operation(
@@ -64,13 +63,26 @@ public interface UserControllerSwagger {
 
     @Operation(
             summary = "사용자 정보 수정 API",
-            description = "현재 로그인된 사용자의 `이메일`을 수정합니다.",
+            description = "전달된 필드만 수정됩니다. 대학교가 변경되는 경우 기존 즐겨찾기는 모두 삭제됩니다.\n"
+                    + "학교 정보를 초기화하려면 `clearUniversityCode: true`를 전달하세요. `universityCode`와 함께 전달된 경우 `clearUniversityCode`가 우선 적용됩니다.",
             security = {@SecurityRequirement(name = "JWT")}
     )
     @ApiResponse(responseCode = "200", description = "사용자 정보 수정 성공")
     ResponseEntity<APISuccessResponse<Void>> updateUserInformation(
             @Parameter(hidden = true) AuthCredential authCredential,
             @Parameter(name = "updateUserInformationRequest", description = "사용자 정보 수정 요청") UpdateUserInformationRequest updateUserInformationRequest
+    );
+
+    @Operation(
+            summary = "회원 탈퇴 API",
+            description = "회원과 회원의 연관 데이터를 삭제합니다.\n"
+                    + "* 댓글은 삭제하지 않습니다.\n"
+                    + "* 탈퇴 회원이 동아리장인 경우 해당 동아리의 동아리장은 해제됩니다.",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
+    @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공")
+    ResponseEntity<APISuccessResponse<Void>> deleteUser(
+            @Parameter(hidden = true) AuthCredential authCredential
     );
 
     @Operation(

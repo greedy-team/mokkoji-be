@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.recruitment.service;
 
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
@@ -20,13 +21,11 @@ import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
-import com.greedy.mokkoji.db.user.entity.User;
-import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
-import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,22 +33,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class RecruitmentService {
 
-    private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final RecruitmentImageRepository recruitmentImageRepository;
     private final AppDataS3Client appDataS3Client;
     private final FavoriteRepository favoriteRepository;
+    private final ManageAuthorizer clubManageAuthorizer;
 
     private static PageResponse createPageResponse(Page<Recruitment> recruitmentPage) {
         return PageResponse.of(
@@ -62,6 +57,7 @@ public class RecruitmentService {
 
     @Transactional
     public CreateRecruitmentResponse createRecruitment(
+            final AuthRole authRole,
             final Long userId,
             final Long clubId,
             final String title,
@@ -72,10 +68,10 @@ public class RecruitmentService {
             final String recruitForm,
             final boolean isAlwaysRecruiting) {
 
-        validateAdmin(userId);
-
         Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+
+        clubManageAuthorizer.validateCanManageClub(authRole, userId, club);
 
         Recruitment recruitment = buildAndSaveRecruitment(club, title, content, recruitStart, recruitEnd, recruitForm,
                 isAlwaysRecruiting);
@@ -86,6 +82,7 @@ public class RecruitmentService {
 
     @Transactional
     public UpdateRecruitmentResponse updateRecruitment(
+            final AuthRole authRole,
             final Long userId,
             final Long recruitmentId,
             final String title,
@@ -96,10 +93,10 @@ public class RecruitmentService {
             final String recruitForm,
             final boolean isAlwaysRecruiting
     ) {
-        validateAdmin(userId);
-
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+
+        clubManageAuthorizer.validateCanManageClub(authRole, userId, recruitment.getClub());
 
         recruitment.updateRecruitment(title, content, recruitStart, recruitEnd, recruitForm, isAlwaysRecruiting);
 
@@ -110,11 +107,11 @@ public class RecruitmentService {
     }
 
     @Transactional
-    public DeleteRecruitmentResponse deleteRecruitment(final Long userId, final Long recruitmentId) {
-        validateAdmin(userId);
-
+    public DeleteRecruitmentResponse deleteRecruitment(final AuthRole authRole, final Long userId, final Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+
+        clubManageAuthorizer.validateCanManageClub(authRole, userId, recruitment.getClub());
 
         List<String> deleteImageUrls = deleteImages(recruitmentId);
         recruitmentRepository.delete(recruitment);
@@ -214,19 +211,6 @@ public class RecruitmentService {
         return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
     }
 
-    private void validateAdmin(Long userId) {
-        if (userId == null) {
-            throw new MokkojiException(FailMessage.UNAUTHORIZED);
-        }
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
-
-        if (user.getRole().equals(UserRole.NORMAL)) {
-            throw new MokkojiException(FailMessage.FORBIDDEN);
-        }
-    }
-
     private Recruitment buildAndSaveRecruitment(Club club, String title, String content,
                                                 LocalDateTime recruitStart, LocalDateTime recruitEnd,
                                                 String recruitForm, boolean isAlwaysRecruiting) {
@@ -271,6 +255,10 @@ public class RecruitmentService {
 
     private String extractImageKey(Recruitment recruitment, String fileName) {
         int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex == -1) {
+            throw new MokkojiException(FailMessage.BAD_REQUEST_INVALID_IMAGE_FILENAME);
+        }
+
         String nextDot = fileName.substring(dotIndex); //jpg와 같은 확장자 부분
 
         String uuid = UUID.randomUUID().toString();

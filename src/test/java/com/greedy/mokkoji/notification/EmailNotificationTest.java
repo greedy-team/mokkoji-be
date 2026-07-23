@@ -1,13 +1,9 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.notification.service.EmailNotificationChannel;
+import com.greedy.mokkoji.api.email.service.RecruitmentNotificationEmailChannel;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
@@ -27,7 +23,7 @@ import static org.mockito.Mockito.times;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class EmailNotificationTest {
     @InjectMocks
-    private EmailNotificationChannel emailNotificationChannel;
+    private RecruitmentNotificationEmailChannel recruitmentNotificationEmailChannel;
 
     @Mock
     private JavaMailSender mailSender;
@@ -35,7 +31,7 @@ public class EmailNotificationTest {
     @BeforeEach
     void setUp() {
         // TODO:: 다른 방법 생각해보기
-        ReflectionTestUtils.setField(emailNotificationChannel, "senderMail", "test@mokkoji.com");
+        ReflectionTestUtils.setField(recruitmentNotificationEmailChannel, "senderMail", "test@mokkoji.com");
     }
 
     @Test
@@ -53,7 +49,7 @@ public class EmailNotificationTest {
         BDDMockito.doNothing().when(mailSender).send(any(MimeMessage.class));
 
         // when
-        emailNotificationChannel.sendNotification(receiverMails, clubId, clubName, recruitStart, recruitEnd);
+        recruitmentNotificationEmailChannel.sendNotification(receiverMails, clubId, clubName, recruitStart, recruitEnd);
 
         // then
         BDDMockito.verify(mailSender, times(1)).send(any(MimeMessage.class));

@@ -3,28 +3,18 @@ package com.greedy.mokkoji.api.user.controller;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.jwt.BearerAuthExtractor;
-import com.greedy.mokkoji.api.user.dto.request.LoginRequest;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
-import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.RefreshResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserInformationResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
-import com.greedy.mokkoji.api.user.service.TokenService;
+import com.greedy.mokkoji.api.user.dto.request.kakao.KakaoSocialLoginRequest;
+import com.greedy.mokkoji.api.user.dto.resopnse.*;
 import com.greedy.mokkoji.api.user.service.UserService;
+import com.greedy.mokkoji.api.user.service.kakao.KakaoRedirectUriResolver;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
-import com.greedy.mokkoji.db.user.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -33,12 +23,15 @@ public class UserController implements UserControllerSwagger {
 
     private final BearerAuthExtractor bearerAuthExtractor;
     private final UserService userService;
-    private final TokenService tokenService;
+    private final KakaoRedirectUriResolver kakaoRedirectUriResolver;
 
-    @PostMapping("/auth/login")
-    public ResponseEntity<APISuccessResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
-        final User user = userService.login(request.studentId(), request.password());
-        final LoginResponse loginResponse = tokenService.generateToken(user.getId());
+    @PostMapping("/auth/kakao")
+    public ResponseEntity<APISuccessResponse<LoginResponse>> kakaoLogin(
+            @RequestHeader(value = HttpHeaders.ORIGIN, required = false) final String origin,
+            @RequestBody final KakaoSocialLoginRequest request
+    ) {
+        final String redirectUri = kakaoRedirectUriResolver.resolve(origin);
+        final LoginResponse loginResponse = userService.kakaoLogin(request.code(), redirectUri);
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
     }
 
@@ -56,8 +49,7 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<Void>> logout(
             @Authentication AuthCredential authCredential
     ) {
-        final Long userId = authCredential.userId();
-        userService.logOut(userId);
+        userService.logout(authCredential.authRole(), authCredential.accountId());
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
@@ -65,19 +57,33 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<UserInformationResponse>> getUserInformation(
             @Authentication AuthCredential authCredential
     ) {
-        final Long userId = authCredential.userId();
-        final User user = userService.findUser(userId);
-        final UserInformationResponse userInformationResponse = UserInformationResponse.of(user);
+        final Long userId = authCredential.accountId();
+        final UserInformationResponse userInformationResponse = userService.getUserInformation(userId);
         return APISuccessResponse.of(HttpStatus.OK, userInformationResponse);
     }
 
-    @PutMapping
+    @PatchMapping
     public ResponseEntity<APISuccessResponse<Void>> updateUserInformation(
             @Authentication AuthCredential authCredential,
             @RequestBody @Valid UpdateUserInformationRequest updateUserInformationRequest
     ) {
-        final Long userId = authCredential.userId();
-        userService.updateEmail(userId, updateUserInformationRequest.email());
+        final Long userId = authCredential.accountId();
+        userService.updateUserInformation(
+                userId,
+                updateUserInformationRequest.name(),
+                updateUserInformationRequest.email(),
+                updateUserInformationRequest.isEmailOn(),
+                updateUserInformationRequest.universityCode(),
+                updateUserInformationRequest.clearUniversityCode()
+        );
+        return APISuccessResponse.of(HttpStatus.OK, null);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<APISuccessResponse<Void>> deleteUser(
+            @Authentication AuthCredential authCredential
+    ) {
+        userService.deleteUser(authCredential.authRole(), authCredential.accountId());
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 
@@ -85,13 +91,13 @@ public class UserController implements UserControllerSwagger {
     public ResponseEntity<APISuccessResponse<UserRoleResponse>> getUserRole(
             @Authentication AuthCredential authCredential
     ) {
-        return APISuccessResponse.of(HttpStatus.OK, userService.getUserRole(authCredential.userId()));
+        return APISuccessResponse.of(HttpStatus.OK, userService.getUserRole(authCredential.accountId()));
     }
 
     @GetMapping("/manage/clubs")
     public ResponseEntity<APISuccessResponse<UserManageClubsResponse>> getUserManageClubs(
             @Authentication AuthCredential authCredential
     ) {
-        return APISuccessResponse.of(HttpStatus.OK, userService.getUserManageClubs(authCredential.userId()));
+        return APISuccessResponse.of(HttpStatus.OK, userService.getUserManageClubs(authCredential.accountId()));
     }
 }

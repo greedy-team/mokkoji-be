@@ -10,6 +10,7 @@ import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteR
 import com.greedy.mokkoji.api.recruitment.dto.response.recentRecruitment.RecentRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.SpecificRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
+import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -19,12 +20,10 @@ import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
-import com.greedy.mokkoji.db.user.entity.User;
-import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
-import com.greedy.mokkoji.enums.user.UserRole;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -58,7 +57,7 @@ public class RecruitmentServiceTest {
     RecruitmentService recruitmentService;
 
     @Mock
-    UserRepository userRepository;
+    ManageAuthorizer clubManageAuthorizer;
 
     @Mock
     ClubRepository clubRepository;
@@ -79,10 +78,6 @@ public class RecruitmentServiceTest {
     @DisplayName("권한을 가진 관리자는 모집글을 생성할 수 있다.")
     void createRecruitment() {
         // given
-        User adminUser = User.builder().build();
-        ReflectionTestUtils.setField(adminUser, "id", 1L);
-        ReflectionTestUtils.setField(adminUser, "role", UserRole.CLUB_MASTER);
-
         Club club = Club.builder()
                 .name("그리디")
                 .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
@@ -93,7 +88,6 @@ public class RecruitmentServiceTest {
                 .build();
         ReflectionTestUtils.setField(club, "id", 1L);
 
-        given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
         given(clubRepository.findById(1L)).willReturn(Optional.of(club));
         given(recruitmentRepository.save(any(Recruitment.class)))
                 .willAnswer(inv -> {
@@ -106,6 +100,7 @@ public class RecruitmentServiceTest {
 
         // when
         CreateRecruitmentResponse createRecruitmentResponse = recruitmentService.createRecruitment(
+                AuthRole.USER,
                 1L,
                 1L,
                 "그리디 모집글 제목",
@@ -128,38 +123,36 @@ public class RecruitmentServiceTest {
     }
 
     @Test
-    @DisplayName("일반 사용자는 모집글을 생성할 수 없다.")
+    @DisplayName("권한이 없으면 모집글을 생성할 수 없다.")
     void createRecruitment_forbidden() {
         // given
-        User normalUser = User.builder().build();
-        ReflectionTestUtils.setField(normalUser, "id", 1L);
-        ReflectionTestUtils.setField(normalUser, "role", UserRole.NORMAL);
+        Club club = Club.builder().name("그리디").build();
+        ReflectionTestUtils.setField(club, "id", 1L);
 
-        given(userRepository.findById(1L)).willReturn(Optional.of(normalUser));
+        given(clubRepository.findById(1L)).willReturn(Optional.of(club));
+        BDDMockito.willThrow(new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB))
+                .given(clubManageAuthorizer).validateCanManageClub(AuthRole.USER, 1L, club);
 
         // when, then
         Assertions.assertThatThrownBy(() -> recruitmentService.createRecruitment(
-                        1L, 1L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(), LocalDateTime.now().plusDays(1),
+                        AuthRole.USER, 1L, 1L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(),
+                        LocalDateTime.now().plusDays(1),
                         List.of("그리디 모집글 이미지.jpgg"), "그리디 모집 링크", false
                 ))
                 .isInstanceOf(MokkojiException.class)
-                .hasMessageContaining(FailMessage.FORBIDDEN.getMessage());
+                .hasMessageContaining(FailMessage.FORBIDDEN_MANAGE_CLUB.getMessage());
     }
 
     @Test
     @DisplayName("모집글 생성 시 동아리가 존재하지 않으면 예외가 발생한다.")
     void createRecruitment_notFoundClub() {
         // given
-        User adminUser = User.builder().build();
-        ReflectionTestUtils.setField(adminUser, "id", 1L);
-        ReflectionTestUtils.setField(adminUser, "role", UserRole.CLUB_MASTER);
-
-        given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
         given(clubRepository.findById(999L)).willReturn(Optional.empty());
 
         // when, then
         Assertions.assertThatThrownBy(() -> recruitmentService.createRecruitment(
-                        1L, 999L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(), LocalDateTime.now().plusDays(1),
+                        AuthRole.USER, 1L, 999L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(),
+                        LocalDateTime.now().plusDays(1),
                         List.of("그리디 모집글 이미지.jpgg"), "그리디 모집 링크", false
                 ))
                 .isInstanceOf(MokkojiException.class)
@@ -170,10 +163,6 @@ public class RecruitmentServiceTest {
     @DisplayName("권한을 가진 관리자는 모집글을 수정할 수 있다.")
     void updateRecruitment() {
         // given
-        User adminUser = User.builder().build();
-        ReflectionTestUtils.setField(adminUser, "id", 1L);
-        ReflectionTestUtils.setField(adminUser, "role", UserRole.CLUB_MASTER);
-
         Club club = Club.builder()
                 .name("그리디")
                 .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
@@ -200,7 +189,6 @@ public class RecruitmentServiceTest {
         RecruitmentImage oldImage2 = RecruitmentImage.builder().recruitment(recruitment).image("오래된 그리디 모집글 이미지2.jpg")
                 .build();
 
-        given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
         given(recruitmentRepository.findById(1L)).willReturn(Optional.of(recruitment));
         given(recruitmentImageRepository.findByRecruitmentId(1L)).willReturn(List.of(oldImage1, oldImage2));
         given(appDataS3Client.getPresignedDeleteUrl(any())).willReturn("deleteUrl");
@@ -208,6 +196,7 @@ public class RecruitmentServiceTest {
 
         // when
         UpdateRecruitmentResponse updateRecruitmentResponse = recruitmentService.updateRecruitment(
+                AuthRole.USER,
                 1L,
                 1L,
                 "그리디 모집글 제목 수정",
@@ -234,16 +223,12 @@ public class RecruitmentServiceTest {
     @DisplayName("모집글 수정 시 모집글이 존재하지 않으면 예외가 발생한다.")
     void updateRecruitment_notFoundRecruitment() {
         // given
-        User adminUser = User.builder().build();
-        ReflectionTestUtils.setField(adminUser, "id", 1L);
-        ReflectionTestUtils.setField(adminUser, "role", UserRole.CLUB_ADMIN);
-
-        given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
         given(recruitmentRepository.findById(999L)).willReturn(Optional.empty());
 
         // when, then
         Assertions.assertThatThrownBy(() -> recruitmentService.updateRecruitment(
-                        1L, 999L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(), LocalDateTime.now().plusDays(1),
+                        AuthRole.USER, 1L, 999L, "그리디 모집글 제목", "그리디 모집글 내용", LocalDateTime.now(),
+                        LocalDateTime.now().plusDays(1),
                         List.of("그리디 모집글 이미지.jpgg"), "그리디 모집 링크", false
                 ))
                 .isInstanceOf(MokkojiException.class)
@@ -254,10 +239,6 @@ public class RecruitmentServiceTest {
     @DisplayName("권한을 가진 관리자는 모집글을 삭제할 수 있다.")
     void deleteRecruitment() {
         // given
-        User adminUser = User.builder().build();
-        ReflectionTestUtils.setField(adminUser, "id", 1L);
-        ReflectionTestUtils.setField(adminUser, "role", UserRole.CLUB_MASTER);
-
         Recruitment recruitment = Recruitment.builder()
                 .title("그리디 모집글 제목")
                 .content("그리디 모집글 내용")
@@ -269,13 +250,12 @@ public class RecruitmentServiceTest {
                 .image("그리디 모집글 이미지.jpg")
                 .build();
 
-        given(userRepository.findById(1L)).willReturn(Optional.of(adminUser));
         given(recruitmentRepository.findById(1L)).willReturn(Optional.of(recruitment));
         given(recruitmentImageRepository.findByRecruitmentId(1L)).willReturn(List.of(recruitmentImage));
         given(appDataS3Client.getPresignedDeleteUrl(any())).willReturn("deleteUrl");
 
         // when
-        DeleteRecruitmentResponse result = recruitmentService.deleteRecruitment(1L, 1L);
+        DeleteRecruitmentResponse result = recruitmentService.deleteRecruitment(AuthRole.USER, 1L, 1L);
 
         // then
         assertThat(result.id()).isEqualTo(1L);

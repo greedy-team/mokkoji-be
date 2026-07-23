@@ -1,7 +1,7 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.notification.service.NotificationChannel;
-import com.greedy.mokkoji.api.notification.service.NotificationService;
+import com.greedy.mokkoji.api.email.service.RecruitmentNotificationChannel;
+import com.greedy.mokkoji.api.email.service.EmailService;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
@@ -30,13 +30,13 @@ import static org.mockito.Mockito.times;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class NotificationTest {
     @InjectMocks
-    NotificationService notificationService;
+    EmailService emailService;
 
     @Mock
     FavoriteRepository favoriteRepository;
 
     @Mock
-    NotificationChannel notificationChannel;
+    RecruitmentNotificationChannel recruitmentNotificationChannel;
 
     @Test
     @DisplayName("사용자들에게 알림을 보낼 수 있다")
@@ -88,17 +88,17 @@ public class NotificationTest {
         BDDMockito.given(favoriteRepository.findByClubIdWithFetchJoin(any()))
                 .willReturn(List.of(favorite1, favorite2));
 
-        BDDMockito.doNothing().when(notificationChannel)
+        BDDMockito.doNothing().when(recruitmentNotificationChannel)
                 .sendNotification(any(), any(), any(), any(), any());
 
         // when
-        notificationService.sendNotification(club, recruitment);
+        emailService.sendNotification(club.getId(), club.getName(), recruitment);
 
         // then
         BDDMockito.verify(favoriteRepository, times(1))
                 .findByClubIdWithFetchJoin(any());
 
-        BDDMockito.verify(notificationChannel, times(1))
+        BDDMockito.verify(recruitmentNotificationChannel, times(1))
                 .sendNotification(any(), any(), any(), any(), any());
 
     }

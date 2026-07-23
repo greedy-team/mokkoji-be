@@ -2,6 +2,8 @@ package com.greedy.mokkoji.api.comment.service;
 
 import com.greedy.mokkoji.api.comment.dto.response.CommentListResponse;
 import com.greedy.mokkoji.api.comment.dto.response.CommentResponse;
+import com.greedy.mokkoji.api.comment.dto.response.MyCommentListResponse;
+import com.greedy.mokkoji.api.comment.dto.response.MyCommentResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -73,8 +75,29 @@ public class CommentService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public MyCommentListResponse getAllMyComments(final Long userId) {
+        final User user = userRepository.findById(userId).orElseThrow(
+                () -> new MokkojiException(FailMessage.NOT_FOUND_USER)
+        );
+
+        final List<Comment> myComments = commentRepository.findAllByUser(user);
+
+        return MyCommentListResponse.of(
+                myComments.stream()
+                        .map(comment -> MyCommentResponse.of(
+                                comment.getId(),
+                                comment.getClub().getId(),
+                                comment.getClub().getName(),
+                                comment.getClub().getDescription(),
+                                comment.getCreatedAt()
+                        ))
+                        .toList()
+        );
+    }
+
     private boolean isCommentWriter(final Long userId, final Comment comment) {
-        if (userId == null) {
+        if (userId == null || comment.getUser() == null) {
             return false;
         }
         return comment.getUser().getId().equals(userId);

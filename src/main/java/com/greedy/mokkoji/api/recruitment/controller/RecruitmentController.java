@@ -20,15 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,7 +38,8 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
         return APISuccessResponse.of(
                 HttpStatus.CREATED,
                 recruitmentService.createRecruitment(
-                        authCredential.userId(),
+                        authCredential.authRole(),
+                        authCredential.accountId(),
                         clubId,
                         request.title(),
                         request.content(),
@@ -66,7 +59,8 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
             @RequestBody UpdateRecruitmentRequest request
     ) {
         UpdateRecruitmentResponse response = recruitmentService.updateRecruitment(
-                authCredential.userId(),
+                authCredential.authRole(),
+                authCredential.accountId(),
                 recruitmentId,
                 request.title(),
                 request.content(),
@@ -85,7 +79,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
             @PathVariable("recruitmentId") final Long recruitmentId
     ) {
         DeleteRecruitmentResponse response =
-                recruitmentService.deleteRecruitment(authCredential.userId(), recruitmentId);
+                recruitmentService.deleteRecruitment(authCredential.authRole(), authCredential.accountId(), recruitmentId);
         return APISuccessResponse.of(HttpStatus.OK, response);
     }
 
@@ -106,7 +100,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getRecentRecruitmentOfClub(clubId, authCredential.userId())
+                recruitmentService.getRecentRecruitmentOfClub(clubId, authCredential.accountId())
         );
     }
 
@@ -117,7 +111,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getSpecificRecruitment(authCredential.userId(), recruitmentId)
+                recruitmentService.getSpecificRecruitment(authCredential.accountId(), recruitmentId)
         );
     }
 
@@ -132,7 +126,7 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
         final Pageable pageable = PageRequest.of(page - 1, size);
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                recruitmentService.getAllRecruitment(authCredential.userId(), affiliation, category, pageable)
+                recruitmentService.getAllRecruitment(authCredential.accountId(), affiliation, category, pageable)
         );
     }
 }

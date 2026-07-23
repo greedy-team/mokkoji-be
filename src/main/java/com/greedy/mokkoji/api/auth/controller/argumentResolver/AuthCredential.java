@@ -1,6 +1,9 @@
 package com.greedy.mokkoji.api.auth.controller.argumentResolver;
 
+import com.greedy.mokkoji.enums.auth.AuthRole;
+
 public record AuthCredential(
-        Long userId
+        AuthRole authRole,
+        Long accountId
 ) {
 }

@@ -5,20 +5,14 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.comment.dto.request.CommentCreateRequest;
 import com.greedy.mokkoji.api.comment.dto.request.CommentUpdateRequest;
 import com.greedy.mokkoji.api.comment.dto.response.CommentListResponse;
+import com.greedy.mokkoji.api.comment.dto.response.MyCommentListResponse;
 import com.greedy.mokkoji.api.comment.service.CommentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +28,7 @@ public class CommentController implements CommentControllerSwagger {
             @Authentication final AuthCredential authCredential
     ) {
         commentService.createComment(
-                authCredential.userId(),
+                authCredential.accountId(),
                 clubId,
                 commentCreateRequest.rate(),
                 commentCreateRequest.content()
@@ -49,7 +43,17 @@ public class CommentController implements CommentControllerSwagger {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.OK,
-                commentService.getComments(authCredential.userId(), clubId)
+                commentService.getComments(authCredential.accountId(), clubId)
+        );
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<APISuccessResponse<MyCommentListResponse>> getAllMyComments(
+            @Authentication final AuthCredential authCredential
+    ) {
+        return APISuccessResponse.of(
+                HttpStatus.OK,
+                commentService.getAllMyComments(authCredential.accountId())
         );
     }
 
@@ -60,7 +64,7 @@ public class CommentController implements CommentControllerSwagger {
             @Authentication final AuthCredential authCredential
     ) {
         commentService.updateComment(
-                authCredential.userId(),
+                authCredential.accountId(),
                 commentId,
                 commentUpdateRequest.rate(),
                 commentUpdateRequest.content()
@@ -73,7 +77,7 @@ public class CommentController implements CommentControllerSwagger {
             @PathVariable(name = "commentId") final Long commentId,
             @Authentication final AuthCredential authCredential
     ) {
-        commentService.deleteComment(authCredential.userId(), commentId);
+        commentService.deleteComment(authCredential.accountId(), commentId);
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
 }

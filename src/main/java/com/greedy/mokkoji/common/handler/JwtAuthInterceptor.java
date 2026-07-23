@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.common.handler;
 
+import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.jwt.BearerAuthExtractor;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,7 +30,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String token = bearerAuthExtractor.extractTokenValue(header);
-        final Long userId = jwtUtil.getUserIdFromToken(token);
-        return userId != null;
+        final AuthCredential credential = jwtUtil.getCredentialFromToken(token);
+        return credential != null;
     }
 }

@@ -1,16 +1,17 @@
 package com.greedy.mokkoji.user.controller;
 
+import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
-import com.greedy.mokkoji.api.user.dto.resopnse.LoginResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.RefreshResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserInformationResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserManageClubsResponse;
-import com.greedy.mokkoji.api.user.dto.resopnse.UserRoleResponse;
+import com.greedy.mokkoji.api.user.dto.request.kakao.KakaoSocialLoginRequest;
+import com.greedy.mokkoji.api.user.dto.resopnse.*;
+import com.greedy.mokkoji.api.user.service.kakao.KakaoSocialLoginService;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
+import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -19,35 +20,33 @@ import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 public class UserControllerTest extends ControllerTest {
 
-    @Value("${account.studentId}")
-    private String studentId;
-
-    @Value("${account.password}")
-    private String password;
+    @MockitoBean
+    private KakaoSocialLoginService kakaoSocialLoginService;
 
     private User user;
 
     @BeforeEach
     void setUp() {
         favoriteRepository.deleteAll();
-        userRepository.deleteAll();
         recruitmentRepository.deleteAll();
         clubRepository.deleteAll();
+        userRepository.deleteAll();
+        universityRepository.deleteAll();
         prepareData();
     }
 
@@ -56,25 +55,27 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("올바른 학사정보시스템 아이디 및 비밀번호로 로그인 성공 여부를 검증한다.")
-    void loginSuccessful() {
+    @DisplayName("카카오 로그인 성공 여부를 검증한다.")
+    void kakaoLoginSuccessful() {
         //given
-        final Map<String, String> params = new HashMap<>();
-        params.put("studentId", studentId);
-        params.put("password", password);
+        final String code = "authorizationCode";
+        final String origin = "http://localhost:3000";
+        final String expectedRedirectUri = origin + "/api/auth/callback/kakao";
 
-        final String accessToken = jwtUtil.generateAccessToken(user.getId());
-        final String refreshToken = jwtUtil.generateRefreshToken(user.getId());
-        when(tokenService.generateToken(any())).
-                thenReturn(LoginResponse.of(accessToken, refreshToken));
+        when(kakaoSocialLoginService.login(code, expectedRedirectUri))
+                .thenReturn(Fixture.createKakaoUserInfoResponse(user.getKakaoId(), user.getName()));
 
-        final LoginResponse expected = LoginResponse.of(accessToken, refreshToken);
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
+        when(tokenService.issueTokens(eq(AuthRole.USER), any())).thenReturn(new TokenPair("accessToken", "refreshToken"));
+
+        final KakaoSocialLoginRequest request = new KakaoSocialLoginRequest(code);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
                 .contentType(ContentType.JSON)
-                .body(params)
-                .when().post(prefixUrl + "/users/auth/login")
+                .header("Origin", origin)
+                .body(request)
+                .when().post(prefixUrl + "/users/auth/kakao")
                 .then().log().all()
                 .statusCode(200)
                 .extract();
@@ -86,22 +87,18 @@ public class UserControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("올바르지 않은 학사정보시스템 아이디 및 비밀번호로 로그인 실패 여부를 검증한다.")
-    void loginFailed() {
+    @DisplayName("Origin 헤더가 없으면 카카오 로그인은 400 응답을 반환한다.")
+    void kakaoLoginWithoutOrigin() {
         //given
-        Map<String, String> params = new HashMap<>();
-        params.put("studentId", "invalidId");
-        params.put("password", "invalidPassword");
+        final KakaoSocialLoginRequest request = new KakaoSocialLoginRequest("authorizationCode");
 
         //when & then
-        ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
+        RestAssured.given().log().ifValidationFails()
                 .contentType(ContentType.JSON)
-                .body(params)
-                .when().post(prefixUrl + "/users/auth/login")
+                .body(request)
+                .when().post(prefixUrl + "/users/auth/kakao")
                 .then().log().all()
-                .extract();
-
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -110,7 +107,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String bearerToken = authorizationForBearerRefreshToken(user);
         final String refreshToken = bearerToken.substring("bearer".length()).trim();
-        when(tokenService.getRefreshToken(any())).thenReturn(refreshToken);
+        when(tokenService.getRefreshToken(any(), any())).thenReturn(refreshToken);
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
@@ -131,7 +128,7 @@ public class UserControllerTest extends ControllerTest {
     @DisplayName("로그아웃 성공 여부를 검증한다.")
     void logout() {
         // given
-        doNothing().when(tokenService).deleteRefreshToken(any());
+        doNothing().when(tokenService).deleteRefreshToken(any(), any());
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
@@ -175,14 +172,14 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final String updatedEmail = "updatedEmail@test.com";
-        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(updatedEmail);
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, updatedEmail, null, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("Authorization", authorizationForBearer)
                 .body(updateUserInformationRequest)
-                .when().put(prefixUrl + "/users")
+                .when().patch(prefixUrl + "/users")
                 .then().log().all()
                 .extract();
 
@@ -198,14 +195,14 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final String invalidUpdatedEmail = "updatedEmail.com";
-        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(invalidUpdatedEmail);
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, invalidUpdatedEmail, null, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .header("Authorization", authorizationForBearer)
                 .body(updateUserInformationRequest)
-                .when().put(prefixUrl + "/users")
+                .when().patch(prefixUrl + "/users")
                 .then().log().all()
                 .extract();
 
@@ -213,6 +210,58 @@ public class UserControllerTest extends ControllerTest {
 
         // then
         assertThat(statusCode).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    @DisplayName("사용자 소속 학교 업데이트 성공 여부를 검증한다.")
+    void updateUserInfoWithUniversity() {
+        // given
+        universityRepository.save(Fixture.createUniversity());
+        final String authorizationForBearer = authorizationForBearerAccessToken(user);
+        final UpdateUserInformationRequest updateUserInformationRequest =
+                new UpdateUserInformationRequest(null, null, null, UniversityCode.SEJONG);
+
+        // when
+        RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .body(updateUserInformationRequest)
+                .when().patch(prefixUrl + "/users")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value());
+
+        final ExtractableResponse<Response> getResponse = RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .when().get(prefixUrl + "/users")
+                .then().log().all()
+                .extract();
+
+        final UserInformationResponse actual = getDataFromResponse(getResponse, UserInformationResponse.class);
+
+        // then
+        assertThat(actual.universityCode()).isEqualTo(UniversityCode.SEJONG);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 학교 코드로 변경 시 404를 반환한다.")
+    void updateUserInfoWithNotFoundUniversity() {
+        // given
+        final String authorizationForBearer = authorizationForBearerAccessToken(user);
+        final UpdateUserInformationRequest updateUserInformationRequest =
+                new UpdateUserInformationRequest(null, null, null, UniversityCode.KONKUK);
+
+        // when
+        final ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", authorizationForBearer)
+                .body(updateUserInformationRequest)
+                .when().patch(prefixUrl + "/users")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -244,7 +293,8 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
 
-        final Club club = clubRepository.save(Fixture.createClub());
+        final University university = universityRepository.save(Fixture.createUniversity());
+        final Club club = clubRepository.save(Fixture.createClub(university, user));
         final UserManageClubsResponse expected = new UserManageClubsResponse(
                 List.of(new UserManageClubResponse(club.getId(), club.getName()))
         );

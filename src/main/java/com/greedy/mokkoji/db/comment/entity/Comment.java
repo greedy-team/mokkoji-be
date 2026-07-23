@@ -3,15 +3,7 @@ package com.greedy.mokkoji.db.comment.entity;
 import com.greedy.mokkoji.db.BaseTime;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,7 +30,7 @@ public class Comment extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     private Club club;
 
-    @JoinColumn(name = "user_id", columnDefinition = "bigint", nullable = false)
+    @JoinColumn(name = "user_id", columnDefinition = "bigint")
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 

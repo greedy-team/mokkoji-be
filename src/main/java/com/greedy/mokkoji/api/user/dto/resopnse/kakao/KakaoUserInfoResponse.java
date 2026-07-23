@@ -8,5 +8,7 @@ public record KakaoUserInfoResponse(
         String id,
         KakaoAccountResponse kakaoAccount
 ) {
+    public String nickname() {
+        return kakaoAccount == null ? null : kakaoAccount.nickname();
+    }
 }
-

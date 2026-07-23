@@ -7,4 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 public record KakaoAccountResponse(
         KakaoProfileResponse profile
 ) {
+    public String nickname() {
+        return profile == null ? null : profile.nickname();
+    }
 }
