@@ -45,17 +45,13 @@ public class NotificationTest {
         final User user1 = User.builder()
                 .name("사용자 이름")
                 .email("test1@test.com")
-                .grade("4")
-                .department("사용자 학과")
-                .studentId("1111111")
+                .isEmailOn(true)
                 .build();
 
         final User user2 = User.builder()
                 .name("사용자 이름")
                 .email("test2@test.com")
-                .grade("3")
-                .department("사용자 학과")
-                .studentId("222222")
+                .isEmailOn(true)
                 .build();
 
 
@@ -92,7 +88,7 @@ public class NotificationTest {
                 .sendNotification(any(), any(), any(), any(), any());
 
         // when
-        emailService.sendNotification(club.getId(), club.getName(), recruitment);
+        emailService.sendRecruitmentNotification(club.getId(), club.getName(), recruitment);
 
         // then
         BDDMockito.verify(favoriteRepository, times(1))
