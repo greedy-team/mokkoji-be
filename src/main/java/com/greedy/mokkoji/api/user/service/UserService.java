@@ -82,7 +82,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserInformation(Long userId, String name, String email, Boolean isEmailOn, UniversityCode universityCode, Boolean clearUniversityCode) {
+    public void updateUserInformation(Long userId, String name, String email, Boolean isEmailOn, UniversityCode universityCode) {
         User user = findUser(userId);
 
         if (name != null) {
@@ -95,12 +95,6 @@ public class UserService {
 
         if (isEmailOn != null) {
             user.updateEmailOn(isEmailOn);
-        }
-
-        if (Boolean.TRUE.equals(clearUniversityCode)) {
-            favoriteRepository.deleteByUserId(userId);
-            user.updateUniversity(null);
-            return;
         }
 
         if (universityCode != null) {

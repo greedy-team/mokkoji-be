@@ -73,8 +73,7 @@ public class UserController implements UserControllerSwagger {
                 updateUserInformationRequest.name(),
                 updateUserInformationRequest.email(),
                 updateUserInformationRequest.isEmailOn(),
-                updateUserInformationRequest.universityCode(),
-                updateUserInformationRequest.clearUniversityCode()
+                updateUserInformationRequest.universityCode()
         );
         return APISuccessResponse.of(HttpStatus.OK, null);
     }

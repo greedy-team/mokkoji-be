@@ -20,7 +20,7 @@ public class User extends BaseTime {
     @Column(name = "id", columnDefinition = "bigint", nullable = false)
     private Long id;
 
-    @JoinColumn(name = "university_id", columnDefinition = "bigint")
+    @JoinColumn(name = "university_id", columnDefinition = "bigint", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY)
     private University university;
 
