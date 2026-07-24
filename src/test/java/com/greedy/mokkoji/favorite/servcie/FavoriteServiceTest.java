@@ -5,6 +5,7 @@ import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.favorite.dto.response.RecruitClubsResponse;
 import com.greedy.mokkoji.api.favorite.service.FavoriteService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
@@ -70,9 +71,6 @@ public class FavoriteServiceTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade("4")
-                .department("사용자 학과")
-                .studentId("사용자 학번")
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
 
@@ -104,9 +102,6 @@ public class FavoriteServiceTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade("4")
-                .department("사용자 학과")
-                .studentId("사용자 학번")
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
 
@@ -139,9 +134,6 @@ public class FavoriteServiceTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade("4")
-                .department("사용자 학과")
-                .studentId("사용자 학번")
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
 
@@ -172,9 +164,6 @@ public class FavoriteServiceTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade("4")
-                .department("사용자 학과")
-                .studentId("사용자 학번")
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
 
@@ -205,9 +194,6 @@ public class FavoriteServiceTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade("4")
-                .department("사용자 학과")
-                .studentId("사용자 학번")
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
 
@@ -240,6 +226,8 @@ public class FavoriteServiceTest {
         BDDMockito.given(favoriteRepository.findByUserId(any(), any())).willReturn(favoritePage);
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(any())).willReturn(Optional.of(recruitment));
         BDDMockito.given(appDataS3Client.getPublicUrl(any())).willReturn("testLogo1");
+        BDDMockito.given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
+        ReflectionTestUtils.setField(club, "university", Fixture.createUniversity());
 
         //when
         final ClubsPaginationResponse favoriteClubs = favoriteService.findFavoriteClubs(user.getId(), PageRequest.of(0, 10));
@@ -266,9 +254,6 @@ public class FavoriteServiceTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade("4")
-                .department("사용자 학과")
-                .studentId("사용자 학번")
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
 
@@ -341,9 +326,6 @@ public class FavoriteServiceTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade("4")
-                .department("사용자 학과")
-                .studentId("사용자 학번")
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
 
@@ -417,9 +399,6 @@ public class FavoriteServiceTest {
         final User user = User.builder()
                 .name("사용자 이름")
                 .email("사용자 이메일")
-                .grade("4")
-                .department("사용자 학과")
-                .studentId("사용자 학번")
                 .build();
         ReflectionTestUtils.setField(user, "id", 1L);
 
