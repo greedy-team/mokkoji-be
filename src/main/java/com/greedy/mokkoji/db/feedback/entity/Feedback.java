@@ -18,9 +18,6 @@ public class Feedback extends BaseTime {
     @Column(name = "id", columnDefinition = "bigint", nullable = false)
     private Long id;
 
-    @Column(name = "user_id", columnDefinition = "bigint", nullable = false)
-    private Long userId;
-
     @Column(name = "rating", columnDefinition = "int", nullable = false)
     private int rating;
 
@@ -28,8 +25,7 @@ public class Feedback extends BaseTime {
     private String content;
 
     @Builder
-    public Feedback(Long userId, int rating, String content) {
-        this.userId = userId;
+    public Feedback(int rating, String content) {
         this.rating = rating;
         this.content = content;
     }
