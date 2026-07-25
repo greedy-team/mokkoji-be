@@ -60,7 +60,7 @@ description: 이슈 생성 (작업코드 컨벤션에 맞춰 gh issue create 실
 ```bash
 gh issue create \
   --repo greedy-team/mokkoji-be \
-  --title "$(sed -n '1s/^제목: //p' .claude/tmp/issue_draft.md)" \
+  --title "$(sed -n '1p' .claude/tmp/issue_draft.md)" \
   --assignee @me \
   --body "$(tail -n +3 .claude/tmp/issue_draft.md)"
 ```
