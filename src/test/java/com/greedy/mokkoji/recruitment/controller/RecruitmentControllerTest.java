@@ -53,12 +53,6 @@ public class RecruitmentControllerTest extends ControllerTest {
 
     @BeforeEach
     void setUp() {
-        recruitmentImageRepository.deleteAll();
-        recruitmentRepository.deleteAll();
-        favoriteRepository.deleteAll();
-        clubRepository.deleteAll();
-        userRepository.deleteAll();
-        universityRepository.deleteAll();
         university = universityRepository.save(Fixture.createUniversity());
     }
 

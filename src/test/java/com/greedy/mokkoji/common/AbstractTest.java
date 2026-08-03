@@ -7,6 +7,7 @@ import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -32,6 +33,18 @@ public class AbstractTest {
         registry.add("spring.datasource.username", MYSQL::getUsername);
         registry.add("spring.datasource.password", MYSQL::getPassword);
         registry.add("spring.datasource.driver-class-name", () -> "com.mysql.cj.jdbc.Driver");
+    }
+
+    // 공유 컨테이너라 클래스 간 데이터가 남으므로, 매 테스트 전에 FK 자식 테이블부터 역순으로 정리한다.
+    @BeforeEach
+    void cleanUpDatabase() {
+        recruitmentImageRepository.deleteAll();
+        favoriteRepository.deleteAll();
+        commentRepository.deleteAll();
+        recruitmentRepository.deleteAll();
+        clubRepository.deleteAll();
+        userRepository.deleteAll();
+        universityRepository.deleteAll();
     }
 
     @Autowired

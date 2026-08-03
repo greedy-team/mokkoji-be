@@ -27,10 +27,6 @@ public class AuthInterceptorTest extends ControllerTest {
     }
 
     private void prepareData() {
-        favoriteRepository.deleteAll();
-        recruitmentRepository.deleteAll();
-        clubRepository.deleteAll();
-        userRepository.deleteAll();
         user = userRepository.save(Fixture.createUser());
     }
 

@@ -42,11 +42,6 @@ public class UserControllerTest extends ControllerTest {
 
     @BeforeEach
     void setUp() {
-        favoriteRepository.deleteAll();
-        recruitmentRepository.deleteAll();
-        clubRepository.deleteAll();
-        userRepository.deleteAll();
-        universityRepository.deleteAll();
         prepareData();
     }
 

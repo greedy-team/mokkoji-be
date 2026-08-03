@@ -38,12 +38,6 @@ public class CommentControllerTest extends ControllerTest {
 
     @BeforeEach
     void setUp() {
-        commentRepository.deleteAll();
-        favoriteRepository.deleteAll();
-        recruitmentRepository.deleteAll();
-        clubRepository.deleteAll();
-        userRepository.deleteAll();
-        universityRepository.deleteAll();
         prepareData();
     }
 

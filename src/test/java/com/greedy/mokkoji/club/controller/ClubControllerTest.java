@@ -48,11 +48,6 @@ public class ClubControllerTest extends ControllerTest {
     @BeforeEach
     @Transactional
     void setUp() {
-        favoriteRepository.deleteAll();
-        recruitmentRepository.deleteAll();
-        clubRepository.deleteAll();
-        userRepository.deleteAll();
-        universityRepository.deleteAll();
         prepareData();
     }
 
