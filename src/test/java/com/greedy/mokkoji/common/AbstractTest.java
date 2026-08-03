@@ -18,9 +18,10 @@ import org.testcontainers.containers.MySQLContainer;
 public class AbstractTest {
 
     // 통합 테스트 전용 MySQL 컨테이너(dev와 동일한 MySQL 엔진).
+    // Flyway가 시작 시 performance_schema를 조회하므로 해당 권한이 있는 root 계정으로 접속한다.
     protected static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:8.0")
             .withDatabaseName("mokkoji_test")
-            .withUsername("test")
+            .withUsername("root")
             .withPassword("test");
 
     static {
