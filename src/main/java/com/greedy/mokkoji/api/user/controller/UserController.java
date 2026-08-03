@@ -31,7 +31,7 @@ public class UserController implements UserControllerSwagger {
             @RequestBody final KakaoSocialLoginRequest request
     ) {
         final String redirectUri = kakaoRedirectUriResolver.resolve(origin);
-        final LoginResponse loginResponse = userService.kakaoLogin(request.code(), redirectUri);
+        final LoginResponse loginResponse = userService.kakaoLogin(request.code(), redirectUri, request.universityCode());
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
     }
 
