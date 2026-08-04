@@ -42,9 +42,9 @@ public class CommentControllerTest extends ControllerTest {
     }
 
     private void prepareData() {
-        user = userRepository.save(Fixture.createUser());
-        anotherUser = userRepository.save(Fixture.createAnotherUser());
         university = universityRepository.save(Fixture.createUniversity());
+        user = userRepository.save(Fixture.createUser(university));
+        anotherUser = userRepository.save(Fixture.createAnotherUser(university));
         club = clubRepository.save(Fixture.createClub(university));
         anotherClub = clubRepository.save(Fixture.createAnotherClub(university));
     }
