@@ -1,6 +1,5 @@
 package com.greedy.mokkoji.api.user.dto.resopnse;
 
-import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
@@ -13,12 +12,9 @@ public record UserInformationResponse(
         @Schema(example = "user@sejong.ac.kr") String email,
         @Schema(example = "NORMAL") UserRole role,
         @Schema(example = "true") boolean emailOn,
-        @Schema(example = "KONKUK", description = "학교 미선택 시 null") UniversityCode universityCode
+        @Schema(example = "KONKUK") UniversityCode universityCode
 ) {
     public static UserInformationResponse of(final User user) {
-        final University university = user.getUniversity();
-        final UniversityCode universityCode = university == null ? null : university.getCode();
-
         return new UserInformationResponse(
                 user.getId(),
                 user.getCode(),
@@ -26,7 +22,7 @@ public record UserInformationResponse(
                 user.getEmail(),
                 user.getRole(),
                 user.isEmailOn(),
-                universityCode
+                user.getUniversity().getCode()
         );
     }
 }

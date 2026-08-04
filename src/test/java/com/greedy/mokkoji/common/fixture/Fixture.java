@@ -31,8 +31,9 @@ public class Fixture {
                 .build();
     }
 
-    public static User createUser() {
+    public static User createUser(University university) {
         return User.builder()
+                .university(university)
                 .code("Ab1234")
                 .name("모꼬지")
                 .kakaoId("kakao-12341234")
@@ -42,8 +43,9 @@ public class Fixture {
                 .build();
     }
 
-    public static User createAnotherUser() {
+    public static User createAnotherUser(University university) {
         return User.builder()
+                .university(university)
                 .code("cD5678")
                 .name("다른사용자")
                 .kakaoId("kakao-87654321")
@@ -53,8 +55,9 @@ public class Fixture {
                 .build();
     }
 
-    public static User createUserWithRole(UserRole role) {
+    public static User createUserWithRole(University university, UserRole role) {
         return User.builder()
+                .university(university)
                 .code("Ed9012")
                 .name("모꼬지")
                 .kakaoId("kakao-22222222")

@@ -31,7 +31,7 @@ public class UserController implements UserControllerSwagger {
             @RequestBody final KakaoSocialLoginRequest request
     ) {
         final String redirectUri = kakaoRedirectUriResolver.resolve(origin);
-        final LoginResponse loginResponse = userService.kakaoLogin(request.code(), redirectUri);
+        final LoginResponse loginResponse = userService.kakaoLogin(request.code(), redirectUri, request.universityCode());
         return APISuccessResponse.of(HttpStatus.OK, loginResponse);
     }
 
@@ -73,8 +73,7 @@ public class UserController implements UserControllerSwagger {
                 updateUserInformationRequest.name(),
                 updateUserInformationRequest.email(),
                 updateUserInformationRequest.isEmailOn(),
-                updateUserInformationRequest.universityCode(),
-                updateUserInformationRequest.clearUniversityCode()
+                updateUserInformationRequest.universityCode()
         );
         return APISuccessResponse.of(HttpStatus.OK, null);
     }
