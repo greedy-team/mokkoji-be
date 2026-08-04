@@ -5,6 +5,7 @@ import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.common.response.APIErrorResponse;
 import com.greedy.mokkoji.db.club.entity.Club;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import io.restassured.RestAssured;
@@ -24,23 +25,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class FavoriteControllerTest extends ControllerTest {
 
     private User user;
+    private University university;
     private Club favoriteClub;
     private Club notFavoriteClub;
 
     @BeforeEach
     void setUp() {
-        favoriteRepository.deleteAll();
-        commentRepository.deleteAll();
-        userRepository.deleteAll();
-        recruitmentRepository.deleteAll();
-        clubRepository.deleteAll();
         prepareData();
     }
 
     private void prepareData() {
         user = userRepository.save(Fixture.createUser());
-        favoriteClub = clubRepository.save(Fixture.createClub());
-        notFavoriteClub = clubRepository.save(Fixture.createClub());
+        university = universityRepository.save(Fixture.createUniversity());
+        favoriteClub = clubRepository.save(Fixture.createClub(university));
+        notFavoriteClub = clubRepository.save(Fixture.createClub(university));
         recruitmentRepository.saveAll(
                 List.of(Fixture.createRecruitment(favoriteClub), Fixture.createRecruitment(notFavoriteClub))
         );

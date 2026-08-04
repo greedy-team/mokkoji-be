@@ -7,7 +7,9 @@ import com.greedy.mokkoji.db.admin.repository.AdminRepository;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.user.UserRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,14 +48,14 @@ class ManageAuthorizerTest {
         final Admin admin = mock(Admin.class);
 
         BDDMockito.given(adminRepository.findById(adminId)).willReturn(Optional.of(admin));
-        BDDMockito.given(admin.canManageAllUniversitiesAndClubs()).willReturn(true);
+        BDDMockito.given(admin.getRole()).willReturn(AdminRole.MOKKOJI_ADMIN);
 
         //when & then
         assertThatCode(() -> clubManageAuthorizer.validateCanManageClub(AuthRole.ADMIN, adminId, club))
                 .doesNotThrowAnyException();
 
         verify(adminRepository, times(1)).findById(adminId);
-        verify(admin, times(1)).canManageAllUniversitiesAndClubs();
+        verify(admin, times(1)).getRole();
         verifyNoInteractions(userRepository);
     }
 
@@ -65,14 +67,14 @@ class ManageAuthorizerTest {
         final Admin admin = mock(Admin.class);
 
         BDDMockito.given(adminRepository.findById(adminId)).willReturn(Optional.of(admin));
-        BDDMockito.given(admin.canManageAllUniversitiesAndClubs()).willReturn(false);
+        BDDMockito.given(admin.getRole()).willReturn(AdminRole.UNIVERSITY_ADMIN);
 
         //when & then
         assertThatThrownBy(() -> clubManageAuthorizer.validateCanManageClub(AuthRole.ADMIN, adminId, club))
                 .isInstanceOf(MokkojiException.class);
 
         verify(adminRepository, times(1)).findById(adminId);
-        verify(admin, times(1)).canManageAllUniversitiesAndClubs();
+        verify(admin, times(1)).getRole();
         verifyNoInteractions(userRepository);
     }
 
@@ -100,14 +102,15 @@ class ManageAuthorizerTest {
         final User user = mock(User.class);
 
         BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        BDDMockito.given(user.canManageClub(club)).willReturn(true);
+        BDDMockito.given(user.getRole()).willReturn(UserRole.CLUB_MASTER);
+        BDDMockito.given(club.getMasterId()).willReturn(userId);
 
         //when & then
         assertThatCode(() -> clubManageAuthorizer.validateCanManageClub(AuthRole.USER, userId, club))
                 .doesNotThrowAnyException();
 
         verify(userRepository, times(1)).findById(userId);
-        verify(user, times(1)).canManageClub(club);
+        verify(user, times(1)).getRole();
         verifyNoInteractions(adminRepository);
     }
 
@@ -135,14 +138,14 @@ class ManageAuthorizerTest {
         final User user = mock(User.class);
 
         BDDMockito.given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        BDDMockito.given(user.canManageClub(club)).willReturn(false);
+        BDDMockito.given(user.getRole()).willReturn(UserRole.NORMAL);
 
         //when & then
         assertThatThrownBy(() -> clubManageAuthorizer.validateCanManageClub(AuthRole.USER, userId, club))
                 .isInstanceOf(MokkojiException.class);
 
         verify(userRepository, times(1)).findById(userId);
-        verify(user, times(1)).canManageClub(club);
+        verify(user, times(1)).getRole();
         verifyNoInteractions(adminRepository);
     }
 

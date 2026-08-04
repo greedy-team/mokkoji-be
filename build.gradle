@@ -86,6 +86,10 @@ dependencies {
     testImplementation 'org.mockito:mockito-core'
     testImplementation 'io.rest-assured:rest-assured:5.1.1'
 
+    // 통합 테스트용 Testcontainers (MySQL)
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:mysql'
+
     // 모니터링
     implementation 'io.micrometer:micrometer-registry-prometheus'
 
@@ -95,6 +99,13 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+
+    def colimaSocket = "${System.getProperty('user.home')}/.colima/default/docker.sock"
+    if (System.getenv('DOCKER_HOST') == null && file(colimaSocket).exists()) {
+        environment 'DOCKER_HOST', "unix://${colimaSocket}"
+        environment 'TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE', '/var/run/docker.sock'
+        systemProperty 'api.version', '1.44'
+    }
 }
 
 //JaCoCo 플러그인 설정

@@ -11,6 +11,7 @@ import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.common.response.APIErrorResponse;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
@@ -26,6 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,11 +39,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RecruitmentControllerTest extends ControllerTest {
 
+    private University university;
     private Club club;
     private Recruitment recruitment;
 
     static Stream<UserRole> allowedRoles() {
-        return Stream.of(UserRole.CLUB_MASTER, UserRole.GREEDY_ADMIN, UserRole.CLUB_ADMIN);
+        return Stream.of(UserRole.CLUB_MASTER);
     }
 
     static Stream<UserRole> forbiddenRoles() {
@@ -50,11 +53,7 @@ public class RecruitmentControllerTest extends ControllerTest {
 
     @BeforeEach
     void setUp() {
-        recruitmentImageRepository.deleteAll();
-        recruitmentRepository.deleteAll();
-        favoriteRepository.deleteAll();
-        clubRepository.deleteAll();
-        userRepository.deleteAll();
+        university = universityRepository.save(Fixture.createUniversity());
     }
 
     @ParameterizedTest
@@ -62,9 +61,9 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("권한을 가진 관리자는 모집글을 생성할 수 있다.")
     void createRecruitment_allowedRoles_success(UserRole role) {
         //given
-        club = clubRepository.save(Fixture.createClub());
-        recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         User adminUser = userRepository.save(Fixture.createUserWithRole(role));
+        club = clubRepository.save(Fixture.createClub(university, adminUser));
+        recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
 
         final CreateRecruitmentRequest request = new CreateRecruitmentRequest(
@@ -102,7 +101,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("허용되지 않은 권한을 가진 일반 사용자가 모집글 생성 시 403을 반환한다.")
     void createRecruitment_forbiddenRoles_403(UserRole role) {
         // given
-        club = clubRepository.save(Fixture.createClub());
+        club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         User normalUser = userRepository.save(Fixture.createUserWithRole(role));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
@@ -130,8 +129,8 @@ public class RecruitmentControllerTest extends ControllerTest {
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-                FailMessage.FORBIDDEN.getCode(),
-                FailMessage.FORBIDDEN.getMessage()
+                FailMessage.FORBIDDEN_MANAGE_CLUB.getCode(),
+                FailMessage.FORBIDDEN_MANAGE_CLUB.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -142,7 +141,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("토큰 없이 모집글 생성 요청 시 401을 반환한다.")
     void createRecruitment_withoutToken_shouldReturn401() {
         // given
-        club = clubRepository.save(Fixture.createClub());
+        club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
 
         final CreateRecruitmentRequest request = new CreateRecruitmentRequest(
@@ -180,9 +179,9 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("권한을 가진 관리자는 모집글을 수정할 수 있다.")
     void updateRecruitment_allowedRoles_success(UserRole role) {
         // given
-        club = clubRepository.save(Fixture.createClub());
-        recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         User adminUser = userRepository.save(Fixture.createUserWithRole(role));
+        club = clubRepository.save(Fixture.createClub(university, adminUser));
+        recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
 
         final UpdateRecruitmentRequest request = new UpdateRecruitmentRequest(
@@ -220,7 +219,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("허용되지 않은 권한을 가진 일반 사용자가 모집글 수정 시 403을 반환한다.")
     void updateRecruitment_forbiddenRoles_403(UserRole role) {
         // given
-        club = clubRepository.save(Fixture.createClub());
+        club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         User normalUser = userRepository.save(Fixture.createUserWithRole(role));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
@@ -248,8 +247,8 @@ public class RecruitmentControllerTest extends ControllerTest {
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-                FailMessage.FORBIDDEN.getCode(),
-                FailMessage.FORBIDDEN.getMessage()
+                FailMessage.FORBIDDEN_MANAGE_CLUB.getCode(),
+                FailMessage.FORBIDDEN_MANAGE_CLUB.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -261,9 +260,9 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("권한을 가진 관리자는 모집글을 삭제할 수 있다.")
     void deleteRecruitment_allowedRoles_success(UserRole role) {
         // given
-        club = clubRepository.save(Fixture.createClub());
-        recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         User adminUser = userRepository.save(Fixture.createUserWithRole(role));
+        club = clubRepository.save(Fixture.createClub(university, adminUser));
+        recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
 
         //when
@@ -283,7 +282,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("허용되지 않은 권한을 가진 일반 사용자가 모집글 삭제 시 403을 반환한다.")
     void deleteRecruitment_forbiddenRoles_403(UserRole role) {
         // given
-        club = clubRepository.save(Fixture.createClub());
+        club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         User normalUser = userRepository.save(Fixture.createUserWithRole(role));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
@@ -299,8 +298,8 @@ public class RecruitmentControllerTest extends ControllerTest {
         final int actualStatusCode = response.statusCode();
         final APIErrorResponse actualResponse = response.as(APIErrorResponse.class);
         final APIErrorResponse expectedResponse = new APIErrorResponse(
-                FailMessage.FORBIDDEN.getCode(),
-                FailMessage.FORBIDDEN.getMessage()
+                FailMessage.FORBIDDEN_MANAGE_CLUB.getCode(),
+                FailMessage.FORBIDDEN_MANAGE_CLUB.getMessage()
         );
 
         assertThat(actualStatusCode).isEqualTo(HttpStatus.FORBIDDEN.value());
@@ -311,7 +310,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("특정 동아리의 모든 모집글을 최신순으로 조회한다.")
     void getAllRecruitmentOfClub_shouldReturnNewestFirst() {
         // given
-        club = clubRepository.save(Fixture.createClub());
+        club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         Recruitment olderRecruitment = recruitmentRepository.save(Fixture.createOrderRecruitment(club));
         Recruitment newerRecruitment = recruitmentRepository.save(Fixture.createNewerRecruitment(club));
@@ -344,7 +343,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("동아리의 모집글이 없는 경우 모집글 관련 필드는 null 혹은 빈 값으로 응답한다.")
     void getRecentRecruitmentOfClub_whenNoRecruitment_shouldReturnNullRecruitmentFields() {
         // given
-        club = clubRepository.save(Fixture.createClub());
+        club = clubRepository.save(Fixture.createClub(university));
         User normalUser = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
@@ -380,12 +379,17 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("동아리의 최신 모집글을 조회한다.")
     void getRecentRecruitmentOfClub() {
         // given
-        club = clubRepository.save(Fixture.createClub());
+        club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         User normalUser = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         Recruitment newerRecruitment = recruitmentRepository.save(Fixture.createNewerRecruitment(club));
+
+        // created_at이 초 단위 timestamp라 같은 초에 저장되면 값이 같아지므로 명시적으로 구분한다.
+        ReflectionTestUtils.setField(recruitment, "createdAt", LocalDateTime.now().minusDays(1));
+        ReflectionTestUtils.setField(newerRecruitment, "createdAt", LocalDateTime.now());
+        recruitmentRepository.saveAll(List.of(recruitment, newerRecruitment));
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -408,7 +412,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("특정 모집글을 상세 조회한다.")
     void getSpecificRecruitment() {
         // given
-        club = clubRepository.save(Fixture.createClub());
+        club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         User user = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
         String authorizationForBearer = authorizationForBearerAccessToken(user);
@@ -437,18 +441,18 @@ public class RecruitmentControllerTest extends ControllerTest {
         String authorizationForBearer = authorizationForBearerAccessToken(normaluser);
 
         //필터링에 포함될 동아리 데이터
-        Club club1 = clubRepository.save(Fixture.createClubWithCategoryAndAffiliation(ClubCategory.ACADEMIC_CULTURAL,
+        Club club1 = clubRepository.save(Fixture.createClubWithCategoryAndAffiliation(university,ClubCategory.ACADEMIC_CULTURAL,
                 ClubAffiliation.DEPARTMENT_CLUB));
-        Club club2 = clubRepository.save(Fixture.createClubWithCategoryAndAffiliation(ClubCategory.ACADEMIC_CULTURAL,
+        Club club2 = clubRepository.save(Fixture.createClubWithCategoryAndAffiliation(university,ClubCategory.ACADEMIC_CULTURAL,
                 ClubAffiliation.DEPARTMENT_CLUB));
         recruitmentRepository.save(Fixture.createRecruitment(club1));
         recruitmentRepository.save(Fixture.createRecruitment(club2));
 
         // 필터링에서 걸러질 동아리 데이터
         Club otherClub1 = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(ClubCategory.CULTURAL_ART, ClubAffiliation.CENTRAL_CLUB));
+                Fixture.createClubWithCategoryAndAffiliation(university,ClubCategory.CULTURAL_ART, ClubAffiliation.CENTRAL_CLUB));
         Club otherClub2 = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(ClubCategory.CULTURAL_ART, ClubAffiliation.CENTRAL_CLUB));
+                Fixture.createClubWithCategoryAndAffiliation(university,ClubCategory.CULTURAL_ART, ClubAffiliation.CENTRAL_CLUB));
         recruitmentRepository.save(Fixture.createRecruitment(otherClub1));
         recruitmentRepository.save(Fixture.createRecruitment(otherClub2));
 
@@ -490,10 +494,15 @@ public class RecruitmentControllerTest extends ControllerTest {
         User normalUser = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
-        Club targetClub = clubRepository.save(Fixture.createClub());
+        Club targetClub = clubRepository.save(Fixture.createClub(university));
 
         Recruitment olderRecruitment = recruitmentRepository.save(Fixture.createOrderRecruitment(targetClub));
         Recruitment newerRecruitment = recruitmentRepository.save(Fixture.createNewerRecruitment(targetClub));
+
+        // created_at이 초 단위 timestamp라 같은 초에 저장되면 값이 같아 최신 1건 필터링(MAX(created_at))이 깨지므로 명시적으로 구분한다.
+        ReflectionTestUtils.setField(olderRecruitment, "createdAt", LocalDateTime.now().minusDays(1));
+        ReflectionTestUtils.setField(newerRecruitment, "createdAt", LocalDateTime.now());
+        recruitmentRepository.saveAll(List.of(olderRecruitment, newerRecruitment));
 
         // when
         ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -531,7 +540,7 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         for (int i = 0; i < 11; i++) {
             Club club = clubRepository.save(
-                    Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                    Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
             recruitmentRepository.save(Fixture.createNewerRecruitment(club));
         }
 
@@ -586,17 +595,17 @@ public class RecruitmentControllerTest extends ControllerTest {
         ClubCategory filteringByCategory = ClubCategory.ACADEMIC_CULTURAL;
 
         Club favoriteClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
         Club imminetClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
         Club openClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
         Club alwaysClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
         Club beforeClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
         Club closedClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(filteringByCategory, filteringByAffiliation));
+                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
 
         LocalDateTime now = LocalDateTime.now();
 

@@ -1,6 +1,6 @@
 package com.greedy.mokkoji.notification;
 
-import com.greedy.mokkoji.api.mail.service.EmailService;
+import com.greedy.mokkoji.api.email.service.EmailService;
 import com.greedy.mokkoji.api.scheduler.service.RecruitmentNotificationScheduler;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
@@ -16,6 +16,7 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -61,6 +62,8 @@ public class RecruitmentNotificationSchedulerTest {
                 .description("동아리 설명2")
                 .instagram("동아리 인스타 링크2")
                 .build();
+        ReflectionTestUtils.setField(club1, "id", 1L);
+        ReflectionTestUtils.setField(club2, "id", 2L);
 
         final Recruitment recruitment1 = Recruitment.builder()
                 .club(club1)

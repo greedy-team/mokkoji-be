@@ -546,7 +546,7 @@ public class UserServiceTest {
         Club club2 = Club.builder().name("그리디2").master(user).build();
         ReflectionTestUtils.setField(club2, "id", 2L);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.existsById(userId)).thenReturn(true);
         when(clubRepository.findByMaster_Id(userId)).thenReturn(List.of(club1, club2));
 
         UserManageClubsResponse expectedResponse = new UserManageClubsResponse(
