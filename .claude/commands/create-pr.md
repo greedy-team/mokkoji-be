@@ -1,5 +1,6 @@
 ---
-description: 테스트 통과 확인 후 현재 브랜치 변경사항으로 PR 생성 (base: dev)
+description:
+  테스트 통과 확인 후 현재 브랜치 변경사항으로 PR 생성 (base: dev)
 ---
 
 # 실행 절차
@@ -13,9 +14,9 @@ description: 테스트 통과 확인 후 현재 브랜치 변경사항으로 PR 
 
 * 아래 명령어를 병렬로 동시에 실행
     * `git branch --show-current` (현재 브랜치명 확인 — 이슈번호 추출용)
-    * `git log dev..HEAD --oneline` (이 브랜치의 커밋 목록)
     * `git diff dev...HEAD --stat` (dev 대비 변경 규모)
-* 필요하면 `git diff dev...HEAD <파일>`로 상세 확인
+* 변경 내용은 diff로 파악한다.
+    * `git diff dev...HEAD`로 실제 코드 변경 내용을 확인해 PR 본문을 작성한다.
 * 현재 브랜치가 dev면 안내 후 중단 (PR 대상 아님)
 
 ## 3. 초안 작성
@@ -26,7 +27,7 @@ description: 테스트 통과 확인 후 현재 브랜치 변경사항으로 PR 
     * 2번째 줄: `---`
     * 3번째 줄부터: `.github/pull_request_template.md` 형식의 본문
         * `close #이슈번호`: 브랜치명이 `<접두어>/#<번호>` 형태면 번호를 채우고, 이슈번호를 알 수 없으면 해당 줄은 비워둔다
-        * `작업한 내용`: 커밋·diff 기반으로 채운다
+        * `작업한 내용`: diff 기반으로 채운다 (커밋 메시지 나열이 아니라 실제 변경 내용 요약)
 
 ## 4. 초안 확인 및 선택지 제시
 
