@@ -35,7 +35,7 @@ public class AdminController implements AdminControllerSwagger {
     public ResponseEntity<APISuccessResponse<AdminInfoResponse>> getAdminInfo(
             @Authentication final AuthCredential authCredential
     ) {
-        final AdminInfoResponse response = adminAuthService.getAdminInfo(authCredential.authRole(), authCredential.accountId());
+        final AdminInfoResponse response = adminAuthService.getAdminInfo(authCredential.authRole(), authCredential.adminRole(), authCredential.accountId());
         return APISuccessResponse.of(HttpStatus.OK, response);
     }
 }
