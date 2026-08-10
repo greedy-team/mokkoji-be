@@ -30,6 +30,8 @@ public class AppDataS3Client {
 
     private static final int DELETE_OBJECTS_BATCH_SIZE = 1000;
 
+    private static final String IMAGE_CACHE_CONTROL = "public, max-age=31536000, immutable";
+
     private final S3Presigner s3Presigner;
     private final S3Client s3Client;
     private final String bucketName;
@@ -60,6 +62,7 @@ public class AppDataS3Client {
         final PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(fileKey)
+                .cacheControl(IMAGE_CACHE_CONTROL)
                 .build();
 
         final PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
