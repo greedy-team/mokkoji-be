@@ -88,10 +88,6 @@ public class Club extends BaseTime {
         this.master = nextMaster;
     }
 
-    public void increaseViewCount() {
-        this.viewCount = this.viewCount + 1;
-    }
-
     public void updateIfPresent(
             String name,
             ClubCategory category,

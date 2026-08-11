@@ -23,6 +23,7 @@ import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,9 @@ public class ClubService {
     private final FavoriteRepository favoriteRepository;
     private final AppDataS3Client appDataS3Client;
     private final ManageAuthorizer clubManageAuthorizer;
+
+    @Value("${mokkoji.view-count.enabled:true}")
+    private boolean viewCountEnabled;
 
     private static PageResponse createPageResponse(Pageable pageable, int totalElements) {
         int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
@@ -65,7 +69,9 @@ public class ClubService {
 
         final Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
-        club.increaseViewCount();
+        if (viewCountEnabled) {
+            clubRepository.increaseViewCount(clubId);
+        }
         final Recruitment recruitment = recruitmentRepository
                 .findTopByClubIdOrderByCreatedAtDesc(club.getId())
                 .orElse(null);
