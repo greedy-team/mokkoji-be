@@ -374,6 +374,7 @@ public class RecruitmentServiceTest {
                 .image("새 그리디 모집글 이미지.jpg")
                 .build();
 
+        given(clubRepository.findById(1L)).willReturn(Optional.of(club));
         given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(1L))
                 .willReturn(Optional.of(newerRecruitment));
         given(recruitmentImageRepository.findByRecruitmentIdOrderByCreatedAtAsc(2L))

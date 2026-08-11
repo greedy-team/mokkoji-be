@@ -26,6 +26,9 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+### Claude Code ###
+.claude/tmp/
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/

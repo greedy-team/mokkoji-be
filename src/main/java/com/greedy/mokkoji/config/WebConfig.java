@@ -25,7 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
             "/recruitments/**",
             "/comments/**",
             "/universities/**",
-            "/test/health-check/**"
+            "/test/health-check/**",
+            "/feedbacks/**"
     );
 
     private final Set<String> swaggerExcludedPaths = Set.of(

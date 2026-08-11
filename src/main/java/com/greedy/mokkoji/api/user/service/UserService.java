@@ -45,7 +45,7 @@ public class UserService {
     private final TokenService tokenService;
     private final KakaoSocialLoginService kakaoSocialLoginService;
 
-    public LoginResponse kakaoLogin(final String code, final String redirectUri) {
+    public LoginResponse kakaoLogin(final String code, final String redirectUri, final UniversityCode universityCode) {
         final KakaoUserInfoResponse kakaoUserInfo = kakaoSocialLoginService.login(code, redirectUri);
         final String kakaoId = kakaoUserInfo.id();
         final String name = kakaoUserInfo.nickname();
@@ -55,6 +55,7 @@ public class UserService {
         final User user = existingUser.orElseGet(
                 () -> userRepository.save(
                         User.builder()
+                                .university(findUniversityOrThrow(universityCode))
                                 .code(RandomStringUtils.randomAlphanumeric(6))
                                 .kakaoId(kakaoId)
                                 .name(name)
@@ -82,7 +83,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserInformation(Long userId, String name, String email, Boolean isEmailOn, UniversityCode universityCode, Boolean clearUniversityCode) {
+    public void updateUserInformation(Long userId, String name, String email, Boolean isEmailOn, UniversityCode universityCode) {
         User user = findUser(userId);
 
         if (name != null) {
@@ -95,12 +96,6 @@ public class UserService {
 
         if (isEmailOn != null) {
             user.updateEmailOn(isEmailOn);
-        }
-
-        if (Boolean.TRUE.equals(clearUniversityCode)) {
-            favoriteRepository.deleteByUserId(userId);
-            user.updateUniversity(null);
-            return;
         }
 
         if (universityCode != null) {
@@ -174,7 +169,6 @@ public class UserService {
     }
 
     private boolean isDifferentUniversity(final User user, final University university) {
-        return user.getUniversity() == null
-                || !user.getUniversity().getId().equals(university.getId());
+        return !user.getUniversity().getId().equals(university.getId());
     }
 }

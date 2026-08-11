@@ -1,7 +1,5 @@
 package com.greedy.mokkoji.api.feedback.controller;
 
-import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
-import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.feedback.dto.request.FeedbackRequest;
 import com.greedy.mokkoji.api.feedback.service.FeedbackService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
@@ -22,12 +20,11 @@ public class FeedbackController implements FeedbackControllerSwagger {
 
     @PostMapping
     public ResponseEntity<APISuccessResponse<Void>> createFeedback(
-            @Authentication final AuthCredential authCredential,
             @RequestBody final FeedbackRequest feedbackRequest
     ) {
         return APISuccessResponse.of(
                 HttpStatus.CREATED,
-                feedbackService.createFeedback(authCredential.accountId(), feedbackRequest.rating(), feedbackRequest.content())
+                feedbackService.createFeedback(feedbackRequest.rating(), feedbackRequest.content())
         );
     }
 }

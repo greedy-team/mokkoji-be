@@ -42,11 +42,6 @@ public class UserControllerTest extends ControllerTest {
 
     @BeforeEach
     void setUp() {
-        favoriteRepository.deleteAll();
-        recruitmentRepository.deleteAll();
-        clubRepository.deleteAll();
-        userRepository.deleteAll();
-        universityRepository.deleteAll();
         prepareData();
     }
 
@@ -172,7 +167,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final String updatedEmail = "updatedEmail@test.com";
-        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, updatedEmail, null, null);
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, updatedEmail, null, null, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -195,7 +190,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final String invalidUpdatedEmail = "updatedEmail.com";
-        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, invalidUpdatedEmail, null, null);
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, invalidUpdatedEmail, null, null, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -219,7 +214,7 @@ public class UserControllerTest extends ControllerTest {
         universityRepository.save(Fixture.createUniversity());
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final UpdateUserInformationRequest updateUserInformationRequest =
-                new UpdateUserInformationRequest(null, null, null, UniversityCode.SEJONG);
+                new UpdateUserInformationRequest(null, null, null, UniversityCode.SEJONG, null);
 
         // when
         RestAssured.given().log().all()
@@ -249,7 +244,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final UpdateUserInformationRequest updateUserInformationRequest =
-                new UpdateUserInformationRequest(null, null, null, UniversityCode.KONKUK);
+                new UpdateUserInformationRequest(null, null, null, UniversityCode.KONKUK, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()

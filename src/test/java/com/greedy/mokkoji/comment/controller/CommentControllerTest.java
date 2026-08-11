@@ -11,6 +11,7 @@ import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.common.response.APIErrorResponse;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.comment.entity.Comment;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import io.restassured.response.ExtractableResponse;
@@ -31,24 +32,21 @@ public class CommentControllerTest extends ControllerTest {
 
     private User user;
     private User anotherUser;
+    private University university;
     private Club club;
     private Club anotherClub;
 
     @BeforeEach
     void setUp() {
-        commentRepository.deleteAll();
-        favoriteRepository.deleteAll();
-        recruitmentRepository.deleteAll();
-        clubRepository.deleteAll();
-        userRepository.deleteAll();
         prepareData();
     }
 
     private void prepareData() {
         user = userRepository.save(Fixture.createUser());
         anotherUser = userRepository.save(Fixture.createAnotherUser());
-        club = clubRepository.save(Fixture.createClub());
-        anotherClub = clubRepository.save(Fixture.createAnotherClub());
+        university = universityRepository.save(Fixture.createUniversity());
+        club = clubRepository.save(Fixture.createClub(university));
+        anotherClub = clubRepository.save(Fixture.createAnotherClub(university));
     }
 
     @Test
