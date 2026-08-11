@@ -52,6 +52,9 @@ public class Club extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     private User master;
 
+    @Column(name = "view_count", columnDefinition = "bigint", nullable = false)
+    private Long viewCount = 0L;
+
     @Builder
     public Club(
             final String name,
@@ -83,6 +86,10 @@ public class Club extends BaseTime {
 
     public void updateMaster(final User nextMaster) {
         this.master = nextMaster;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount = this.viewCount + 1;
     }
 
     public void updateIfPresent(

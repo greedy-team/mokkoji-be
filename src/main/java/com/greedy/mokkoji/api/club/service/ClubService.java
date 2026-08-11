@@ -60,11 +60,12 @@ public class ClubService {
         );
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ClubDetailResponse findClub(final Long userId, final Long clubId) {
 
         final Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
+        club.increaseViewCount();
         final Recruitment recruitment = recruitmentRepository
                 .findTopByClubIdOrderByCreatedAtDesc(club.getId())
                 .orElse(null);
