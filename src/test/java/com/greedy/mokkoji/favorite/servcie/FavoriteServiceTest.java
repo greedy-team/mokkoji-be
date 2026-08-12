@@ -299,7 +299,7 @@ public class FavoriteServiceTest {
         );
 
         BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
-        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
+        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByClubIds(List.of(1L)))
                 .willReturn(List.of(recruitment3));
 
         // when
@@ -316,7 +316,7 @@ public class FavoriteServiceTest {
         assertThat(response.recruitEnd()).isEqualTo("2025-03-30T12:00:00");
 
         BDDMockito.verify(favoriteRepository, times(1)).findClubIdsByUserId(1L);
-        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByFavoriteClubs(List.of(1L));
+        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByClubIds(List.of(1L));
     }
 
     @DisplayName("특정 연월에 모집 중인 즐겨찾기 동아리의 최신 모집 정보를 조회한다. - 모집 마감일이 겹치는 경우")
@@ -371,7 +371,7 @@ public class FavoriteServiceTest {
         );
 
         BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
-        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
+        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByClubIds(List.of(1L)))
                 .willReturn(List.of(recruitment3));
 
         // when
@@ -388,7 +388,7 @@ public class FavoriteServiceTest {
         assertThat(response.recruitEnd()).isEqualTo("2025-03-30T12:00:00");
 
         BDDMockito.verify(favoriteRepository, times(1)).findClubIdsByUserId(1L);
-        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByFavoriteClubs(List.of(1L));
+        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByClubIds(List.of(1L));
     }
 
 
@@ -444,7 +444,7 @@ public class FavoriteServiceTest {
         );
 
         BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
-        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
+        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByClubIds(List.of(1L)))
                 .willReturn(List.of(recruitment3));
 
         // when
