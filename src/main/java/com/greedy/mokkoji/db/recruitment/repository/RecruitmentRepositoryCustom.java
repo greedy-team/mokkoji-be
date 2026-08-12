@@ -15,5 +15,5 @@ public interface RecruitmentRepositoryCustom {
             final Pageable pageable
     );
 
-    public List<Recruitment> findLatestRecruitmentsByFavoriteClubs(List<Long> favoriteClubIds);
+    public List<Recruitment> findLatestRecruitmentsByClubIds(List<Long> clubIds);
 }
