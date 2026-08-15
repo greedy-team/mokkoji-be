@@ -53,7 +53,7 @@ public class ClubControllerTest extends ControllerTest {
 
     private void prepareData() {
         university = universityRepository.save(Fixture.createUniversity());
-        user = userRepository.save(Fixture.createUser());
+        user = userRepository.save(Fixture.createUser(university));
         club = clubRepository.save(Fixture.createClub(university));
         favorite = favoriteRepository.save(Fixture.createFavorite(club, user));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
@@ -157,7 +157,7 @@ public class ClubControllerTest extends ControllerTest {
     @DisplayName("동아리장은 자신이 관리 중인 동아리 정보를 수정할 수 있다.")
     void updateClub() {
         //given
-        final User clubMasterUser = userRepository.save(Fixture.createUserWithRole(UserRole.CLUB_MASTER));
+        final User clubMasterUser = userRepository.save(Fixture.createUserWithRole(university, UserRole.CLUB_MASTER));
         final Club managedClub = Fixture.createClub(university, clubMasterUser);
         ReflectionTestUtils.setField(managedClub, "logo", "logo.jpg");
         clubRepository.save(managedClub);
@@ -232,7 +232,7 @@ public class ClubControllerTest extends ControllerTest {
     @DisplayName("동아리장이 아닌 사용자가 동아리를 수정하면 403을 반환한다")
     void updateClubForbidden() {
         //given
-        final User normalUser = userRepository.save(Fixture.createAnotherUser());
+        final User normalUser = userRepository.save(Fixture.createAnotherUser(university));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         final ClubUpdateRequest request = new ClubUpdateRequest(
