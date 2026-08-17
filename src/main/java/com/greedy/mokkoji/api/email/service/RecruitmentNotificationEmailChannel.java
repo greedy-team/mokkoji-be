@@ -1,13 +1,19 @@
 package com.greedy.mokkoji.api.email.service;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.greedy.mokkoji.enums.message.FailMessage.*;
 
@@ -23,25 +29,52 @@ public class RecruitmentNotificationEmailChannel extends AbstractEmailSender imp
 
     @Async("emailExecutor")
     @Override
-    public void sendNotification(
-            final List<String> receiverMails,
-            final Long clubId,
-            final String clubName,
-            final LocalDateTime recruitStartTime,
-            final LocalDateTime recruitEndTime
-    ) {
-        String subject = clubName + SUBJECT_SUFFIX;
-        String htmlContent = generateHtmlText(clubId, clubName, recruitStartTime, recruitEndTime);
-        int receiverCount = receiverMails.size();
+    public void sendBatchNotification(List<RecruitmentMailPayload> payloads) {
+        List<MimeMessage> messages = new ArrayList<>();
+        List<RecruitmentMailPayload> builtPayloads = new ArrayList<>();
 
-        sendEmailInternal(
-                receiverMails,
-                subject,
-                htmlContent,
-                () -> discordNotifier.notifyRecruitmentNotificationEmailFailure(clubId, clubName, receiverCount, INTERNAL_SERVER_ERROR_SMTP_MAIL.getMessage()),
-                () -> discordNotifier.notifyRecruitmentNotificationEmailFailure(clubId, clubName, receiverCount, INTERNAL_SERVER_ERROR_SMTP.getMessage()),
-                () -> discordNotifier.notifyRecruitmentNotificationEmailFailure(clubId, clubName, receiverCount, INTERNAL_SERVER_ERROR.getMessage())
-        );
+        for (RecruitmentMailPayload payload : payloads) {
+            try {
+                String subject = payload.clubName() + SUBJECT_SUFFIX;
+                String html = generateHtmlText(payload.clubId(), payload.clubName(), payload.recruitStart(), payload.recruitEnd());
+                messages.add(buildMimeMessage(subject, html, payload.receiverMails()));
+                builtPayloads.add(payload);
+            } catch (MessagingException | UnsupportedEncodingException e) {
+                log.error("[MAIL GENERATING ERROR] clubId={} message={}", payload.clubId(), e.getMessage(), e);
+                discordNotifier.notifyRecruitmentNotificationEmailFailure(
+                        payload.clubId(), payload.clubName(), payload.receiverMails().size(),
+                        INTERNAL_SERVER_ERROR_SMTP_MAIL.getMessage()
+                );
+            }
+        }
+
+        if (messages.isEmpty()) {
+            return;
+        }
+
+        try {
+            mailSender.send(messages.toArray(new MimeMessage[0]));
+        } catch (MailSendException e) {
+            Map<Object, Exception> failedMessages = e.getFailedMessages();
+            for (int i = 0; i < messages.size(); i++) {
+                if (failedMessages.containsKey(messages.get(i))) {
+                    RecruitmentMailPayload payload = builtPayloads.get(i);
+                    log.error("[MAIL SEND FAILED] clubId={} message={}", payload.clubId(), e.getMessage(), e);
+                    discordNotifier.notifyRecruitmentNotificationEmailFailure(
+                            payload.clubId(), payload.clubName(), payload.receiverMails().size(),
+                            INTERNAL_SERVER_ERROR_SMTP.getMessage()
+                    );
+                }
+            }
+        } catch (Exception e) {
+            log.error("[EMAIL UNEXPECTED ERROR]", e);
+            builtPayloads.forEach(payload ->
+                    discordNotifier.notifyRecruitmentNotificationEmailFailure(
+                            payload.clubId(), payload.clubName(), payload.receiverMails().size(),
+                            INTERNAL_SERVER_ERROR.getMessage()
+                    )
+            );
+        }
     }
 
     private String generateHtmlText(Long clubId, String clubName, LocalDateTime recruitStart, LocalDateTime recruitEnd) {
