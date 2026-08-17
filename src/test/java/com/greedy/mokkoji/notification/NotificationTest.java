@@ -97,4 +97,77 @@ public class NotificationTest {
         BDDMockito.verify(recruitmentNotificationChannel, times(1))
                 .sendBatchNotification(any());
     }
+
+    @Test
+    @DisplayName("이메일 수신 거부 사용자는 알림에서 제외된다")
+    void 이메일_수신_거부_사용자는_알림에서_제외된다() {
+        // given
+        final User emailOffUser = User.builder()
+                .name("수신거부사용자")
+                .email("off@test.com")
+                .isEmailOn(false)
+                .build();
+
+        final Club club = Club.builder()
+                .name("동아리 이름")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.CULTURAL_ART)
+                .logo("로고")
+                .description("설명")
+                .instagram("인스타")
+                .build();
+
+        final Recruitment recruitment = Recruitment.builder()
+                .club(club)
+                .content("소개글")
+                .recruitStart(LocalDateTime.now())
+                .recruitEnd(LocalDateTime.now().plusDays(10))
+                .build();
+
+        final Favorite favorite = Favorite.builder()
+                .user(emailOffUser)
+                .club(club)
+                .build();
+
+        BDDMockito.given(favoriteRepository.findByClubIdWithFetchJoin(any()))
+                .willReturn(List.of(favorite));
+
+        // when
+        emailService.sendBatchRecruitmentNotifications(List.of(recruitment));
+
+        // then — 수신 거부 사용자만 있으므로 채널 호출 없음
+        BDDMockito.verify(recruitmentNotificationChannel, times(0))
+                .sendBatchNotification(any());
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 사용자가 없으면 채널을 호출하지 않는다")
+    void 즐겨찾기_사용자가_없으면_채널을_호출하지_않는다() {
+        // given
+        final Club club = Club.builder()
+                .name("동아리 이름")
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .clubCategory(ClubCategory.CULTURAL_ART)
+                .logo("로고")
+                .description("설명")
+                .instagram("인스타")
+                .build();
+
+        final Recruitment recruitment = Recruitment.builder()
+                .club(club)
+                .content("소개글")
+                .recruitStart(LocalDateTime.now())
+                .recruitEnd(LocalDateTime.now().plusDays(10))
+                .build();
+
+        BDDMockito.given(favoriteRepository.findByClubIdWithFetchJoin(any()))
+                .willReturn(List.of());
+
+        // when
+        emailService.sendBatchRecruitmentNotifications(List.of(recruitment));
+
+        // then
+        BDDMockito.verify(recruitmentNotificationChannel, times(0))
+                .sendBatchNotification(any());
+    }
 }
