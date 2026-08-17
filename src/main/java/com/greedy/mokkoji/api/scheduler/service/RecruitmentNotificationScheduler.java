@@ -1,7 +1,6 @@
 package com.greedy.mokkoji.api.scheduler.service;
 
 import com.greedy.mokkoji.api.email.service.EmailService;
-import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,6 @@ public class RecruitmentNotificationScheduler {
         final LocalDate threeDaysLater = today.plusDays(3);
 
         List<Recruitment> recruitments = new ArrayList<>(recruitmentRepository.findAllByRecruitStartToday(today));
-
         recruitments.addAll(recruitmentRepository.findAllByRecruitEndToday(today));
         recruitments.addAll(recruitmentRepository.findAllByRecruitEndInThreeDays(threeDaysLater));
 
@@ -39,24 +37,16 @@ public class RecruitmentNotificationScheduler {
                 .collect(Collectors.toMap(
                         recruitment -> recruitment.getClub().getId(),
                         recruitment -> recruitment,
-                        (recruitment1, recruitment2) ->
-                                recruitment1.getCreatedAt().isAfter(recruitment2.getCreatedAt())
-                                        ? recruitment1
-                                        : recruitment2
+                        (r1, r2) -> r1.getCreatedAt().isAfter(r2.getCreatedAt()) ? r1 : r2
                 ))
                 .values()
                 .stream()
                 .toList();
 
-        uniqueAndLatestRecruitments.forEach(recruitment -> {
-            Club club = recruitment.getClub();
-            try {
-                emailService.sendRecruitmentNotification(club.getId(), club.getName(), recruitment);
-            } catch (Exception e) {
-                log.error("[RECRUITMENT NOTI SUBMIT FAILED] clubId={} recruitmentId={} msg={}",
-                        club.getId(), recruitment.getId(), e.getMessage(), e);
-            }
-        });
+        try {
+            emailService.sendBatchRecruitmentNotifications(uniqueAndLatestRecruitments);
+        } catch (Exception e) {
+            log.error("[RECRUITMENT NOTI SUBMIT FAILED] msg={}", e.getMessage(), e);
+        }
     }
 }
-
