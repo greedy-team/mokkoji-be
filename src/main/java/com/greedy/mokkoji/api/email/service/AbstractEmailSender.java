@@ -4,7 +4,6 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
@@ -32,35 +31,15 @@ public abstract class AbstractEmailSender {
         this.discordNotifier = discordNotifier;
     }
 
-    protected void sendEmailInternal(
-            List<String> receiverMails,
-            String subject,
-            String htmlContent,
-            Runnable messagingErrorHandler,
-            Runnable mailErrorHandler,
-            Runnable unexpectedErrorHandler
-    ) {
-        try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-
-            helper.setFrom(senderMail, SENDER_NAME);
-            helper.setTo(OFFICIAL_EMAIL);
-            helper.setBcc(receiverMails.toArray(new String[0]));
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-
-            mailSender.send(mimeMessage);
-        } catch (MessagingException | UnsupportedEncodingException e) {
-            log.error("[MAIL GENERATING ERROR] message={}", e.getMessage(), e);
-            messagingErrorHandler.run();
-        } catch (MailException e) {
-            log.error("[MAIL SEND FAILED] message={}", e.getMessage(), e);
-            mailErrorHandler.run();
-        } catch (Exception e) {
-            log.error("[EMAIL UNEXPECTED ERROR]", e);
-            unexpectedErrorHandler.run();
-        }
+    protected MimeMessage buildMimeMessage(String subject, String htmlContent, List<String> receiverMails)
+            throws MessagingException, UnsupportedEncodingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+        helper.setFrom(senderMail, SENDER_NAME);
+        helper.setTo(OFFICIAL_EMAIL);
+        helper.setBcc(receiverMails.toArray(new String[0]));
+        helper.setSubject(subject);
+        helper.setText(htmlContent, true);
+        return mimeMessage;
     }
 }
-
