@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.notification;
 
+import com.greedy.mokkoji.api.email.service.RecruitmentMailPayload;
 import com.greedy.mokkoji.api.email.service.RecruitmentNotificationChannel;
 import com.greedy.mokkoji.api.email.service.EmailService;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -54,7 +55,6 @@ public class NotificationTest {
                 .isEmailOn(true)
                 .build();
 
-
         final Club club = Club.builder()
                 .name("동아리 이름")
                 .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
@@ -85,17 +85,16 @@ public class NotificationTest {
                 .willReturn(List.of(favorite1, favorite2));
 
         BDDMockito.doNothing().when(recruitmentNotificationChannel)
-                .sendNotification(any(), any(), any(), any(), any());
+                .sendBatchNotification(any());
 
         // when
-        emailService.sendRecruitmentNotification(club.getId(), club.getName(), recruitment);
+        emailService.sendBatchRecruitmentNotifications(List.of(recruitment));
 
         // then
         BDDMockito.verify(favoriteRepository, times(1))
                 .findByClubIdWithFetchJoin(any());
 
         BDDMockito.verify(recruitmentNotificationChannel, times(1))
-                .sendNotification(any(), any(), any(), any(), any());
-
+                .sendBatchNotification(any());
     }
 }

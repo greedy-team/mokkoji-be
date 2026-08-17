@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.notification;
 
+import com.greedy.mokkoji.api.email.service.RecruitmentMailPayload;
 import com.greedy.mokkoji.api.email.service.RecruitmentNotificationEmailChannel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -26,18 +27,19 @@ public class EmailNotificationRealTest {
     @Test
     @DisplayName("수신자 이메일 노출 확인")
     void checkEmailExposure() {
-
         List<String> receiverMails = Arrays.stream(receivers.split(","))
                 .map(String::trim)
                 .filter(s -> !s.isBlank())
                 .toList();
 
-        recruitmentNotificationEmailChannel.sendNotification(
-                receiverMails,
-                1L,
-                "수신자 노출 테스트",
-                LocalDateTime.now(),
-                LocalDateTime.now().plusDays(7)
-        );
+        recruitmentNotificationEmailChannel.sendBatchNotification(List.of(
+                new RecruitmentMailPayload(
+                        1L,
+                        "수신자 노출 테스트",
+                        receiverMails,
+                        LocalDateTime.now(),
+                        LocalDateTime.now().plusDays(7)
+                )
+        ));
     }
 }

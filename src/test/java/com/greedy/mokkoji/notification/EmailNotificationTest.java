@@ -1,5 +1,7 @@
 package com.greedy.mokkoji.notification;
 
+import com.greedy.mokkoji.api.email.service.DiscordNotifier;
+import com.greedy.mokkoji.api.email.service.RecruitmentMailPayload;
 import com.greedy.mokkoji.api.email.service.RecruitmentNotificationEmailChannel;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
@@ -28,30 +30,36 @@ public class EmailNotificationTest {
     @Mock
     private JavaMailSender mailSender;
 
+    @Mock
+    private DiscordNotifier discordNotifier;
+
     @BeforeEach
     void setUp() {
-        // TODO:: 다른 방법 생각해보기
         ReflectionTestUtils.setField(recruitmentNotificationEmailChannel, "senderMail", "test@mokkoji.com");
+        ReflectionTestUtils.setField(recruitmentNotificationEmailChannel, "baseUrl", "https://mokkoji.com");
+        ReflectionTestUtils.setField(recruitmentNotificationEmailChannel, "mailBannerUrl", "https://mokkoji.com/banner.png");
     }
 
     @Test
     @DisplayName("이메일 알림이 발송된다")
     void sendNotificationTest() {
         // given
-        final List<String> receiverMails = List.of("test@test.com");
-        final Long clubId = 1L;
-        final String clubName = "테스트";
-        final LocalDateTime recruitStart = LocalDateTime.now();
-        final LocalDateTime recruitEnd = LocalDateTime.now().plusDays(7);
+        RecruitmentMailPayload payload = new RecruitmentMailPayload(
+                1L,
+                "테스트",
+                List.of("test@test.com"),
+                LocalDateTime.now(),
+                LocalDateTime.now().plusDays(7)
+        );
 
-        final MimeMessage mimeMessage = new MimeMessage((Session) null);
+        MimeMessage mimeMessage = new MimeMessage((Session) null);
         BDDMockito.when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-        BDDMockito.doNothing().when(mailSender).send(any(MimeMessage.class));
+        BDDMockito.doNothing().when(mailSender).send(any(MimeMessage[].class));
 
         // when
-        recruitmentNotificationEmailChannel.sendNotification(receiverMails, clubId, clubName, recruitStart, recruitEnd);
+        recruitmentNotificationEmailChannel.sendBatchNotification(List.of(payload));
 
         // then
-        BDDMockito.verify(mailSender, times(1)).send(any(MimeMessage.class));
+        BDDMockito.verify(mailSender, times(1)).send(any(MimeMessage[].class));
     }
 }
