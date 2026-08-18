@@ -2,10 +2,6 @@ package com.greedy.mokkoji.api.recruitment.service;
 
 import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
-import com.greedy.mokkoji.api.pagination.dto.PageResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.ClubPreviewResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.RecruitmentPreviewResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
@@ -22,13 +18,9 @@ import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
-import com.greedy.mokkoji.enums.club.ClubAffiliation;
-import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.recruitment.RecruitStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,15 +37,6 @@ public class RecruitmentService {
     private final AppDataS3Client appDataS3Client;
     private final FavoriteRepository favoriteRepository;
     private final ManageAuthorizer clubManageAuthorizer;
-
-    private static PageResponse createPageResponse(Page<Recruitment> recruitmentPage) {
-        return PageResponse.of(
-                recruitmentPage.getNumber() + 1,
-                recruitmentPage.getSize(),
-                recruitmentPage.getTotalPages(),
-                (int) recruitmentPage.getTotalElements()
-        );
-    }
 
     @Transactional
     public CreateRecruitmentResponse createRecruitment(
@@ -196,21 +179,6 @@ public class RecruitmentService {
         );
     }
 
-    @Transactional
-    public AllRecruitmentResponse getAllRecruitment(final Long userId, final ClubAffiliation affiliation,
-                                                    final ClubCategory category,
-                                                    final Pageable pageable) {
-
-        Page<Recruitment> recruitmentPage = recruitmentRepository.findRecruitments(affiliation, category, pageable);
-        List<Recruitment> filteredRecruitments = recruitmentPage.getContent();
-
-        List<RecruitmentPreviewResponse> recruitmentResponses = mapToRecruitmentResponses(userId, filteredRecruitments);
-
-        PageResponse pageResponse = createPageResponse(recruitmentPage);
-
-        return new AllRecruitmentResponse(recruitmentResponses, pageResponse);
-    }
-
     private Recruitment buildAndSaveRecruitment(Club club, String title, String content,
                                                 LocalDateTime recruitStart, LocalDateTime recruitEnd,
                                                 String recruitForm, boolean isAlwaysRecruiting) {
@@ -349,60 +317,6 @@ public class RecruitmentService {
                 false                                         // isAlwaysRecruiting
         );
     }
-
-    private List<RecruitmentPreviewResponse> mapToRecruitmentResponses(Long userId,
-                                                                       List<Recruitment> filteredRecruitments) {
-        return filteredRecruitments.stream()
-                .map(recruitment -> mapToRecruitmentPreviewResponse(userId, recruitment))
-                .sorted(recruitmentPriorityComparator(userId))
-                .toList();
-    }
-
-    private RecruitmentPreviewResponse mapToRecruitmentPreviewResponse(Long userId, Recruitment recruitment) {
-        boolean isFavorite = isFavorite(userId, recruitment.getClub().getId());
-
-        ClubPreviewResponse clubPreview = new ClubPreviewResponse(
-                recruitment.getClub().getId(),
-                recruitment.getClub().getName(),
-                recruitment.getClub().getDescription(),
-                recruitment.getClub().getClubCategory(),
-                recruitment.getClub().getClubAffiliation(),
-                appDataS3Client.getPublicUrl(recruitment.getClub().getLogo())
-        );
-
-        return new RecruitmentPreviewResponse(
-                clubPreview,
-                recruitment.getId(),
-                recruitment.getTitle(),
-                recruitment.getRecruitStart(),
-                recruitment.getRecruitEnd(),
-                RecruitStatus.from(recruitment.isAlwaysRecruiting(), recruitment.getRecruitStart(),
-                        recruitment.getRecruitEnd()),
-                isFavorite,
-                recruitment.isAlwaysRecruiting()
-        );
-    }
-
-    // 즐겨찾기 여부 → 모집 상태 → 마감일 순으로 정렬하는 Comparator 생성
-    private Comparator<RecruitmentPreviewResponse> recruitmentPriorityComparator(Long userId) {
-        Comparator<RecruitmentPreviewResponse> comparator =
-                Comparator.comparing(
-                                (RecruitmentPreviewResponse response) ->
-                                        RecruitStatus.from(response.isAlwaysRecruiting(), response.recruitStart(),
-                                                        response.recruitEnd())
-                                                .getPriority()
-                        )
-                        .thenComparing(RecruitmentPreviewResponse::recruitEnd,
-                                Comparator.nullsLast(LocalDateTime::compareTo));
-
-        if (userId != null) {
-            comparator = Comparator.comparing(RecruitmentPreviewResponse::isFavorite).reversed()
-                    .thenComparing(comparator);
-        }
-
-        return comparator;
-    }
-
 
     private Comparator<Recruitment> newestFirstRecruitmentComparator() {
         return Comparator.comparing(Recruitment::getCreatedAt).reversed()
