@@ -4,6 +4,7 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.db.user.repository.RedisRepository;
+import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,8 +20,8 @@ public class TokenService {
     private final RedisRepository redisRepository;
     private final JwtUtil jwtUtil;
 
-    public TokenPair issueTokens(final AuthRole authRole, final Long accountId) {
-        final AuthCredential credential = new AuthCredential(authRole, accountId);
+    public TokenPair issueTokens(final AuthRole authRole, final AdminRole adminRole, final Long accountId) {
+        final AuthCredential credential = new AuthCredential(authRole, adminRole, accountId);
         final String accessToken = jwtUtil.generateAccessToken(credential);
         final String refreshToken = jwtUtil.generateRefreshToken(credential);
         saveRefreshToken(authRole, accountId, refreshToken);

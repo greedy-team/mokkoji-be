@@ -51,7 +51,7 @@ public class TokenServiceTest {
         doNothing().when(redisRepository).save(anyString(), anyString(), anyLong());
 
         // when
-        TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, expected.getId());
+        TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, null, expected.getId());
 
         // then
         assertThat(tokenPair).isNotNull();
@@ -77,7 +77,7 @@ public class TokenServiceTest {
         when(jwtUtil.generateRefreshToken(any(AuthCredential.class))).thenReturn("mockRefreshToken");
         doNothing().when(redisRepository).save(anyString(), anyString(), anyLong());
 
-        tokenService.issueTokens(AuthRole.USER, userId);
+        tokenService.issueTokens(AuthRole.USER, null, userId);
 
         //when
         tokenService.deleteRefreshToken(AuthRole.USER, userId);
