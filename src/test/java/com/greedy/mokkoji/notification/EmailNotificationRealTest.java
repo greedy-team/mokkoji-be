@@ -1,6 +1,7 @@
 package com.greedy.mokkoji.notification;
 
 import com.greedy.mokkoji.api.email.service.RecruitmentNotificationEmailChannel;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ public class EmailNotificationRealTest {
                 receiverMails,
                 1L,
                 "수신자 노출 테스트",
+                UniversityCode.SEJONG,
                 LocalDateTime.now(),
                 LocalDateTime.now().plusDays(7)
         );
