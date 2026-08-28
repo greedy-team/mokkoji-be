@@ -18,14 +18,16 @@ public class PreparedStatementProxyHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        countQuery(method);
-        return method.invoke(preparedStatement, args);
-    }
-
-    private void countQuery(Method method) {
         if (isExecuteMethod(method) && isRequest()) {
             queryCounter.increaseCount();
+            final long start = System.nanoTime();
+            try {
+                return method.invoke(preparedStatement, args);
+            } finally {
+                queryCounter.addQueryTime(System.nanoTime() - start);
+            }
         }
+        return method.invoke(preparedStatement, args);
     }
 
     private boolean isExecuteMethod(Method method) {

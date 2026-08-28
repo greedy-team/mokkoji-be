@@ -2,6 +2,7 @@ package com.greedy.mokkoji.common.handler;
 
 import com.greedy.mokkoji.common.log.CommonLogInformation;
 import com.greedy.mokkoji.common.log.query.QueryCounter;
+import com.greedy.mokkoji.common.log.query.QueryMetricsRecorder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.HandlerMapping;
 
 @Slf4j
 @Component
@@ -19,8 +21,11 @@ public class RequestLogInterceptor implements HandlerInterceptor {
     private static final double TOTAL_TIME_WARNING_STANDARD_MS = 0.25;
     private static final double TIME_CONVERSION_MS_TO_SEC = 1000.0;
 
+    private static final String UNMATCHED_URI_TAG = "UNKNOWN";
+
     private final QueryCounter queryCounter;
     private final CommonLogInformation commonLogInformation;
+    private final QueryMetricsRecorder queryMetricsRecorder;
 
     @Override
     public boolean preHandle(
@@ -55,6 +60,15 @@ public class RequestLogInterceptor implements HandlerInterceptor {
                     status, duration);
         }
         warnAboutQuery(queryCount, duration);
+        queryMetricsRecorder.record(request.getMethod(), resolveUriPattern(request), queryCount, queryCounter.getQueryTimeNanos());
+    }
+
+    private String resolveUriPattern(final HttpServletRequest request) {
+        final Object pattern = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+        if (pattern == null) {
+            return UNMATCHED_URI_TAG;
+        }
+        return pattern.toString();
     }
 
     private void warnAboutQuery(Long queryCount, double duration) {

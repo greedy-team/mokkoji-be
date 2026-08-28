@@ -12,8 +12,13 @@ import org.springframework.web.context.annotation.RequestScope;
 public class QueryCounter {
     private final Long time = System.currentTimeMillis();
     private Long count = 0L;
+    private Long queryTimeNanos = 0L;
 
     public void increaseCount() {
         count++;
+    }
+
+    public void addQueryTime(final long nanos) {
+        queryTimeNanos += nanos;
     }
 }
