@@ -11,5 +11,7 @@ services:
     image: mokkojiteam/mokkoji:dev
     ports:
       - "8080:8080"
+    environment:
+      JAVA_TOOL_OPTIONS: "-XX:+UseG1GC"
     depends_on:
       - redis

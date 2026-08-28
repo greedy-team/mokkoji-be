@@ -4,7 +4,6 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.Authentication;
 import com.greedy.mokkoji.api.recruitment.dto.request.CreateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.request.UpdateRecruitmentRequest;
-import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.AllRecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.createRecruitment.CreateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.deleteRecruitment.DeleteRecruitmentResponse;
@@ -13,11 +12,7 @@ import com.greedy.mokkoji.api.recruitment.dto.response.specificRecruitment.Speci
 import com.greedy.mokkoji.api.recruitment.dto.response.updateRecruitment.UpdateRecruitmentResponse;
 import com.greedy.mokkoji.api.recruitment.service.RecruitmentService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
-import com.greedy.mokkoji.enums.club.ClubAffiliation;
-import com.greedy.mokkoji.enums.club.ClubCategory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -112,21 +107,6 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
         return APISuccessResponse.of(
                 HttpStatus.OK,
                 recruitmentService.getSpecificRecruitment(authCredential.accountId(), recruitmentId)
-        );
-    }
-
-    @GetMapping
-    public ResponseEntity<APISuccessResponse<AllRecruitmentResponse>> getAllRecruitment(
-            @Authentication final AuthCredential authCredential,
-            @RequestParam(value = "affiliation", required = false) final ClubAffiliation affiliation,
-            @RequestParam(value = "category", required = false) final ClubCategory category,
-            @RequestParam(value = "page") final int page,
-            @RequestParam(value = "size") final int size
-    ) {
-        final Pageable pageable = PageRequest.of(page - 1, size);
-        return APISuccessResponse.of(
-                HttpStatus.OK,
-                recruitmentService.getAllRecruitment(authCredential.accountId(), affiliation, category, pageable)
         );
     }
 }

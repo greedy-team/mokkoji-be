@@ -8,6 +8,7 @@ import com.greedy.mokkoji.api.user.service.TokenService;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.admin.entity.Admin;
 import com.greedy.mokkoji.db.admin.repository.AdminRepository;
+import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import lombok.RequiredArgsConstructor;
@@ -33,17 +34,17 @@ public class AdminService {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_ADMIN_LOGIN);
         }
 
-        final TokenPair tokenPair = tokenService.issueTokens(AuthRole.ADMIN, admin.getId());
+        final TokenPair tokenPair = tokenService.issueTokens(AuthRole.ADMIN, admin.getRole(), admin.getId());
         return AdminLoginResponse.of(tokenPair.accessToken(), tokenPair.refreshToken());
     }
 
     @Transactional(readOnly = true)
-    public AdminInfoResponse getAdminInfo(final AuthRole authRole, final Long adminId) {
+    public AdminInfoResponse getAdminInfo(final AuthRole authRole, final AdminRole adminRole, final Long adminId) {
         manageAuthorizer.validateAdminAuth(authRole, adminId);
 
         final Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_ADMIN));
 
-        return AdminInfoResponse.of(admin.getRole(), admin.getUniversityCode());
+        return AdminInfoResponse.of(adminRole, admin.getUniversityCode());
     }
 }

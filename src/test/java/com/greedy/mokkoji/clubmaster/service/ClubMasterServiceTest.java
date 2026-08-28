@@ -61,14 +61,13 @@ public class ClubMasterServiceTest {
     @Mock
     UserRepository userRepository;
 
+    private final University university = Fixture.createUniversity();
     private User previousMaster;
     private User nextMaster;
     private Club club;
 
     private void prepareTransferContext(final User master) {
-        final University university = Fixture.createUniversity();
-
-        nextMaster = Fixture.createAnotherUser();
+        nextMaster = Fixture.createAnotherUser(university);
         ReflectionTestUtils.setField(nextMaster, "id", NEXT_MASTER_ID);
         ReflectionTestUtils.setField(nextMaster, "code", NEXT_MASTER_USER_CODE);
 
@@ -80,7 +79,7 @@ public class ClubMasterServiceTest {
     @DisplayName("동아리장이 대상자의 user_code를 입력하면 즉시 권한이 위임된다.")
     void transferClubMaster() {
         // given
-        previousMaster = Fixture.createUserWithRole(UserRole.CLUB_MASTER);
+        previousMaster = Fixture.createUserWithRole(university, UserRole.CLUB_MASTER);
         ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
         prepareTransferContext(previousMaster);
 
@@ -101,7 +100,7 @@ public class ClubMasterServiceTest {
     @DisplayName("기존 동아리장이 다른 동아리의 동아리장이면 권한이 유지된다.")
     void transferClubMasterKeepsPreviousMasterRole() {
         // given
-        previousMaster = Fixture.createUserWithRole(UserRole.CLUB_MASTER);
+        previousMaster = Fixture.createUserWithRole(university, UserRole.CLUB_MASTER);
         ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
         prepareTransferContext(previousMaster);
 
@@ -136,7 +135,7 @@ public class ClubMasterServiceTest {
     @DisplayName("존재하지 않는 user_code로 위임을 시도하면 예외가 발생한다.")
     void transferClubMasterUserCodeNotFound() {
         // given
-        previousMaster = Fixture.createUserWithRole(UserRole.CLUB_MASTER);
+        previousMaster = Fixture.createUserWithRole(university, UserRole.CLUB_MASTER);
         ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
         prepareTransferContext(previousMaster);
 
@@ -155,7 +154,7 @@ public class ClubMasterServiceTest {
     @DisplayName("동아리를 관리할 권한이 없으면 위임이 이루어지지 않는다.")
     void transferClubMasterForbidden() {
         // given
-        previousMaster = Fixture.createUserWithRole(UserRole.CLUB_MASTER);
+        previousMaster = Fixture.createUserWithRole(university, UserRole.CLUB_MASTER);
         ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
         prepareTransferContext(previousMaster);
 

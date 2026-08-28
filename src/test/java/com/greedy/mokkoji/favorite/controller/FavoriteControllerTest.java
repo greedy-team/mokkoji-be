@@ -35,8 +35,8 @@ public class FavoriteControllerTest extends ControllerTest {
     }
 
     private void prepareData() {
-        user = userRepository.save(Fixture.createUser());
         university = universityRepository.save(Fixture.createUniversity());
+        user = userRepository.save(Fixture.createUser(university));
         favoriteClub = clubRepository.save(Fixture.createClub(university));
         notFavoriteClub = clubRepository.save(Fixture.createClub(university));
         recruitmentRepository.saveAll(
