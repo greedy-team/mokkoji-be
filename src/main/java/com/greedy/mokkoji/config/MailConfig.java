@@ -1,6 +1,8 @@
 package com.greedy.mokkoji.config;
 
+import com.greedy.mokkoji.api.email.config.MailBannerProperties;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,6 +11,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 @Configuration
+@EnableConfigurationProperties(MailBannerProperties.class)
 public class MailConfig {
     private static final String AUTH_KEY = "mail.transport.auth";
     private static final String TLS_KEY = "mail.smtp.starttls.enable";
