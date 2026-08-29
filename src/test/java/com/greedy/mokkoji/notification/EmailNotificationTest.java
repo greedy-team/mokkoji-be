@@ -43,7 +43,7 @@ public class EmailNotificationTest {
     @BeforeEach
     void setUp() {
         final MailBannerProperties mailBannerProperties = new MailBannerProperties(
-                Map.of("sejong", SEJONG_BANNER_URL, "konkuk", "")
+                Map.of(UniversityCode.SEJONG, SEJONG_BANNER_URL, UniversityCode.KONKUK, "")
         );
         recruitmentNotificationEmailChannel =
                 new RecruitmentNotificationEmailChannel(mailSender, discordNotifier, mailBannerProperties);
