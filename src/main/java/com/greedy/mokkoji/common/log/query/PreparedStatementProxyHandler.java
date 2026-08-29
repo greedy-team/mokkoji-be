@@ -11,7 +11,13 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 public class PreparedStatementProxyHandler implements InvocationHandler {
-    private static final Set<String> EXECUTE_METHODS = Set.of("execute", "executeQuery", "executeUpdate");
+    private static final Set<String> EXECUTE_METHODS = Set.of(
+            "execute",
+            "executeQuery",
+            "executeUpdate",
+            "executeLargeUpdate",
+            "executeBatch",
+            "executeLargeBatch");
 
     private final PreparedStatement preparedStatement;
     private final QueryCounter queryCounter;
