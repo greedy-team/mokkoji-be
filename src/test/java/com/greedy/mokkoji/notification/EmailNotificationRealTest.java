@@ -1,19 +1,21 @@
 package com.greedy.mokkoji.notification;
 
 import com.greedy.mokkoji.api.email.service.RecruitmentMailPayload;
-import com.greedy.mokkoji.api.email.service.RecruitmentNotificationEmailChannel;
+import com.greedy.mokkoji.api.email.service.RecruitmentNotificationChannel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
 @SpringBootTest
+@TestPropertySource(properties = "spring.flyway.enabled=false")
 @DisplayName("실제 이메일 발송 테스트")
 @Disabled("이메일 테스트 시 해제를 하고 사용")
 public class EmailNotificationRealTest {
@@ -22,7 +24,7 @@ public class EmailNotificationRealTest {
     private String receivers;
 
     @Autowired
-    private RecruitmentNotificationEmailChannel recruitmentNotificationEmailChannel;
+    private RecruitmentNotificationChannel recruitmentNotificationEmailChannel;
 
     @Test
     @DisplayName("수신자 이메일 노출 확인")
