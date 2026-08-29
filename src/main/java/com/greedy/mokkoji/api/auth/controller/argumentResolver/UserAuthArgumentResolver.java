@@ -36,16 +36,24 @@ public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String requestURI = request.getRequestURI();
 
-        if (isExcludedRequest(requestURI, authHeader)) {
-            return new AuthCredential(null, null, null);
+        if (isExcludedPath(requestURI)) {
+            if (authHeader == null) {
+                return new AuthCredential(null, null, null);
+            }
+            try {
+                final String token = bearerAuthExtractor.extractTokenValue(authHeader);
+                return jwtUtil.getCredentialFromToken(token);
+            } catch (Exception e) {
+                return new AuthCredential(null, null, null);
+            }
         }
 
         final String token = bearerAuthExtractor.extractTokenValue(authHeader);
         return jwtUtil.getCredentialFromToken(token);
     }
 
-    private boolean isExcludedRequest(String requestURI, String authHeader) {
-        return EXCLUDE_PATTERNS.stream().anyMatch(requestURI::contains) && authHeader == null;
+    private boolean isExcludedPath(String requestURI) {
+        return EXCLUDE_PATTERNS.stream().anyMatch(requestURI::contains);
     }
 }
 

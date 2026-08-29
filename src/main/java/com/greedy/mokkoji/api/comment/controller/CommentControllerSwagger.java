@@ -32,7 +32,7 @@ public interface CommentControllerSwagger {
 
     @Operation(
             summary = "댓글 목록 조회 API",
-            security = @SecurityRequirement(name = "JWT")
+            description = "JWT 없이도 조회 가능합니다. JWT가 유효하면 본인 작성 댓글에 `isWriter: true`가 표시됩니다."
     )
     @ApiResponse(responseCode = "200", description = "댓글 목록 조회 성공")
     @Parameter(
