@@ -207,6 +207,74 @@ public class CommentControllerTest extends ControllerTest {
     }
 
     @Test
+    @DisplayName("JWT 없이 댓글 목록을 조회할 수 있다.")
+    void getComments_WithoutJwt() {
+        //given
+        final Comment comment1 = Comment.builder()
+                .user(user)
+                .club(club)
+                .rate(5.0)
+                .content("좋은 동아리입니다")
+                .build();
+        final Comment comment2 = Comment.builder()
+                .user(anotherUser)
+                .club(club)
+                .rate(4.0)
+                .content("추천합니다")
+                .build();
+        commentRepository.save(comment1);
+        commentRepository.save(comment2);
+
+        //when
+        final ExtractableResponse<Response> response = given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get(prefixUrl + "/comments/{clubId}", club.getId())
+                .then().log().all()
+                .extract();
+
+        //then
+        final int statusCode = response.statusCode();
+        final CommentListResponse actual = getDataFromResponse(response, CommentListResponse.class);
+
+        assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+        assertThat(actual.comments()).hasSize(2);
+        assertThat(actual.comments())
+                .extracting(CommentResponse::isWriter)
+                .containsOnly(false);
+    }
+
+    @Test
+    @DisplayName("만료·무효 JWT로도 댓글 목록을 조회할 수 있다.")
+    void getComments_WithInvalidJwt() {
+        //given
+        final Comment comment = Comment.builder()
+                .user(user)
+                .club(club)
+                .rate(5.0)
+                .content("좋은 동아리입니다")
+                .build();
+        commentRepository.save(comment);
+
+        //when
+        final ExtractableResponse<Response> response = given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", "Bearer invalid.token.value")
+                .when().get(prefixUrl + "/comments/{clubId}", club.getId())
+                .then().log().all()
+                .extract();
+
+        //then
+        final int statusCode = response.statusCode();
+        final CommentListResponse actual = getDataFromResponse(response, CommentListResponse.class);
+
+        assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
+        assertThat(actual.comments()).hasSize(1);
+        assertThat(actual.comments())
+                .extracting(CommentResponse::isWriter)
+                .containsOnly(false);
+    }
+
+    @Test
     @DisplayName("댓글을 수정할 수 있다.")
     void updateComment() {
         //given
