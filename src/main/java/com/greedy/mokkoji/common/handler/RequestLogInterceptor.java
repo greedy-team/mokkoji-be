@@ -60,7 +60,11 @@ public class RequestLogInterceptor implements HandlerInterceptor {
                     status, duration);
         }
         warnAboutQuery(queryCount, duration);
-        queryMetricsRecorder.record(request.getMethod(), resolveUriPattern(request), queryCount, queryCounter.getQueryTimeNanos());
+        queryMetricsRecorder.record(
+                request.getMethod(),
+                resolveUriPattern(request), queryCount,
+                queryCounter.getSuccessQueryTimeNanos(),
+                queryCounter.getFailedQueryTimeNanos());
     }
 
     private String resolveUriPattern(final HttpServletRequest request) {

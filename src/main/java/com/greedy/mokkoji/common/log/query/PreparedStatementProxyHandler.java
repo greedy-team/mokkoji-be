@@ -28,9 +28,12 @@ public class PreparedStatementProxyHandler implements InvocationHandler {
             queryCounter.increaseCount();
             final long start = System.nanoTime();
             try {
-                return method.invoke(preparedStatement, args);
-            } finally {
-                queryCounter.addQueryTime(System.nanoTime() - start);
+                final Object result = method.invoke(preparedStatement, args);
+                queryCounter.addSuccessQueryTime(System.nanoTime() - start);
+                return result;
+            } catch (Throwable e) {
+                queryCounter.addFailedQueryTime(System.nanoTime() - start);
+                throw e;
             }
         }
         return method.invoke(preparedStatement, args);

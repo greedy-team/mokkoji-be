@@ -63,6 +63,7 @@ public class QueryMetricsIntegrationTest extends ControllerTest {
         final Timer queryTime = meterRegistry.find("request.db.query.time")
                 .tag("method", "GET")
                 .tag("uri", uri)
+                .tag("status", "success")
                 .timer();
         assertThat(queryTime).isNotNull();
         assertThat(queryTime.totalTime(TimeUnit.NANOSECONDS)).isGreaterThan(0);
