@@ -4,6 +4,7 @@ import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.common.ControllerTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.common.response.APIErrorResponse;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
@@ -27,7 +28,8 @@ public class AuthInterceptorTest extends ControllerTest {
     }
 
     private void prepareData() {
-        user = userRepository.save(Fixture.createUser());
+        final University university = universityRepository.save(Fixture.createUniversity());
+        user = userRepository.save(Fixture.createUser(university));
     }
 
     @Test
@@ -53,7 +55,7 @@ public class AuthInterceptorTest extends ControllerTest {
 
     @Test
     void 인증_헤더_정보가_Bearer가_아닐때_401을_응답한다() {
-        String accessToken = jwtUtil.generateAccessToken(new AuthCredential(AuthRole.USER, user.getId()));
+        String accessToken = jwtUtil.generateAccessToken(new AuthCredential(AuthRole.USER, null, user.getId()));
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .when().header("Authorization", "Basic " + accessToken)

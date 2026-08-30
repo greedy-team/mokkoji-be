@@ -5,8 +5,10 @@ import com.greedy.mokkoji.api.scheduler.service.RecruitmentNotificationScheduler
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -22,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 
@@ -45,8 +48,14 @@ public class RecruitmentNotificationSchedulerTest {
         // given
         final LocalDateTime currentDateTime = LocalDateTime.now();
 
+        final University university = University.builder()
+                .name("건국대학교")
+                .code(UniversityCode.KONKUK)
+                .build();
+
         final Club club1 = Club.builder()
                 .name("동아리 이름1")
+                .university(university)
                 .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
                 .clubCategory(ClubCategory.CULTURAL_ART)
                 .logo("동아리 로고1")
@@ -56,6 +65,7 @@ public class RecruitmentNotificationSchedulerTest {
 
         final Club club2 = Club.builder()
                 .name("동아리 이름2")
+                .university(university)
                 .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
                 .clubCategory(ClubCategory.CULTURAL_ART)
                 .logo("동아리 로고2")
@@ -87,6 +97,7 @@ public class RecruitmentNotificationSchedulerTest {
                 .sendRecruitmentNotification(
                         nullable(Long.class),
                         any(String.class),
+                        eq(UniversityCode.KONKUK),
                         any(Recruitment.class)
                 );
 
@@ -101,6 +112,7 @@ public class RecruitmentNotificationSchedulerTest {
                 .sendRecruitmentNotification(
                         nullable(Long.class),
                         any(String.class),
+                        eq(UniversityCode.KONKUK),
                         any(Recruitment.class)
                 );
     }

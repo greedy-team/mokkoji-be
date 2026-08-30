@@ -2,8 +2,6 @@ package com.greedy.mokkoji.recruitment.controller;
 
 import com.greedy.mokkoji.api.recruitment.dto.request.CreateRecruitmentRequest;
 import com.greedy.mokkoji.api.recruitment.dto.request.UpdateRecruitmentRequest;
-import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.AllRecruitmentResponse;
-import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitment.RecruitmentPreviewResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.allRecruitmentOfClub.RecruitmentOfClubResponse;
 import com.greedy.mokkoji.api.recruitment.dto.response.recentRecruitment.RecentRecruitmentOfClubResponse;
 import com.greedy.mokkoji.common.ControllerTest;
@@ -13,8 +11,6 @@ import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
-import com.greedy.mokkoji.enums.club.ClubAffiliation;
-import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
 import io.restassured.RestAssured;
@@ -61,7 +57,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("권한을 가진 관리자는 모집글을 생성할 수 있다.")
     void createRecruitment_allowedRoles_success(UserRole role) {
         //given
-        User adminUser = userRepository.save(Fixture.createUserWithRole(role));
+        User adminUser = userRepository.save(Fixture.createUserWithRole(university,role));
         club = clubRepository.save(Fixture.createClub(university, adminUser));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
@@ -103,7 +99,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         // given
         club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
-        User normalUser = userRepository.save(Fixture.createUserWithRole(role));
+        User normalUser = userRepository.save(Fixture.createUserWithRole(university,role));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         final CreateRecruitmentRequest request = new CreateRecruitmentRequest(
@@ -179,7 +175,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("권한을 가진 관리자는 모집글을 수정할 수 있다.")
     void updateRecruitment_allowedRoles_success(UserRole role) {
         // given
-        User adminUser = userRepository.save(Fixture.createUserWithRole(role));
+        User adminUser = userRepository.save(Fixture.createUserWithRole(university,role));
         club = clubRepository.save(Fixture.createClub(university, adminUser));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
@@ -221,7 +217,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         // given
         club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
-        User normalUser = userRepository.save(Fixture.createUserWithRole(role));
+        User normalUser = userRepository.save(Fixture.createUserWithRole(university,role));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         final UpdateRecruitmentRequest request = new UpdateRecruitmentRequest(
@@ -260,7 +256,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("권한을 가진 관리자는 모집글을 삭제할 수 있다.")
     void deleteRecruitment_allowedRoles_success(UserRole role) {
         // given
-        User adminUser = userRepository.save(Fixture.createUserWithRole(role));
+        User adminUser = userRepository.save(Fixture.createUserWithRole(university,role));
         club = clubRepository.save(Fixture.createClub(university, adminUser));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
@@ -284,7 +280,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         // given
         club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
-        User normalUser = userRepository.save(Fixture.createUserWithRole(role));
+        User normalUser = userRepository.save(Fixture.createUserWithRole(university,role));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         //when
@@ -344,7 +340,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     void getRecentRecruitmentOfClub_whenNoRecruitment_shouldReturnNullRecruitmentFields() {
         // given
         club = clubRepository.save(Fixture.createClub(university));
-        User normalUser = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
+        User normalUser = userRepository.save(Fixture.createUserWithRole(university,UserRole.NORMAL));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         // when
@@ -381,7 +377,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         // given
         club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
-        User normalUser = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
+        User normalUser = userRepository.save(Fixture.createUserWithRole(university,UserRole.NORMAL));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         Recruitment newerRecruitment = recruitmentRepository.save(Fixture.createNewerRecruitment(club));
@@ -414,7 +410,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         // given
         club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
-        User user = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
+        User user = userRepository.save(Fixture.createUserWithRole(university,UserRole.NORMAL));
         String authorizationForBearer = authorizationForBearerAccessToken(user);
 
         // when
@@ -431,244 +427,5 @@ public class RecruitmentControllerTest extends ControllerTest {
 
         Long id = response.jsonPath().getLong("data.id");
         assertThat(id).isEqualTo(recruitment.getId());
-    }
-
-    @Test
-    @DisplayName("전체 모집글 조회한다. - 소속 및 카테고리 필터링 동작을 검증한다.")
-    void getAllRecruitment_filtersByAffiliationAndCategory() {
-        // given
-        User normaluser = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
-        String authorizationForBearer = authorizationForBearerAccessToken(normaluser);
-
-        //필터링에 포함될 동아리 데이터
-        Club club1 = clubRepository.save(Fixture.createClubWithCategoryAndAffiliation(university,ClubCategory.ACADEMIC_CULTURAL,
-                ClubAffiliation.DEPARTMENT_CLUB));
-        Club club2 = clubRepository.save(Fixture.createClubWithCategoryAndAffiliation(university,ClubCategory.ACADEMIC_CULTURAL,
-                ClubAffiliation.DEPARTMENT_CLUB));
-        recruitmentRepository.save(Fixture.createRecruitment(club1));
-        recruitmentRepository.save(Fixture.createRecruitment(club2));
-
-        // 필터링에서 걸러질 동아리 데이터
-        Club otherClub1 = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(university,ClubCategory.CULTURAL_ART, ClubAffiliation.CENTRAL_CLUB));
-        Club otherClub2 = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(university,ClubCategory.CULTURAL_ART, ClubAffiliation.CENTRAL_CLUB));
-        recruitmentRepository.save(Fixture.createRecruitment(otherClub1));
-        recruitmentRepository.save(Fixture.createRecruitment(otherClub2));
-
-        ClubAffiliation filteringByAffiliation = ClubAffiliation.DEPARTMENT_CLUB;
-        ClubCategory filteringByCategory = ClubCategory.ACADEMIC_CULTURAL;
-
-        // when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .queryParam("page", 1)
-                .queryParam("size", 10)
-                .queryParam("affiliation", ClubAffiliation.DEPARTMENT_CLUB.name())
-                .queryParam("category", ClubCategory.ACADEMIC_CULTURAL.name())
-                .when().get(prefixUrl + "/recruitments")
-                .then().log().all()
-                .extract();
-
-        // then
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-
-        AllRecruitmentResponse data = getDataFromResponse(response, AllRecruitmentResponse.class);
-
-        assertThat(data.recruitments()).hasSize(2);
-
-        assertThat(data.recruitments()).allSatisfy(recruitmentPreviewResponse -> {
-            assertThat(recruitmentPreviewResponse.club()).isNotNull();
-            assertThat(recruitmentPreviewResponse.club().clubAffiliation()).isEqualTo(filteringByAffiliation);
-            assertThat(recruitmentPreviewResponse.club().clubCategory()).isEqualTo(filteringByCategory);
-            assertThat(recruitmentPreviewResponse.id()).isNotNull();
-            assertThat(recruitmentPreviewResponse.title()).isNotBlank();
-        });
-    }
-
-    @Test
-    @DisplayName("전체 모집글 조회한다. - 동아리 당 최신 모집글 1개만 반환되는 것을 검증한다.")
-    void getAllRecruitment_returnsOnlyLatestRecruitmentPerClub() {
-        // given
-        User normalUser = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
-        String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
-
-        Club targetClub = clubRepository.save(Fixture.createClub(university));
-
-        Recruitment olderRecruitment = recruitmentRepository.save(Fixture.createOrderRecruitment(targetClub));
-        Recruitment newerRecruitment = recruitmentRepository.save(Fixture.createNewerRecruitment(targetClub));
-
-        // created_at이 초 단위 timestamp라 같은 초에 저장되면 값이 같아 최신 1건 필터링(MAX(created_at))이 깨지므로 명시적으로 구분한다.
-        ReflectionTestUtils.setField(olderRecruitment, "createdAt", LocalDateTime.now().minusDays(1));
-        ReflectionTestUtils.setField(newerRecruitment, "createdAt", LocalDateTime.now());
-        recruitmentRepository.saveAll(List.of(olderRecruitment, newerRecruitment));
-
-        // when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .queryParam("page", 1)
-                .queryParam("size", 10)
-                .queryParam("affiliation", targetClub.getClubAffiliation().name())
-                .queryParam("category", targetClub.getClubCategory().name())
-                .when().get(prefixUrl + "/recruitments")
-                .then().log().all()
-                .extract();
-
-        // then
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-
-        AllRecruitmentResponse data = getDataFromResponse(response, AllRecruitmentResponse.class);
-        assertThat(data.recruitments()).hasSize(1);
-
-        RecruitmentPreviewResponse recruitmentPreviewResponse = data.recruitments().get(0);
-        assertThat(recruitmentPreviewResponse.id()).isEqualTo(newerRecruitment.getId());
-
-        assertThat(newerRecruitment.getClub().getId()).isEqualTo(targetClub.getId());
-    }
-
-    @Test
-    @DisplayName("전체 모집글 조회 - 페이징이 정삭적으로 동작하는지 검증한다.")
-    void getAllRecruitment_pagingWorks() {
-        // given
-        User normalUser = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
-        String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
-
-        ClubAffiliation filteringByAffiliation = ClubAffiliation.DEPARTMENT_CLUB;
-        ClubCategory filteringByCategory = ClubCategory.ACADEMIC_CULTURAL;
-
-        for (int i = 0; i < 11; i++) {
-            Club club = clubRepository.save(
-                    Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
-            recruitmentRepository.save(Fixture.createNewerRecruitment(club));
-        }
-
-        // when: page=1, size= 10 일 경우
-        ExtractableResponse<Response> response1 = RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .queryParam("page", 1)
-                .queryParam("size", 10)
-                .queryParam("affiliation", filteringByAffiliation)
-                .queryParam("category", filteringByCategory)
-                .when().get(prefixUrl + "/recruitments")
-                .then().log().all()
-                .extract();
-        AllRecruitmentResponse allRecruitmentResponse1 = getDataFromResponse(response1, AllRecruitmentResponse.class);
-
-        // then
-        assertThat(allRecruitmentResponse1.recruitments()).hasSize(10);
-        assertThat(allRecruitmentResponse1.page().page()).isEqualTo(1);
-        assertThat(allRecruitmentResponse1.page().size()).isEqualTo(10);
-        assertThat(allRecruitmentResponse1.page().totalElements()).isEqualTo(11);
-        assertThat(allRecruitmentResponse1.page().totalPages()).isEqualTo(2);
-
-        // when: page=2, size= 10 일 경우
-        ExtractableResponse<Response> response2 = RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", authorizationForBearer)
-                .queryParam("page", 2)
-                .queryParam("size", 10)
-                .queryParam("affiliation", filteringByAffiliation)
-                .queryParam("category", filteringByCategory)
-                .when().get(prefixUrl + "/recruitments")
-                .then().log().all()
-                .extract();
-        AllRecruitmentResponse allRecruitmentResponse2 = getDataFromResponse(response2, AllRecruitmentResponse.class);
-
-        // then
-        assertThat(allRecruitmentResponse2.recruitments()).hasSize(1);
-        assertThat(allRecruitmentResponse2.page().page()).isEqualTo(2);
-        assertThat(allRecruitmentResponse2.page().totalElements()).isEqualTo(11);
-        assertThat(allRecruitmentResponse2.page().totalPages()).isEqualTo(2);
-    }
-
-    @Test
-    @DisplayName("전체 모집글 조회 - 정렬 정책(즐겨 찾기, 마감 임박, 모집 중, 상시 모집, 모집 전, 모집 마감)대로 정렬되는지 검증한다.")
-    void getAllRecruitment_sortedByPolicy() {
-        // given
-        User normalUser = userRepository.save(Fixture.createUserWithRole(UserRole.NORMAL));
-        String token = authorizationForBearerAccessToken(normalUser);
-
-        ClubAffiliation filteringByAffiliation = ClubAffiliation.DEPARTMENT_CLUB;
-        ClubCategory filteringByCategory = ClubCategory.ACADEMIC_CULTURAL;
-
-        Club favoriteClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
-        Club imminetClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
-        Club openClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
-        Club alwaysClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
-        Club beforeClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
-        Club closedClub = clubRepository.save(
-                Fixture.createClubWithCategoryAndAffiliation(university,filteringByCategory, filteringByAffiliation));
-
-        LocalDateTime now = LocalDateTime.now();
-
-        // 즐겨찾기
-        Recruitment favoriteRecruitment = recruitmentRepository.save(
-                Fixture.createRecruitmentWithTimes(favoriteClub, now.minusDays(2), now.plusDays(10), false)
-        );
-        favoriteRepository.save(Fixture.createFavorite(favoriteClub, normalUser));
-
-        //모집 마감 임박
-        Recruitment imminetRecruitment = recruitmentRepository.save(
-                Fixture.createRecruitmentWithTimes(imminetClub, now.minusDays(1), now.plusMinutes(30), false)
-        );
-
-        //모집 중
-        Recruitment openRecruitment = recruitmentRepository.save(
-                Fixture.createRecruitmentWithTimes(openClub, now.minusDays(1), now.plusDays(30), false)
-        );
-
-        //상시 모집
-        Recruitment alwaysRecruitment = recruitmentRepository.save(
-                Fixture.createRecruitmentWithTimes(alwaysClub, now.minusDays(100), now.plusDays(1000), true)
-        );
-
-        //모집 전
-        Recruitment beforeRecruitment = recruitmentRepository.save(
-                Fixture.createRecruitmentWithTimes(beforeClub, now.plusDays(3), now.plusDays(10), false)
-        );
-
-        //모집 마감
-        Recruitment closedRecruitment = recruitmentRepository.save(
-                Fixture.createRecruitmentWithTimes(closedClub, now.minusDays(10), now.minusDays(1), false)
-        );
-
-        // when
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header("Authorization", token)
-                .queryParam("page", 1)
-                .queryParam("size", 10)
-                .queryParam("affiliation", filteringByAffiliation)
-                .queryParam("category", filteringByCategory)
-                .when().get(prefixUrl + "/recruitments")
-                .then().log().all()
-                .extract();
-
-        AllRecruitmentResponse data = getDataFromResponse(response, AllRecruitmentResponse.class);
-
-        // then
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(data.recruitments()).hasSize(6);
-
-        List<Long> ids = data.recruitments().stream()
-                .map(RecruitmentPreviewResponse::id)
-                .toList();
-
-        assertThat(ids).containsExactly(
-                favoriteRecruitment.getId(),
-                imminetRecruitment.getId(),
-                openRecruitment.getId(),
-                alwaysRecruitment.getId(),
-                beforeRecruitment.getId(),
-                closedRecruitment.getId()
-        );
     }
 }

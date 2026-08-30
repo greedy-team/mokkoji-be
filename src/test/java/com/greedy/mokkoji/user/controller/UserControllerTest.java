@@ -46,7 +46,14 @@ public class UserControllerTest extends ControllerTest {
     }
 
     private void prepareData() {
-        user = userRepository.save(Fixture.createUser());
+        final University university = universityRepository.save(
+                University.builder()
+                        .name("한양대학교")
+                        .code(UniversityCode.HANYANG)
+                        .logo("한양대_로고")
+                        .build()
+        );
+        user = userRepository.save(Fixture.createUser(university));
     }
 
     @Test
@@ -61,9 +68,9 @@ public class UserControllerTest extends ControllerTest {
                 .thenReturn(Fixture.createKakaoUserInfoResponse(user.getKakaoId(), user.getName()));
 
         final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
-        when(tokenService.issueTokens(eq(AuthRole.USER), any())).thenReturn(new TokenPair("accessToken", "refreshToken"));
+        when(tokenService.issueTokens(eq(AuthRole.USER), any(), any())).thenReturn(new TokenPair("accessToken", "refreshToken"));
 
-        final KakaoSocialLoginRequest request = new KakaoSocialLoginRequest(code);
+        final KakaoSocialLoginRequest request = new KakaoSocialLoginRequest(code, UniversityCode.SEJONG);
 
         //when
         ExtractableResponse<Response> response = RestAssured.given().log().ifValidationFails()
@@ -85,7 +92,7 @@ public class UserControllerTest extends ControllerTest {
     @DisplayName("Origin 헤더가 없으면 카카오 로그인은 400 응답을 반환한다.")
     void kakaoLoginWithoutOrigin() {
         //given
-        final KakaoSocialLoginRequest request = new KakaoSocialLoginRequest("authorizationCode");
+        final KakaoSocialLoginRequest request = new KakaoSocialLoginRequest("authorizationCode", UniversityCode.SEJONG);
 
         //when & then
         RestAssured.given().log().ifValidationFails()
@@ -167,7 +174,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final String updatedEmail = "updatedEmail@test.com";
-        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, updatedEmail, null, null, null);
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, updatedEmail, null, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -190,7 +197,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final String invalidUpdatedEmail = "updatedEmail.com";
-        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, invalidUpdatedEmail, null, null, null);
+        final UpdateUserInformationRequest updateUserInformationRequest = new UpdateUserInformationRequest(null, invalidUpdatedEmail, null, null);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
@@ -214,7 +221,7 @@ public class UserControllerTest extends ControllerTest {
         universityRepository.save(Fixture.createUniversity());
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final UpdateUserInformationRequest updateUserInformationRequest =
-                new UpdateUserInformationRequest(null, null, null, UniversityCode.SEJONG, null);
+                new UpdateUserInformationRequest(null, null, null, UniversityCode.SEJONG);
 
         // when
         RestAssured.given().log().all()
@@ -244,7 +251,7 @@ public class UserControllerTest extends ControllerTest {
         // given
         final String authorizationForBearer = authorizationForBearerAccessToken(user);
         final UpdateUserInformationRequest updateUserInformationRequest =
-                new UpdateUserInformationRequest(null, null, null, UniversityCode.KONKUK, null);
+                new UpdateUserInformationRequest(null, null, null, UniversityCode.KONKUK);
 
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()

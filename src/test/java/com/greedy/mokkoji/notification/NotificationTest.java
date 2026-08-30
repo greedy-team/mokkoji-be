@@ -9,6 +9,7 @@ import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -85,17 +86,17 @@ public class NotificationTest {
                 .willReturn(List.of(favorite1, favorite2));
 
         BDDMockito.doNothing().when(recruitmentNotificationChannel)
-                .sendNotification(any(), any(), any(), any(), any());
+                .sendNotification(any(), any(), any(), any(), any(), any());
 
         // when
-        emailService.sendRecruitmentNotification(club.getId(), club.getName(), recruitment);
+        emailService.sendRecruitmentNotification(club.getId(), club.getName(), UniversityCode.SEJONG, recruitment);
 
         // then
         BDDMockito.verify(favoriteRepository, times(1))
                 .findByClubIdWithFetchJoin(any());
 
         BDDMockito.verify(recruitmentNotificationChannel, times(1))
-                .sendNotification(any(), any(), any(), any(), any());
+                .sendNotification(any(), any(), any(), any(), any(), any());
 
     }
 }
