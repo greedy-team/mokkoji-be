@@ -3,6 +3,7 @@ package com.greedy.mokkoji.api.email.service;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +18,12 @@ public class EmailService {
     private final FavoriteRepository favoriteRepository;
 
     @Transactional(readOnly = true)
-    public void sendRecruitmentNotification(final Long clubId, final String clubName, final Recruitment recruitment) {
+    public void sendRecruitmentNotification(
+            final Long clubId,
+            final String clubName,
+            final UniversityCode universityCode,
+            final Recruitment recruitment
+    ) {
         List<Favorite> favorites = favoriteRepository.findByClubIdWithFetchJoin(clubId);
 
         List<String> userEmails = favorites.stream()
@@ -32,7 +38,7 @@ public class EmailService {
         }
 
         recruitmentNotificationChannel.sendNotification(
-                userEmails, clubId, clubName, recruitment.getRecruitStart(), recruitment.getRecruitEnd()
+                userEmails, clubId, clubName, universityCode, recruitment.getRecruitStart(), recruitment.getRecruitEnd()
         );
     }
 }
