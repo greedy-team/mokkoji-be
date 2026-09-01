@@ -9,6 +9,7 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,19 @@ public class ManageAuthorizer {
         if (AdminRole.UNIVERSITY_ADMIN.equals(admin.getRole())
                 && university != null
                 && university.getId().equals(admin.getUniversityId())) return;
+
+        throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
+    }
+
+    public void validateCanManageApplication(final Long adminId, final University university, final ClubAffiliation affiliation) {
+        Admin admin = findAdminOrThrow(adminId);
+
+        if (AdminRole.MOKKOJI_ADMIN.equals(admin.getRole())) return;
+
+        if (AdminRole.UNIVERSITY_ADMIN.equals(admin.getRole())
+                && university != null
+                && university.getId().equals(admin.getUniversityId())
+                && ClubAffiliation.CENTRAL_CLUB.equals(affiliation)) return;
 
         throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
     }
