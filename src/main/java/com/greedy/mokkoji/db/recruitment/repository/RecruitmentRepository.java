@@ -14,15 +14,15 @@ import java.util.Optional;
 @Repository
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>, RecruitmentRepositoryCustom {
 
-    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club WHERE FUNCTION('DATE', r.recruitStart) = :currentDate")
+    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club c JOIN FETCH c.university WHERE FUNCTION('DATE', r.recruitStart) = :currentDate")
     List<Recruitment> findAllByRecruitStartToday(LocalDate currentDate);
 
     // 2. 모집 마감일이 오늘인 경우
-    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club WHERE FUNCTION('DATE', r.recruitEnd) = :currentDate")
+    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club c JOIN FETCH c.university WHERE FUNCTION('DATE', r.recruitEnd) = :currentDate")
     List<Recruitment> findAllByRecruitEndToday(LocalDate currentDate);
 
     // 3. 모집 마감일이 오늘로부터 3일 전인 경우
-    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club WHERE FUNCTION('DATE', r.recruitEnd) = :targetDate")
+    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club c JOIN FETCH c.university WHERE FUNCTION('DATE', r.recruitEnd) = :targetDate")
     List<Recruitment> findAllByRecruitEndInThreeDays(@Param("targetDate") LocalDate targetDate);
 
     Optional<Recruitment> findRecruitmentById(Long id);

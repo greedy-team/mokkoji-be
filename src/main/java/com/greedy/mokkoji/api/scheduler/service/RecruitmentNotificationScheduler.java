@@ -51,7 +51,9 @@ public class RecruitmentNotificationScheduler {
         uniqueAndLatestRecruitments.forEach(recruitment -> {
             Club club = recruitment.getClub();
             try {
-                emailService.sendRecruitmentNotification(club.getId(), club.getName(), recruitment);
+                emailService.sendRecruitmentNotification(
+                        club.getId(), club.getName(), club.getUniversity().getCode(), recruitment
+                );
             } catch (Exception e) {
                 log.error("[RECRUITMENT NOTI SUBMIT FAILED] clubId={} recruitmentId={} msg={}",
                         club.getId(), recruitment.getId(), e.getMessage(), e);

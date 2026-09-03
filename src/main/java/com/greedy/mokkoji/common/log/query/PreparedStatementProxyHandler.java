@@ -11,21 +11,32 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 public class PreparedStatementProxyHandler implements InvocationHandler {
-    private static final Set<String> EXECUTE_METHODS = Set.of("execute", "executeQuery", "executeUpdate");
+    private static final Set<String> EXECUTE_METHODS = Set.of(
+            "execute",
+            "executeQuery",
+            "executeUpdate",
+            "executeLargeUpdate",
+            "executeBatch",
+            "executeLargeBatch");
 
     private final PreparedStatement preparedStatement;
     private final QueryCounter queryCounter;
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        countQuery(method);
-        return method.invoke(preparedStatement, args);
-    }
-
-    private void countQuery(Method method) {
         if (isExecuteMethod(method) && isRequest()) {
             queryCounter.increaseCount();
+            final long start = System.nanoTime();
+            try {
+                final Object result = method.invoke(preparedStatement, args);
+                queryCounter.addSuccessQueryTime(System.nanoTime() - start);
+                return result;
+            } catch (Throwable e) {
+                queryCounter.addFailedQueryTime(System.nanoTime() - start);
+                throw e;
+            }
         }
+        return method.invoke(preparedStatement, args);
     }
 
     private boolean isExecuteMethod(Method method) {
