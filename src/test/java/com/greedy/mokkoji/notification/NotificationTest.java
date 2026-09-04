@@ -7,9 +7,11 @@ import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
+import com.greedy.mokkoji.enums.university.UniversityCode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -55,8 +57,14 @@ public class NotificationTest {
                 .isEmailOn(true)
                 .build();
 
+        final University university = University.builder()
+                .name("세종대학교")
+                .code(UniversityCode.SEJONG)
+                .build();
+
         final Club club = Club.builder()
                 .name("동아리 이름")
+                .university(university)
                 .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
                 .clubCategory(ClubCategory.CULTURAL_ART)
                 .logo("동아리 로고")

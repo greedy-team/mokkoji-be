@@ -36,8 +36,9 @@ public class EmailService {
                     .toList();
 
             if (!userEmails.isEmpty()) {
+                var universityCode = recruitment.getClub().getUniversity().getCode();
                 payloads.add(new RecruitmentMailPayload(
-                        clubId, clubName, userEmails,
+                        clubId, clubName, universityCode, userEmails,
                         recruitment.getRecruitStart(), recruitment.getRecruitEnd()
                 ));
             }

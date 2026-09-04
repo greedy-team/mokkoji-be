@@ -52,6 +52,9 @@ public class Club extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     private User master;
 
+    @Column(name = "view_count", columnDefinition = "bigint", nullable = false)
+    private Long viewCount = 0L;
+
     @Builder
     public Club(
             final String name,
