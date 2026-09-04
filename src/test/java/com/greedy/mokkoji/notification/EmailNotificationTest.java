@@ -53,7 +53,7 @@ public class EmailNotificationTest {
         ReflectionTestUtils.setField(recruitmentNotificationEmailChannel, "baseUrl", BASE_URL);
 
         mimeMessage = new MimeMessage((Session) null);
-        BDDMockito.when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        BDDMockito.lenient().when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         BDDMockito.lenient().doNothing().when(mailSender).send(any(MimeMessage[].class));
     }
 
