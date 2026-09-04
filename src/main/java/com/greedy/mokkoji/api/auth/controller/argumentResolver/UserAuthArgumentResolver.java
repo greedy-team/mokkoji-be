@@ -13,12 +13,14 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Component
 @RequiredArgsConstructor
 public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private static final Set<String> EXCLUDE_PATTERNS = Set.of("/clubs", "/recruitments", "/comments");
+    private static final Set<String> EXCLUDE_PATTERNS = Set.of("/clubs", "/recruitments");
+    private static final Pattern COMMENTS_EXCLUDE_PATTERN = Pattern.compile(".*/comments/\\d+$");
     private final BearerAuthExtractor bearerAuthExtractor;
     private final JwtUtil jwtUtil;
 
@@ -36,24 +38,19 @@ public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String requestURI = request.getRequestURI();
 
-        if (isExcludedPath(requestURI)) {
-            if (authHeader == null) {
-                return new AuthCredential(null, null, null);
-            }
-            try {
-                final String token = bearerAuthExtractor.extractTokenValue(authHeader);
-                return jwtUtil.getCredentialFromToken(token);
-            } catch (Exception e) {
-                return new AuthCredential(null, null, null);
-            }
+        if (isExcludedRequest(requestURI, authHeader)) {
+            return new AuthCredential(null, null);
         }
 
         final String token = bearerAuthExtractor.extractTokenValue(authHeader);
         return jwtUtil.getCredentialFromToken(token);
     }
 
-    private boolean isExcludedPath(String requestURI) {
-        return EXCLUDE_PATTERNS.stream().anyMatch(requestURI::contains);
+    private boolean isExcludedRequest(String requestURI, String authHeader) {
+        if (authHeader != null) {
+            return false;
+        }
+        return EXCLUDE_PATTERNS.stream().anyMatch(requestURI::contains)
+                || COMMENTS_EXCLUDE_PATTERN.matcher(requestURI).matches();
     }
 }
-

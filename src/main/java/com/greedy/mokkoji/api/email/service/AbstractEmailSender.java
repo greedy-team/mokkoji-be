@@ -24,8 +24,6 @@ public abstract class AbstractEmailSender {
     protected String senderMail;
     @Value("${mokkoji.base-url}")
     protected String baseUrl;
-    @Value("${mokkoji.mail.banner-url}")
-    protected String mailBannerUrl;
 
     protected AbstractEmailSender(JavaMailSender mailSender, DiscordNotifier discordNotifier) {
         this.mailSender = mailSender;
