@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+
 import static com.greedy.mokkoji.db.clubapplication.entity.QClubApplication.clubApplication;
 
 @Repository
@@ -27,7 +28,7 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
     public Page<ClubApplication> findByConditions(
             final UniversityCode universityCode,
             final ApplicationStatus status,
-            final ClubAffiliation affiliation,
+            final List<ClubAffiliation> affiliations,
             final Pageable pageable
     ) {
         final List<ClubApplication> content = queryFactory
@@ -36,7 +37,7 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
                 .where(
                         equalUniversityCode(universityCode),
                         equalStatus(status),
-                        equalAffiliation(affiliation)
+                        inAffiliations(affiliations)
                 )
                 .orderBy(clubApplication.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -50,7 +51,7 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
                         .where(
                                 equalUniversityCode(universityCode),
                                 equalStatus(status),
-                                equalAffiliation(affiliation)
+                                inAffiliations(affiliations)
                         )
                         .fetchOne()
         ).orElse(0L);
@@ -72,9 +73,9 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
         return null;
     }
 
-    private BooleanExpression equalAffiliation(final ClubAffiliation affiliation) {
-        if (affiliation != null) {
-            return clubApplication.clubAffiliation.eq(affiliation);
+    private BooleanExpression inAffiliations(final List<ClubAffiliation> affiliations) {
+        if (affiliations != null && !affiliations.isEmpty()) {
+            return clubApplication.clubAffiliation.in(affiliations);
         }
         return null;
     }

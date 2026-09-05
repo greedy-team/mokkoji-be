@@ -27,7 +27,7 @@ public class ClubMasterApplicationRepositoryImpl implements ClubMasterApplicatio
     public Page<ClubMasterApplication> findByConditions(
             final UniversityCode universityCode,
             final ApplicationStatus status,
-            final ClubAffiliation affiliation,
+            final List<ClubAffiliation> affiliations,
             final Pageable pageable
     ) {
         final List<ClubMasterApplication> content = queryFactory
@@ -37,7 +37,7 @@ public class ClubMasterApplicationRepositoryImpl implements ClubMasterApplicatio
                 .where(
                         equalUniversityCode(universityCode),
                         equalStatus(status),
-                        equalAffiliation(affiliation)
+                        inAffiliations(affiliations)
                 )
                 .orderBy(clubMasterApplication.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -52,7 +52,7 @@ public class ClubMasterApplicationRepositoryImpl implements ClubMasterApplicatio
                         .where(
                                 equalUniversityCode(universityCode),
                                 equalStatus(status),
-                                equalAffiliation(affiliation)
+                                inAffiliations(affiliations)
                         )
                         .fetchOne()
         ).orElse(0L);
@@ -74,9 +74,9 @@ public class ClubMasterApplicationRepositoryImpl implements ClubMasterApplicatio
         return null;
     }
 
-    private BooleanExpression equalAffiliation(final ClubAffiliation affiliation) {
-        if (affiliation != null) {
-            return clubMasterApplication.club.clubAffiliation.eq(affiliation);
+    private BooleanExpression inAffiliations(final List<ClubAffiliation> affiliations) {
+        if (affiliations != null && !affiliations.isEmpty()) {
+            return clubMasterApplication.club.clubAffiliation.in(affiliations);
         }
         return null;
     }
