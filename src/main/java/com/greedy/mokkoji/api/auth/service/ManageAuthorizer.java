@@ -66,7 +66,7 @@ public class ManageAuthorizer {
         if (AdminRole.UNIVERSITY_ADMIN.equals(admin.getRole())
                 && university != null
                 && university.getId().equals(admin.getUniversityId())
-                && ClubAffiliation.CENTRAL_CLUB.equals(affiliation)) return;
+                && (ClubAffiliation.CENTRAL_CLUB.equals(affiliation) || ClubAffiliation.DEPARTMENT_CLUB.equals(affiliation))) return;
 
         throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
     }
