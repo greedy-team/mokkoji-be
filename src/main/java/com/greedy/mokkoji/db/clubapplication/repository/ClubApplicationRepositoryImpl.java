@@ -2,6 +2,7 @@ package com.greedy.mokkoji.db.clubapplication.repository;
 
 import com.greedy.mokkoji.db.clubapplication.entity.ClubApplication;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -26,6 +27,7 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
     public Page<ClubApplication> findByConditions(
             final UniversityCode universityCode,
             final ApplicationStatus status,
+            final ClubAffiliation affiliation,
             final Pageable pageable
     ) {
         final List<ClubApplication> content = queryFactory
@@ -33,7 +35,8 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
                 .join(clubApplication.university).fetchJoin()
                 .where(
                         equalUniversityCode(universityCode),
-                        equalStatus(status)
+                        equalStatus(status),
+                        equalAffiliation(affiliation)
                 )
                 .orderBy(clubApplication.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -46,7 +49,8 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
                         .from(clubApplication)
                         .where(
                                 equalUniversityCode(universityCode),
-                                equalStatus(status)
+                                equalStatus(status),
+                                equalAffiliation(affiliation)
                         )
                         .fetchOne()
         ).orElse(0L);
@@ -64,6 +68,13 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
     private BooleanExpression equalStatus(final ApplicationStatus status) {
         if (status != null) {
             return clubApplication.status.eq(status);
+        }
+        return null;
+    }
+
+    private BooleanExpression equalAffiliation(final ClubAffiliation affiliation) {
+        if (affiliation != null) {
+            return clubApplication.clubAffiliation.eq(affiliation);
         }
         return null;
     }

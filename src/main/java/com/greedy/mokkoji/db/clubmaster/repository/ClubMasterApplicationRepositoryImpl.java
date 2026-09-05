@@ -2,6 +2,7 @@ package com.greedy.mokkoji.db.clubmaster.repository;
 
 import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -26,6 +27,7 @@ public class ClubMasterApplicationRepositoryImpl implements ClubMasterApplicatio
     public Page<ClubMasterApplication> findByConditions(
             final UniversityCode universityCode,
             final ApplicationStatus status,
+            final ClubAffiliation affiliation,
             final Pageable pageable
     ) {
         final List<ClubMasterApplication> content = queryFactory
@@ -34,7 +36,8 @@ public class ClubMasterApplicationRepositoryImpl implements ClubMasterApplicatio
                 .join(clubMasterApplication.club).fetchJoin()
                 .where(
                         equalUniversityCode(universityCode),
-                        equalStatus(status)
+                        equalStatus(status),
+                        equalAffiliation(affiliation)
                 )
                 .orderBy(clubMasterApplication.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -45,9 +48,11 @@ public class ClubMasterApplicationRepositoryImpl implements ClubMasterApplicatio
                 queryFactory
                         .select(clubMasterApplication.count())
                         .from(clubMasterApplication)
+                        .join(clubMasterApplication.club)
                         .where(
                                 equalUniversityCode(universityCode),
-                                equalStatus(status)
+                                equalStatus(status),
+                                equalAffiliation(affiliation)
                         )
                         .fetchOne()
         ).orElse(0L);
@@ -65,6 +70,13 @@ public class ClubMasterApplicationRepositoryImpl implements ClubMasterApplicatio
     private BooleanExpression equalStatus(final ApplicationStatus status) {
         if (status != null) {
             return clubMasterApplication.status.eq(status);
+        }
+        return null;
+    }
+
+    private BooleanExpression equalAffiliation(final ClubAffiliation affiliation) {
+        if (affiliation != null) {
+            return clubMasterApplication.club.clubAffiliation.eq(affiliation);
         }
         return null;
     }

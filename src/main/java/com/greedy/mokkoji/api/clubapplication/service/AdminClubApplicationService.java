@@ -17,6 +17,7 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
@@ -51,8 +52,9 @@ public class AdminClubApplicationService {
 
         final Admin admin = findAdminOrThrow(adminId);
         final UniversityCode targetUniversityCode = resolveUniversityCode(admin, universityCode);
+        final ClubAffiliation affiliationFilter = resolveAffiliationFilter(admin);
 
-        final Page<ClubApplication> page = clubApplicationRepository.findByConditions(targetUniversityCode, status, pageable);
+        final Page<ClubApplication> page = clubApplicationRepository.findByConditions(targetUniversityCode, status, affiliationFilter, pageable);
 
         final List<AdminClubApplicationResponse> applications = page.getContent()
                 .stream()
@@ -69,7 +71,7 @@ public class AdminClubApplicationService {
     public void approveClubApplication(final AuthRole authRole, final Long adminId, final Long applicationId) {
         manageAuthorizer.validateAdminAuth(authRole, adminId);
         final ClubApplication clubApplication = findClubApplicationOrThrow(applicationId);
-        manageAuthorizer.validateCanManageUniversity(adminId, clubApplication.getUniversity());
+        manageAuthorizer.validateCanManageApplication(adminId, clubApplication.getUniversity(), clubApplication.getClubAffiliation());
 
         if (clubApplication.getStatus() != ApplicationStatus.PENDING) {
             throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
@@ -114,7 +116,7 @@ public class AdminClubApplicationService {
     public void rejectClubApplication(final AuthRole authRole, final Long adminId, final Long applicationId, final String rejectReason) {
         manageAuthorizer.validateAdminAuth(authRole, adminId);
         final ClubApplication clubApplication = findClubApplicationOrThrow(applicationId);
-        manageAuthorizer.validateCanManageUniversity(adminId, clubApplication.getUniversity());
+        manageAuthorizer.validateCanManageApplication(adminId, clubApplication.getUniversity(), clubApplication.getClubAffiliation());
 
         if (clubApplication.getStatus() != ApplicationStatus.PENDING) {
             throw new MokkojiException(FailMessage.CONFLICT_APPLICATION_STATUS);
@@ -128,6 +130,13 @@ public class AdminClubApplicationService {
             return admin.getUniversity().getCode();
         }
         return universityCode;
+    }
+
+    private ClubAffiliation resolveAffiliationFilter(final Admin admin) {
+        if (admin.getRole() == AdminRole.UNIVERSITY_ADMIN) {
+            return ClubAffiliation.CENTRAL_CLUB;
+        }
+        return null;
     }
 
     private Admin findAdminOrThrow(final Long adminId) {
