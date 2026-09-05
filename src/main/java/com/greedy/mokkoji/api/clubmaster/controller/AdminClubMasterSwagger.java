@@ -17,7 +17,13 @@ import org.springframework.http.ResponseEntity;
 public interface AdminClubMasterSwagger {
     @Operation(
             summary = "동아리장 권한 요청 조회 API",
-            description = "오래된 등록순으로 조회",
+            description = """
+                    오래된 등록순으로 조회
+
+                    **권한별 조회 범위**
+                    - `MOKKOJI_ADMIN`: 전체 조회
+                    - `UNIVERSITY_ADMIN`(총동연): 자신의 대학교 + 중앙·정인준·가인준 동아리 요청만 조회 (소모임 제외)
+                    """,
             security = {@SecurityRequirement(name = "JWT")}
     )
     @ApiResponse(responseCode = "200", description = "조회 성공")
@@ -31,6 +37,11 @@ public interface AdminClubMasterSwagger {
 
     @Operation(
             summary = "동아리장 권한 요청 승인 API",
+            description = """
+                    **권한별 승인 범위**
+                    - `MOKKOJI_ADMIN`: 전체 승인 가능
+                    - `UNIVERSITY_ADMIN`(총동연): 자신의 대학교 + 중앙·정인준·가인준 동아리 요청만 승인 가능 (소모임 제외)
+                    """,
             security = {@SecurityRequirement(name = "JWT")}
     )
     @ApiResponse(responseCode = "201", description = "승인 성공")
@@ -41,6 +52,11 @@ public interface AdminClubMasterSwagger {
 
     @Operation(
             summary = "동아리장 권한 요청 거절 API",
+            description = """
+                    **권한별 거절 범위**
+                    - `MOKKOJI_ADMIN`: 전체 거절 가능
+                    - `UNIVERSITY_ADMIN`(총동연): 자신의 대학교 + 중앙·정인준·가인준 동아리 요청만 거절 가능 (소모임 제외)
+                    """,
             security = {@SecurityRequirement(name = "JWT")}
     )
     @ApiResponse(responseCode = "201", description = "거절 성공")
