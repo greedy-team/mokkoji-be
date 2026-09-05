@@ -67,6 +67,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
 
         final List<Club> clubs = queryFactory.selectFrom(club)
                 .leftJoin(recruitment).on(club.eq(recruitment.club))
+                .leftJoin(club.university).fetchJoin()
                 .where(
                         likeClubName(keyword),
                         equalCategory(category),
