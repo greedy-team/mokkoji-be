@@ -12,4 +12,5 @@ public record RecruitmentMailPayload(
         List<String> receiverMails,
         LocalDateTime recruitStart,
         LocalDateTime recruitEnd
-) {}
+) {
+}
