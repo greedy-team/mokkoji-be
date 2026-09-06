@@ -5,6 +5,7 @@ import com.greedy.mokkoji.enums.university.UniversityCode;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
@@ -80,6 +81,14 @@ public class RecruitmentNotificationEmailChannel extends AbstractEmailSender imp
             if (successCount > 0) {
                 log.info("[MAIL SENT CHUNK {}] count={}", chunkIndex, successCount);
             }
+        } catch (MailAuthenticationException e) {
+            log.error("[MAIL AUTH FAILED] message={}", e.getMessage(), e);
+            builtPayloads.forEach(payload ->
+                    discordNotifier.notifyRecruitmentNotificationEmailFailure(
+                            payload.clubId(), payload.clubName(), payload.receiverMails().size(),
+                            INTERNAL_SERVER_ERROR_SMTP.getMessage()
+                    )
+            );
         } catch (Exception e) {
             log.error("[EMAIL UNEXPECTED ERROR]", e);
             builtPayloads.forEach(payload ->
