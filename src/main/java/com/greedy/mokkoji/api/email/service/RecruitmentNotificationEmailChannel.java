@@ -38,7 +38,7 @@ public class RecruitmentNotificationEmailChannel extends AbstractEmailSender imp
 
     @Async("emailExecutor")
     @Override
-    public void sendBatchNotification(List<RecruitmentMailPayload> payloads) {
+    public void sendBatchNotification(List<RecruitmentMailPayload> payloads, int chunkIndex) {
         List<MimeMessage> messages = new ArrayList<>();
         List<RecruitmentMailPayload> builtPayloads = new ArrayList<>();
 
@@ -63,6 +63,7 @@ public class RecruitmentNotificationEmailChannel extends AbstractEmailSender imp
 
         try {
             mailSender.send(messages.toArray(new MimeMessage[0]));
+            log.info("[MAIL SENT CHUNK {}] count={}", chunkIndex, messages.size());
         } catch (MailSendException e) {
             Map<Object, Exception> failedMessages = e.getFailedMessages();
             for (int i = 0; i < messages.size(); i++) {
@@ -74,6 +75,10 @@ public class RecruitmentNotificationEmailChannel extends AbstractEmailSender imp
                             INTERNAL_SERVER_ERROR_SMTP.getMessage()
                     );
                 }
+            }
+            int successCount = messages.size() - failedMessages.size();
+            if (successCount > 0) {
+                log.info("[MAIL SENT CHUNK {}] count={}", chunkIndex, successCount);
             }
         } catch (Exception e) {
             log.error("[EMAIL UNEXPECTED ERROR]", e);

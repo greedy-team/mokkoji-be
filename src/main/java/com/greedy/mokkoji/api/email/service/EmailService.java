@@ -48,7 +48,7 @@ public class EmailService {
         for (int i = 0; i < chunkCount; i++) {
             int from = i * payloads.size() / chunkCount;
             int to = (i + 1) * payloads.size() / chunkCount;
-            recruitmentNotificationChannel.sendBatchNotification(payloads.subList(from, to));
+            recruitmentNotificationChannel.sendBatchNotification(payloads.subList(from, to), i + 1);
         }
     }
 }

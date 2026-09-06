@@ -43,6 +43,8 @@ public class RecruitmentNotificationScheduler {
                 .stream()
                 .toList();
 
+        log.info("[RECRUITMENT NOTI] target={}", uniqueAndLatestRecruitments.size());
+
         try {
             emailService.sendBatchRecruitmentNotifications(uniqueAndLatestRecruitments);
         } catch (Exception e) {
