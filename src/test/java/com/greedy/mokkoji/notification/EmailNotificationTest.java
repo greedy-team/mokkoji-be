@@ -71,7 +71,7 @@ public class EmailNotificationTest {
     @DisplayName("전달된 payload가 없으면 메일을 발송하지 않는다")
     void 전달된_payload가_없으면_메일을_발송하지_않는다() {
         // when
-        recruitmentNotificationEmailChannel.sendBatchNotification(List.of());
+        recruitmentNotificationEmailChannel.sendBatchNotification(List.of(), 1);
 
         // then
         BDDMockito.verify(mailSender, never()).send(any(MimeMessage[].class));
@@ -94,7 +94,7 @@ public class EmailNotificationTest {
                 .given(mailSender).send(any(MimeMessage[].class));
 
         // when
-        recruitmentNotificationEmailChannel.sendBatchNotification(List.of(payload1, payload2));
+        recruitmentNotificationEmailChannel.sendBatchNotification(List.of(payload1, payload2), 1);
 
         // then — 빌드 성공한 2개 payload 모두에 Discord 에스컬레이션
         BDDMockito.verify(discordNotifier, times(2))
@@ -123,7 +123,7 @@ public class EmailNotificationTest {
         }).given(mailSender).send(any(MimeMessage[].class));
 
         // when
-        recruitmentNotificationEmailChannel.sendBatchNotification(List.of(payload1, payload2));
+        recruitmentNotificationEmailChannel.sendBatchNotification(List.of(payload1, payload2), 1);
 
         // then — 2개 중 첫 번째만 실패 → Discord 알림 1번
         BDDMockito.verify(discordNotifier, times(1))
@@ -174,7 +174,7 @@ public class EmailNotificationTest {
                         LocalDateTime.now(),
                         LocalDateTime.now().plusDays(7)
                 )
-        ));
+        ), 1);
     }
 
     private String extractHtml() throws Exception {
