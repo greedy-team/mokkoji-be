@@ -19,6 +19,9 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     @Query("SELECT f FROM Favorite f JOIN FETCH f.user WHERE f.club.id = :clubId")
     List<Favorite> findByClubIdWithFetchJoin(final Long clubId);
 
+    @Query("SELECT f FROM Favorite f JOIN FETCH f.user JOIN FETCH f.club WHERE f.club.id IN :clubIds")
+    List<Favorite> findByClubIdInWithFetchJoin(@Param("clubIds") List<Long> clubIds);
+
     boolean existsByUserAndClub(final User user, final Club club);
 
     void deleteByUserAndClub(final User user, final Club club);

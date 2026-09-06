@@ -7,8 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,27 +23,29 @@ public class EmailService {
 
     @Transactional(readOnly = true)
     public void sendBatchRecruitmentNotifications(final List<Recruitment> recruitments) {
-        List<RecruitmentMailPayload> payloads = new ArrayList<>();
+        List<Long> clubIds = recruitments.stream()
+                .map(r -> r.getClub().getId())
+                .toList();
 
-        for (Recruitment recruitment : recruitments) {
-            Long clubId = recruitment.getClub().getId();
-            String clubName = recruitment.getClub().getName();
-
-            List<String> userEmails = favoriteRepository.findByClubIdWithFetchJoin(clubId).stream()
-                    .map(Favorite::getUser)
-                    .filter(user -> user != null && user.isEmailOn())
-                    .map(user -> user.getEmail())
-                    .filter(email -> email != null && !email.isBlank())
-                    .toList();
-
-            if (!userEmails.isEmpty()) {
-                var universityCode = recruitment.getClub().getUniversity().getCode();
-                payloads.add(new RecruitmentMailPayload(
-                        clubId, clubName, universityCode, userEmails,
-                        recruitment.getRecruitStart(), recruitment.getRecruitEnd()
+        Map<Long, List<String>> emailsByClubId = favoriteRepository.findByClubIdInWithFetchJoin(clubIds).stream()
+                .filter(f -> f.getUser() != null && f.getUser().isEmailOn())
+                .filter(f -> f.getUser().getEmail() != null && !f.getUser().getEmail().isBlank())
+                .collect(Collectors.groupingBy(
+                        f -> f.getClub().getId(),
+                        Collectors.mapping(f -> f.getUser().getEmail(), Collectors.toList())
                 ));
-            }
-        }
+
+        List<RecruitmentMailPayload> payloads = recruitments.stream()
+                .filter(r -> emailsByClubId.containsKey(r.getClub().getId()))
+                .map(r -> new RecruitmentMailPayload(
+                        r.getClub().getId(),
+                        r.getClub().getName(),
+                        r.getClub().getUniversity().getCode(),
+                        emailsByClubId.get(r.getClub().getId()),
+                        r.getRecruitStart(),
+                        r.getRecruitEnd()
+                ))
+                .toList();
 
         int chunkCount = Math.min(EMAIL_POOL_SIZE, payloads.size());
         for (int i = 0; i < chunkCount; i++) {
