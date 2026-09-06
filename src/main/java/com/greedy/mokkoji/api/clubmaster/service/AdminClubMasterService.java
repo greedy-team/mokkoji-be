@@ -45,8 +45,8 @@ public class AdminClubMasterService {
         final Admin admin = findAdminOrThrow(adminId);
 
         final UniversityCode targetUniversityCode = resolveUniversityCode(admin, universityCode);
-        final List<ClubAffiliation> affiliationFilter = resolveAffiliationFilter(admin);
-        final Page<ClubMasterApplication> page = clubMasterApplicationRepository.findByConditions(targetUniversityCode, status, affiliationFilter, pageable);
+        final List<ClubAffiliation> targetAffiliations = resolveTargetAffiliations(admin);
+        final Page<ClubMasterApplication> page = clubMasterApplicationRepository.findByConditions(targetUniversityCode, status, targetAffiliations, pageable);
 
         final List<ClubMasterApplicationPreviewResponse> applications = page.getContent()
                 .stream()
@@ -116,7 +116,7 @@ public class AdminClubMasterService {
         return universityCode;
     }
 
-    private List<ClubAffiliation> resolveAffiliationFilter(final Admin admin) {
+    private List<ClubAffiliation> resolveTargetAffiliations(final Admin admin) {
         if (admin.getRole() == AdminRole.UNIVERSITY_ADMIN) {
             return List.of(ClubAffiliation.CENTRAL_CLUB, ClubAffiliation.DEPARTMENT_CLUB);
         }
