@@ -15,9 +15,14 @@ import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class ManageAuthorizer {
+
+    private static final List<ClubAffiliation> UNIVERSITY_ADMIN_AFFILIATIONS =
+            List.of(ClubAffiliation.CENTRAL_CLUB, ClubAffiliation.DEPARTMENT_CLUB);
 
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
@@ -66,9 +71,16 @@ public class ManageAuthorizer {
         if (AdminRole.UNIVERSITY_ADMIN.equals(admin.getRole())
                 && university != null
                 && university.getId().equals(admin.getUniversityId())
-                && (ClubAffiliation.CENTRAL_CLUB.equals(affiliation) || ClubAffiliation.DEPARTMENT_CLUB.equals(affiliation))) return;
+                && UNIVERSITY_ADMIN_AFFILIATIONS.contains(affiliation)) return;
 
         throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
+    }
+
+    public List<ClubAffiliation> resolveTargetAffiliations(final Admin admin) {
+        if (AdminRole.UNIVERSITY_ADMIN.equals(admin.getRole())) {
+            return UNIVERSITY_ADMIN_AFFILIATIONS;
+        }
+        return null;
     }
 
     private void validateAuthenticated(final Long accountId) {
