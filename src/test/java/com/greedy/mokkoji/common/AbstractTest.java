@@ -28,6 +28,21 @@ public class AbstractTest {
         MYSQL.start();
     }
 
+    @Autowired
+    protected UserRepository userRepository;
+    @Autowired
+    protected UniversityRepository universityRepository;
+    @Autowired
+    protected ClubRepository clubRepository;
+    @Autowired
+    protected FavoriteRepository favoriteRepository;
+    @Autowired
+    protected RecruitmentRepository recruitmentRepository;
+    @Autowired
+    protected RecruitmentImageRepository recruitmentImageRepository;
+    @Autowired
+    protected CommentRepository commentRepository;
+
     @DynamicPropertySource
     static void datasourceProperties(final DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", MYSQL::getJdbcUrl);
@@ -47,25 +62,4 @@ public class AbstractTest {
         userRepository.deleteAll();
         universityRepository.deleteAll();
     }
-
-    @Autowired
-    protected UserRepository userRepository;
-
-    @Autowired
-    protected UniversityRepository universityRepository;
-
-    @Autowired
-    protected ClubRepository clubRepository;
-
-    @Autowired
-    protected FavoriteRepository favoriteRepository;
-
-    @Autowired
-    protected RecruitmentRepository recruitmentRepository;
-
-    @Autowired
-    protected RecruitmentImageRepository recruitmentImageRepository;
-
-    @Autowired
-    protected CommentRepository commentRepository;
 }

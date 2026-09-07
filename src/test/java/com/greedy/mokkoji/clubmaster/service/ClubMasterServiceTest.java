@@ -42,26 +42,19 @@ public class ClubMasterServiceTest {
     private static final Long PREVIOUS_MASTER_ID = 1L;
     private static final Long NEXT_MASTER_ID = 2L;
     private static final String NEXT_MASTER_USER_CODE = "Gh3456";
-
+    private final University university = Fixture.createUniversity();
     @InjectMocks
     ClubMasterService clubMasterService;
-
     @Mock
     ClubMasterApplicationRepository clubMasterApplicationRepository;
-
     @Mock
     ManageAuthorizer manageAuthorizer;
-
     @Mock
     UniversityRepository universityRepository;
-
     @Mock
     ClubRepository clubRepository;
-
     @Mock
     UserRepository userRepository;
-
-    private final University university = Fixture.createUniversity();
     private User previousMaster;
     private User nextMaster;
     private Club club;

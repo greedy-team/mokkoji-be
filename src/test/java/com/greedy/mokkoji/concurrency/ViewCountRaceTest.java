@@ -21,12 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * 조회수 v0(read-modify-write, 더티체킹)의 lost update 재현 테스트.
- *
+ * <p>
  * 가정한 상황: 인기 동아리 상세 페이지에 여러 사용자가 "동시에" 진입한다.
  * 각 요청은 같은 club 행을 읽고(view_count=n), 메모리에서 +1 한 뒤(n+1),
  * 커밋 시점에 UPDATE 한다. 두 요청이 같은 n을 읽으면 둘 다 n+1을 쓰므로
  * 증가 1회가 유실된다(lost update).
- *
+ * <p>
  * v0에서 이 테스트는 실패해야 하며(유실 실증), v1(원자 UPDATE) 적용 후
  * 통과하여 회귀 방지 테스트로 남는다.
  */
