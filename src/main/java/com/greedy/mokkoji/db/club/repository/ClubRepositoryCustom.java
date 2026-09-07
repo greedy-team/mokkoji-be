@@ -14,6 +14,7 @@ import java.util.List;
 public interface ClubRepositoryCustom {
     Page<Club> findClubsForAdmin(
             final UniversityCode universityCode,
+            final List<ClubAffiliation> affiliations,
             final Pageable pageable
     );
 
