@@ -7,11 +7,17 @@ import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface ClubMasterApplicationRepository extends JpaRepository<ClubMasterApplication, Long>, ClubMasterApplicationRepositoryCustom {
-    List<ClubMasterApplication> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    @Query("SELECT a FROM ClubMasterApplication a "
+            + "JOIN FETCH a.university "
+            + "JOIN FETCH a.club "
+            + "WHERE a.user.id = :userId ORDER BY a.createdAt DESC")
+    List<ClubMasterApplication> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
 
     boolean existsByUserAndClubAndStatusNot(User user, Club club, ApplicationStatus status);
 

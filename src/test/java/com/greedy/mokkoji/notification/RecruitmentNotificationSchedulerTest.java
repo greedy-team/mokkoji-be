@@ -23,9 +23,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 
 
@@ -94,26 +92,16 @@ public class RecruitmentNotificationSchedulerTest {
 
         BDDMockito.doNothing()
                 .when(emailService)
-                .sendRecruitmentNotification(
-                        nullable(Long.class),
-                        any(String.class),
-                        eq(UniversityCode.KONKUK),
-                        any(Recruitment.class)
-                );
+                .sendBatchRecruitmentNotifications(anyList());
 
         // when
         recruitmentNotificationScheduler.sendDailyRecruitmentNotifications();
 
-        //then
+        // then
         BDDMockito.verify(recruitmentRepository, times(1))
                 .findAllByRecruitStartToday(currentDateTime.toLocalDate());
 
-        BDDMockito.verify(emailService, times(2))
-                .sendRecruitmentNotification(
-                        nullable(Long.class),
-                        any(String.class),
-                        eq(UniversityCode.KONKUK),
-                        any(Recruitment.class)
-                );
+        BDDMockito.verify(emailService, times(1))
+                .sendBatchRecruitmentNotifications(anyList());
     }
 }

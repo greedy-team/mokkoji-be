@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -227,11 +228,15 @@ public class ClubService {
     }
 
     private List<ClubResponse> mapToClubResponses(final Long userId, final List<Club> clubs) {
+
+        List<Long> clubIds = clubs.stream().map(Club::getId).toList();
+        final Map<Long, Recruitment> latestByClubId = loadLatestRecruitmentsByClubIds(clubIds);
+        Set<Long> favoriteClubIds = loadFavoriteClubIds(userId);
+
         return clubs.stream()
                 .map(club -> {
-                    Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(club.getId())
-                            .orElse(null);
-                    boolean isFavorite = getIsFavorite(userId, club.getId());
+                    Recruitment recruitment = latestByClubId.get(club.getId());
+                    boolean isFavorite = favoriteClubIds.contains(club.getId());
                     return ClubResponse.of(club.getId(),
                             club.getName(),
                             club.getClubCategory(),
@@ -247,6 +252,19 @@ public class ClubService {
                 })
                 .sorted(getFavoriteComparator())
                 .toList();
+    }
+
+    private Map<Long, Recruitment> loadLatestRecruitmentsByClubIds(final List<Long> clubIds) {
+        if (clubIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return recruitmentRepository.findLatestRecruitmentsByClubIds(clubIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        recruitment -> recruitment.getClub().getId(),
+                        recruitment -> recruitment,
+                        (a, b) -> a));
     }
 
     private ClubDetailResponse mapToClubDetailResponse(final Club club, final Recruitment recruitment,

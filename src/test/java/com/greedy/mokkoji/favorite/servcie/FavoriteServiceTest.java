@@ -208,6 +208,7 @@ public class FavoriteServiceTest {
         ReflectionTestUtils.setField(club, "id", 1L);
 
         final Recruitment recruitment = Recruitment.builder().
+                club(club).
                 recruitStart(LocalDateTime.of(2025, 02, 01, 12, 00)).
                 recruitEnd(LocalDateTime.of(2025, 03, 30, 12, 00)).
                 content("동아리 모집 글").
@@ -224,7 +225,7 @@ public class FavoriteServiceTest {
         final Page<Favorite> favoritePage = new PageImpl<>(List.of(favorite));
 
         BDDMockito.given(favoriteRepository.findByUserId(any(), any())).willReturn(favoritePage);
-        BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(any())).willReturn(Optional.of(recruitment));
+        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByClubIds(List.of(club.getId()))).willReturn(List.of(recruitment));
         BDDMockito.given(appDataS3Client.getPublicUrl(any())).willReturn("testLogo1");
         BDDMockito.given(userRepository.findById(user.getId())).willReturn(Optional.of(user));
         ReflectionTestUtils.setField(club, "university", Fixture.createUniversity());
@@ -244,7 +245,7 @@ public class FavoriteServiceTest {
         assertThat(favoriteClubs.clubs().get(0).isFavorite()).isEqualTo(true);
 
         BDDMockito.verify(favoriteRepository, times(1)).findByUserId(user.getId(), PageRequest.of(0, 10));
-        BDDMockito.verify(recruitmentRepository, times(1)).findTopByClubIdOrderByCreatedAtDesc(club.getId());
+        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByClubIds(List.of(club.getId()));
     }
 
     @DisplayName("특정 연월에 모집 중인 즐겨찾기 동아리의 최신 모집 정보를 조회한다. - 모집 시작일이 겹치는 경우")
@@ -299,7 +300,7 @@ public class FavoriteServiceTest {
         );
 
         BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
-        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
+        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByClubIds(List.of(1L)))
                 .willReturn(List.of(recruitment3));
 
         // when
@@ -316,7 +317,7 @@ public class FavoriteServiceTest {
         assertThat(response.recruitEnd()).isEqualTo("2025-03-30T12:00:00");
 
         BDDMockito.verify(favoriteRepository, times(1)).findClubIdsByUserId(1L);
-        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByFavoriteClubs(List.of(1L));
+        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByClubIds(List.of(1L));
     }
 
     @DisplayName("특정 연월에 모집 중인 즐겨찾기 동아리의 최신 모집 정보를 조회한다. - 모집 마감일이 겹치는 경우")
@@ -371,7 +372,7 @@ public class FavoriteServiceTest {
         );
 
         BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
-        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
+        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByClubIds(List.of(1L)))
                 .willReturn(List.of(recruitment3));
 
         // when
@@ -388,7 +389,7 @@ public class FavoriteServiceTest {
         assertThat(response.recruitEnd()).isEqualTo("2025-03-30T12:00:00");
 
         BDDMockito.verify(favoriteRepository, times(1)).findClubIdsByUserId(1L);
-        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByFavoriteClubs(List.of(1L));
+        BDDMockito.verify(recruitmentRepository, times(1)).findLatestRecruitmentsByClubIds(List.of(1L));
     }
 
 
@@ -444,7 +445,7 @@ public class FavoriteServiceTest {
         );
 
         BDDMockito.given(favoriteRepository.findClubIdsByUserId(1L)).willReturn(List.of(1L));
-        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(List.of(1L)))
+        BDDMockito.given(recruitmentRepository.findLatestRecruitmentsByClubIds(List.of(1L)))
                 .willReturn(List.of(recruitment3));
 
         // when

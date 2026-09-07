@@ -66,7 +66,7 @@ class AdminAuthServiceTest {
 
         given(adminRepository.findByLoginId(admin.getLoginId())).willReturn(Optional.of(admin));
         given(passwordEncoder.matches(rawPassword, admin.getPassword())).willReturn(true);
-        given(tokenService.issueTokens(AuthRole.ADMIN, AdminRole.MOKKOJI_ADMIN, 1L)).willReturn(new TokenPair("access", "refresh"));
+        given(tokenService.issueTokens(AuthRole.ADMIN, 1L)).willReturn(new TokenPair("access", "refresh"));
 
         //when
         final AdminLoginResponse response = adminAuthService.login(admin.getLoginId(), rawPassword);
@@ -74,7 +74,7 @@ class AdminAuthServiceTest {
         //then
         assertThat(response.accessToken()).isEqualTo("access");
         assertThat(response.refreshToken()).isEqualTo("refresh");
-        verify(tokenService, times(1)).issueTokens(AuthRole.ADMIN, AdminRole.MOKKOJI_ADMIN, 1L);
+        verify(tokenService, times(1)).issueTokens(AuthRole.ADMIN, 1L);
     }
 
     @Test
@@ -127,7 +127,7 @@ class AdminAuthServiceTest {
         given(adminRepository.findById(1L)).willReturn(Optional.of(admin));
 
         //when
-        final AdminInfoResponse response = adminAuthService.getAdminInfo(AuthRole.ADMIN, AdminRole.UNIVERSITY_ADMIN, 1L);
+        final AdminInfoResponse response = adminAuthService.getAdminInfo(AuthRole.ADMIN, 1L);
 
         //then
         assertThat(response.role()).isEqualTo(AdminRole.UNIVERSITY_ADMIN);
@@ -145,7 +145,7 @@ class AdminAuthServiceTest {
         given(adminRepository.findById(1L)).willReturn(Optional.of(admin));
 
         //when
-        final AdminInfoResponse response = adminAuthService.getAdminInfo(AuthRole.ADMIN, AdminRole.MOKKOJI_ADMIN, 1L);
+        final AdminInfoResponse response = adminAuthService.getAdminInfo(AuthRole.ADMIN, 1L);
 
         //then
         assertThat(response.role()).isEqualTo(AdminRole.MOKKOJI_ADMIN);
@@ -160,7 +160,7 @@ class AdminAuthServiceTest {
                 .given(manageAuthorizer).validateAdminAuth(AuthRole.USER, 1L);
 
         //when & then
-        assertThatThrownBy(() -> adminAuthService.getAdminInfo(AuthRole.USER, null, 1L))
+        assertThatThrownBy(() -> adminAuthService.getAdminInfo(AuthRole.USER, 1L))
                 .isInstanceOf(MokkojiException.class)
                 .hasMessage(FailMessage.FORBIDDEN_ADMIN.getMessage());
 
@@ -174,7 +174,7 @@ class AdminAuthServiceTest {
         given(adminRepository.findById(1L)).willReturn(Optional.empty());
 
         //when & then
-        assertThatThrownBy(() -> adminAuthService.getAdminInfo(AuthRole.ADMIN, AdminRole.MOKKOJI_ADMIN, 1L))
+        assertThatThrownBy(() -> adminAuthService.getAdminInfo(AuthRole.ADMIN, 1L))
                 .isInstanceOf(MokkojiException.class)
                 .hasMessage(FailMessage.NOT_FOUND_ADMIN.getMessage());
     }

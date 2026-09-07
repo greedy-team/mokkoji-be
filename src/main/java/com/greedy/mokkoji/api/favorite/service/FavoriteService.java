@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -60,11 +62,13 @@ public class FavoriteService {
         final User user = getUserById(userId);
 
         final List<Favorite> favorites = favoritePage.getContent();
+        final List<Long> clubIds = favorites.stream().map(favorite -> favorite.getClub().getId()).toList();
+        final Map<Long, Recruitment> latestByClubId = loadLatestRecruitmentsByClubIds(clubIds);
+
         List<ClubResponse> clubResponses = favorites.stream()
                 .map(favorite -> {
                     final Club club = favorite.getClub();
-                    Recruitment recruitment = recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(club.getId())
-                            .orElse(null);
+                    Recruitment recruitment = latestByClubId.get(club.getId());
                     return ClubResponse.of(
                             club.getId(),
                             club.getName(),
@@ -84,6 +88,19 @@ public class FavoriteService {
         final PageResponse pageResponse = createPageResponse(favoritePage);
 
         return new ClubsPaginationResponse(clubResponses, pageResponse);
+    }
+
+    private Map<Long, Recruitment> loadLatestRecruitmentsByClubIds(final List<Long> clubIds) {
+        if (clubIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return recruitmentRepository.findLatestRecruitmentsByClubIds(clubIds)
+                .stream()
+                .collect(Collectors.toMap(
+                        recruitment -> recruitment.getClub().getId(),
+                        recruitment -> recruitment,
+                        (a, b) -> a));
     }
 
     @Transactional
@@ -109,7 +126,7 @@ public class FavoriteService {
             return null;
         }
 
-        final List<Recruitment> recruitments = recruitmentRepository.findLatestRecruitmentsByFavoriteClubs(favoriteClubIds);
+        final List<Recruitment> recruitments = recruitmentRepository.findLatestRecruitmentsByClubIds(favoriteClubIds);
 
         if (recruitments == null || recruitments.isEmpty()) {
             return null;

@@ -2,7 +2,6 @@ package com.greedy.mokkoji.api.jwt;
 
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.AuthCredential;
 import com.greedy.mokkoji.common.exception.MokkojiException;
-import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import io.jsonwebtoken.*;
@@ -20,7 +19,6 @@ public class JwtUtil {
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 14; //14일
 
     private static final String AUTH_ROLE_KEY = "authRole";
-    private static final String ADMIN_ROLE_KEY = "adminRole";
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -38,7 +36,6 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(String.valueOf(credential.accountId()))
                 .claim(AUTH_ROLE_KEY, credential.authRole().name())
-                .claim(ADMIN_ROLE_KEY, adminRoleName(credential))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -49,15 +46,10 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(String.valueOf(credential.accountId()))
                 .claim(AUTH_ROLE_KEY, credential.authRole().name())
-                .claim(ADMIN_ROLE_KEY, adminRoleName(credential))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    private String adminRoleName(AuthCredential credential) {
-        return credential.adminRole() != null ? credential.adminRole().name() : null;
     }
 
     public AuthCredential getCredentialFromToken(String token) {
@@ -70,10 +62,8 @@ public class JwtUtil {
 
             Long accountId = Long.parseLong(claims.getSubject());
             AuthRole authRole = AuthRole.valueOf(claims.get(AUTH_ROLE_KEY, String.class));
-            String adminRoleValue = claims.get(ADMIN_ROLE_KEY, String.class);
-            AdminRole adminRole = adminRoleValue != null ? AdminRole.valueOf(adminRoleValue) : null;
 
-            return new AuthCredential(authRole, adminRole, accountId);
+            return new AuthCredential(authRole, accountId);
 
         } catch (ExpiredJwtException e) {
             throw new MokkojiException(FailMessage.UNAUTHORIZED_EXPIRED);

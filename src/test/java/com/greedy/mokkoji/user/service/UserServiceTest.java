@@ -105,7 +105,7 @@ public class UserServiceTest {
         BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, "모꼬지"));
         BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.of(existingUser));
-        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, null, existingUser.getId()))
+        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, existingUser.getId()))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
@@ -141,7 +141,7 @@ public class UserServiceTest {
             ReflectionTestUtils.setField(saved, "id", 1L);
             return saved;
         });
-        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, null, 1L))
+        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, 1L))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
@@ -179,7 +179,7 @@ public class UserServiceTest {
             ReflectionTestUtils.setField(saved, "id", 1L);
             return saved;
         });
-        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, null, 1L))
+        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, 1L))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
@@ -200,7 +200,7 @@ public class UserServiceTest {
         Long userId = 1L;
         String refreshToken = "refreshToken";
         String newAccessToken = "newAccessToken";
-        AuthCredential credential = new AuthCredential(AuthRole.USER, null, userId);
+        AuthCredential credential = new AuthCredential(AuthRole.USER, userId);
 
         when(jwtUtil.getCredentialFromToken(refreshToken)).thenReturn(credential);
         when(tokenService.getRefreshToken(AuthRole.USER, userId)).thenReturn(refreshToken);
@@ -219,7 +219,7 @@ public class UserServiceTest {
         // given
         Long userId = 1L;
         String invalidRefreshToken = "invalidRefreshToken";
-        AuthCredential credential = new AuthCredential(AuthRole.USER, null, userId);
+        AuthCredential credential = new AuthCredential(AuthRole.USER, userId);
 
         when(jwtUtil.getCredentialFromToken(invalidRefreshToken)).thenReturn(credential);
         when(tokenService.getRefreshToken(AuthRole.USER, userId)).thenReturn("differentStoredToken");
