@@ -28,8 +28,10 @@ public class DiscordNotifierRealTest {
 
         ReflectionTestUtils.setField(discordNotifier, "clubApplicationWebhookUrl",
                 properties.getProperty("discord.webhook.club-application.url"));
+        ReflectionTestUtils.setField(discordNotifier, "clubApplicationEnabled", true);
         ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationWebhookUrl",
                 properties.getProperty("discord.webhook.club-master-application.url"));
+        ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationEnabled", true);
     }
 
     @Test

@@ -40,7 +40,9 @@ public class DiscordNotifierTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(discordNotifier, "clubApplicationWebhookUrl", CLUB_APPLICATION_WEBHOOK_URL);
+        ReflectionTestUtils.setField(discordNotifier, "clubApplicationEnabled", true);
         ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationWebhookUrl", CLUB_MASTER_APPLICATION_WEBHOOK_URL);
+        ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationEnabled", true);
     }
 
     @Test
@@ -126,6 +128,25 @@ public class DiscordNotifierTest {
         final String content = captureSentContent(CLUB_APPLICATION_WEBHOOK_URL);
         assertThat(content).contains(": -");
         assertThat(content).doesNotContain("null");
+    }
+
+    @Test
+    @DisplayName("비활성화 상태면 웹훅을 전송하지 않는다.")
+    void doNotNotifyWhenDisabled() {
+        // given
+        ReflectionTestUtils.setField(discordNotifier, "clubApplicationEnabled", false);
+        ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationEnabled", false);
+
+        // when
+        discordNotifier.notifyClubApplicationCreated(new ClubApplicationNotification(
+                1L, "세종대학교", "그리디", "학술/교양", "중앙", "홍길동", "hong@test.com", null, null
+        ));
+        discordNotifier.notifyClubMasterApplicationCreated(new ClubMasterApplicationNotification(
+                2L, "세종대학교", "그리디", "홍길동", "hong@test.com"
+        ));
+
+        // then
+        BDDMockito.verifyNoInteractions(restTemplate);
     }
 
     @Test
