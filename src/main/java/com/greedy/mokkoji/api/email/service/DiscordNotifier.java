@@ -30,8 +30,12 @@ public class DiscordNotifier {
     private boolean recruitmentNotificationMailEnabled;
     @Value("${discord.webhook.club-application.url}")
     private String clubApplicationWebhookUrl;
+    @Value("${discord.webhook.club-application.enabled}")
+    private boolean clubApplicationEnabled;
     @Value("${discord.webhook.club-master-application.url}")
     private String clubMasterApplicationWebhookUrl;
+    @Value("${discord.webhook.club-master-application.enabled}")
+    private boolean clubMasterApplicationEnabled;
 
     @Async("discordExecutor")
     public void notifyRecruitmentNotificationEmailFailure(Long clubId, String clubName, int receiverCount, String errorMessage) {
@@ -59,7 +63,9 @@ public class DiscordNotifier {
 
     @Async("discordExecutor")
     public void notifyClubApplicationCreated(final ClubApplicationNotification clubApplicationNotification) {
-        if (clubApplicationWebhookUrl == null || clubApplicationWebhookUrl.isEmpty()) {
+        if (!clubApplicationEnabled ||
+                clubApplicationWebhookUrl == null
+                || clubApplicationWebhookUrl.isEmpty()) {
             return;
         }
 
@@ -95,7 +101,9 @@ public class DiscordNotifier {
 
     @Async("discordExecutor")
     public void notifyClubMasterApplicationCreated(final ClubMasterApplicationNotification clubMasterApplicationNotification) {
-        if (clubMasterApplicationWebhookUrl == null || clubMasterApplicationWebhookUrl.isEmpty()) {
+        if (!clubMasterApplicationEnabled ||
+                clubMasterApplicationWebhookUrl == null
+                || clubMasterApplicationWebhookUrl.isEmpty()) {
             return;
         }
 
