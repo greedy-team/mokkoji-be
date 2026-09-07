@@ -4,6 +4,9 @@ import com.greedy.mokkoji.api.clubapplication.dto.request.ClubApplicationCreateR
 import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationCreateResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.ClubApplicationsResponse;
+import com.greedy.mokkoji.api.email.dto.ClubApplicationNotification;
+import com.greedy.mokkoji.api.email.service.DiscordNotifier;
+import com.greedy.mokkoji.api.external.AfterCommitExecutor;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.clubapplication.entity.ClubApplication;
@@ -30,6 +33,8 @@ public class ClubApplicationService {
     private final UserRepository userRepository;
     private final UniversityRepository universityRepository;
     private final AppDataS3Client appDataS3Client;
+    private final DiscordNotifier discordNotifier;
+    private final AfterCommitExecutor afterCommitExecutor;
 
     @Transactional
     public ClubApplicationCreateResponse createClubApplication(final Long userId, final ClubApplicationCreateRequest request) {
@@ -64,7 +69,22 @@ public class ClubApplicationService {
 
         final String uploadLogoUrl = appDataS3Client.getPresignedPutUrl(logoKey);
 
+        notifyClubApplicationCreated(clubApplication, university, user);
+
         return ClubApplicationCreateResponse.of(clubApplication.getId(), uploadLogoUrl);
+    }
+
+    @Transactional(readOnly = true)
+    public ClubApplicationsResponse getMyClubApplications(final Long userId) {
+        final User user = userRepository.findById(userId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+
+        final List<ClubApplicationResponse> clubApplications = clubApplicationRepository.findByApplicant(user)
+                .stream()
+                .map(ClubApplicationResponse::from)
+                .toList();
+
+        return ClubApplicationsResponse.of(clubApplications);
     }
 
     @Nullable
@@ -86,17 +106,10 @@ public class ClubApplicationService {
         return String.format("club-application-logo/%d/%s", applicationId, fileName);
     }
 
-    @Transactional(readOnly = true)
-    public ClubApplicationsResponse getMyClubApplications(final Long userId) {
-        final User user = userRepository.findById(userId)
-                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+    private void notifyClubApplicationCreated(final ClubApplication clubApplication, final University university, final User applicant) {
+        final ClubApplicationNotification notification = ClubApplicationNotification.of(clubApplication, university, applicant);
 
-        final List<ClubApplicationResponse> clubApplications = clubApplicationRepository.findByApplicant(user)
-                .stream()
-                .map(ClubApplicationResponse::from)
-                .toList();
-
-        return ClubApplicationsResponse.of(clubApplications);
+        afterCommitExecutor.run(() -> discordNotifier.notifyClubApplicationCreated(notification));
     }
 
 }
