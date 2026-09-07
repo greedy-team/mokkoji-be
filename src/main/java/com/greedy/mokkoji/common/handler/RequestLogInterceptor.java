@@ -18,7 +18,7 @@ import org.springframework.web.servlet.HandlerMapping;
 public class RequestLogInterceptor implements HandlerInterceptor {
 
     private static final int QUERY_COUNT_WARNING_STANDARD = 10;
-    private static final double TOTAL_TIME_WARNING_STANDARD_MS = 0.25;
+    private static final double TOTAL_TIME_WARNING_STANDARD_SEC = 0.25;
     private static final double TIME_CONVERSION_MS_TO_SEC = 1000.0;
 
     private static final String UNMATCHED_URI_TAG = "UNKNOWN";
@@ -48,18 +48,18 @@ public class RequestLogInterceptor implements HandlerInterceptor {
             final Exception ex
     ) {
         final Long queryCount = queryCounter.getCount();
-        final double duration = (System.currentTimeMillis() - queryCounter.getTime()) / TIME_CONVERSION_MS_TO_SEC;
+        final double durationSec = (System.currentTimeMillis() - queryCounter.getTime()) / TIME_CONVERSION_MS_TO_SEC;
         final int status = response.getStatus();
 
         if (status >= 400) {
-            log.error("[❌ 요청 실패] - 요청 : [{}] {} | 요청자 : {} | 상태 코드 : {} | 시간 : {} ms", request.getMethod(),
-                    request.getRequestURI(), commonLogInformation.getRequestIdentifier(), status, duration);
+            log.error("[❌ 요청 실패] - 요청 : [{}] {} | 요청자 : {} | 상태 코드 : {} | 시간 : {} s", request.getMethod(),
+                    request.getRequestURI(), commonLogInformation.getRequestIdentifier(), status, durationSec);
         } else {
-            log.info("[✅ 요청 성공] - 요청 : [{}] {} | 요청자 : {} | 상태 코드 : {} | 시간 : {} ms", request.getMethod(),
+            log.info("[✅ 요청 성공] - 요청 : [{}] {} | 요청자 : {} | 상태 코드 : {} | 시간 : {} s", request.getMethod(),
                     request.getRequestURI(), commonLogInformation.getRequestIdentifier(),
-                    status, duration);
+                    status, durationSec);
         }
-        warnAboutQuery(queryCount, duration);
+        warnAboutQuery(queryCount, durationSec);
         queryMetricsRecorder.record(
                 request.getMethod(),
                 resolveUriPattern(request), queryCount,
@@ -75,16 +75,16 @@ public class RequestLogInterceptor implements HandlerInterceptor {
         return pattern.toString();
     }
 
-    private void warnAboutQuery(Long queryCount, double duration) {
+    private void warnAboutQuery(Long queryCount, double durationSec) {
         if (queryCount > QUERY_COUNT_WARNING_STANDARD) {
             log.warn("[{}] URI: {}, 하나의 요청에 쿼리가 10번 이상 날라 갔습니다. 쿼리 횟수: {}",
                     commonLogInformation.getRequestIdentifier(), commonLogInformation.getUri(), queryCount
             );
         }
 
-        if (duration > TOTAL_TIME_WARNING_STANDARD_MS) {
-            log.warn("[{}] URI: {}, 하나의 요청이 0.25s 이상 소요되었습니다. 실제 소요 시간: {}",
-                    commonLogInformation.getRequestIdentifier(), commonLogInformation.getUri(), duration
+        if (durationSec > TOTAL_TIME_WARNING_STANDARD_SEC) {
+            log.warn("[{}] URI: {}, 하나의 요청이 0.25s 이상 소요되었습니다. 실제 소요 시간: {} s",
+                    commonLogInformation.getRequestIdentifier(), commonLogInformation.getUri(), durationSec
             );
         }
     }
