@@ -121,9 +121,8 @@ public class DiscordNotifierTest {
         // then
         final String content = captureSentContent(FEEDBACK_WEBHOOK_URL);
         assertThat(content).contains(
-                "모꼬지 사용자 피드백",
+                "피드백 등록 알림",
                 "10",
-                "★★★★☆",
                 "4점",
                 "목오지 쵝오"
         );
@@ -140,7 +139,7 @@ public class DiscordNotifierTest {
 
         // then
         final String content = captureSentContent(FEEDBACK_WEBHOOK_URL);
-        assertThat(content).contains("★★★★★", "5점", "-");
+        assertThat(content).contains("5점", "-");
     }
 
     @Test

@@ -23,7 +23,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DiscordNotifier {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private static final int MAX_RATING = 5;
 
     private final RestTemplate restTemplate;
     @Value("${discord.webhook.recruitment-notification-mail-fail.url}")
@@ -146,25 +145,19 @@ public class DiscordNotifier {
         String timestamp = LocalDateTime.now().format(FORMATTER);
 
         String content = String.format(
-                "📋 **모꼬지 사용자 피드백**\n" +
+                "📝 **피드백 등록 알림**\n" +
                         "```text\n" +
                         "피드백 ID : %d\n" +
-                        "별점      : %s (%d점)\n" +
+                        "별점      : %d점\n" +
                         "의견      : %s\n" +
                         "등록 시간 : %s\n" +
                         "```",
                 feedbackNotification.feedbackId(),
-                toStars(feedbackNotification.rating()),
                 feedbackNotification.rating(),
                 orDash(feedbackNotification.content()),
                 timestamp
         );
         sendToDiscord(content, feedbackWebhookUrl);
-    }
-
-    private String toStars(final int rating) {
-        final int filled = Math.max(0, Math.min(MAX_RATING, rating));
-        return "★".repeat(filled) + "☆".repeat(MAX_RATING - filled);
     }
 
     private String orDash(final String value) {
