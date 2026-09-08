@@ -66,8 +66,6 @@ public class ClubMasterServiceTest {
 
     @Mock
     AfterCommitExecutor afterCommitExecutor;
-
-    private final University university = Fixture.createUniversity();
     private User previousMaster;
     private User nextMaster;
     private Club club;
