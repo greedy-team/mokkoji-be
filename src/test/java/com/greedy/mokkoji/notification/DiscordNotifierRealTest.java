@@ -2,6 +2,7 @@ package com.greedy.mokkoji.notification;
 
 import com.greedy.mokkoji.api.email.dto.ClubApplicationNotification;
 import com.greedy.mokkoji.api.email.dto.ClubMasterApplicationNotification;
+import com.greedy.mokkoji.api.email.dto.FeedbackNotification;
 import com.greedy.mokkoji.api.email.service.DiscordNotifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -32,6 +33,9 @@ public class DiscordNotifierRealTest {
         ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationWebhookUrl",
                 properties.getProperty("discord.webhook.club-master-application.url"));
         ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationEnabled", true);
+        ReflectionTestUtils.setField(discordNotifier, "feedbackWebhookUrl",
+                properties.getProperty("discord.webhook.feedback.url"));
+        ReflectionTestUtils.setField(discordNotifier, "feedbackEnabled", true);
     }
 
     @Test
@@ -59,6 +63,16 @@ public class DiscordNotifierRealTest {
                 "그리디",
                 "홍길동",
                 "hong@test.com"
+        ));
+    }
+
+    @Test
+    @DisplayName("피드백 등록 알림 실제 발송 확인")
+    void sendFeedbackNotification() {
+        discordNotifier.notifyFeedbackCreated(new FeedbackNotification(
+                999L,
+                4,
+                "웹훅 이전 테스트입니다."
         ));
     }
 }
