@@ -66,7 +66,13 @@ public class UserService {
         );
 
         final TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, user.getId());
-        return LoginResponse.of(tokenPair.accessToken(), tokenPair.refreshToken(), isNewUser);
+        return LoginResponse.of(
+                tokenPair.accessToken(),
+                tokenPair.refreshToken(),
+                isNewUser,
+                user.getRole(),
+                user.getUniversity().getCode()
+        );
     }
 
     @Transactional

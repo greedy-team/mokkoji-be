@@ -93,14 +93,20 @@ public class UserServiceTest {
         final String redirectUri = "http://localhost:3000/api/auth/callback/kakao";
         final String kakaoId = "kakao-12341234";
 
+        final University university = University.builder()
+                .name("건국대학교")
+                .code(UniversityCode.KONKUK)
+                .build();
+
         final User existingUser = User.builder()
+                .university(university)
                 .name("모꼬지")
                 .kakaoId(kakaoId)
                 .role(UserRole.NORMAL)
                 .build();
         ReflectionTestUtils.setField(existingUser, "id", 1L);
 
-        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false, UserRole.NORMAL, UniversityCode.KONKUK);
 
         BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, "모꼬지"));
@@ -125,7 +131,7 @@ public class UserServiceTest {
         final String kakaoId = "kakao-99999999";
         final String nickname = "모꼬지";
 
-        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true);
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true, UserRole.NORMAL, UniversityCode.SEJONG);
 
         final University university = University.builder()
                 .name("세종대학교")
@@ -163,7 +169,7 @@ public class UserServiceTest {
         final String redirectUri = "http://localhost:3000/api/auth/callback/kakao";
         final String kakaoId = "kakao-00000000";
 
-        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true);
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true, UserRole.NORMAL, UniversityCode.SEJONG);
 
         final University university = University.builder()
                 .name("세종대학교")
