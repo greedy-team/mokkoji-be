@@ -74,7 +74,36 @@ class AdminAuthServiceTest {
         //then
         assertThat(response.accessToken()).isEqualTo("access");
         assertThat(response.refreshToken()).isEqualTo("refresh");
+        assertThat(response.role()).isEqualTo(AdminRole.MOKKOJI_ADMIN);
+        assertThat(response.universityCode()).isNull();
         verify(tokenService, times(1)).issueTokens(AuthRole.ADMIN, 1L);
+    }
+
+    @Test
+    @DisplayName("총동연 관리자가 로그인하면 토큰과 함께 권한, 소속 학교 코드를 반환한다.")
+    void login_universityAdmin() {
+        //given
+        final String rawPassword = "rawPassword123!";
+        final Admin admin = Admin.builder()
+                .university(Fixture.createUniversity())
+                .loginId("univ-admin@sejong.ac.kr")
+                .password("encodedPassword")
+                .role(AdminRole.UNIVERSITY_ADMIN)
+                .build();
+        ReflectionTestUtils.setField(admin, "id", 2L);
+
+        given(adminRepository.findByLoginId(admin.getLoginId())).willReturn(Optional.of(admin));
+        given(passwordEncoder.matches(rawPassword, admin.getPassword())).willReturn(true);
+        given(tokenService.issueTokens(AuthRole.ADMIN, 2L)).willReturn(new TokenPair("access", "refresh"));
+
+        //when
+        final AdminLoginResponse response = adminAuthService.login(admin.getLoginId(), rawPassword);
+
+        //then
+        assertThat(response.accessToken()).isEqualTo("access");
+        assertThat(response.refreshToken()).isEqualTo("refresh");
+        assertThat(response.role()).isEqualTo(AdminRole.UNIVERSITY_ADMIN);
+        assertThat(response.universityCode()).isEqualTo(UniversityCode.SEJONG);
     }
 
     @Test
