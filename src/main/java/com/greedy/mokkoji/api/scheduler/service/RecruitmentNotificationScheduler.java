@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,11 +27,16 @@ public class RecruitmentNotificationScheduler {
     @Transactional
     public void sendDailyRecruitmentNotifications() {
         final LocalDate today = LocalDate.now();
-        final LocalDate threeDaysLater = today.plusDays(3);
+        final LocalDateTime startOfToday = today.atStartOfDay();
+        final LocalDateTime startOfTomorrow = today.plusDays(1).atStartOfDay();
 
-        List<Recruitment> recruitments = new ArrayList<>(recruitmentRepository.findAllByRecruitStartToday(today));
-        recruitments.addAll(recruitmentRepository.findAllByRecruitEndToday(today));
-        recruitments.addAll(recruitmentRepository.findAllByRecruitEndInThreeDays(threeDaysLater));
+        final LocalDate threeDaysLater = today.plusDays(3);
+        final LocalDateTime startOfThreeDaysLater = threeDaysLater.atStartOfDay();
+        final LocalDateTime startOfFourDaysLater = threeDaysLater.plusDays(1).atStartOfDay();
+
+        List<Recruitment> recruitments = new ArrayList<>(recruitmentRepository.findAllByRecruitStartToday(startOfToday, startOfTomorrow));
+        recruitments.addAll(recruitmentRepository.findAllByRecruitEndToday(startOfToday, startOfTomorrow));
+        recruitments.addAll(recruitmentRepository.findAllByRecruitEndInThreeDays(startOfThreeDaysLater, startOfFourDaysLater));
 
         List<Recruitment> uniqueAndLatestRecruitments = recruitments.stream()
                 .filter(recruitment -> !recruitment.isAlwaysRecruiting())
