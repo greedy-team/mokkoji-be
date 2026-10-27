@@ -99,6 +99,15 @@ public class RecruitmentController implements RecruitmentControllerSwagger {
         );
     }
 
+    // 비로그인 사용자도 호출하므로 인증을 요구하지 않는다. 로그인 여부와 무관하게 클릭 수만 센다.
+    @PostMapping("/{recruitmentId}/apply-click")
+    public ResponseEntity<APISuccessResponse<Void>> recordApplyClick(
+            @PathVariable("recruitmentId") final Long recruitmentId
+    ) {
+        recruitmentService.recordApplyClick(recruitmentId);
+        return APISuccessResponse.of(HttpStatus.OK, null);
+    }
+
     @GetMapping("/{recruitmentId}")
     public ResponseEntity<APISuccessResponse<SpecificRecruitmentResponse>> getSpecificRecruitment(
             @Authentication final AuthCredential authCredential,
