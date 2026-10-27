@@ -110,7 +110,7 @@ public class UserServiceTest {
 
         BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, "모꼬지"));
-        BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.of(existingUser));
+        BDDMockito.given(userRepository.findByKakaoIdWithUniversity(kakaoId)).willReturn(Optional.of(existingUser));
         BDDMockito.given(tokenService.issueTokens(AuthRole.USER, existingUser.getId()))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
@@ -140,7 +140,7 @@ public class UserServiceTest {
 
         BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, nickname));
-        BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.empty());
+        BDDMockito.given(userRepository.findByKakaoIdWithUniversity(kakaoId)).willReturn(Optional.empty());
         BDDMockito.given(universityRepository.findByCode(UniversityCode.SEJONG)).willReturn(Optional.of(university));
         BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> {
             User saved = invocation.getArgument(0);
@@ -178,7 +178,7 @@ public class UserServiceTest {
 
         BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponseWithoutNickname(kakaoId));
-        BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.empty());
+        BDDMockito.given(userRepository.findByKakaoIdWithUniversity(kakaoId)).willReturn(Optional.empty());
         BDDMockito.given(universityRepository.findByCode(UniversityCode.SEJONG)).willReturn(Optional.of(university));
         BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> {
             User saved = invocation.getArgument(0);
