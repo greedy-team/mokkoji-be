@@ -19,7 +19,13 @@ public interface AdminClubApplicationControllerSwagger {
 
     @Operation(
             summary = "관리자용 동아리 생성 신청 목록 조회 API",
-            description = "페이지 번호(`page`)는 1부터 시작",
+            description = """
+                    페이지 번호(`page`)는 1부터 시작
+
+                    **권한별 조회 범위**
+                    - `MOKKOJI_ADMIN`: 전체 조회
+                    - `UNIVERSITY_ADMIN`(총동연): 자신의 대학교 + 중앙·정인준·가인준 동아리 신청만 조회 (소모임 제외)
+                    """,
             security = @SecurityRequirement(name = "JWT")
     )
     @ApiResponse(responseCode = "200", description = "조회 성공")
@@ -33,6 +39,11 @@ public interface AdminClubApplicationControllerSwagger {
 
     @Operation(
             summary = "동아리 생성 신청 승인 API",
+            description = """
+                    **권한별 승인 범위**
+                    - `MOKKOJI_ADMIN`: 전체 승인 가능
+                    - `UNIVERSITY_ADMIN`(총동연): 자신의 대학교 + 중앙·정인준·가인준 동아리 신청만 승인 가능 (소모임 제외)
+                    """,
             security = @SecurityRequirement(name = "JWT")
     )
     @ApiResponse(responseCode = "200", description = "승인 성공")
@@ -43,6 +54,11 @@ public interface AdminClubApplicationControllerSwagger {
 
     @Operation(
             summary = "동아리 생성 신청 거절 API",
+            description = """
+                    **권한별 거절 범위**
+                    - `MOKKOJI_ADMIN`: 전체 거절 가능
+                    - `UNIVERSITY_ADMIN`(총동연): 자신의 대학교 + 중앙·정인준·가인준 동아리 신청만 거절 가능 (소모임 제외)
+                    """,
             security = @SecurityRequirement(name = "JWT")
     )
     @ApiResponse(responseCode = "200", description = "거절 성공")

@@ -34,11 +34,14 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Club> findClubsForAdmin(final UniversityCode universityCode, final Pageable pageable) {
+    public Page<Club> findClubsForAdmin(final UniversityCode universityCode, final List<ClubAffiliation> affiliations, final Pageable pageable) {
         final List<Club> clubs = queryFactory.selectFrom(club)
                 .leftJoin(club.master).fetchJoin()
                 .leftJoin(club.university).fetchJoin()
-                .where(equalUniversityCode(universityCode))
+                .where(
+                        equalUniversityCode(universityCode),
+                        inAffiliations(affiliations)
+                )
                 .orderBy(club.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -47,7 +50,10 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
         final long total = Optional.ofNullable(
                 queryFactory.select(club.count())
                         .from(club)
-                        .where(equalUniversityCode(universityCode))
+                        .where(
+                                equalUniversityCode(universityCode),
+                                inAffiliations(affiliations)
+                        )
                         .fetchOne()
         ).orElse(0L);
 
@@ -182,6 +188,13 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
     private BooleanExpression equalAffiliation(final ClubAffiliation affiliation) {
         if (affiliation != null) {
             return club.clubAffiliation.eq(affiliation);
+        }
+        return null;
+    }
+
+    private BooleanExpression inAffiliations(final List<ClubAffiliation> affiliations) {
+        if (affiliations != null && !affiliations.isEmpty()) {
+            return club.clubAffiliation.in(affiliations);
         }
         return null;
     }

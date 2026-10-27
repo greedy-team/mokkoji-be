@@ -13,6 +13,7 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
@@ -44,7 +45,8 @@ public class AdminClubMasterService {
         final Admin admin = findAdminOrThrow(adminId);
 
         final UniversityCode targetUniversityCode = resolveUniversityCode(admin, universityCode);
-        final Page<ClubMasterApplication> page = clubMasterApplicationRepository.findByConditions(targetUniversityCode, status, pageable);
+        final List<ClubAffiliation> targetAffiliations = manageAuthorizer.resolveTargetAffiliations(admin);
+        final Page<ClubMasterApplication> page = clubMasterApplicationRepository.findByConditions(targetUniversityCode, status, targetAffiliations, pageable);
 
         final List<ClubMasterApplicationPreviewResponse> applications = page.getContent()
                 .stream()
@@ -74,7 +76,7 @@ public class AdminClubMasterService {
     ) {
         manageAuthorizer.validateAdminAuth(authRole, userId);
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
-        manageAuthorizer.validateCanManageUniversity(userId, application.getUniversity());
+        manageAuthorizer.validateCanManageApplication(userId, application.getUniversity(), application.getClub().getClubAffiliation());
 
         application.approve();
 
@@ -92,7 +94,7 @@ public class AdminClubMasterService {
     ) {
         manageAuthorizer.validateAdminAuth(authRole, userId);
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
-        manageAuthorizer.validateCanManageUniversity(userId, application.getUniversity());
+        manageAuthorizer.validateCanManageApplication(userId, application.getUniversity(), application.getClub().getClubAffiliation());
 
         application.reject(rejectReason);
     }
@@ -113,4 +115,5 @@ public class AdminClubMasterService {
         }
         return universityCode;
     }
+
 }

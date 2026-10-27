@@ -7,8 +7,10 @@ import com.greedy.mokkoji.db.admin.repository.AdminRepository;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
+import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.user.UserRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,8 +20,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -161,5 +165,93 @@ class ManageAuthorizerTest {
 
         verifyNoInteractions(userRepository);
         verifyNoInteractions(adminRepository);
+    }
+
+    @Test
+    @DisplayName("총동연 관리자는 중앙동아리 신청을 관리할 수 있다.")
+    void validateCanManageApplicationByCentralClub() {
+        //given
+        final Long adminId = 1L;
+        final Long universityId = 10L;
+        final Admin admin = mock(Admin.class);
+        final University university = mock(University.class);
+
+        BDDMockito.given(adminRepository.findById(adminId)).willReturn(Optional.of(admin));
+        BDDMockito.given(admin.getRole()).willReturn(AdminRole.UNIVERSITY_ADMIN);
+        BDDMockito.given(admin.getUniversityId()).willReturn(universityId);
+        BDDMockito.given(university.getId()).willReturn(universityId);
+
+        //when & then
+        assertThatCode(() -> clubManageAuthorizer.validateCanManageApplication(adminId, university, ClubAffiliation.CENTRAL_CLUB))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("총동연 관리자는 정인준/가인준 동아리 신청을 관리할 수 있다.")
+    void validateCanManageApplicationByDepartmentClub() {
+        //given
+        final Long adminId = 1L;
+        final Long universityId = 10L;
+        final Admin admin = mock(Admin.class);
+        final University university = mock(University.class);
+
+        BDDMockito.given(adminRepository.findById(adminId)).willReturn(Optional.of(admin));
+        BDDMockito.given(admin.getRole()).willReturn(AdminRole.UNIVERSITY_ADMIN);
+        BDDMockito.given(admin.getUniversityId()).willReturn(universityId);
+        BDDMockito.given(university.getId()).willReturn(universityId);
+
+        //when & then
+        assertThatCode(() -> clubManageAuthorizer.validateCanManageApplication(adminId, university, ClubAffiliation.DEPARTMENT_CLUB))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("총동연 관리자의 관리 가능 소속은 중앙동아리·정인준·가인준이다.")
+    void resolveTargetAffiliationsForUniversityAdmin() {
+        //given
+        final Long adminId = 1L;
+        final Admin admin = mock(Admin.class);
+
+        BDDMockito.given(admin.getRole()).willReturn(AdminRole.UNIVERSITY_ADMIN);
+
+        //when
+        final List<ClubAffiliation> result = clubManageAuthorizer.resolveTargetAffiliations(admin);
+
+        //then
+        assertThat(result).containsExactlyInAnyOrder(ClubAffiliation.CENTRAL_CLUB, ClubAffiliation.DEPARTMENT_CLUB);
+    }
+
+    @Test
+    @DisplayName("모꼬지 관리자의 관리 가능 소속 필터는 null이다 (전체 조회).")
+    void resolveTargetAffiliationsForMokkojiAdmin() {
+        //given
+        final Admin admin = mock(Admin.class);
+
+        BDDMockito.given(admin.getRole()).willReturn(AdminRole.MOKKOJI_ADMIN);
+
+        //when
+        final List<ClubAffiliation> result = clubManageAuthorizer.resolveTargetAffiliations(admin);
+
+        //then
+        assertThat(result).isNull();
+    }
+
+    @Test
+    @DisplayName("총동연 관리자는 소모임 신청을 관리할 수 없다.")
+    void validateCanManageApplicationBySmallGroup() {
+        //given
+        final Long adminId = 1L;
+        final Long universityId = 10L;
+        final Admin admin = mock(Admin.class);
+        final University university = mock(University.class);
+
+        BDDMockito.given(adminRepository.findById(adminId)).willReturn(Optional.of(admin));
+        BDDMockito.given(admin.getRole()).willReturn(AdminRole.UNIVERSITY_ADMIN);
+        BDDMockito.given(admin.getUniversityId()).willReturn(universityId);
+        BDDMockito.given(university.getId()).willReturn(universityId);
+
+        //when & then
+        assertThatThrownBy(() -> clubManageAuthorizer.validateCanManageApplication(adminId, university, ClubAffiliation.SMALL_GROUP))
+                .isInstanceOf(MokkojiException.class);
     }
 }
