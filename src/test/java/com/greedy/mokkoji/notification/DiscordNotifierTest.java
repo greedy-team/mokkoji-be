@@ -2,6 +2,7 @@ package com.greedy.mokkoji.notification;
 
 import com.greedy.mokkoji.api.email.dto.ClubApplicationNotification;
 import com.greedy.mokkoji.api.email.dto.ClubMasterApplicationNotification;
+import com.greedy.mokkoji.api.email.dto.FeedbackNotification;
 import com.greedy.mokkoji.api.email.service.DiscordNotifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,7 @@ public class DiscordNotifierTest {
 
     private static final String CLUB_APPLICATION_WEBHOOK_URL = "https://discord.test/club-application";
     private static final String CLUB_MASTER_APPLICATION_WEBHOOK_URL = "https://discord.test/club-master-application";
+    private static final String FEEDBACK_WEBHOOK_URL = "https://discord.test/feedback";
 
     @InjectMocks
     DiscordNotifier discordNotifier;
@@ -43,6 +45,8 @@ public class DiscordNotifierTest {
         ReflectionTestUtils.setField(discordNotifier, "clubApplicationEnabled", true);
         ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationWebhookUrl", CLUB_MASTER_APPLICATION_WEBHOOK_URL);
         ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationEnabled", true);
+        ReflectionTestUtils.setField(discordNotifier, "feedbackWebhookUrl", FEEDBACK_WEBHOOK_URL);
+        ReflectionTestUtils.setField(discordNotifier, "feedbackEnabled", true);
     }
 
     @Test
@@ -103,6 +107,52 @@ public class DiscordNotifierTest {
                 "홍길동",
                 "hong@test.com"
         );
+    }
+
+    @Test
+    @DisplayName("피드백 알림은 별점과 의견을 담아 전송한다.")
+    void notifyFeedbackCreated() {
+        // given
+        final FeedbackNotification notification = new FeedbackNotification(10L, 4, "목오지 쵝오");
+
+        // when
+        discordNotifier.notifyFeedbackCreated(notification);
+
+        // then
+        final String content = captureSentContent(FEEDBACK_WEBHOOK_URL);
+        assertThat(content).contains(
+                "피드백 등록 알림",
+                "10",
+                "4점",
+                "목오지 쵝오"
+        );
+    }
+
+    @Test
+    @DisplayName("의견이 비어 있는 피드백도 '-'로 대체되어 전송된다.")
+    void notifyFeedbackCreatedWithEmptyContent() {
+        // given
+        final FeedbackNotification notification = new FeedbackNotification(11L, 5, "");
+
+        // when
+        discordNotifier.notifyFeedbackCreated(notification);
+
+        // then
+        final String content = captureSentContent(FEEDBACK_WEBHOOK_URL);
+        assertThat(content).contains("5점", "-");
+    }
+
+    @Test
+    @DisplayName("피드백 알림이 비활성화되면 전송하지 않는다.")
+    void doNotNotifyFeedbackWhenDisabled() {
+        // given
+        ReflectionTestUtils.setField(discordNotifier, "feedbackEnabled", false);
+
+        // when
+        discordNotifier.notifyFeedbackCreated(new FeedbackNotification(12L, 3, "의견"));
+
+        // then
+        BDDMockito.then(restTemplate).shouldHaveNoInteractions();
     }
 
     @Test

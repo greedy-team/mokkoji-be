@@ -2,6 +2,7 @@ package com.greedy.mokkoji.api.email.service;
 
 import com.greedy.mokkoji.api.email.dto.ClubApplicationNotification;
 import com.greedy.mokkoji.api.email.dto.ClubMasterApplicationNotification;
+import com.greedy.mokkoji.api.email.dto.FeedbackNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,6 +37,10 @@ public class DiscordNotifier {
     private String clubMasterApplicationWebhookUrl;
     @Value("${discord.webhook.club-master-application.enabled}")
     private boolean clubMasterApplicationEnabled;
+    @Value("${discord.webhook.feedback.url}")
+    private String feedbackWebhookUrl;
+    @Value("${discord.webhook.feedback.enabled}")
+    private boolean feedbackEnabled;
 
     @Async("discordExecutor")
     public void notifyRecruitmentNotificationEmailFailure(Long clubId, String clubName, int receiverCount, String errorMessage) {
@@ -127,6 +132,32 @@ public class DiscordNotifier {
                 timestamp
         );
         sendToDiscord(content, clubMasterApplicationWebhookUrl);
+    }
+
+    @Async("discordExecutor")
+    public void notifyFeedbackCreated(final FeedbackNotification feedbackNotification) {
+        if (!feedbackEnabled ||
+                feedbackWebhookUrl == null
+                || feedbackWebhookUrl.isEmpty()) {
+            return;
+        }
+
+        String timestamp = LocalDateTime.now().format(FORMATTER);
+
+        String content = String.format(
+                "📝 **피드백 등록 알림**\n" +
+                        "```text\n" +
+                        "피드백 ID : %d\n" +
+                        "별점      : %d점\n" +
+                        "의견      : %s\n" +
+                        "등록 시간 : %s\n" +
+                        "```",
+                feedbackNotification.feedbackId(),
+                feedbackNotification.rating(),
+                orDash(feedbackNotification.content()),
+                timestamp
+        );
+        sendToDiscord(content, feedbackWebhookUrl);
     }
 
     private String orDash(final String value) {
