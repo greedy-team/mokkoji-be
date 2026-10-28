@@ -40,6 +40,7 @@ class ViewCountRaceTest extends AbstractTest {
 
     @AfterEach
     void tearDown() {
+        recruitmentApplyClickRepository.deleteAll();
         recruitmentImageRepository.deleteAll();
         recruitmentRepository.deleteAll();
         commentRepository.deleteAll();
