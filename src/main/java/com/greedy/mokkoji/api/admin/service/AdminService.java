@@ -34,7 +34,12 @@ public class AdminService {
         }
 
         final TokenPair tokenPair = tokenService.issueTokens(AuthRole.ADMIN, admin.getId());
-        return AdminLoginResponse.of(tokenPair.accessToken(), tokenPair.refreshToken());
+        return AdminLoginResponse.of(
+                tokenPair.accessToken(),
+                tokenPair.refreshToken(),
+                admin.getRole(),
+                admin.getUniversityCode()
+        );
     }
 
     @Transactional(readOnly = true)

@@ -67,7 +67,7 @@ public class UserControllerTest extends ControllerTest {
         when(kakaoSocialLoginService.login(code, expectedRedirectUri))
                 .thenReturn(Fixture.createKakaoUserInfoResponse(user.getKakaoId(), user.getName()));
 
-        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false, UserRole.NORMAL, UniversityCode.HANYANG);
         when(tokenService.issueTokens(eq(AuthRole.USER), any())).thenReturn(new TokenPair("accessToken", "refreshToken"));
 
         final KakaoSocialLoginRequest request = new KakaoSocialLoginRequest(code, UniversityCode.SEJONG);
