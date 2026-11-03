@@ -20,7 +20,8 @@ public record ClubDetailResponse(
         @Schema(example = "https://mokkoji-app-data.s3.ap-northeast-2.amazonaws.com/club-logo/1/greedy_{UUID}.jpg") String logo,
         @Schema(example = "true") Boolean isFavorite,
         @Schema(example = "https://instagram.com/greedy_club") String instagram,
-        @Schema(example = "세종대학교 개발 동아리에서 신입 회원을 모집합니다!") String recruitPost
+        @Schema(example = "세종대학교 개발 동아리에서 신입 회원을 모집합니다!") String recruitPost,
+        @Schema(description = "수집 시작일부터 DB에 반영된 일별 조회수의 합계. 별도 조회수 수집 API의 증가분은 배치 반영 후 포함됩니다.", example = "1250") long viewCount
 ) {
     public static ClubDetailResponse of(
             final Long id,
@@ -33,7 +34,8 @@ public record ClubDetailResponse(
             final String logo,
             final Boolean isFavorite,
             final String instagram,
-            final String recruitPost
+            final String recruitPost,
+            final long viewCount
     ) {
 
         return ClubDetailResponse.builder()
@@ -48,6 +50,7 @@ public record ClubDetailResponse(
                 .isFavorite(isFavorite)
                 .instagram(instagram)
                 .recruitPost(recruitPost)
+                .viewCount(viewCount)
                 .build();
     }
 }

@@ -12,6 +12,7 @@ import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
+import com.greedy.mokkoji.db.viewcount.repository.ViewCountRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
@@ -40,6 +41,7 @@ public class ClubService {
     private final FavoriteRepository favoriteRepository;
     private final AppDataS3Client appDataS3Client;
     private final ManageAuthorizer clubManageAuthorizer;
+    private final ViewCountRepository viewCountRepository;
 
     private static PageResponse createPageResponse(Pageable pageable, int totalElements) {
         int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
@@ -69,8 +71,9 @@ public class ClubService {
                 .findTopByClubIdOrderByCreatedAtDesc(club.getId())
                 .orElse(null);
         final Boolean isFavorite = getIsFavorite(userId, clubId);
+        final long viewCount = viewCountRepository.findClubViewCount(clubId);
 
-        return mapToClubDetailResponse(club, recruitment, isFavorite);
+        return mapToClubDetailResponse(club, recruitment, isFavorite, viewCount);
     }
 
     @Transactional(readOnly = true)
@@ -249,8 +252,12 @@ public class ClubService {
                 .toList();
     }
 
-    private ClubDetailResponse mapToClubDetailResponse(final Club club, final Recruitment recruitment,
-                                                       final Boolean isFavorite) {
+    private ClubDetailResponse mapToClubDetailResponse(
+            final Club club,
+            final Recruitment recruitment,
+            final Boolean isFavorite,
+            final long viewCount
+    ) {
         return ClubDetailResponse.of(
                 club.getId(),
                 club.getName(),
@@ -262,7 +269,8 @@ public class ClubService {
                 appDataS3Client.getPublicUrl(club.getLogo()),
                 isFavorite,
                 club.getInstagram(),
-                recruitment != null ? recruitment.getContent() : null
+                recruitment != null ? recruitment.getContent() : null,
+                viewCount
         );
     }
 
