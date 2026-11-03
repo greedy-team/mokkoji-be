@@ -60,7 +60,11 @@ public enum FailMessage {
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR_SMTP(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "SMTP 서버 내부 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR_SMTP_MAIL(HttpStatus.INTERNAL_SERVER_ERROR, 50002, "SMTP 메일 생성에 오류가 발생했습니다."),
-    INTERNAL_TOKEN_INIT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50010, "SECRET KEY가 초기화되지 않았습니다.");
+    INTERNAL_TOKEN_INIT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50010, "SECRET KEY가 초기화되지 않았습니다."),
+    INTERNAL_SERVER_ERROR_VIEW_COUNT_DATA(HttpStatus.INTERNAL_SERVER_ERROR, 50011, "집계 데이터가 올바르지 않습니다."),
+    INTERNAL_SERVER_ERROR_VIEW_COUNT_REDIS(HttpStatus.INTERNAL_SERVER_ERROR, 50012, "집계 저장소 처리 중 오류가 발생했습니다."),
+    INTERNAL_SERVER_ERROR_VIEW_COUNT_BATCH_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, 50013, "반영 대기 중인 집계 배치를 찾을 수 없습니다."),
+    INTERNAL_SERVER_ERROR_VIEW_COUNT_RECORD(HttpStatus.INTERNAL_SERVER_ERROR, 50015, "조회수 집계 요청을 처리하지 못했습니다.");
 
     private final HttpStatus httpStatus;
     private final int code;
