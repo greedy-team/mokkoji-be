@@ -12,6 +12,7 @@ import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepositor
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
 import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
+import com.greedy.mokkoji.db.notification.repository.NotificationRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -41,6 +42,7 @@ public class UserService {
     private final CommentRepository commentRepository;
     private final ClubApplicationRepository clubApplicationRepository;
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
+    private final NotificationRepository notificationRepository;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
     private final KakaoSocialLoginService kakaoSocialLoginService;
@@ -142,6 +144,7 @@ public class UserService {
         commentRepository.detachUserByUserId(userId);
         clubApplicationRepository.deleteByApplicantId(userId);
         clubMasterApplicationRepository.deleteByUserId(userId);
+        notificationRepository.deleteByUserId(userId);
 
         tokenService.deleteRefreshToken(authRole, userId);
 
