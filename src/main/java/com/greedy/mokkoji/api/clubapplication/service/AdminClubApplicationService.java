@@ -4,6 +4,8 @@ import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationResponse;
 import com.greedy.mokkoji.api.clubapplication.dto.response.AdminClubApplicationsResponse;
 import com.greedy.mokkoji.api.external.AfterCommitS3Cleaner;
+import com.greedy.mokkoji.api.notification.event.ClubApplicationApprovedEvent;
+import com.greedy.mokkoji.api.notification.event.ClubApplicationRejectedEvent;
 import com.greedy.mokkoji.api.external.AppDataS3Client;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
@@ -22,6 +24,7 @@ import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,6 +42,7 @@ public class AdminClubApplicationService {
     private final ManageAuthorizer manageAuthorizer;
     private final AppDataS3Client appDataS3Client;
     private final AfterCommitS3Cleaner afterCommitS3Cleaner;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public AdminClubApplicationsResponse getAdminClubApplications(
@@ -96,6 +100,12 @@ public class AdminClubApplicationService {
         moveLogoToClub(clubApplication.getLogo(), club);
 
         clubApplication.approve();
+
+        eventPublisher.publishEvent(new ClubApplicationApprovedEvent(
+                applicant.getId(),
+                club.getId(),
+                club.getName()
+        ));
     }
 
     private void moveLogoToClub(final String applicationLogoKey, final Club club) {
@@ -123,6 +133,12 @@ public class AdminClubApplicationService {
         }
 
         clubApplication.reject(rejectReason);
+
+        eventPublisher.publishEvent(new ClubApplicationRejectedEvent(
+                clubApplication.getApplicant().getId(),
+                clubApplication.getClubName(),
+                rejectReason
+        ));
     }
 
     private UniversityCode resolveUniversityCode(final Admin admin, final UniversityCode universityCode) {
