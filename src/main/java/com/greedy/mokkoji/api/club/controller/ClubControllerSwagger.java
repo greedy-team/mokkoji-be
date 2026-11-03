@@ -16,6 +16,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Club Controller", description = "동아리 관련 API")
@@ -29,6 +31,26 @@ public interface ClubControllerSwagger {
     ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(
             @Parameter(hidden = true) AuthCredential authCredential,
             @Parameter(name = "clubId", description = "동아리 ID") Long clubId
+    );
+
+    @Operation(
+            summary = "동아리 조회수 수집 API",
+            description = "상세 화면 표시 후 호출합니다. 요청 본문은 없습니다. "
+                    + "Authorization이 있으면 인증된 계정, 없으면 mokkoji_visitor_id UUID 쿠키로 식별합니다. "
+                    + "같은 방문자·동아리는 최초 집계 후 30분간 중복 제외합니다. "
+                    + "쿠키가 없거나 유효하지 않으면 새로 발급하므로 프록시는 Set-Cookie를 브라우저에 전달해야 합니다. "
+                    + "중복·집계 비활성·Redis 수집 실패도 204로 응답하며 DB 반영 완료를 보장하지 않습니다.",
+            security = {@SecurityRequirement(name = "JWT")}
+    )
+    @ApiResponse(responseCode = "204", description = "수집 요청 처리 종료, 응답 본문 없음")
+    @ApiResponse(responseCode = "400", description = "동아리 ID 형식 오류")
+    @ApiResponse(responseCode = "401", description = "전달한 인증 토큰이 만료되었거나 유효하지 않음")
+    @ApiResponse(responseCode = "404", description = "동아리를 찾을 수 없음")
+    ResponseEntity<Void> recordClubView(
+            @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(name = "clubId", description = "동아리 ID") Long clubId,
+            @Parameter(hidden = true) HttpServletRequest request,
+            @Parameter(hidden = true) HttpServletResponse response
     );
 
     @Operation(

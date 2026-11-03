@@ -2,6 +2,8 @@ package com.greedy.mokkoji.config.swagger;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.OpenApiCustomizer;
@@ -52,6 +54,19 @@ public class SwaggerConfig {
                         .version("1.0.0")
                         .description(swaggerDescription.getDescription())
                 );
+    }
+
+    @Bean
+    public OpenApiCustomizer clubViewOptionalAuthCustomizer(@Value("${api.prefix}") final String apiPrefix) {
+        return openApi -> {
+            final PathItem clubViews = openApi.getPaths().get(apiPrefix + "/clubs/{clubId}/views");
+            if (clubViews != null && clubViews.getPost() != null) {
+                clubViews.getPost().setSecurity(List.of(
+                        new SecurityRequirement().addList("JWT"),
+                        new SecurityRequirement()
+                ));
+            }
+        };
     }
 
     // Swagger 문서에서 @Authentication AuthCredential 파라미터 숨기기

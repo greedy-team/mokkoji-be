@@ -9,13 +9,18 @@ import com.greedy.mokkoji.api.club.dto.response.ClubUpdateResponse;
 import com.greedy.mokkoji.api.club.dto.response.ClubsPaginationResponse;
 import com.greedy.mokkoji.api.club.dto.response.allClubs.AllClubsResponse;
 import com.greedy.mokkoji.api.club.service.ClubService;
+import com.greedy.mokkoji.api.viewcount.controller.support.ViewCountVisitorResolver;
+import com.greedy.mokkoji.api.viewcount.service.ClubViewRecorder;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
 import com.greedy.mokkoji.enums.university.UniversityCode;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +31,8 @@ import org.springframework.web.bind.annotation.*;
 public class ClubController implements ClubControllerSwagger {
 
     private final ClubService clubService;
+    private final ClubViewRecorder clubViewRecorder;
+    private final ViewCountVisitorResolver viewCountVisitorResolver;
 
     @GetMapping("/{clubId}")
     public ResponseEntity<APISuccessResponse<ClubDetailResponse>> getClub(
@@ -36,6 +43,23 @@ public class ClubController implements ClubControllerSwagger {
                 HttpStatus.OK,
                 clubService.findClub(authCredential.accountId(), clubId)
         );
+    }
+
+    @PostMapping("/{clubId}/views")
+    public ResponseEntity<Void> recordClubView(
+            @Authentication final AuthCredential authCredential,
+            @PathVariable(name = "clubId") final Long clubId,
+            final HttpServletRequest request,
+            final HttpServletResponse response
+    ) {
+        // 존재 확인 트랜잭션을 끝낸 뒤 Redis를 호출한다.
+        clubService.validateClubExists(clubId);
+        final String visitorKey = viewCountVisitorResolver.resolveVisitorKey(authCredential, request, response);
+        clubViewRecorder.recordClubView(clubId, visitorKey);
+
+        return ResponseEntity.noContent()
+                .cacheControl(CacheControl.noStore())
+                .build();
     }
 
     @GetMapping("/search")
