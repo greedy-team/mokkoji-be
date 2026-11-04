@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -87,7 +88,11 @@ public class RecruitmentNotificationSchedulerTest {
                 .content("모집글2")
                 .build();
 
-        BDDMockito.given(recruitmentRepository.findAllByRecruitStartToday(currentDateTime.toLocalDate()))
+        final LocalDate today = currentDateTime.toLocalDate();
+        final LocalDateTime startOfToday = today.atStartOfDay();
+        final LocalDateTime startOfTomorrow = today.plusDays(1).atStartOfDay();
+
+        BDDMockito.given(recruitmentRepository.findAllByRecruitStartToday(startOfToday, startOfTomorrow))
                 .willReturn(List.of(recruitment1, recruitment2));
 
         BDDMockito.doNothing()
@@ -99,7 +104,7 @@ public class RecruitmentNotificationSchedulerTest {
 
         // then
         BDDMockito.verify(recruitmentRepository, times(1))
-                .findAllByRecruitStartToday(currentDateTime.toLocalDate());
+                .findAllByRecruitStartToday(startOfToday, startOfTomorrow);
 
         BDDMockito.verify(emailService, times(1))
                 .sendBatchRecruitmentNotifications(anyList());

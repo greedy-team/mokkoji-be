@@ -22,11 +22,11 @@ jobs:
           java-version: '21'
 
       - name: application.yml 생성 (dev)
+        env:
+          APP_YML: ${{ secrets.CICD_APPLICATION_DEV }}
         run: |
           mkdir -p ./src/main/resources
-          cd ./src/main/resources
-          touch ./application.yml
-          echo "${{ secrets.CICD_APPLICATION_DEV }}" > ./application.yml
+          printf '%s\n' "$APP_YML" > ./src/main/resources/application.yml
         working-directory: ${{ env.working-directory }}
 
       - name: 빌드

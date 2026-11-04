@@ -16,7 +16,13 @@ public interface AdminClubControllerSwagger {
 
     @Operation(
             summary = "관리자용 동아리 목록 조회 API",
-            description = "페이지 번호(`page`)는 1부터 시작",
+            description = """
+                    페이지 번호(`page`)는 1부터 시작
+
+                    **권한별 조회 범위**
+                    - `MOKKOJI_ADMIN`: 전체 조회
+                    - `UNIVERSITY_ADMIN`(총동연): 자신의 대학교 + 중앙·정인준·가인준 동아리만 조회 (소모임 제외)
+                    """,
             security = @SecurityRequirement(name = "JWT")
     )
     @ApiResponse(responseCode = "200", description = "조회 성공")
@@ -29,8 +35,13 @@ public interface AdminClubControllerSwagger {
 
     @Operation(
             summary = "관리자용 동아리 삭제 API",
-            description = "모꼬지 관리자는 전체 동아리를, 대학 관리자는 소속 대학 동아리를 삭제할 수 있습니다.\n\n"
-                    + "연관된 데이터를 모두 삭제하며, 모집글 이미지 S3 객체는 서버가 트랜잭션 커밋 후 직접 삭제합니다.",
+            description = """
+                    연관된 데이터를 모두 삭제하며, 모집글 이미지 S3 객체는 서버가 트랜잭션 커밋 후 직접 삭제합니다.
+
+                    **권한별 삭제 범위**
+                    - `MOKKOJI_ADMIN`: 전체 삭제 가능
+                    - `UNIVERSITY_ADMIN`(총동연): 자신의 대학교 + 중앙·정인준·가인준 동아리만 삭제 가능 (소모임 제외)
+                    """,
             security = @SecurityRequirement(name = "JWT")
     )
     @ApiResponse(responseCode = "204", description = "삭제 성공")

@@ -18,6 +18,7 @@ import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
@@ -57,8 +58,9 @@ public class AdminClubService {
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
 
         final UniversityCode targetUniversityCode = resolveUniversityCode(admin, universityCode);
+        final List<ClubAffiliation> targetAffiliations = manageAuthorizer.resolveTargetAffiliations(admin);
 
-        final Page<Club> page = clubRepository.findClubsForAdmin(targetUniversityCode, pageable);
+        final Page<Club> page = clubRepository.findClubsForAdmin(targetUniversityCode, targetAffiliations, pageable);
 
         final List<AdminClubResponse> clubs = page.getContent()
                 .stream()
@@ -80,7 +82,7 @@ public class AdminClubService {
         manageAuthorizer.validateAdminAuth(authRole, adminId);
         final Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
-        manageAuthorizer.validateCanManageUniversity(adminId, club.getUniversity());
+        manageAuthorizer.validateCanManageApplication(adminId, club.getUniversity(), club.getClubAffiliation());
 
         final List<Long> recruitmentIds = recruitmentRepository.findIdsByClubId(clubId);
         final List<String> s3KeysToDelete = collectS3KeysToDelete(club, recruitmentIds);

@@ -66,6 +66,7 @@ public class ClubMasterServiceTest {
 
     @Mock
     AfterCommitExecutor afterCommitExecutor;
+
     private User previousMaster;
     private User nextMaster;
     private Club club;

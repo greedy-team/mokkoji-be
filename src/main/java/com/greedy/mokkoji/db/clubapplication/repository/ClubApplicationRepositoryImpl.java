@@ -2,6 +2,7 @@ package com.greedy.mokkoji.db.clubapplication.repository;
 
 import com.greedy.mokkoji.db.clubapplication.entity.ClubApplication;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+
 
 import static com.greedy.mokkoji.db.clubapplication.entity.QClubApplication.clubApplication;
 
@@ -26,6 +28,7 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
     public Page<ClubApplication> findByConditions(
             final UniversityCode universityCode,
             final ApplicationStatus status,
+            final List<ClubAffiliation> affiliations,
             final Pageable pageable
     ) {
         final List<ClubApplication> content = queryFactory
@@ -33,7 +36,8 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
                 .join(clubApplication.university).fetchJoin()
                 .where(
                         equalUniversityCode(universityCode),
-                        equalStatus(status)
+                        equalStatus(status),
+                        inAffiliations(affiliations)
                 )
                 .orderBy(clubApplication.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -46,7 +50,8 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
                         .from(clubApplication)
                         .where(
                                 equalUniversityCode(universityCode),
-                                equalStatus(status)
+                                equalStatus(status),
+                                inAffiliations(affiliations)
                         )
                         .fetchOne()
         ).orElse(0L);
@@ -64,6 +69,13 @@ public class ClubApplicationRepositoryImpl implements ClubApplicationRepositoryC
     private BooleanExpression equalStatus(final ApplicationStatus status) {
         if (status != null) {
             return clubApplication.status.eq(status);
+        }
+        return null;
+    }
+
+    private BooleanExpression inAffiliations(final List<ClubAffiliation> affiliations) {
+        if (affiliations != null && !affiliations.isEmpty()) {
+            return clubApplication.clubAffiliation.in(affiliations);
         }
         return null;
     }

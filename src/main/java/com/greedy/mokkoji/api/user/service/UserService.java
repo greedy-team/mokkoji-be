@@ -50,7 +50,7 @@ public class UserService {
         final String kakaoId = kakaoUserInfo.id();
         final String name = kakaoUserInfo.nickname();
 
-        final Optional<User> existingUser = userRepository.findByKakaoId(kakaoId);
+        final Optional<User> existingUser = userRepository.findByKakaoIdWithUniversity(kakaoId);
         final boolean isNewUser = existingUser.isEmpty();
         final User user = existingUser.orElseGet(
                 () -> userRepository.save(
@@ -66,7 +66,13 @@ public class UserService {
         );
 
         final TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, user.getId());
-        return LoginResponse.of(tokenPair.accessToken(), tokenPair.refreshToken(), isNewUser);
+        return LoginResponse.of(
+                tokenPair.accessToken(),
+                tokenPair.refreshToken(),
+                isNewUser,
+                user.getRole(),
+                user.getUniversity().getCode()
+        );
     }
 
     @Transactional

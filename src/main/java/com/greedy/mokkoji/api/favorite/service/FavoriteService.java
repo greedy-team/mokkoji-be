@@ -81,7 +81,7 @@ public class FavoriteService {
                             calculateRecruitStatus(recruitment),
                             appDataS3Client.getPublicUrl(club.getLogo()),
                             true,
-                            user.getUniversity() == null ? club.getUniversity().getName() : null
+                            null
                     );
                 }).toList();
 
