@@ -28,7 +28,9 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     boolean existsByUserIdAndClubId(final Long userId, final Long id);
 
-    Page<Favorite> findByUserId(Long userId, Pageable pageable);
+    @Query(value = "SELECT f FROM Favorite f JOIN FETCH f.club WHERE f.user.id = :userId",
+            countQuery = "SELECT COUNT(f) FROM Favorite f WHERE f.user.id = :userId")
+    Page<Favorite> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT f.club.id FROM Favorite f WHERE f.user.id = :userId")
     List<Long> findClubIdsByUserId(@Param("userId") Long userId);
