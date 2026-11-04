@@ -31,6 +31,7 @@ public enum FailMessage {
     FORBIDDEN_NOT_COMMENT_WRITER(HttpStatus.FORBIDDEN, 40303, "댓글을 작성한 사용자가 아닙니다."),
     FORBIDDEN_ADMIN(HttpStatus.FORBIDDEN, 40304, "관리자 권한이 없습니다."),
     FORBIDDEN_ALREADY_EXIST_CLUB_MASTER(HttpStatus.FORBIDDEN, 40305, "해당 동아리에 이미 등록된 동아리장이 존재합니다."),
+    FORBIDDEN_NOT_NOTIFICATION_OWNER(HttpStatus.FORBIDDEN, 40306, "본인의 알림이 아닙니다."),
 
     //404
     NOT_FOUND(HttpStatus.NOT_FOUND, 40400, "리소스를 찾을 수 없습니다."),
@@ -44,6 +45,7 @@ public enum FailMessage {
     NOT_FOUND_ADMIN(HttpStatus.NOT_FOUND, 40408, "관리자를 찾을 수 없습니다."),
     NOT_FOUND_CLUB_APPLICATION(HttpStatus.NOT_FOUND, 40409, "동아리 생성 신청을 찾을 수 없습니다."),
     NOT_FOUND_CLUB_MASTER_APPLICATION(HttpStatus.NOT_FOUND, 40410, "동아리장 신청서를 찾을 수 없습니다."),
+    NOT_FOUND_NOTIFICATION(HttpStatus.NOT_FOUND, 40411, "알림을 찾을 수 없습니다."),
 
     //405
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, 40500, "잘못된 HTTP 메소드 요청입니다."),

@@ -3,6 +3,8 @@ package com.greedy.mokkoji.api.clubmaster.service;
 import com.greedy.mokkoji.api.admin.dto.response.ClubMasterApplicationPreviewResponse;
 import com.greedy.mokkoji.api.admin.dto.response.GetClubMasterApplicationsResponse;
 import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
+import com.greedy.mokkoji.api.notification.event.ClubMasterApprovedEvent;
+import com.greedy.mokkoji.api.notification.event.ClubMasterRejectedEvent;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.admin.entity.Admin;
@@ -18,6 +20,7 @@ import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +34,7 @@ public class AdminClubMasterService {
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final AdminRepository adminRepository;
     private final ManageAuthorizer manageAuthorizer;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public GetClubMasterApplicationsResponse getClubMasterApplications(
@@ -83,6 +87,12 @@ public class AdminClubMasterService {
         User applicant = application.getUser();
         application.getClub().assignMaster(applicant);
         applicant.updateRole(UserRole.CLUB_MASTER);
+
+        eventPublisher.publishEvent(new ClubMasterApprovedEvent(
+                applicant.getId(),
+                application.getClub().getId(),
+                application.getClub().getName()
+        ));
     }
 
     @Transactional
@@ -97,6 +107,12 @@ public class AdminClubMasterService {
         manageAuthorizer.validateCanManageApplication(userId, application.getUniversity(), application.getClub().getClubAffiliation());
 
         application.reject(rejectReason);
+
+        eventPublisher.publishEvent(new ClubMasterRejectedEvent(
+                application.getUser().getId(),
+                application.getClub().getName(),
+                rejectReason
+        ));
     }
 
     private Admin findAdminOrThrow(final Long adminId) {
