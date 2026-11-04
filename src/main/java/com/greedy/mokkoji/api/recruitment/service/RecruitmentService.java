@@ -14,7 +14,9 @@ import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
+import com.greedy.mokkoji.db.recruitment.entity.RecruitmentApplyClick;
 import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
+import com.greedy.mokkoji.db.recruitment.repository.RecruitmentApplyClickRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
@@ -34,6 +36,7 @@ public class RecruitmentService {
     private final ClubRepository clubRepository;
     private final RecruitmentRepository recruitmentRepository;
     private final RecruitmentImageRepository recruitmentImageRepository;
+    private final RecruitmentApplyClickRepository recruitmentApplyClickRepository;
     private final AppDataS3Client appDataS3Client;
     private final FavoriteRepository favoriteRepository;
     private final ManageAuthorizer clubManageAuthorizer;
@@ -176,6 +179,19 @@ public class RecruitmentService {
                 club.getInstagram(),
                 club.getClubCategory(),
                 recruitment.isAlwaysRecruiting()
+        );
+    }
+
+    @Transactional
+    public void recordApplyClick(final Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUNT_RECRUITMENT));
+
+        recruitmentApplyClickRepository.save(
+                RecruitmentApplyClick.builder()
+                        .recruitment(recruitment)
+                        .clickedAt(LocalDateTime.now())
+                        .build()
         );
     }
 
