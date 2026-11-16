@@ -100,6 +100,7 @@ public class RecruitmentService {
         clubManageAuthorizer.validateCanManageClub(authRole, userId, recruitment.getClub());
 
         List<String> deleteImageUrls = deleteImages(recruitmentId);
+        recruitmentApplyClickRepository.deleteByRecruitmentId(recruitmentId);
         recruitmentRepository.delete(recruitment);
 
         return DeleteRecruitmentResponse.of(recruitmentId, deleteImageUrls);
