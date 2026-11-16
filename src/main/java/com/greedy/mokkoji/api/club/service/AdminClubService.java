@@ -13,6 +13,7 @@ import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
 import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
+import com.greedy.mokkoji.db.recruitment.repository.RecruitmentApplyClickRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -39,6 +40,7 @@ public class AdminClubService {
     private final CommentRepository commentRepository;
     private final FavoriteRepository favoriteRepository;
     private final RecruitmentRepository recruitmentRepository;
+    private final RecruitmentApplyClickRepository recruitmentApplyClickRepository;
     private final RecruitmentImageRepository recruitmentImageRepository;
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final AfterCommitS3Cleaner afterCommitS3Cleaner;
@@ -117,6 +119,7 @@ public class AdminClubService {
     }
 
     private void deleteClubAssociations(final Long clubId, final List<Long> recruitmentIds) {
+        recruitmentApplyClickRepository.deleteByRecruitmentIdIn(recruitmentIds);
         recruitmentImageRepository.deleteByRecruitmentIdIn(recruitmentIds);
         recruitmentRepository.deleteByClubId(clubId);
 
