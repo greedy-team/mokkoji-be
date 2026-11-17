@@ -8,8 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,12 +23,8 @@ public class RecruitmentApplyClick extends BaseTime {
     @ManyToOne(fetch = FetchType.LAZY)
     private Recruitment recruitment;
 
-    @Column(name = "clicked_at", columnDefinition = "timestamp", nullable = false)
-    private LocalDateTime clickedAt;
-
     @Builder
-    public RecruitmentApplyClick(final Recruitment recruitment, final LocalDateTime clickedAt) {
+    public RecruitmentApplyClick(final Recruitment recruitment) {
         this.recruitment = recruitment;
-        this.clickedAt = clickedAt;
     }
 }

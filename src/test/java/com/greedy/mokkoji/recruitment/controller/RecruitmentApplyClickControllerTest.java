@@ -46,7 +46,7 @@ public class RecruitmentApplyClickControllerTest extends ControllerTest {
         final List<RecruitmentApplyClick> clicks = recruitmentApplyClickRepository.findAll();
         assertThat(clicks).hasSize(1);
         assertThat(clicks.get(0).getRecruitment().getId()).isEqualTo(recruitment.getId());
-        assertThat(clicks.get(0).getClickedAt()).isNotNull();
+        assertThat(clicks.get(0).getCreatedAt()).isNotNull();
     }
 
     @Test

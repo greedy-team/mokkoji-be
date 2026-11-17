@@ -191,7 +191,6 @@ public class RecruitmentService {
         recruitmentApplyClickRepository.save(
                 RecruitmentApplyClick.builder()
                         .recruitment(recruitment)
-                        .clickedAt(LocalDateTime.now())
                         .build()
         );
     }
