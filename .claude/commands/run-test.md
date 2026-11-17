@@ -9,14 +9,23 @@ description: 전체 테스트 실행 및 컴파일 체크
 * `./gradlew compileJava compileTestJava`로 메인·테스트 소스가 정상 컴파일되는지 먼저 확인한다. (컴파일 오류를 빠르게 파악)
 * 컴파일 오류가 있으면 원인을 진단해 수정하고 다시 확인한다.
 
-## 2. 전체 테스트 실행
+## 2. 런타임 환경 체크
+
+* `docker ps` 로 Docker 데몬이 실행 중인지 확인한다.
+* Docker가 꺼져 있으면:
+    1. `open -a Docker` 로 Docker Desktop을 실행한다.
+    2. `docker ps` 가 성공할 때까지 대기한다. (최대 2분)
+    3. 테스트가 끝난 후 `osascript -e 'quit app "Docker"'` 로 Docker Desktop을 종료한다.
+
+## 3. 전체 테스트 실행
 
 * `./gradlew test`로 모든 테스트를 실행한다.
 * 실패한 테스트가 있으면
     1. 실패 원인을 진단한다. (`build/test-results/test`의 결과 XML 또는 실패 로그 확인)
-    2. 원인이 이번 작업의 코드/테스트 문제면 수정 후 다시 실행한다.
+    2. Docker/Testcontainers 초기화 실패(`DockerClientProviderStrategy`, `NoClassDefFoundError`)는 런타임 환경 문제로 분류하고, 코드/테스트 문제와 구분해서 보고한다.
+    3. 코드/테스트 문제면 수정 후 다시 실행한다.
 
-## 3. 결과 안내
+## 4. 결과 안내
 
 * [사용자 화면]
   ```
