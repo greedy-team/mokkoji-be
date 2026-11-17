@@ -16,6 +16,7 @@ import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.entity.RecruitmentImage;
+import com.greedy.mokkoji.db.recruitment.repository.RecruitmentApplyClickRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
@@ -71,6 +72,9 @@ public class RecruitmentServiceTest {
 
     @Mock
     FavoriteRepository favoriteRepository;
+
+    @Mock
+    RecruitmentApplyClickRepository recruitmentApplyClickRepository;
 
     @Test
     @DisplayName("권한을 가진 관리자는 모집글을 생성할 수 있다.")
@@ -261,6 +265,7 @@ public class RecruitmentServiceTest {
         assertThat(result.deleteImageUrls()).contains("deleteUrl");
 
         BDDMockito.verify(recruitmentImageRepository, times(1)).deleteAll(any());
+        BDDMockito.verify(recruitmentApplyClickRepository, times(1)).deleteByRecruitmentId(1L);
         BDDMockito.verify(recruitmentRepository, times(1)).delete(recruitment);
     }
 
