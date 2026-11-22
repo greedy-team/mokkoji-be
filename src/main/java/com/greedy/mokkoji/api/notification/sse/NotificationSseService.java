@@ -23,7 +23,7 @@ public class NotificationSseService {
     public SseEmitter subscribe(final Long userId) {
         final SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
 
-        emitters.computeIfAbsent(userId, key -> new CopyOnWriteArrayList<>()).add(emitter);
+        add(userId, emitter);
 
         emitter.onCompletion(() -> remove(userId, emitter));
         emitter.onTimeout(() -> {
@@ -81,15 +81,20 @@ public class NotificationSseService {
         }));
     }
 
-    private void remove(final Long userId, final SseEmitter emitter) {
-        final List<SseEmitter> userEmitters = emitters.get(userId);
-        if (userEmitters == null) {
-            return;
-        }
+    private void add(final Long userId, final SseEmitter emitter) {
+        emitters.compute(userId, (key, userEmitters) -> {
+            if (userEmitters == null) {
+                return new CopyOnWriteArrayList<>(List.of(emitter));
+            }
+            userEmitters.add(emitter);
+            return userEmitters;
+        });
+    }
 
-        userEmitters.remove(emitter);
-        if (userEmitters.isEmpty()) {
-            emitters.remove(userId);
-        }
+    private void remove(final Long userId, final SseEmitter emitter) {
+        emitters.computeIfPresent(userId, (key, userEmitters) -> {
+            userEmitters.remove(emitter);
+            return userEmitters.isEmpty() ? null : userEmitters;
+        });
     }
 }

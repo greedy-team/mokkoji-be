@@ -13,6 +13,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,6 +36,44 @@ class NotificationSseServiceTest {
         final SseEmitter emitter = BDDMockito.mock(SseEmitter.class);
         emitters().computeIfAbsent(userId, key -> new CopyOnWriteArrayList<>()).add(emitter);
         return emitter;
+    }
+
+    @Test
+    @DisplayName("마지막 emitter 제거와 새 구독이 동시에 일어나도 새 emitter는 전송 대상에 남는다.")
+    void keepNewEmitterWhenSubscribeRacesWithRemove() throws Exception {
+        final Long userId = 1L;
+        final ExecutorService executor = Executors.newFixedThreadPool(2);
+        int lost = 0;
+
+        try {
+            for (int i = 0; i < 20000; i++) {
+                final SseEmitter oldEmitter = notificationSseService.subscribe(userId);
+                final CyclicBarrier barrier = new CyclicBarrier(2);
+
+                final Future<?> removing = executor.submit(() -> {
+                    barrier.await();
+                    ReflectionTestUtils.invokeMethod(notificationSseService, "remove", userId, oldEmitter);
+                    return null;
+                });
+                final Future<SseEmitter> subscribing = executor.submit(() -> {
+                    barrier.await();
+                    return notificationSseService.subscribe(userId);
+                });
+
+                removing.get();
+                final SseEmitter newEmitter = subscribing.get();
+
+                final List<SseEmitter> userEmitters = emitters().get(userId);
+                if (userEmitters == null || !userEmitters.contains(newEmitter)) {
+                    lost++;
+                }
+                emitters().clear();
+            }
+        } finally {
+            executor.shutdownNow();
+        }
+
+        assertThat(lost).isZero();
     }
 
     @Test
