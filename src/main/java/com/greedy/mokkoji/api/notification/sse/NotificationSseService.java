@@ -16,6 +16,7 @@ public class NotificationSseService {
 
     private static final long DEFAULT_TIMEOUT = 60L * 60 * 1000;
     private static final long RECONNECTION_TIMEOUT = 3000L;
+    private static final String HEARTBEAT_COMMENT = "heartbeat";
 
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
@@ -66,6 +67,18 @@ public class NotificationSseService {
                 remove(userId, emitter);
             }
         });
+    }
+
+    public void sendHeartbeat() {
+        emitters.forEach((userId, userEmitters) -> userEmitters.forEach(emitter -> {
+            try {
+                emitter.send(SseEmitter.event().comment(HEARTBEAT_COMMENT));
+            } catch (IOException | IllegalStateException e) {
+                log.debug("SSE heartbeat 전송 실패 : userId={}", userId, e);
+                emitter.complete();
+                remove(userId, emitter);
+            }
+        }));
     }
 
     private void remove(final Long userId, final SseEmitter emitter) {
