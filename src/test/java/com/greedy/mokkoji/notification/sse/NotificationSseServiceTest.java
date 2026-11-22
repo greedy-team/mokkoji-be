@@ -35,6 +35,31 @@ class NotificationSseServiceTest {
     }
 
     @Test
+    @DisplayName("이미 종료된 emitter가 섞여 있어도 같은 사용자의 나머지 emitter에는 알림을 전송한다.")
+    void keepSendingNotificationWhenOneEmitterAlreadyCompleted() throws IOException {
+        final SseEmitter completedEmitter = registerEmitter(1L);
+        final SseEmitter aliveEmitter = registerEmitter(1L);
+        BDDMockito.willThrow(new IllegalStateException()).given(completedEmitter).send(any(SseEmitter.SseEventBuilder.class));
+
+        notificationSseService.send(1L, "notification", "data");
+
+        BDDMockito.verify(aliveEmitter).send(any(SseEmitter.SseEventBuilder.class));
+        assertThat(emitters().get(1L)).containsExactly(aliveEmitter);
+    }
+
+    @Test
+    @DisplayName("알림 전송에 실패한 emitter는 제거한다.")
+    void removeEmitterWhenNotificationFails() throws IOException {
+        final SseEmitter brokenEmitter = registerEmitter(1L);
+        BDDMockito.willThrow(new IOException()).given(brokenEmitter).send(any(SseEmitter.SseEventBuilder.class));
+
+        notificationSseService.send(1L, "notification", "data");
+
+        BDDMockito.verify(brokenEmitter).complete();
+        assertThat(emitters()).doesNotContainKey(1L);
+    }
+
+    @Test
     @DisplayName("연결된 모든 emitter에 heartbeat를 전송한다.")
     void sendHeartbeatToAllEmitters() throws IOException {
         final SseEmitter firstEmitter = registerEmitter(1L);

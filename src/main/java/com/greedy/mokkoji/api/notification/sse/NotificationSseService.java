@@ -61,7 +61,7 @@ public class NotificationSseService {
                         .name(eventName)
                         .data(data)
                         .reconnectTime(RECONNECTION_TIMEOUT));
-            } catch (IOException e) {
+            } catch (IOException | IllegalStateException e) {
                 log.warn("SSE 전송 실패 : userId={}, event={}", userId, eventName, e);
                 emitter.complete();
                 remove(userId, emitter);
