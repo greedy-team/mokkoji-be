@@ -18,6 +18,7 @@ import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepositor
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
 import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
+import com.greedy.mokkoji.db.notification.repository.NotificationRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -75,6 +76,9 @@ public class UserServiceTest {
 
     @Mock
     ClubMasterApplicationRepository clubMasterApplicationRepository;
+
+    @Mock
+    NotificationRepository notificationRepository;
 
     @Mock
     KakaoSocialLoginService kakaoSocialLoginService;
@@ -428,6 +432,7 @@ public class UserServiceTest {
         BDDMockito.verify(commentRepository).detachUserByUserId(userId);
         BDDMockito.verify(clubApplicationRepository).deleteByApplicantId(userId);
         BDDMockito.verify(clubMasterApplicationRepository).deleteByUserId(userId);
+        BDDMockito.verify(notificationRepository).deleteByUserId(userId);
         BDDMockito.verify(tokenService).deleteRefreshToken(AuthRole.USER, userId);
         BDDMockito.verify(userRepository).delete(user);
     }
