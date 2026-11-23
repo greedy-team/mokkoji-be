@@ -7,6 +7,8 @@ import com.greedy.mokkoji.api.notification.dto.response.UnreadCountResponse;
 import com.greedy.mokkoji.api.notification.service.NotificationService;
 import com.greedy.mokkoji.api.notification.sse.NotificationSseService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -66,6 +68,16 @@ public class NotificationController implements NotificationControllerSwagger {
 
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(@Authentication final AuthCredential authCredential) {
-        return notificationSseService.subscribe(authCredential.accountId());
+        return notificationSseService.subscribe(
+                authCredential.accountId(),
+                resolveUserRole(authCredential)
+        );
+    }
+
+    private UserRole resolveUserRole(final AuthCredential authCredential) {
+        if (!AuthRole.USER.equals(authCredential.authRole())) {
+            return null;
+        }
+        return notificationService.getUserRole(authCredential.accountId());
     }
 }

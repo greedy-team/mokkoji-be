@@ -5,6 +5,8 @@ import com.greedy.mokkoji.api.clubmaster.service.ClubMasterService;
 import com.greedy.mokkoji.api.email.dto.ClubMasterApplicationNotification;
 import com.greedy.mokkoji.api.email.service.DiscordNotifier;
 import com.greedy.mokkoji.api.external.AfterCommitExecutor;
+import com.greedy.mokkoji.api.notification.event.ClubMasterResignedEvent;
+import com.greedy.mokkoji.api.notification.event.ClubMasterTransferredEvent;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -28,6 +30,7 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
@@ -66,6 +69,9 @@ public class ClubMasterServiceTest {
 
     @Mock
     AfterCommitExecutor afterCommitExecutor;
+
+    @Mock
+    ApplicationEventPublisher eventPublisher;
 
     private User previousMaster;
     private User nextMaster;
@@ -235,5 +241,79 @@ public class ClubMasterServiceTest {
 
         BDDMockito.verify(userRepository, BDDMockito.never()).findByCode(anyString());
         assertThat(club.getMaster()).isEqualTo(previousMaster);
+    }
+
+    @Test
+    @DisplayName("위임이 완료되면 후임자에게 권한 획득 알림 이벤트가 발행된다.")
+    void publishTransferredEventToNextMaster() {
+        // given
+        previousMaster = Fixture.createUserWithRole(university, UserRole.CLUB_MASTER);
+        ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
+        prepareTransferContext(previousMaster);
+
+        BDDMockito.given(clubRepository.findById(CLUB_ID)).willReturn(Optional.of(club));
+        BDDMockito.given(userRepository.findByCode(NEXT_MASTER_USER_CODE)).willReturn(Optional.of(nextMaster));
+        BDDMockito.given(clubRepository.existsByMaster_Id(PREVIOUS_MASTER_ID)).willReturn(false);
+
+        // when
+        clubMasterService.transferClubMaster(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE);
+
+        // then
+        final ArgumentCaptor<ClubMasterTransferredEvent> captor =
+                ArgumentCaptor.forClass(ClubMasterTransferredEvent.class);
+        BDDMockito.verify(eventPublisher).publishEvent(captor.capture());
+
+        final ClubMasterTransferredEvent event = captor.getValue();
+        assertThat(event.userId()).isEqualTo(NEXT_MASTER_ID);
+        assertThat(event.clubId()).isEqualTo(CLUB_ID);
+        assertThat(event.clubName()).isEqualTo(club.getName());
+        assertThat(event.roleChanged()).isTrue();
+    }
+
+    @Test
+    @DisplayName("위임으로 전임자가 강등되면 권한 해제 알림 이벤트가 발행된다.")
+    void publishResignedEventWhenPreviousMasterDemoted() {
+        // given
+        previousMaster = Fixture.createUserWithRole(university, UserRole.CLUB_MASTER);
+        ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
+        prepareTransferContext(previousMaster);
+
+        BDDMockito.given(clubRepository.findById(CLUB_ID)).willReturn(Optional.of(club));
+        BDDMockito.given(userRepository.findByCode(NEXT_MASTER_USER_CODE)).willReturn(Optional.of(nextMaster));
+        BDDMockito.given(clubRepository.existsByMaster_Id(PREVIOUS_MASTER_ID)).willReturn(false);
+
+        // when
+        clubMasterService.transferClubMaster(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE);
+
+        // then
+        final ArgumentCaptor<ClubMasterResignedEvent> captor =
+                ArgumentCaptor.forClass(ClubMasterResignedEvent.class);
+        BDDMockito.verify(eventPublisher).publishEvent(captor.capture());
+
+        final ClubMasterResignedEvent event = captor.getValue();
+        assertThat(event.userId()).isEqualTo(PREVIOUS_MASTER_ID);
+        assertThat(event.clubId()).isEqualTo(CLUB_ID);
+        assertThat(previousMaster.getRole()).isEqualTo(UserRole.NORMAL);
+    }
+
+    @Test
+    @DisplayName("전임자가 다른 동아리의 동아리장이면 권한 해제 알림 이벤트가 발행되지 않는다.")
+    void doNotPublishResignedEventWhenPreviousMasterKeepsRole() {
+        // given
+        previousMaster = Fixture.createUserWithRole(university, UserRole.CLUB_MASTER);
+        ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
+        prepareTransferContext(previousMaster);
+
+        BDDMockito.given(clubRepository.findById(CLUB_ID)).willReturn(Optional.of(club));
+        BDDMockito.given(userRepository.findByCode(NEXT_MASTER_USER_CODE)).willReturn(Optional.of(nextMaster));
+        BDDMockito.given(clubRepository.existsByMaster_Id(PREVIOUS_MASTER_ID)).willReturn(true);
+
+        // when
+        clubMasterService.transferClubMaster(AuthRole.USER, PREVIOUS_MASTER_ID, CLUB_ID, NEXT_MASTER_USER_CODE);
+
+        // then
+        BDDMockito.verify(eventPublisher, BDDMockito.never())
+                .publishEvent(any(ClubMasterResignedEvent.class));
+        assertThat(previousMaster.getRole()).isEqualTo(UserRole.CLUB_MASTER);
     }
 }

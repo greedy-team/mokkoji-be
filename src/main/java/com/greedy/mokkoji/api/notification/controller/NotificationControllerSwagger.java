@@ -58,7 +58,10 @@ public interface NotificationControllerSwagger {
 
     @Operation(
             summary = "알림 SSE 구독 API",
-            description = "연결 직후 connect 이벤트를 한 번 보낸다. 이후 notification, role-changed 이벤트를 받는다.",
+            description = "연결 직후 connect 이벤트를 한 번 보낸다(`{\"message\":\"connected\",\"role\":\"CLUB_MASTER\"}`).\n"
+                    + "* connect의 `role`로 현재 권한을 알 수 있어, 연결이 끊긴 사이에 바뀐 권한도 재연결만으로 최신화된다.\n"
+                    + "* 관리자 토큰으로 구독하면 `role`은 null이다.\n"
+                    + "* 이후 notification, role-changed 이벤트를 받는다.",
             security = {@SecurityRequirement(name = "JWT")}
     )
     @ApiResponse(responseCode = "200", description = "구독 성공 (text/event-stream)")

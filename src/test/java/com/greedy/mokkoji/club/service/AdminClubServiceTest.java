@@ -3,6 +3,7 @@ package com.greedy.mokkoji.club.service;
 import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.club.service.AdminClubService;
 import com.greedy.mokkoji.api.external.AfterCommitS3Cleaner;
+import com.greedy.mokkoji.api.notification.event.ClubDeletedEvent;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.admin.repository.AdminRepository;
 import com.greedy.mokkoji.db.club.entity.Club;
@@ -14,21 +15,28 @@ import com.greedy.mokkoji.db.recruitment.repository.RecruitmentApplyClickReposit
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.university.entity.University;
+import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.user.UserRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -68,6 +76,9 @@ class AdminClubServiceTest {
 
     @Mock
     private ManageAuthorizer manageAuthorizer;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     private static final Long ADMIN_ID = 1L;
     private static final Long CLUB_ID = 10L;
@@ -134,5 +145,59 @@ class AdminClubServiceTest {
         final InOrder inOrder = inOrder(clubMasterApplicationRepository, clubRepository);
         inOrder.verify(clubMasterApplicationRepository).deleteByClubId(CLUB_ID);
         inOrder.verify(clubRepository).delete(club);
+    }
+
+    @Test
+    @DisplayName("동아리 삭제로 동아리장 권한을 잃으면 권한 해제 알림 이벤트가 발행된다.")
+    void publishClubDeletedEventWhenMasterDemoted() {
+        // given
+        final University university = Fixture.createUniversity();
+        final User master = Fixture.createUserWithRole(university, UserRole.CLUB_MASTER);
+        ReflectionTestUtils.setField(master, "id", 5L);
+
+        final Club club = Fixture.createClub(university, master);
+        ReflectionTestUtils.setField(club, "id", CLUB_ID);
+        final String clubName = club.getName();
+
+        given(clubRepository.findById(CLUB_ID)).willReturn(Optional.of(club));
+        given(recruitmentRepository.findIdsByClubId(CLUB_ID)).willReturn(List.of());
+        given(clubRepository.existsByMaster_Id(5L)).willReturn(false);
+
+        // when
+        adminClubService.deleteClub(AuthRole.ADMIN, ADMIN_ID, CLUB_ID);
+
+        // then
+        final ArgumentCaptor<ClubDeletedEvent> captor = ArgumentCaptor.forClass(ClubDeletedEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+
+        final ClubDeletedEvent event = captor.getValue();
+        assertThat(event.userId()).isEqualTo(5L);
+        assertThat(event.clubId()).isEqualTo(CLUB_ID);
+        assertThat(event.clubName()).isEqualTo(clubName);
+        assertThat(event.roleChanged()).isTrue();
+        assertThat(master.getRole()).isEqualTo(UserRole.NORMAL);
+    }
+
+    @Test
+    @DisplayName("동아리장이 다른 동아리도 관리하면 삭제해도 권한 해제 알림 이벤트가 발행되지 않는다.")
+    void doNotPublishClubDeletedEventWhenMasterKeepsRole() {
+        // given
+        final University university = Fixture.createUniversity();
+        final User master = Fixture.createUserWithRole(university, UserRole.CLUB_MASTER);
+        ReflectionTestUtils.setField(master, "id", 5L);
+
+        final Club club = Fixture.createClub(university, master);
+        ReflectionTestUtils.setField(club, "id", CLUB_ID);
+
+        given(clubRepository.findById(CLUB_ID)).willReturn(Optional.of(club));
+        given(recruitmentRepository.findIdsByClubId(CLUB_ID)).willReturn(List.of());
+        given(clubRepository.existsByMaster_Id(5L)).willReturn(true);
+
+        // when
+        adminClubService.deleteClub(AuthRole.ADMIN, ADMIN_ID, CLUB_ID);
+
+        // then
+        verify(eventPublisher, never()).publishEvent(any(ClubDeletedEvent.class));
+        assertThat(master.getRole()).isEqualTo(UserRole.CLUB_MASTER);
     }
 }
