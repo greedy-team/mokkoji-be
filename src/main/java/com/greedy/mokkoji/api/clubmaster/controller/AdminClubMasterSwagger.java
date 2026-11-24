@@ -19,7 +19,7 @@ public interface AdminClubMasterSwagger {
             summary = "동아리장 권한 요청 조회 API",
             description = """
                     오래된 등록순으로 조회
-
+                    
                     **권한별 조회 범위**
                     - `MOKKOJI_ADMIN`: 전체 조회
                     - `UNIVERSITY_ADMIN`(총동연): 자신의 대학교 + 중앙·정인준·가인준 동아리 요청만 조회 (소모임 제외)

@@ -58,6 +58,9 @@ public enum FailMessage {
     CONFLICT_APPLICATION_STATUS(HttpStatus.CONFLICT, 40904, "처리 가능한 상태의 신청이 아닙니다."),
     CONFLICT_CLUB_MASTER_APPLICATION(HttpStatus.CONFLICT, 40905, "동아리장 신청이 이미 진행 중입니다."),
 
+    //429
+    TOO_MANY_REQUESTS(HttpStatus.TOO_MANY_REQUESTS, 42900, "피드백은 3초에 한 번만 전송할 수 있습니다."),
+
     //500
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "서버 내부 오류가 발생했습니다."),
     INTERNAL_SERVER_ERROR_SMTP(HttpStatus.INTERNAL_SERVER_ERROR, 50001, "SMTP 서버 내부 오류가 발생했습니다."),

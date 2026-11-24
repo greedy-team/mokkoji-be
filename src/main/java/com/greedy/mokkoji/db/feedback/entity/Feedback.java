@@ -24,9 +24,13 @@ public class Feedback extends BaseTime {
     @Column(name = "content", columnDefinition = "text", nullable = false)
     private String content;
 
+    @Column(name = "school", columnDefinition = "varchar(255)", nullable = false)
+    private String school;
+
     @Builder
-    public Feedback(int rating, String content) {
+    public Feedback(int rating, String content, String school) {
         this.rating = rating;
         this.content = content;
+        this.school = school;
     }
 }

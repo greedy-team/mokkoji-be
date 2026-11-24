@@ -5,7 +5,6 @@ import com.greedy.mokkoji.api.email.dto.ClubMasterApplicationNotification;
 import com.greedy.mokkoji.api.email.dto.FeedbackNotification;
 import com.greedy.mokkoji.api.email.service.DiscordNotifier;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
@@ -16,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Properties;
 
 @DisplayName("실제 디스코드 웹훅 발송 테스트")
-@Disabled("디스코드 웹훅 테스트 시 해제를 하고 사용")
 public class DiscordNotifierRealTest {
 
     private final DiscordNotifier discordNotifier = new DiscordNotifier(new RestTemplate());
@@ -29,13 +27,16 @@ public class DiscordNotifierRealTest {
 
         ReflectionTestUtils.setField(discordNotifier, "clubApplicationWebhookUrl",
                 properties.getProperty("discord.webhook.club-application.url"));
-        ReflectionTestUtils.setField(discordNotifier, "clubApplicationEnabled", true);
+        ReflectionTestUtils.setField(discordNotifier, "clubApplicationEnabled",
+                Boolean.parseBoolean(properties.getProperty("discord.webhook.club-application.enabled")));
         ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationWebhookUrl",
                 properties.getProperty("discord.webhook.club-master-application.url"));
-        ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationEnabled", true);
+        ReflectionTestUtils.setField(discordNotifier, "clubMasterApplicationEnabled",
+                Boolean.parseBoolean(properties.getProperty("discord.webhook.club-master-application.enabled")));
         ReflectionTestUtils.setField(discordNotifier, "feedbackWebhookUrl",
                 properties.getProperty("discord.webhook.feedback.url"));
-        ReflectionTestUtils.setField(discordNotifier, "feedbackEnabled", true);
+        ReflectionTestUtils.setField(discordNotifier, "feedbackEnabled",
+                Boolean.parseBoolean(properties.getProperty("discord.webhook.feedback.enabled")));
     }
 
     @Test
@@ -72,7 +73,8 @@ public class DiscordNotifierRealTest {
         discordNotifier.notifyFeedbackCreated(new FeedbackNotification(
                 999L,
                 4,
-                "웹훅 이전 테스트입니다."
+                "웹훅 이전 테스트입니다.",
+                "세종대학교"
         ));
     }
 }

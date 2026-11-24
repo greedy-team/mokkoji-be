@@ -20,6 +20,12 @@ public class RedisRepository {
         return redisTemplate.opsForValue().get(key);
     }
 
+    public boolean setIfAbsent(String key, String value, long timeoutMillis) {
+        return Boolean.TRUE.equals(
+                redisTemplate.opsForValue().setIfAbsent(key, value, timeoutMillis, TimeUnit.MILLISECONDS)
+        );
+    }
+
     public void delete(String key) {
         redisTemplate.delete(key);
     }

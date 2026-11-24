@@ -43,30 +43,22 @@ public class ClubApplicationServiceTest {
 
     private static final Long USER_ID = 1L;
     private static final Long APPLICATION_ID = 100L;
-
-    @InjectMocks
-    ClubApplicationService clubApplicationService;
-
-    @Mock
-    ClubApplicationRepository clubApplicationRepository;
-
-    @Mock
-    UserRepository userRepository;
-
-    @Mock
-    UniversityRepository universityRepository;
-
-    @Mock
-    AppDataS3Client appDataS3Client;
-
-    @Mock
-    DiscordNotifier discordNotifier;
-
-    @Mock
-    AfterCommitExecutor afterCommitExecutor;
-
     private final University university = Fixture.createUniversity();
     private final User user = Fixture.createUser(university);
+    @InjectMocks
+    ClubApplicationService clubApplicationService;
+    @Mock
+    ClubApplicationRepository clubApplicationRepository;
+    @Mock
+    UserRepository userRepository;
+    @Mock
+    UniversityRepository universityRepository;
+    @Mock
+    AppDataS3Client appDataS3Client;
+    @Mock
+    DiscordNotifier discordNotifier;
+    @Mock
+    AfterCommitExecutor afterCommitExecutor;
 
     private ClubApplicationCreateRequest createRequest() {
         return new ClubApplicationCreateRequest(

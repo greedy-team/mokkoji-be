@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 
 @Tag(name = "Feedback Controller", description = "피드백 관련 API")
@@ -13,7 +14,9 @@ public interface FeedbackControllerSwagger {
 
     @Operation(summary = "피드백 생성 API")
     @ApiResponse(responseCode = "201", description = "피드백 생성 성공")
+    @ApiResponse(responseCode = "429", description = "3초 이내 중복 요청")
     ResponseEntity<APISuccessResponse<Void>> createFeedback(
-            @Parameter(name = "feedbackRequest", description = "피드백 내용") FeedbackRequest feedbackRequest
+            @Parameter(name = "feedbackRequest", description = "피드백 내용") FeedbackRequest feedbackRequest,
+            HttpServletRequest request
     );
 }
