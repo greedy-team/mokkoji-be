@@ -49,7 +49,7 @@ public class NotificationSseService {
         return emitter;
     }
 
-    public void sendConnect(final SseEmitter emitter, final UserRole role) throws IOException {
+    private void sendConnect(final SseEmitter emitter, final UserRole role) throws IOException {
         emitter.send(SseEmitter.event()
                 .name(EVENT_CONNECT)
                 .data(ConnectPayload.of(role))

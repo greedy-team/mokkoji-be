@@ -148,7 +148,7 @@ class NotificationSseServiceTest {
         final SseEmitter emitter = BDDMockito.mock(SseEmitter.class);
 
         // when
-        notificationSseService.sendConnect(emitter, UserRole.CLUB_MASTER);
+        ReflectionTestUtils.invokeMethod(notificationSseService, "sendConnect", emitter, UserRole.CLUB_MASTER);
 
         // then
         final ArgumentCaptor<SseEmitter.SseEventBuilder> captor =
@@ -170,7 +170,7 @@ class NotificationSseServiceTest {
         final SseEmitter emitter = BDDMockito.mock(SseEmitter.class);
 
         // when
-        notificationSseService.sendConnect(emitter, null);
+        ReflectionTestUtils.invokeMethod(notificationSseService, "sendConnect", emitter, null);
 
         // then
         final ArgumentCaptor<SseEmitter.SseEventBuilder> captor =
