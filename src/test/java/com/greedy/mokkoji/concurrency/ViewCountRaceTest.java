@@ -1,16 +1,24 @@
 package com.greedy.mokkoji.concurrency;
 
-import com.greedy.mokkoji.api.club.service.ClubService;
+import com.greedy.mokkoji.api.viewcount.model.ViewCountBatch;
+import com.greedy.mokkoji.api.viewcount.model.ViewCountBucket;
+import com.greedy.mokkoji.api.viewcount.service.ViewCountBatchApplier;
 import com.greedy.mokkoji.common.AbstractTest;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.university.entity.University;
+import com.greedy.mokkoji.db.viewcount.repository.ViewCountRepository;
+import com.greedy.mokkoji.enums.viewcount.ViewCountTarget;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,26 +28,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 조회수 v0(read-modify-write, 더티체킹)의 lost update 재현 테스트.
- *
- * 가정한 상황: 인기 동아리 상세 페이지에 여러 사용자가 "동시에" 진입한다.
- * 각 요청은 같은 club 행을 읽고(view_count=n), 메모리에서 +1 한 뒤(n+1),
- * 커밋 시점에 UPDATE 한다. 두 요청이 같은 n을 읽으면 둘 다 n+1을 쓰므로
- * 증가 1회가 유실된다(lost update).
- *
- * v0에서 이 테스트는 실패해야 하며(유실 실증), v1(원자 UPDATE) 적용 후
- * 통과하여 회귀 방지 테스트로 남는다.
+ * 같은 동아리의 조회수 배치를 동시에 DB에 반영할 때 증가분 유실과 중복 합산을 검증한다.
+ * Redis 수집과 상세 GET은 제외하고 실제 MySQL 트랜잭션을 사용하는 테스트다.
  */
-@SpringBootTest
+@SpringBootTest(properties = "view-count.flush-enabled=false")
 class ViewCountRaceTest extends AbstractTest {
 
-    private static final int VIEW_THREADS = 100;
+    private static final int BATCH_THREADS = 100;
 
     @Autowired
-    private ClubService clubService;
+    private ViewCountBatchApplier viewCountBatchApplier;
+
+    @Autowired
+    private ViewCountRepository viewCountRepository;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @AfterEach
     void tearDown() {
+        jdbcTemplate.update("DELETE FROM view_count_batch_history");
+        jdbcTemplate.update("DELETE FROM view_count");
         recruitmentImageRepository.deleteAll();
         recruitmentRepository.deleteAll();
         commentRepository.deleteAll();
@@ -50,23 +59,34 @@ class ViewCountRaceTest extends AbstractTest {
     }
 
     @Test
-    @DisplayName("동시 조회 100건이면 조회수는 정확히 100 증가해야 한다")
-    void viewCount_underConcurrency_increasesExactly() throws Exception {
+    @DisplayName("서로 다른 조회수 배치 100개를 동시에 반영하면 증가분이 모두 합산된다")
+    void applyDifferentBatchesConcurrently() throws Exception {
         final University university = universityRepository.save(Fixture.createUniversity());
         final Club club = clubRepository.save(Fixture.createClub(university));
+        final ViewCountBucket bucket = new ViewCountBucket(ViewCountTarget.CLUB, club.getId(), LocalDate.of(2026, 11, 24));
 
-        final RaceResult result = runConcurrently(VIEW_THREADS,
-                () -> clubService.findClub(null, club.getId()));
+        final RaceResult result = runConcurrently(BATCH_THREADS,
+                () -> viewCountBatchApplier.applyBatch(new ViewCountBatch(UUID.randomUUID().toString(), Map.of(bucket, 1L))));
 
-        final Club after = clubRepository.findById(club.getId()).orElseThrow();
-        final long lost = VIEW_THREADS - after.getViewCount();
+        assertThat(result.failed()).isZero();
+        assertThat(result.success()).isEqualTo(BATCH_THREADS);
+        assertThat(viewCountRepository.findClubViewCount(club.getId())).isEqualTo(BATCH_THREADS);
+    }
 
-        System.out.printf("[VIEWCOUNT-RACE] threads=%d success=%d failed=%d viewCount=%d lost=%d%n",
-                VIEW_THREADS, result.success(), result.failed(), after.getViewCount(), lost);
+    @Test
+    @DisplayName("같은 조회수 배치를 동시에 재처리해도 한 번만 합산된다")
+    void applySameBatchConcurrently() throws Exception {
+        final University university = universityRepository.save(Fixture.createUniversity());
+        final Club club = clubRepository.save(Fixture.createClub(university));
+        final ViewCountBucket bucket = new ViewCountBucket(ViewCountTarget.CLUB, club.getId(), LocalDate.of(2026, 11, 24));
+        final ViewCountBatch batch = new ViewCountBatch(UUID.randomUUID().toString(), Map.of(bucket, 5L));
 
-        assertThat(after.getViewCount())
-                .as("동시 조회 %d건(성공 응답 %d건) 후 view_count", VIEW_THREADS, result.success())
-                .isEqualTo((long) VIEW_THREADS);
+        final RaceResult result = runConcurrently(BATCH_THREADS, () -> viewCountBatchApplier.applyBatch(batch));
+
+        assertThat(result.failed()).isZero();
+        assertThat(result.success()).isEqualTo(BATCH_THREADS);
+        assertThat(viewCountRepository.findClubViewCount(club.getId())).isEqualTo(5L);
+        assertThat(viewCountRepository.existsBatchHistory(batch.id())).isTrue();
     }
 
     private RaceResult runConcurrently(final int threadCount, final Runnable task) throws InterruptedException {
@@ -92,10 +112,14 @@ class ViewCountRaceTest extends AbstractTest {
             });
         }
 
-        ready.await();
-        start.countDown();
-        done.await(60, TimeUnit.SECONDS);
-        executor.shutdownNow();
+        try {
+            assertThat(ready.await(10, TimeUnit.SECONDS)).as("배치 처리 스레드 준비").isTrue();
+            start.countDown();
+            assertThat(done.await(60, TimeUnit.SECONDS)).as("배치 처리 완료").isTrue();
+        } finally {
+            start.countDown();
+            executor.shutdownNow();
+        }
 
         return new RaceResult(success.get(), failed.get());
     }

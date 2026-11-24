@@ -16,6 +16,7 @@ import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.university.entity.University;
+import com.greedy.mokkoji.db.viewcount.repository.ViewCountRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.club.ClubCategory;
@@ -67,6 +68,9 @@ class ClubServiceTest {
 
     @Mock
     private AppDataS3Client appDataS3Client;
+
+    @Mock
+    private ViewCountRepository viewCountRepository;
 
     private Club club1;
     private Club club2;
@@ -196,6 +200,7 @@ class ClubServiceTest {
         BDDMockito.given(recruitmentRepository.findTopByClubIdOrderByCreatedAtDesc(clubId)).willReturn(Optional.ofNullable(recruitment1));
         BDDMockito.given(favoriteRepository.existsByUserIdAndClubId(userId, clubId)).willReturn(true);
         BDDMockito.given(appDataS3Client.getPublicUrl(club1.getLogo())).willReturn("testLogo1");
+        BDDMockito.given(viewCountRepository.findClubViewCount(clubId)).willReturn(125L);
 
         //when
         ClubDetailResponse response = clubService.findClub(userId, clubId);
@@ -212,6 +217,7 @@ class ClubServiceTest {
         assertThat(response.isFavorite()).isEqualTo(true);
         assertThat(response.instagram()).isEqualTo("testInstagramURL1");
         assertThat(response.recruitPost()).isEqualTo("testContent1");
+        assertThat(response.viewCount()).isEqualTo(125L);
 
         verify(clubRepository, times(1)).findById(anyLong());
         verify(recruitmentRepository, times(1)).findTopByClubIdOrderByCreatedAtDesc(anyLong());
