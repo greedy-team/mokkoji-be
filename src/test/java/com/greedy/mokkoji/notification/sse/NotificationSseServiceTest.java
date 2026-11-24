@@ -1,10 +1,12 @@
 package com.greedy.mokkoji.notification.sse;
 
 import com.greedy.mokkoji.api.notification.sse.NotificationSseService;
+import com.greedy.mokkoji.enums.user.UserRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.BDDMockito;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -47,7 +49,7 @@ class NotificationSseServiceTest {
 
         try {
             for (int i = 0; i < 20000; i++) {
-                final SseEmitter oldEmitter = notificationSseService.subscribe(userId);
+                final SseEmitter oldEmitter = notificationSseService.subscribe(userId, UserRole.NORMAL);
                 final CyclicBarrier barrier = new CyclicBarrier(2);
 
                 final Future<?> removing = executor.submit(() -> {
@@ -57,7 +59,7 @@ class NotificationSseServiceTest {
                 });
                 final Future<SseEmitter> subscribing = executor.submit(() -> {
                     barrier.await();
-                    return notificationSseService.subscribe(userId);
+                    return notificationSseService.subscribe(userId, UserRole.NORMAL);
                 });
 
                 removing.get();
@@ -137,5 +139,50 @@ class NotificationSseServiceTest {
 
         BDDMockito.verify(aliveEmitter).send(any(SseEmitter.SseEventBuilder.class));
         assertThat(emitters()).containsOnlyKeys(2L);
+    }
+
+    @Test
+    @DisplayName("구독 시 connect 이벤트에 현재 role이 함께 전달된다.")
+    void sendRoleWithConnectEvent() throws IOException {
+        // given
+        final SseEmitter emitter = BDDMockito.mock(SseEmitter.class);
+
+        // when
+        ReflectionTestUtils.invokeMethod(notificationSseService, "sendConnect", emitter, UserRole.CLUB_MASTER);
+
+        // then
+        final ArgumentCaptor<SseEmitter.SseEventBuilder> captor =
+                ArgumentCaptor.forClass(SseEmitter.SseEventBuilder.class);
+        BDDMockito.verify(emitter).send(captor.capture());
+
+        final String payload = captor.getValue().build().stream()
+                .map(dataWithMediaType -> String.valueOf(dataWithMediaType.getData()))
+                .reduce("", String::concat);
+
+        assertThat(payload).contains("connect");
+        assertThat(payload).contains("CLUB_MASTER");
+    }
+
+    @Test
+    @DisplayName("role을 알 수 없으면 connect 이벤트에 role 없이 connected만 전달된다.")
+    void sendConnectWithoutRoleWhenRoleIsUnknown() throws IOException {
+        // given
+        final SseEmitter emitter = BDDMockito.mock(SseEmitter.class);
+
+        // when
+        ReflectionTestUtils.invokeMethod(notificationSseService, "sendConnect", emitter, null);
+
+        // then
+        final ArgumentCaptor<SseEmitter.SseEventBuilder> captor =
+                ArgumentCaptor.forClass(SseEmitter.SseEventBuilder.class);
+        BDDMockito.verify(emitter).send(captor.capture());
+
+        final String payload = captor.getValue().build().stream()
+                .map(dataWithMediaType -> String.valueOf(dataWithMediaType.getData()))
+                .reduce("", String::concat);
+
+        assertThat(payload).contains("connected");
+        assertThat(payload).doesNotContain("CLUB_MASTER");
+        assertThat(payload).doesNotContain("NORMAL");
     }
 }

@@ -4,6 +4,7 @@ import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.club.dto.response.AdminClubResponse;
 import com.greedy.mokkoji.api.club.dto.response.AdminClubsResponse;
 import com.greedy.mokkoji.api.external.AfterCommitS3Cleaner;
+import com.greedy.mokkoji.api.notification.event.ClubDeletedEvent;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.admin.entity.Admin;
@@ -26,6 +27,7 @@ import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +48,7 @@ public class AdminClubService {
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final AfterCommitS3Cleaner afterCommitS3Cleaner;
     private final ManageAuthorizer manageAuthorizer;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public AdminClubsResponse getAdminClubs(
@@ -89,11 +92,12 @@ public class AdminClubService {
         final List<Long> recruitmentIds = recruitmentRepository.findIdsByClubId(clubId);
         final List<String> s3KeysToDelete = collectS3KeysToDelete(club, recruitmentIds);
         final User master = club.getMaster();
+        final String clubName = club.getName();
 
         deleteClubAssociations(clubId, recruitmentIds);
         clubRepository.delete(club);
 
-        updateMasterRoleIfNeeded(master);
+        updateMasterRoleIfNeeded(master, clubName);
 
         afterCommitS3Cleaner.deleteAfterCommit(s3KeysToDelete);
 
@@ -132,7 +136,7 @@ public class AdminClubService {
         clubMasterApplicationRepository.deleteByClubId(clubId);
     }
 
-    private void updateMasterRoleIfNeeded(final User master) {
+    private void updateMasterRoleIfNeeded(final User master, final String clubName) {
         if (master == null) {
             return;
         }
@@ -140,6 +144,8 @@ public class AdminClubService {
         boolean isStillClubMaster = clubRepository.existsByMaster_Id(master.getId());
         if (!isStillClubMaster) {
             master.updateRole(UserRole.NORMAL);
+
+            eventPublisher.publishEvent(new ClubDeletedEvent(master.getId(), clubName));
         }
     }
 }

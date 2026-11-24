@@ -1,5 +1,7 @@
 package com.greedy.mokkoji.api.notification.sse;
 
+import com.greedy.mokkoji.api.notification.dto.ConnectPayload;
+import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -17,10 +19,11 @@ public class NotificationSseService {
     private static final long DEFAULT_TIMEOUT = 60L * 60 * 1000;
     private static final long RECONNECTION_TIMEOUT = 3000L;
     private static final String HEARTBEAT_COMMENT = "heartbeat";
+    private static final String EVENT_CONNECT = "connect";
 
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
-    public SseEmitter subscribe(final Long userId) {
+    public SseEmitter subscribe(final Long userId, final UserRole role) {
         final SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
 
         add(userId, emitter);
@@ -36,10 +39,7 @@ public class NotificationSseService {
         });
 
         try {
-            emitter.send(SseEmitter.event()
-                    .name("connect")
-                    .data("connected")
-                    .reconnectTime(RECONNECTION_TIMEOUT));
+            sendConnect(emitter, role);
         } catch (IOException e) {
             log.warn("SSE 초기 메시지 전송 실패 : userId={}", userId, e);
             emitter.complete();
@@ -47,6 +47,13 @@ public class NotificationSseService {
         }
 
         return emitter;
+    }
+
+    private void sendConnect(final SseEmitter emitter, final UserRole role) throws IOException {
+        emitter.send(SseEmitter.event()
+                .name(EVENT_CONNECT)
+                .data(ConnectPayload.of(role))
+                .reconnectTime(RECONNECTION_TIMEOUT));
     }
 
     public void send(final Long userId, final String eventName, final Object data) {

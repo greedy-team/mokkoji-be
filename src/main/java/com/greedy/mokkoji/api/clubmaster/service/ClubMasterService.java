@@ -5,6 +5,8 @@ import com.greedy.mokkoji.api.clubmaster.dto.response.GetMyClubMasterApplication
 import com.greedy.mokkoji.api.email.dto.ClubMasterApplicationNotification;
 import com.greedy.mokkoji.api.email.service.DiscordNotifier;
 import com.greedy.mokkoji.api.external.AfterCommitExecutor;
+import com.greedy.mokkoji.api.notification.event.ClubMasterResignedEvent;
+import com.greedy.mokkoji.api.notification.event.ClubMasterTransferredEvent;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -20,6 +22,7 @@ import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +39,7 @@ public class ClubMasterService {
     private final UserRepository userRepository;
     private final DiscordNotifier discordNotifier;
     private final AfterCommitExecutor afterCommitExecutor;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void createClubMasterApplication(
@@ -101,12 +105,19 @@ public class ClubMasterService {
         nextClubMaster.updateRole(UserRole.CLUB_MASTER);
         club.updateMaster(nextClubMaster);
 
-        updatePreviousMasterRoleIfNeeded(previousMaster, nextClubMaster);
+        eventPublisher.publishEvent(new ClubMasterTransferredEvent(
+                nextClubMaster.getId(),
+                club.getId(),
+                club.getName()
+        ));
+
+        updatePreviousMasterRoleIfNeeded(previousMaster, nextClubMaster, club);
     }
 
     private void updatePreviousMasterRoleIfNeeded(
             final User previousMaster,
-            final User nextClubMaster
+            final User nextClubMaster,
+            final Club club
     ) {
         if (previousMaster == null || previousMaster.getId().equals(nextClubMaster.getId())) {
             return;
@@ -115,6 +126,12 @@ public class ClubMasterService {
         boolean isStillClubMaster = clubRepository.existsByMaster_Id(previousMaster.getId());
         if (!isStillClubMaster) {
             previousMaster.updateRole(UserRole.NORMAL);
+
+            eventPublisher.publishEvent(new ClubMasterResignedEvent(
+                    previousMaster.getId(),
+                    club.getId(),
+                    club.getName()
+            ));
         }
     }
 

@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.notification.event;
 
+import com.greedy.mokkoji.api.notification.dto.NotificationPayload;
 import com.greedy.mokkoji.api.notification.service.NotificationService;
 import com.greedy.mokkoji.api.notification.sse.NotificationSseService;
 import com.greedy.mokkoji.db.notification.entity.Notification;
@@ -41,22 +42,11 @@ public class NotificationEventListener {
         notificationSseService.send(
                 event.userId(),
                 EVENT_NOTIFICATION,
-                NotificationPayload.of(event)
+                NotificationPayload.from(event)
         );
 
         if (event.roleChanged()) {
             notificationSseService.send(event.userId(), EVENT_ROLE_CHANGED, "role-changed");
-        }
-    }
-
-    private record NotificationPayload(String type, String title, String content, Long targetId) {
-        private static NotificationPayload of(final NotificationEvent event) {
-            return new NotificationPayload(
-                    event.type().name(),
-                    event.type().getTitle(),
-                    event.content(),
-                    event.targetId()
-            );
         }
     }
 }
