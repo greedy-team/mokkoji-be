@@ -36,41 +36,30 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AdminClubServiceTest {
 
-    @InjectMocks
-    private AdminClubService adminClubService;
-
-    @Mock
-    private ClubRepository clubRepository;
-
-    @Mock
-    private AdminRepository adminRepository;
-
-    @Mock
-    private CommentRepository commentRepository;
-
-    @Mock
-    private FavoriteRepository favoriteRepository;
-
-    @Mock
-    private RecruitmentRepository recruitmentRepository;
-
-    @Mock
-    private RecruitmentImageRepository recruitmentImageRepository;
-
-    @Mock
-    private RecruitmentApplyClickRepository recruitmentApplyClickRepository;
-
-    @Mock
-    private ClubMasterApplicationRepository clubMasterApplicationRepository;
-
-    @Mock
-    private AfterCommitS3Cleaner afterCommitS3Cleaner;
-
-    @Mock
-    private ManageAuthorizer manageAuthorizer;
-
     private static final Long ADMIN_ID = 1L;
     private static final Long CLUB_ID = 10L;
+    @InjectMocks
+    private AdminClubService adminClubService;
+    @Mock
+    private ClubRepository clubRepository;
+    @Mock
+    private AdminRepository adminRepository;
+    @Mock
+    private CommentRepository commentRepository;
+    @Mock
+    private FavoriteRepository favoriteRepository;
+    @Mock
+    private RecruitmentRepository recruitmentRepository;
+    @Mock
+    private RecruitmentImageRepository recruitmentImageRepository;
+    @Mock
+    private RecruitmentApplyClickRepository recruitmentApplyClickRepository;
+    @Mock
+    private ClubMasterApplicationRepository clubMasterApplicationRepository;
+    @Mock
+    private AfterCommitS3Cleaner afterCommitS3Cleaner;
+    @Mock
+    private ManageAuthorizer manageAuthorizer;
 
     private Club givenClubWithRecruitments(final List<Long> recruitmentIds) {
         final University university = Fixture.createUniversity();
