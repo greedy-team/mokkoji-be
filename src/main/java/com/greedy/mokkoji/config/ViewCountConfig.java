@@ -27,8 +27,8 @@ public class ViewCountConfig {
     @Bean
     public LettuceConnectionFactory viewCountRedisConnectionFactory(
             final ViewCountProperties viewCountProperties,
-            @Value("${view-count.redis-host:${VIEW_COUNT_REDIS_HOST:${redis.host}}}") final String host,
-            @Value("${view-count.redis-port:${VIEW_COUNT_REDIS_PORT:${redis.port}}}") final int port
+            @Value("${view-count.redis-host}") final String host,
+            @Value("${view-count.redis-port}") final int port
     ) {
         final ClientOptions clientOptions = ClientOptions.builder()
                 .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
