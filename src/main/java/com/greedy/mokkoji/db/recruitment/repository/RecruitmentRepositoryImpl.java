@@ -19,7 +19,7 @@ public class RecruitmentRepositoryImpl implements RecruitmentRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Recruitment> findLatestRecruitmentsByFavoriteClubs(List<Long> favoriteClubIds) {
+    public List<Recruitment> findLatestRecruitmentsByClubIds(List<Long> favoriteClubIds) {
         QRecruitment subRecruitment = new QRecruitment("subRecruitment");
 
         return queryFactory.selectFrom(recruitment)

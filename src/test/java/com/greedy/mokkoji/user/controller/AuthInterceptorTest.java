@@ -55,7 +55,7 @@ public class AuthInterceptorTest extends ControllerTest {
 
     @Test
     void 인증_헤더_정보가_Bearer가_아닐때_401을_응답한다() {
-        String accessToken = jwtUtil.generateAccessToken(new AuthCredential(AuthRole.USER, null, user.getId()));
+        String accessToken = jwtUtil.generateAccessToken(new AuthCredential(AuthRole.USER, user.getId()));
         // when
         final ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .when().header("Authorization", "Basic " + accessToken)

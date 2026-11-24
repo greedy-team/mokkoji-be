@@ -18,6 +18,7 @@ import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepositor
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
 import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
+import com.greedy.mokkoji.db.notification.repository.NotificationRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -77,6 +78,9 @@ public class UserServiceTest {
     ClubMasterApplicationRepository clubMasterApplicationRepository;
 
     @Mock
+    NotificationRepository notificationRepository;
+
+    @Mock
     KakaoSocialLoginService kakaoSocialLoginService;
 
     @Mock
@@ -93,19 +97,25 @@ public class UserServiceTest {
         final String redirectUri = "http://localhost:3000/api/auth/callback/kakao";
         final String kakaoId = "kakao-12341234";
 
+        final University university = University.builder()
+                .name("건국대학교")
+                .code(UniversityCode.KONKUK)
+                .build();
+
         final User existingUser = User.builder()
+                .university(university)
                 .name("모꼬지")
                 .kakaoId(kakaoId)
                 .role(UserRole.NORMAL)
                 .build();
         ReflectionTestUtils.setField(existingUser, "id", 1L);
 
-        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false);
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", false, UserRole.NORMAL, UniversityCode.KONKUK);
 
         BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, "모꼬지"));
-        BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.of(existingUser));
-        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, null, existingUser.getId()))
+        BDDMockito.given(userRepository.findByKakaoIdWithUniversity(kakaoId)).willReturn(Optional.of(existingUser));
+        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, existingUser.getId()))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
@@ -125,7 +135,7 @@ public class UserServiceTest {
         final String kakaoId = "kakao-99999999";
         final String nickname = "모꼬지";
 
-        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true);
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true, UserRole.NORMAL, UniversityCode.SEJONG);
 
         final University university = University.builder()
                 .name("세종대학교")
@@ -134,14 +144,14 @@ public class UserServiceTest {
 
         BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, nickname));
-        BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.empty());
+        BDDMockito.given(userRepository.findByKakaoIdWithUniversity(kakaoId)).willReturn(Optional.empty());
         BDDMockito.given(universityRepository.findByCode(UniversityCode.SEJONG)).willReturn(Optional.of(university));
         BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> {
             User saved = invocation.getArgument(0);
             ReflectionTestUtils.setField(saved, "id", 1L);
             return saved;
         });
-        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, null, 1L))
+        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, 1L))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
@@ -163,7 +173,7 @@ public class UserServiceTest {
         final String redirectUri = "http://localhost:3000/api/auth/callback/kakao";
         final String kakaoId = "kakao-00000000";
 
-        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true);
+        final LoginResponse expected = LoginResponse.of("accessToken", "refreshToken", true, UserRole.NORMAL, UniversityCode.SEJONG);
 
         final University university = University.builder()
                 .name("세종대학교")
@@ -172,14 +182,14 @@ public class UserServiceTest {
 
         BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponseWithoutNickname(kakaoId));
-        BDDMockito.given(userRepository.findByKakaoId(kakaoId)).willReturn(Optional.empty());
+        BDDMockito.given(userRepository.findByKakaoIdWithUniversity(kakaoId)).willReturn(Optional.empty());
         BDDMockito.given(universityRepository.findByCode(UniversityCode.SEJONG)).willReturn(Optional.of(university));
         BDDMockito.given(userRepository.save(any())).willAnswer(invocation -> {
             User saved = invocation.getArgument(0);
             ReflectionTestUtils.setField(saved, "id", 1L);
             return saved;
         });
-        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, null, 1L))
+        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, 1L))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
@@ -200,7 +210,7 @@ public class UserServiceTest {
         Long userId = 1L;
         String refreshToken = "refreshToken";
         String newAccessToken = "newAccessToken";
-        AuthCredential credential = new AuthCredential(AuthRole.USER, null, userId);
+        AuthCredential credential = new AuthCredential(AuthRole.USER, userId);
 
         when(jwtUtil.getCredentialFromToken(refreshToken)).thenReturn(credential);
         when(tokenService.getRefreshToken(AuthRole.USER, userId)).thenReturn(refreshToken);
@@ -219,7 +229,7 @@ public class UserServiceTest {
         // given
         Long userId = 1L;
         String invalidRefreshToken = "invalidRefreshToken";
-        AuthCredential credential = new AuthCredential(AuthRole.USER, null, userId);
+        AuthCredential credential = new AuthCredential(AuthRole.USER, userId);
 
         when(jwtUtil.getCredentialFromToken(invalidRefreshToken)).thenReturn(credential);
         when(tokenService.getRefreshToken(AuthRole.USER, userId)).thenReturn("differentStoredToken");
@@ -422,6 +432,7 @@ public class UserServiceTest {
         BDDMockito.verify(commentRepository).detachUserByUserId(userId);
         BDDMockito.verify(clubApplicationRepository).deleteByApplicantId(userId);
         BDDMockito.verify(clubMasterApplicationRepository).deleteByUserId(userId);
+        BDDMockito.verify(notificationRepository).deleteByUserId(userId);
         BDDMockito.verify(tokenService).deleteRefreshToken(AuthRole.USER, userId);
         BDDMockito.verify(userRepository).delete(user);
     }

@@ -12,6 +12,7 @@ import com.greedy.mokkoji.db.clubapplication.repository.ClubApplicationRepositor
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
 import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
+import com.greedy.mokkoji.db.notification.repository.NotificationRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -41,6 +42,7 @@ public class UserService {
     private final CommentRepository commentRepository;
     private final ClubApplicationRepository clubApplicationRepository;
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
+    private final NotificationRepository notificationRepository;
     private final JwtUtil jwtUtil;
     private final TokenService tokenService;
     private final KakaoSocialLoginService kakaoSocialLoginService;
@@ -50,7 +52,7 @@ public class UserService {
         final String kakaoId = kakaoUserInfo.id();
         final String name = kakaoUserInfo.nickname();
 
-        final Optional<User> existingUser = userRepository.findByKakaoId(kakaoId);
+        final Optional<User> existingUser = userRepository.findByKakaoIdWithUniversity(kakaoId);
         final boolean isNewUser = existingUser.isEmpty();
         final User user = existingUser.orElseGet(
                 () -> userRepository.save(
@@ -65,8 +67,14 @@ public class UserService {
                 )
         );
 
-        final TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, null, user.getId());
-        return LoginResponse.of(tokenPair.accessToken(), tokenPair.refreshToken(), isNewUser);
+        final TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, user.getId());
+        return LoginResponse.of(
+                tokenPair.accessToken(),
+                tokenPair.refreshToken(),
+                isNewUser,
+                user.getRole(),
+                user.getUniversity().getCode()
+        );
     }
 
     @Transactional
@@ -136,6 +144,7 @@ public class UserService {
         commentRepository.detachUserByUserId(userId);
         clubApplicationRepository.deleteByApplicantId(userId);
         clubMasterApplicationRepository.deleteByUserId(userId);
+        notificationRepository.deleteByUserId(userId);
 
         tokenService.deleteRefreshToken(authRole, userId);
 

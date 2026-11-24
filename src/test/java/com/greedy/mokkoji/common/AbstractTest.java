@@ -3,6 +3,7 @@ package com.greedy.mokkoji.common;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.comment.repository.CommentRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
+import com.greedy.mokkoji.db.recruitment.repository.RecruitmentApplyClickRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentImageRepository;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
@@ -28,6 +29,23 @@ public class AbstractTest {
         MYSQL.start();
     }
 
+    @Autowired
+    protected UserRepository userRepository;
+    @Autowired
+    protected UniversityRepository universityRepository;
+    @Autowired
+    protected ClubRepository clubRepository;
+    @Autowired
+    protected FavoriteRepository favoriteRepository;
+    @Autowired
+    protected RecruitmentRepository recruitmentRepository;
+    @Autowired
+    protected RecruitmentImageRepository recruitmentImageRepository;
+    @Autowired
+    protected RecruitmentApplyClickRepository recruitmentApplyClickRepository;
+    @Autowired
+    protected CommentRepository commentRepository;
+
     @DynamicPropertySource
     static void datasourceProperties(final DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", MYSQL::getJdbcUrl);
@@ -39,6 +57,7 @@ public class AbstractTest {
     // 공유 컨테이너라 클래스 간 데이터가 남으므로, 매 테스트 전에 FK 자식 테이블부터 역순으로 정리한다.
     @BeforeEach
     void cleanUpDatabase() {
+        recruitmentApplyClickRepository.deleteAll();
         recruitmentImageRepository.deleteAll();
         favoriteRepository.deleteAll();
         commentRepository.deleteAll();
@@ -47,25 +66,4 @@ public class AbstractTest {
         userRepository.deleteAll();
         universityRepository.deleteAll();
     }
-
-    @Autowired
-    protected UserRepository userRepository;
-
-    @Autowired
-    protected UniversityRepository universityRepository;
-
-    @Autowired
-    protected ClubRepository clubRepository;
-
-    @Autowired
-    protected FavoriteRepository favoriteRepository;
-
-    @Autowired
-    protected RecruitmentRepository recruitmentRepository;
-
-    @Autowired
-    protected RecruitmentImageRepository recruitmentImageRepository;
-
-    @Autowired
-    protected CommentRepository commentRepository;
 }

@@ -31,14 +31,19 @@ import static com.greedy.mokkoji.enums.recruitment.RecruitStatus.OPEN;
 @RequiredArgsConstructor
 public class ClubRepositoryImpl implements ClubRepositoryCustom {
 
+    private static final QRecruitment searchTarget = new QRecruitment("searchTarget");
+
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<Club> findClubsForAdmin(final UniversityCode universityCode, final Pageable pageable) {
+    public Page<Club> findClubsForAdmin(final UniversityCode universityCode, final List<ClubAffiliation> affiliations, final Pageable pageable) {
         final List<Club> clubs = queryFactory.selectFrom(club)
                 .leftJoin(club.master).fetchJoin()
                 .leftJoin(club.university).fetchJoin()
-                .where(equalUniversityCode(universityCode))
+                .where(
+                        equalUniversityCode(universityCode),
+                        inAffiliations(affiliations)
+                )
                 .orderBy(club.id.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -47,7 +52,10 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
         final long total = Optional.ofNullable(
                 queryFactory.select(club.count())
                         .from(club)
-                        .where(equalUniversityCode(universityCode))
+                        .where(
+                                equalUniversityCode(universityCode),
+                                inAffiliations(affiliations)
+                        )
                         .fetchOne()
         ).orElse(0L);
 
@@ -65,13 +73,17 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
 
         final LocalDateTime now = LocalDateTime.now();
 
+        final BooleanExpression matchesKeyword = matchesKeyword(keyword);
+        final BooleanExpression matchesStatus = matchesRecruitStatus(status, now);
+
         final List<Club> clubs = queryFactory.selectFrom(club)
-                .leftJoin(recruitment).on(club.eq(recruitment.club))
+                .leftJoin(recruitment).on(club.eq(recruitment.club), isLatestRecruitment())
+                .leftJoin(club.university).fetchJoin()
                 .where(
-                        likeClubName(keyword),
+                        matchesKeyword,
+                        matchesStatus,
                         equalCategory(category),
                         equalAffiliation(affiliation),
-                        filterByRecruitStatus(status, now),
                         equalUniversityCode(universityCode)
                 )
                 .orderBy(
@@ -87,12 +99,11 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
         final long total = Optional.ofNullable(
                 queryFactory.select(club.count())
                         .from(club)
-                        .leftJoin(recruitment).on(club.eq(recruitment.club))
                         .where(
-                                likeClubName(keyword),
+                                matchesKeyword,
+                                matchesStatus,
                                 equalCategory(category),
                                 equalAffiliation(affiliation),
-                                filterByRecruitStatus(status, now),
                                 equalUniversityCode(universityCode)
                         )
                         .fetchOne()
@@ -107,9 +118,6 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
             final String keyword,
             final ClubAffiliation affiliation,
             final ClubCategory category) {
-        QRecruitment subRecruitment = new QRecruitment("subRecruitment");
-        QRecruitment subRecruitment2 = new QRecruitment("subRecruitment2");
-
         return queryFactory
                 .select(
                         Projections.constructor(
@@ -131,20 +139,7 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
                 .from(club)
                 .leftJoin(recruitment).on(
                         recruitment.club.eq(club),
-                        recruitment.id.eq(
-                                JPAExpressions
-                                        .select(subRecruitment.id.max())
-                                        .from(subRecruitment)
-                                        .where(
-                                                subRecruitment.club.eq(club),
-                                                subRecruitment.createdAt.eq(
-                                                        JPAExpressions
-                                                                .select(subRecruitment2.createdAt.max())
-                                                                .from(subRecruitment2)
-                                                                .where(subRecruitment2.club.eq(club))
-                                                )
-                                        )
-                        )
+                        isLatestRecruitment()
                 )
                 .where(
                         likeClubName(keyword),
@@ -157,9 +152,9 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
 
     private BooleanExpression likeClubName(final String keyword) {
         if (StringUtils.hasText(keyword)) {
-            return club.name.like("%" + keyword + "%")
-                    .or(club.description.like("%" + keyword + "%"))
-                    .or(recruitment.content.like("%" + keyword + "%"));
+            return club.name.like(contains(keyword))
+                    .or(club.description.like(contains(keyword)))
+                    .or(recruitment.content.like(contains(keyword)));
         }
         return null;
     }
@@ -185,12 +180,60 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
         return null;
     }
 
-    private BooleanExpression filterByRecruitStatus(final RecruitStatus status, final LocalDateTime now) {
-        if (status == OPEN) {
-            return recruitment.isAlwaysRecruiting.isTrue()
-                    .or(recruitment.recruitStart.loe(now).and(recruitment.recruitEnd.gt(now)));
+    private BooleanExpression inAffiliations(final List<ClubAffiliation> affiliations) {
+        if (affiliations != null && !affiliations.isEmpty()) {
+            return club.clubAffiliation.in(affiliations);
         }
         return null;
+    }
+
+    private BooleanExpression matchesKeyword(final String keyword) {
+        if (!StringUtils.hasText(keyword)) {
+            return null;
+        }
+
+        final BooleanExpression matchesClub = club.name.like(contains(keyword))
+                .or(club.description.like(contains(keyword)));
+        final BooleanExpression matchesRecruitmentContent =
+                hasAnyRecruitmentMatching(searchTarget.content.like(contains(keyword)));
+
+        return matchesClub.or(matchesRecruitmentContent);
+    }
+
+    private BooleanExpression matchesRecruitStatus(final RecruitStatus status, final LocalDateTime now) {
+        if (status != OPEN) {
+            return null;
+        }
+
+        return hasAnyRecruitmentMatching(
+                searchTarget.isAlwaysRecruiting.isTrue()
+                        .or(searchTarget.recruitStart.loe(now).and(searchTarget.recruitEnd.gt(now)))
+        );
+    }
+
+    private BooleanExpression hasAnyRecruitmentMatching(final BooleanExpression condition) {
+        return JPAExpressions.selectOne()
+                .from(searchTarget)
+                .where(searchTarget.club.eq(club), condition)
+                .exists();
+    }
+
+    private BooleanExpression isLatestRecruitment() {
+        final QRecruitment latestId = new QRecruitment("latestId");
+        final QRecruitment latestCreatedAt = new QRecruitment("latestCreatedAt");
+
+        return recruitment.id.eq(
+                JPAExpressions.select(latestId.id.max())
+                        .from(latestId)
+                        .where(
+                                latestId.club.eq(club),
+                                latestId.createdAt.eq(
+                                        JPAExpressions.select(latestCreatedAt.createdAt.max())
+                                                .from(latestCreatedAt)
+                                                .where(latestCreatedAt.club.eq(club))
+                                )
+                        )
+        );
     }
 
     private NumberExpression<Integer> getRecruitmentPriority(final LocalDateTime now) {
@@ -202,5 +245,9 @@ public class ClubRepositoryImpl implements ClubRepositoryCustom {
 
     private NumberTemplate<Long> getRecruitmentDuration(final LocalDateTime now) {
         return Expressions.numberTemplate(Long.class, "TIMESTAMPDIFF(MINUTE, {0}, {1})", recruitment.recruitEnd, now);
+    }
+
+    private String contains(final String keyword) {
+        return "%" + keyword + "%";
     }
 }

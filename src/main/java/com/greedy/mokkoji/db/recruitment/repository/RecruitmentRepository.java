@@ -7,23 +7,21 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>, RecruitmentRepositoryCustom {
 
-    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club c JOIN FETCH c.university WHERE FUNCTION('DATE', r.recruitStart) = :currentDate")
-    List<Recruitment> findAllByRecruitStartToday(LocalDate currentDate);
+    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club c JOIN FETCH c.university WHERE r.recruitStart >= :from AND r.recruitStart < :to")
+    List<Recruitment> findAllByRecruitStartToday(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
-    // 2. 모집 마감일이 오늘인 경우
-    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club c JOIN FETCH c.university WHERE FUNCTION('DATE', r.recruitEnd) = :currentDate")
-    List<Recruitment> findAllByRecruitEndToday(LocalDate currentDate);
+    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club c JOIN FETCH c.university WHERE r.recruitEnd >= :from AND r.recruitEnd < :to")
+    List<Recruitment> findAllByRecruitEndToday(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
-    // 3. 모집 마감일이 오늘로부터 3일 전인 경우
-    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club c JOIN FETCH c.university WHERE FUNCTION('DATE', r.recruitEnd) = :targetDate")
-    List<Recruitment> findAllByRecruitEndInThreeDays(@Param("targetDate") LocalDate targetDate);
+    @Query("SELECT r FROM Recruitment r JOIN FETCH r.club c JOIN FETCH c.university WHERE r.recruitEnd >= :from AND r.recruitEnd < :to")
+    List<Recruitment> findAllByRecruitEndInThreeDays(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     Optional<Recruitment> findRecruitmentById(Long id);
 

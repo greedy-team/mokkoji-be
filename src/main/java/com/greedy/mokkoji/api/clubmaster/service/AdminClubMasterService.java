@@ -3,6 +3,8 @@ package com.greedy.mokkoji.api.clubmaster.service;
 import com.greedy.mokkoji.api.admin.dto.response.ClubMasterApplicationPreviewResponse;
 import com.greedy.mokkoji.api.admin.dto.response.GetClubMasterApplicationsResponse;
 import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
+import com.greedy.mokkoji.api.notification.event.ClubMasterApprovedEvent;
+import com.greedy.mokkoji.api.notification.event.ClubMasterRejectedEvent;
 import com.greedy.mokkoji.api.pagination.dto.PageResponse;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.admin.entity.Admin;
@@ -13,10 +15,12 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.application.ApplicationStatus;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.university.UniversityCode;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,7 @@ public class AdminClubMasterService {
     private final ClubMasterApplicationRepository clubMasterApplicationRepository;
     private final AdminRepository adminRepository;
     private final ManageAuthorizer manageAuthorizer;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public GetClubMasterApplicationsResponse getClubMasterApplications(
@@ -44,7 +49,8 @@ public class AdminClubMasterService {
         final Admin admin = findAdminOrThrow(adminId);
 
         final UniversityCode targetUniversityCode = resolveUniversityCode(admin, universityCode);
-        final Page<ClubMasterApplication> page = clubMasterApplicationRepository.findByConditions(targetUniversityCode, status, pageable);
+        final List<ClubAffiliation> targetAffiliations = manageAuthorizer.resolveTargetAffiliations(admin);
+        final Page<ClubMasterApplication> page = clubMasterApplicationRepository.findByConditions(targetUniversityCode, status, targetAffiliations, pageable);
 
         final List<ClubMasterApplicationPreviewResponse> applications = page.getContent()
                 .stream()
@@ -74,13 +80,19 @@ public class AdminClubMasterService {
     ) {
         manageAuthorizer.validateAdminAuth(authRole, userId);
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
-        manageAuthorizer.validateCanManageUniversity(userId, application.getUniversity());
+        manageAuthorizer.validateCanManageApplication(userId, application.getUniversity(), application.getClub().getClubAffiliation());
 
         application.approve();
 
         User applicant = application.getUser();
         application.getClub().assignMaster(applicant);
         applicant.updateRole(UserRole.CLUB_MASTER);
+
+        eventPublisher.publishEvent(new ClubMasterApprovedEvent(
+                applicant.getId(),
+                application.getClub().getId(),
+                application.getClub().getName()
+        ));
     }
 
     @Transactional
@@ -92,9 +104,15 @@ public class AdminClubMasterService {
     ) {
         manageAuthorizer.validateAdminAuth(authRole, userId);
         ClubMasterApplication application = findClubMasterApplicationOrThrow(applicationId);
-        manageAuthorizer.validateCanManageUniversity(userId, application.getUniversity());
+        manageAuthorizer.validateCanManageApplication(userId, application.getUniversity(), application.getClub().getClubAffiliation());
 
         application.reject(rejectReason);
+
+        eventPublisher.publishEvent(new ClubMasterRejectedEvent(
+                application.getUser().getId(),
+                application.getClub().getName(),
+                rejectReason
+        ));
     }
 
     private Admin findAdminOrThrow(final Long adminId) {
@@ -113,4 +131,5 @@ public class AdminClubMasterService {
         }
         return universityCode;
     }
+
 }

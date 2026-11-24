@@ -37,7 +37,7 @@ public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
         final String requestURI = request.getRequestURI();
 
         if (isExcludedRequest(requestURI, authHeader)) {
-            return new AuthCredential(null, null, null);
+            return new AuthCredential(null, null);
         }
 
         final String token = bearerAuthExtractor.extractTokenValue(authHeader);

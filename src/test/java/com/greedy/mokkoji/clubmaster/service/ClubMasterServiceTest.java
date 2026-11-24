@@ -2,10 +2,14 @@ package com.greedy.mokkoji.clubmaster.service;
 
 import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.clubmaster.service.ClubMasterService;
+import com.greedy.mokkoji.api.email.dto.ClubMasterApplicationNotification;
+import com.greedy.mokkoji.api.email.service.DiscordNotifier;
+import com.greedy.mokkoji.api.external.AfterCommitExecutor;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.common.fixture.Fixture;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
+import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
 import com.greedy.mokkoji.db.clubmaster.repository.ClubMasterApplicationRepository;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.university.repository.UniversityRepository;
@@ -19,6 +23,7 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -42,26 +47,26 @@ public class ClubMasterServiceTest {
     private static final Long PREVIOUS_MASTER_ID = 1L;
     private static final Long NEXT_MASTER_ID = 2L;
     private static final String NEXT_MASTER_USER_CODE = "Gh3456";
-
+    private final University university = Fixture.createUniversity();
     @InjectMocks
     ClubMasterService clubMasterService;
-
     @Mock
     ClubMasterApplicationRepository clubMasterApplicationRepository;
-
     @Mock
     ManageAuthorizer manageAuthorizer;
-
     @Mock
     UniversityRepository universityRepository;
-
     @Mock
     ClubRepository clubRepository;
-
     @Mock
     UserRepository userRepository;
 
-    private final University university = Fixture.createUniversity();
+    @Mock
+    DiscordNotifier discordNotifier;
+
+    @Mock
+    AfterCommitExecutor afterCommitExecutor;
+
     private User previousMaster;
     private User nextMaster;
     private Club club;
@@ -73,6 +78,67 @@ public class ClubMasterServiceTest {
 
         club = Fixture.createClub(university, master);
         ReflectionTestUtils.setField(club, "id", CLUB_ID);
+    }
+
+    @Test
+    @DisplayName("동아리장 권한 신청이 완료되면 커밋 이후 디스코드 알림이 발송된다.")
+    void createClubMasterApplicationSendsDiscordNotification() {
+        // given
+        final Long applicationId = 7L;
+        final User applicant = Fixture.createUser(university);
+        ReflectionTestUtils.setField(applicant, "id", NEXT_MASTER_ID);
+
+        final Club clubWithoutMaster = Fixture.createClub(university, null);
+        ReflectionTestUtils.setField(clubWithoutMaster, "id", CLUB_ID);
+
+        BDDMockito.given(universityRepository.findByCode(university.getCode())).willReturn(Optional.of(university));
+        BDDMockito.given(clubRepository.findById(CLUB_ID)).willReturn(Optional.of(clubWithoutMaster));
+        BDDMockito.given(userRepository.findById(NEXT_MASTER_ID)).willReturn(Optional.of(applicant));
+        BDDMockito.given(clubMasterApplicationRepository.existsByUserAndClubAndStatusNot(any(), any(), any()))
+                .willReturn(false);
+        BDDMockito.willAnswer(invocation -> {
+            final ClubMasterApplication saved = invocation.getArgument(0);
+            ReflectionTestUtils.setField(saved, "id", applicationId);
+            return saved;
+        }).given(clubMasterApplicationRepository).save(any());
+        BDDMockito.willAnswer(invocation -> {
+            invocation.getArgument(0, Runnable.class).run();
+            return null;
+        }).given(afterCommitExecutor).run(any(Runnable.class));
+
+        // when
+        clubMasterService.createClubMasterApplication(NEXT_MASTER_ID, university.getCode(), CLUB_ID, "홍길동");
+
+        // then
+        final ArgumentCaptor<ClubMasterApplicationNotification> captor =
+                ArgumentCaptor.forClass(ClubMasterApplicationNotification.class);
+        BDDMockito.verify(discordNotifier).notifyClubMasterApplicationCreated(captor.capture());
+
+        final ClubMasterApplicationNotification notification = captor.getValue();
+        assertThat(notification.applicationId()).isEqualTo(applicationId);
+        assertThat(notification.universityName()).isEqualTo(university.getName());
+        assertThat(notification.clubName()).isEqualTo(clubWithoutMaster.getName());
+        assertThat(notification.applicantName()).isEqualTo("홍길동");
+        assertThat(notification.applicantEmail()).isEqualTo(applicant.getEmail());
+    }
+
+    @Test
+    @DisplayName("이미 동아리장이 있는 동아리에 신청하면 디스코드 알림이 발송되지 않는다.")
+    void doNotNotifyWhenClubMasterAlreadyExists() {
+        // given
+        previousMaster = Fixture.createUserWithRole(university, UserRole.CLUB_MASTER);
+        ReflectionTestUtils.setField(previousMaster, "id", PREVIOUS_MASTER_ID);
+        prepareTransferContext(previousMaster);
+
+        BDDMockito.given(universityRepository.findByCode(university.getCode())).willReturn(Optional.of(university));
+        BDDMockito.given(clubRepository.findById(CLUB_ID)).willReturn(Optional.of(club));
+
+        // when & then
+        assertThatThrownBy(() -> clubMasterService.createClubMasterApplication(NEXT_MASTER_ID, university.getCode(), CLUB_ID, "홍길동"))
+                .isInstanceOf(MokkojiException.class)
+                .hasMessage(FailMessage.FORBIDDEN_ALREADY_EXIST_CLUB_MASTER.getMessage());
+
+        BDDMockito.verifyNoInteractions(discordNotifier);
     }
 
     @Test

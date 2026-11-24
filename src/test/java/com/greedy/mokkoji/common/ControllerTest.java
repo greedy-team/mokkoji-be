@@ -41,12 +41,12 @@ public abstract class ControllerTest extends AbstractTest {
     }
 
     protected String authorizationForBearerAccessToken(final User user) {
-        final String accessToken = jwtUtil.generateAccessToken(new AuthCredential(AuthRole.USER, null, user.getId()));
+        final String accessToken = jwtUtil.generateAccessToken(new AuthCredential(AuthRole.USER, user.getId()));
         return "Bearer " + accessToken;
     }
 
     protected String authorizationForBearerRefreshToken(final User user) {
-        final String refreshToken = jwtUtil.generateRefreshToken(new AuthCredential(AuthRole.USER, null, user.getId()));
+        final String refreshToken = jwtUtil.generateRefreshToken(new AuthCredential(AuthRole.USER, user.getId()));
         return "Bearer " + refreshToken;
     }
 

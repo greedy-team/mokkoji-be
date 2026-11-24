@@ -81,4 +81,14 @@ public interface RecruitmentControllerSwagger {
             @Parameter(name = "clubId", description = "동아리 ID") Long clubId
     );
 
+    @Operation(
+            summary = "모집글 지원하기 클릭 수집 API",
+            description = "지원하기 버튼 클릭을 기록합니다. 로그인 여부와 무관하게 호출할 수 있으며 인증이 필요하지 않습니다. "
+                    + "클라이언트는 응답을 기다리지 말고 외부 지원 폼으로 이동시켜야 합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "지원하기 클릭 기록 성공")
+    ResponseEntity<APISuccessResponse<Void>> recordApplyClick(
+            @Parameter(name = "recruitmentId", description = "클릭이 발생한 모집글 ID") Long recruitmentId
+    );
+
 }

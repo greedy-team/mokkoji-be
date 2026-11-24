@@ -49,6 +49,7 @@ class ViewCountRaceTest extends AbstractTest {
     void tearDown() {
         jdbcTemplate.update("DELETE FROM view_count_batch_history");
         jdbcTemplate.update("DELETE FROM view_count");
+        recruitmentApplyClickRepository.deleteAll();
         recruitmentImageRepository.deleteAll();
         recruitmentRepository.deleteAll();
         commentRepository.deleteAll();

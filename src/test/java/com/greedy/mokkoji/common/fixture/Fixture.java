@@ -5,7 +5,11 @@ import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoProfileResponse;
 import com.greedy.mokkoji.api.user.dto.resopnse.kakao.KakaoUserInfoResponse;
 import com.greedy.mokkoji.db.admin.entity.Admin;
 import com.greedy.mokkoji.db.club.entity.Club;
+import com.greedy.mokkoji.db.clubapplication.entity.ClubApplication;
+import com.greedy.mokkoji.db.clubmaster.entity.ClubMasterApplication;
 import com.greedy.mokkoji.db.favorite.entity.Favorite;
+import com.greedy.mokkoji.db.notification.entity.Notification;
+import com.greedy.mokkoji.enums.notification.NotificationType;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.university.entity.University;
 import com.greedy.mokkoji.db.user.entity.User;
@@ -210,6 +214,49 @@ public class Fixture {
         return Favorite.builder()
                 .club(club)
                 .user(user)
+                .build();
+    }
+
+    public static ClubApplication createClubApplication(University university, User applicant) {
+        return ClubApplication.builder()
+                .university(university)
+                .applicant(applicant)
+                .applicantName(applicant.getName())
+                .clubName("편지")
+                .clubCategory(ClubCategory.CULTURAL_ART)
+                .clubAffiliation(ClubAffiliation.CENTRAL_CLUB)
+                .logo(null)
+                .instagram("@letter")
+                .description("편지 동아리입니다")
+                .build();
+    }
+
+    public static ClubMasterApplication createClubMasterApplication(University university, Club club, User user) {
+        return ClubMasterApplication.builder()
+                .university(university)
+                .club(club)
+                .user(user)
+                .userName(user.getName())
+                .build();
+    }
+
+    public static Notification createNotification(User user) {
+        return Notification.builder()
+                .user(user)
+                .type(NotificationType.CLUB_APPLICATION_APPROVED)
+                .title(NotificationType.CLUB_APPLICATION_APPROVED.getTitle())
+                .content("'편지' 동아리가 생성되었습니다")
+                .targetId(1L)
+                .build();
+    }
+
+    public static Notification createNotification(User user, NotificationType type) {
+        return Notification.builder()
+                .user(user)
+                .type(type)
+                .title(type.getTitle())
+                .content("테스트 알림")
+                .targetId(null)
                 .build();
     }
 }

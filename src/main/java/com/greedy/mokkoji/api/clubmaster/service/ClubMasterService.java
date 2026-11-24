@@ -2,6 +2,9 @@ package com.greedy.mokkoji.api.clubmaster.service;
 
 import com.greedy.mokkoji.api.auth.service.ManageAuthorizer;
 import com.greedy.mokkoji.api.clubmaster.dto.response.GetMyClubMasterApplicationsResponse;
+import com.greedy.mokkoji.api.email.dto.ClubMasterApplicationNotification;
+import com.greedy.mokkoji.api.email.service.DiscordNotifier;
+import com.greedy.mokkoji.api.external.AfterCommitExecutor;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
@@ -31,6 +34,8 @@ public class ClubMasterService {
     private final UniversityRepository universityRepository;
     private final ClubRepository clubRepository;
     private final UserRepository userRepository;
+    private final DiscordNotifier discordNotifier;
+    private final AfterCommitExecutor afterCommitExecutor;
 
     @Transactional
     public void createClubMasterApplication(
@@ -55,6 +60,8 @@ public class ClubMasterService {
                 .build();
 
         clubMasterApplicationRepository.save(application);
+
+        notifyClubMasterApplicationCreated(application, university, club, user);
     }
 
     @Transactional
@@ -141,5 +148,16 @@ public class ClubMasterService {
         if (clubMasterApplicationRepository.existsByUserAndClubAndStatusNot(user, club, ApplicationStatus.REJECTED)) {
             throw new MokkojiException(FailMessage.CONFLICT_CLUB_MASTER_APPLICATION);
         }
+    }
+
+    private void notifyClubMasterApplicationCreated(
+            final ClubMasterApplication application,
+            final University university,
+            final Club club,
+            final User applicant
+    ) {
+        final ClubMasterApplicationNotification notification = ClubMasterApplicationNotification.of(application, university, club, applicant);
+
+        afterCommitExecutor.run(() -> discordNotifier.notifyClubMasterApplicationCreated(notification));
     }
 }

@@ -9,14 +9,20 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.admin.AdminRole;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.club.ClubAffiliation;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class ManageAuthorizer {
+
+    private static final List<ClubAffiliation> UNIVERSITY_ADMIN_AFFILIATIONS =
+            List.of(ClubAffiliation.CENTRAL_CLUB, ClubAffiliation.DEPARTMENT_CLUB);
 
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
@@ -55,6 +61,26 @@ public class ManageAuthorizer {
                 && university.getId().equals(admin.getUniversityId())) return;
 
         throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
+    }
+
+    public void validateCanManageApplication(final Long adminId, final University university, final ClubAffiliation affiliation) {
+        Admin admin = findAdminOrThrow(adminId);
+
+        if (AdminRole.MOKKOJI_ADMIN.equals(admin.getRole())) return;
+
+        if (AdminRole.UNIVERSITY_ADMIN.equals(admin.getRole())
+                && university != null
+                && university.getId().equals(admin.getUniversityId())
+                && UNIVERSITY_ADMIN_AFFILIATIONS.contains(affiliation)) return;
+
+        throw new MokkojiException(FailMessage.FORBIDDEN_MANAGE_CLUB);
+    }
+
+    public List<ClubAffiliation> resolveTargetAffiliations(final Admin admin) {
+        if (AdminRole.UNIVERSITY_ADMIN.equals(admin.getRole())) {
+            return UNIVERSITY_ADMIN_AFFILIATIONS;
+        }
+        return null;
     }
 
     private void validateAuthenticated(final Long accountId) {

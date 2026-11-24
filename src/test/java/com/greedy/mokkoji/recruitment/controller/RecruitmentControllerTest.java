@@ -57,7 +57,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("권한을 가진 관리자는 모집글을 생성할 수 있다.")
     void createRecruitment_allowedRoles_success(UserRole role) {
         //given
-        User adminUser = userRepository.save(Fixture.createUserWithRole(university,role));
+        User adminUser = userRepository.save(Fixture.createUserWithRole(university, role));
         club = clubRepository.save(Fixture.createClub(university, adminUser));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
@@ -99,7 +99,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         // given
         club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
-        User normalUser = userRepository.save(Fixture.createUserWithRole(university,role));
+        User normalUser = userRepository.save(Fixture.createUserWithRole(university, role));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         final CreateRecruitmentRequest request = new CreateRecruitmentRequest(
@@ -175,7 +175,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("권한을 가진 관리자는 모집글을 수정할 수 있다.")
     void updateRecruitment_allowedRoles_success(UserRole role) {
         // given
-        User adminUser = userRepository.save(Fixture.createUserWithRole(university,role));
+        User adminUser = userRepository.save(Fixture.createUserWithRole(university, role));
         club = clubRepository.save(Fixture.createClub(university, adminUser));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
@@ -217,7 +217,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         // given
         club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
-        User normalUser = userRepository.save(Fixture.createUserWithRole(university,role));
+        User normalUser = userRepository.save(Fixture.createUserWithRole(university, role));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         final UpdateRecruitmentRequest request = new UpdateRecruitmentRequest(
@@ -256,7 +256,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     @DisplayName("권한을 가진 관리자는 모집글을 삭제할 수 있다.")
     void deleteRecruitment_allowedRoles_success(UserRole role) {
         // given
-        User adminUser = userRepository.save(Fixture.createUserWithRole(university,role));
+        User adminUser = userRepository.save(Fixture.createUserWithRole(university, role));
         club = clubRepository.save(Fixture.createClub(university, adminUser));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
         String authorizationForBearer = authorizationForBearerAccessToken(adminUser);
@@ -280,7 +280,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         // given
         club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
-        User normalUser = userRepository.save(Fixture.createUserWithRole(university,role));
+        User normalUser = userRepository.save(Fixture.createUserWithRole(university, role));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         //when
@@ -340,7 +340,7 @@ public class RecruitmentControllerTest extends ControllerTest {
     void getRecentRecruitmentOfClub_whenNoRecruitment_shouldReturnNullRecruitmentFields() {
         // given
         club = clubRepository.save(Fixture.createClub(university));
-        User normalUser = userRepository.save(Fixture.createUserWithRole(university,UserRole.NORMAL));
+        User normalUser = userRepository.save(Fixture.createUserWithRole(university, UserRole.NORMAL));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         // when
@@ -377,7 +377,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         // given
         club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
-        User normalUser = userRepository.save(Fixture.createUserWithRole(university,UserRole.NORMAL));
+        User normalUser = userRepository.save(Fixture.createUserWithRole(university, UserRole.NORMAL));
         String authorizationForBearer = authorizationForBearerAccessToken(normalUser);
 
         Recruitment newerRecruitment = recruitmentRepository.save(Fixture.createNewerRecruitment(club));
@@ -410,7 +410,7 @@ public class RecruitmentControllerTest extends ControllerTest {
         // given
         club = clubRepository.save(Fixture.createClub(university));
         recruitment = recruitmentRepository.save(Fixture.createRecruitment(club));
-        User user = userRepository.save(Fixture.createUserWithRole(university,UserRole.NORMAL));
+        User user = userRepository.save(Fixture.createUserWithRole(university, UserRole.NORMAL));
         String authorizationForBearer = authorizationForBearerAccessToken(user);
 
         // when
