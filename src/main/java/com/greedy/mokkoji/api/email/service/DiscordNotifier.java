@@ -148,11 +148,13 @@ public class DiscordNotifier {
                 "📝 **피드백 등록 알림**\n" +
                         "```text\n" +
                         "피드백 ID : %d\n" +
+                        "학교      : %s\n" +
                         "별점      : %d점\n" +
                         "의견      : %s\n" +
                         "등록 시간 : %s\n" +
                         "```",
                 feedbackNotification.feedbackId(),
+                orDash(feedbackNotification.school()),
                 feedbackNotification.rating(),
                 orDash(feedbackNotification.content()),
                 timestamp

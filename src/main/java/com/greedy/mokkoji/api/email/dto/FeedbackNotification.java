@@ -5,14 +5,16 @@ import com.greedy.mokkoji.db.feedback.entity.Feedback;
 public record FeedbackNotification(
         Long feedbackId,
         int rating,
-        String content
+        String content,
+        String school
 ) {
 
     public static FeedbackNotification from(final Feedback feedback) {
         return new FeedbackNotification(
                 feedback.getId(),
                 feedback.getRating(),
-                feedback.getContent()
+                feedback.getContent(),
+                feedback.getSchool()
         );
     }
 }

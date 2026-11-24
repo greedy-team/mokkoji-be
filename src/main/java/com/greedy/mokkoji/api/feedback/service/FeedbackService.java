@@ -19,11 +19,12 @@ public class FeedbackService {
     private final AfterCommitExecutor afterCommitExecutor;
 
     @Transactional
-    public Void createFeedback(int rating, String content) {
+    public Void createFeedback(int rating, String content, String school) {
 
         Feedback feedback = Feedback.builder()
                 .rating(rating)
                 .content(content)
+                .school(school)
                 .build();
 
         final Feedback savedFeedback = feedbackRepository.save(feedback);

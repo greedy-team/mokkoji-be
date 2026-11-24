@@ -24,7 +24,7 @@ public class FeedbackController implements FeedbackControllerSwagger {
     ) {
         return APISuccessResponse.of(
                 HttpStatus.CREATED,
-                feedbackService.createFeedback(feedbackRequest.rating(), feedbackRequest.content())
+                feedbackService.createFeedback(feedbackRequest.rating(), feedbackRequest.content(), feedbackRequest.school())
         );
     }
 }
