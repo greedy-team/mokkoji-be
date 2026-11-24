@@ -5,6 +5,7 @@ import com.greedy.mokkoji.api.viewcount.model.ViewCountBucket;
 import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.config.ViewCountProperties;
 import com.greedy.mokkoji.enums.message.FailMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Repository
 public class RedisViewCountBuffer {
 
@@ -30,6 +32,7 @@ public class RedisViewCountBuffer {
     private static final String BATCH_KEY_SUFFIX = ":batch:";
     private static final String SCRIPT_DIRECTORY = "redis/";
     private static final long SCRIPT_SUCCESS_RESULT = 1L;
+    private static final long SCRIPT_PENDING_BATCH_LIMIT_REACHED = -1L;
 
     private static final DefaultRedisScript<Long> RECORD_VIEW_SCRIPT = createRedisScript("view-count-deduplicate-and-increment.lua");
     private static final DefaultRedisScript<Long> CREATE_PENDING_BATCH_SCRIPT = createRedisScript("view-count-create-pending-batch.lua");
@@ -74,6 +77,10 @@ public class RedisViewCountBuffer {
                 Long.toString(viewCountClock.millis()),
                 Integer.toString(viewCountProperties.getMaxPendingBatches())
         );
+        if (result == SCRIPT_PENDING_BATCH_LIMIT_REACHED) {
+            log.warn("[VIEW COUNT BATCH LIMIT REACHED] 최대 대기 배치 수: {}, 증가분은 active에 유지하고 다음 주기에 배치 생성을 재시도합니다.",
+                    viewCountProperties.getMaxPendingBatches());
+        }
         return result == SCRIPT_SUCCESS_RESULT ? Optional.of(batchId) : Optional.empty();
     }
 

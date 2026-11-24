@@ -1,6 +1,6 @@
 -- KEYS: 현재 증가분 Hash, 보관할 배치 Hash, 대기 목록 Sorted Set
 -- ARGV: 배치 ID, 생성 시각(ms), 최대 대기 배치 수
--- 반환: 배치 생성 1, 증가분 없음 또는 대기 목록 가득 참 0
+-- 반환: 배치 생성 1, 증가분 없음 0, 대기 목록 한도 도달 -1
 local activeKey = KEYS[1]
 local batchKey = KEYS[2]
 local pendingIndexKey = KEYS[3]
@@ -13,7 +13,7 @@ if redis.call("HLEN", activeKey) == 0 then
 end
 
 if redis.call("ZCARD", pendingIndexKey) >= maxPendingBatches then
-    return 0
+    return -1
 end
 
 if redis.call("EXISTS", batchKey) == 1 then
