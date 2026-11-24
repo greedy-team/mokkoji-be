@@ -113,7 +113,7 @@ public class DiscordNotifierTest {
     @DisplayName("피드백 알림은 별점과 의견을 담아 전송한다.")
     void notifyFeedbackCreated() {
         // given
-        final FeedbackNotification notification = new FeedbackNotification(10L, 4, "목오지 쵝오");
+        final FeedbackNotification notification = new FeedbackNotification(10L, 4, "목오지 쵝오", "세종대학교");
 
         // when
         discordNotifier.notifyFeedbackCreated(notification);
@@ -123,6 +123,7 @@ public class DiscordNotifierTest {
         assertThat(content).contains(
                 "피드백 등록 알림",
                 "10",
+                "세종대학교",
                 "4점",
                 "목오지 쵝오"
         );
@@ -132,7 +133,7 @@ public class DiscordNotifierTest {
     @DisplayName("의견이 비어 있는 피드백도 '-'로 대체되어 전송된다.")
     void notifyFeedbackCreatedWithEmptyContent() {
         // given
-        final FeedbackNotification notification = new FeedbackNotification(11L, 5, "");
+        final FeedbackNotification notification = new FeedbackNotification(11L, 5, "", "세종대학교");
 
         // when
         discordNotifier.notifyFeedbackCreated(notification);
@@ -149,7 +150,7 @@ public class DiscordNotifierTest {
         ReflectionTestUtils.setField(discordNotifier, "feedbackEnabled", false);
 
         // when
-        discordNotifier.notifyFeedbackCreated(new FeedbackNotification(12L, 3, "의견"));
+        discordNotifier.notifyFeedbackCreated(new FeedbackNotification(12L, 3, "의견", "세종대학교"));
 
         // then
         BDDMockito.then(restTemplate).shouldHaveNoInteractions();

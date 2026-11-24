@@ -45,6 +45,7 @@ class FeedbackServiceTest {
         final Feedback saved = Feedback.builder()
                 .rating(4)
                 .content("목오지 쵝오")
+                .school("세종대학교")
                 .build();
         given(feedbackRepository.save(any(Feedback.class))).willReturn(saved);
         // afterCommit 콜백을 즉시 실행하도록 스텁
@@ -54,19 +55,21 @@ class FeedbackServiceTest {
         }).given(afterCommitExecutor).run(any(Runnable.class));
 
         // when
-        feedbackService.createFeedback(4, "목오지 쵝오");
+        feedbackService.createFeedback(4, "목오지 쵝오", "세종대학교");
 
         // then
         final ArgumentCaptor<Feedback> savedCaptor = ArgumentCaptor.forClass(Feedback.class);
         BDDMockito.then(feedbackRepository).should().save(savedCaptor.capture());
         assertThat(savedCaptor.getValue().getRating()).isEqualTo(4);
         assertThat(savedCaptor.getValue().getContent()).isEqualTo("목오지 쵝오");
+        assertThat(savedCaptor.getValue().getSchool()).isEqualTo("세종대학교");
 
         final ArgumentCaptor<FeedbackNotification> notificationCaptor =
                 ArgumentCaptor.forClass(FeedbackNotification.class);
         BDDMockito.then(discordNotifier).should().notifyFeedbackCreated(notificationCaptor.capture());
         assertThat(notificationCaptor.getValue().rating()).isEqualTo(4);
         assertThat(notificationCaptor.getValue().content()).isEqualTo("목오지 쵝오");
+        assertThat(notificationCaptor.getValue().school()).isEqualTo("세종대학교");
     }
 
     @Test
@@ -74,11 +77,11 @@ class FeedbackServiceTest {
     void doNotNotifyBeforeCommit() {
         // given
         given(feedbackRepository.save(any(Feedback.class)))
-                .willReturn(Feedback.builder().rating(5).content("좋아요").build());
+                .willReturn(Feedback.builder().rating(5).content("좋아요").school("세종대학교").build());
         // afterCommitExecutor가 콜백을 실행하지 않는 상황(커밋 전)
 
         // when
-        feedbackService.createFeedback(5, "좋아요");
+        feedbackService.createFeedback(5, "좋아요", "세종대학교");
 
         // then
         BDDMockito.then(discordNotifier).shouldHaveNoInteractions();

@@ -72,7 +72,8 @@ public class DiscordNotifierRealTest {
         discordNotifier.notifyFeedbackCreated(new FeedbackNotification(
                 999L,
                 4,
-                "웹훅 이전 테스트입니다."
+                "웹훅 이전 테스트입니다.",
+                "세종대학교"
         ));
     }
 }
