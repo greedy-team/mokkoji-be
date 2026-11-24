@@ -4,7 +4,6 @@ import com.greedy.mokkoji.enums.notification.NotificationType;
 
 public record ClubDeletedEvent(
         Long userId,
-        Long clubId,
         String clubName
 ) implements NotificationEvent {
 
@@ -20,7 +19,7 @@ public record ClubDeletedEvent(
 
     @Override
     public Long targetId() {
-        return clubId;
+        return null;
     }
 
     @Override

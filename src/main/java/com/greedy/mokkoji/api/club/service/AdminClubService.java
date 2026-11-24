@@ -97,7 +97,7 @@ public class AdminClubService {
         deleteClubAssociations(clubId, recruitmentIds);
         clubRepository.delete(club);
 
-        updateMasterRoleIfNeeded(master, clubId, clubName);
+        updateMasterRoleIfNeeded(master, clubName);
 
         afterCommitS3Cleaner.deleteAfterCommit(s3KeysToDelete);
 
@@ -136,11 +136,7 @@ public class AdminClubService {
         clubMasterApplicationRepository.deleteByClubId(clubId);
     }
 
-    private void updateMasterRoleIfNeeded(
-            final User master,
-            final Long clubId,
-            final String clubName
-    ) {
+    private void updateMasterRoleIfNeeded(final User master, final String clubName) {
         if (master == null) {
             return;
         }
@@ -149,11 +145,7 @@ public class AdminClubService {
         if (!isStillClubMaster) {
             master.updateRole(UserRole.NORMAL);
 
-            eventPublisher.publishEvent(new ClubDeletedEvent(
-                    master.getId(),
-                    clubId,
-                    clubName
-            ));
+            eventPublisher.publishEvent(new ClubDeletedEvent(master.getId(), clubName));
         }
     }
 }

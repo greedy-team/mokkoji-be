@@ -172,7 +172,7 @@ class AdminClubServiceTest {
 
         final ClubDeletedEvent event = captor.getValue();
         assertThat(event.userId()).isEqualTo(5L);
-        assertThat(event.clubId()).isEqualTo(CLUB_ID);
+        assertThat(event.targetId()).isNull();
         assertThat(event.clubName()).isEqualTo(clubName);
         assertThat(event.roleChanged()).isTrue();
         assertThat(master.getRole()).isEqualTo(UserRole.NORMAL);
