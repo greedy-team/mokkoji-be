@@ -49,7 +49,7 @@ class NotificationSseServiceTest {
 
         try {
             for (int i = 0; i < 20000; i++) {
-                final SseEmitter oldEmitter = notificationSseService.subscribe(userId);
+                final SseEmitter oldEmitter = notificationSseService.subscribe(userId, UserRole.NORMAL);
                 final CyclicBarrier barrier = new CyclicBarrier(2);
 
                 final Future<?> removing = executor.submit(() -> {
@@ -59,7 +59,7 @@ class NotificationSseServiceTest {
                 });
                 final Future<SseEmitter> subscribing = executor.submit(() -> {
                     barrier.await();
-                    return notificationSseService.subscribe(userId);
+                    return notificationSseService.subscribe(userId, UserRole.NORMAL);
                 });
 
                 removing.get();
@@ -145,11 +145,10 @@ class NotificationSseServiceTest {
     @DisplayName("구독 시 connect 이벤트에 현재 role이 함께 전달된다.")
     void sendRoleWithConnectEvent() throws IOException {
         // given
-        final Long userId = 100L;
         final SseEmitter emitter = BDDMockito.mock(SseEmitter.class);
 
         // when
-        notificationSseService.sendConnect(userId, emitter, UserRole.CLUB_MASTER);
+        notificationSseService.sendConnect(emitter, UserRole.CLUB_MASTER);
 
         // then
         final ArgumentCaptor<SseEmitter.SseEventBuilder> captor =
@@ -168,11 +167,10 @@ class NotificationSseServiceTest {
     @DisplayName("role을 알 수 없으면 connect 이벤트에 role 없이 connected만 전달된다.")
     void sendConnectWithoutRoleWhenRoleIsUnknown() throws IOException {
         // given
-        final Long accountId = 200L;
         final SseEmitter emitter = BDDMockito.mock(SseEmitter.class);
 
         // when
-        notificationSseService.sendConnect(accountId, emitter, null);
+        notificationSseService.sendConnect(emitter, null);
 
         // then
         final ArgumentCaptor<SseEmitter.SseEventBuilder> captor =

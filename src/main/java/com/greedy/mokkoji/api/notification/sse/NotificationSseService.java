@@ -1,5 +1,6 @@
 package com.greedy.mokkoji.api.notification.sse;
 
+import com.greedy.mokkoji.api.notification.dto.ConnectPayload;
 import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,8 @@ public class NotificationSseService {
     private static final long RECONNECTION_TIMEOUT = 3000L;
     private static final String HEARTBEAT_COMMENT = "heartbeat";
     private static final String EVENT_CONNECT = "connect";
-    private static final String CONNECTED_MESSAGE = "connected";
 
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
-
-    public SseEmitter subscribe(final Long userId) {
-        return subscribe(userId, null);
-    }
 
     public SseEmitter subscribe(final Long userId, final UserRole role) {
         final SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
@@ -43,7 +39,7 @@ public class NotificationSseService {
         });
 
         try {
-            sendConnect(userId, emitter, role);
+            sendConnect(emitter, role);
         } catch (IOException e) {
             log.warn("SSE 초기 메시지 전송 실패 : userId={}", userId, e);
             emitter.complete();
@@ -53,21 +49,11 @@ public class NotificationSseService {
         return emitter;
     }
 
-    public void sendConnect(
-            final Long userId,
-            final SseEmitter emitter,
-            final UserRole role
-    ) throws IOException {
+    public void sendConnect(final SseEmitter emitter, final UserRole role) throws IOException {
         emitter.send(SseEmitter.event()
                 .name(EVENT_CONNECT)
                 .data(ConnectPayload.of(role))
                 .reconnectTime(RECONNECTION_TIMEOUT));
-    }
-
-    private record ConnectPayload(String message, UserRole role) {
-        private static ConnectPayload of(final UserRole role) {
-            return new ConnectPayload(CONNECTED_MESSAGE, role);
-        }
     }
 
     public void send(final Long userId, final String eventName, final Object data) {
