@@ -11,7 +11,6 @@ import com.greedy.mokkoji.db.user.entity.User;
 import com.greedy.mokkoji.db.user.repository.UserRepository;
 import com.greedy.mokkoji.enums.message.FailMessage;
 import com.greedy.mokkoji.enums.notification.NotificationType;
-import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -82,13 +81,6 @@ public class NotificationService {
     @Transactional
     public void markAllAsRead(final Long userId) {
         notificationRepository.markAllAsReadByUserId(userId);
-    }
-
-    @Transactional(readOnly = true)
-    public UserRole getUserRole(final Long userId) {
-        return userRepository.findById(userId)
-                .map(User::getRole)
-                .orElse(null);
     }
 
     private User getUserById(final Long userId) {

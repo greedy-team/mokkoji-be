@@ -6,6 +6,7 @@ import com.greedy.mokkoji.api.notification.dto.response.NotificationsResponse;
 import com.greedy.mokkoji.api.notification.dto.response.UnreadCountResponse;
 import com.greedy.mokkoji.api.notification.service.NotificationService;
 import com.greedy.mokkoji.api.notification.sse.NotificationSseService;
+import com.greedy.mokkoji.api.user.service.UserService;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
 import com.greedy.mokkoji.enums.auth.AuthRole;
 import com.greedy.mokkoji.enums.user.UserRole;
@@ -25,6 +26,7 @@ public class NotificationController implements NotificationControllerSwagger {
 
     private final NotificationService notificationService;
     private final NotificationSseService notificationSseService;
+    private final UserService userService;
 
     @GetMapping
     public ResponseEntity<APISuccessResponse<NotificationsResponse>> getNotifications(
@@ -78,6 +80,6 @@ public class NotificationController implements NotificationControllerSwagger {
         if (!AuthRole.USER.equals(authCredential.authRole())) {
             return null;
         }
-        return notificationService.getUserRole(authCredential.accountId());
+        return userService.getUserRole(authCredential.accountId()).role();
     }
 }
