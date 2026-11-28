@@ -67,7 +67,7 @@ public class UserService {
                 )
         );
 
-        final TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, user.getId());
+        final TokenPair tokenPair = tokenService.issueTokens(AuthRole.USER, user.getId(), user.getRole());
         return LoginResponse.of(
                 tokenPair.accessToken(),
                 tokenPair.refreshToken(),
@@ -87,7 +87,13 @@ public class UserService {
             throw new MokkojiException(FailMessage.UNAUTHORIZED);
         }
 
-        return jwtUtil.generateAccessToken(credential);
+        // refresh 토큰은 14일간 유효하므로 그 안의 권한은 오래된 값일 수 있다.
+        // 권한 변경 후 재발급이 실제로 반영되도록 현재 권한을 DB 에서 다시 읽는다.
+        final UserRole currentUserRole = resolveCurrentUserRole(credential.authRole(), userId);
+
+        return jwtUtil.generateAccessToken(
+                new AuthCredential(credential.authRole(), userId, currentUserRole)
+        );
     }
 
     @Transactional
@@ -152,6 +158,15 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    private UserRole resolveCurrentUserRole(final AuthRole authRole, final Long userId) {
+        if (authRole != AuthRole.USER) {
+            return null;
+        }
+        return userRepository.findById(userId)
+                .map(User::getRole)
+                .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));
+    }
+
     public UserRoleResponse getUserRole(final Long userId) {
         final User user = userRepository.findById(userId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_USER));

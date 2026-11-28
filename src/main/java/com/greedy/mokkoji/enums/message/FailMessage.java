@@ -32,6 +32,7 @@ public enum FailMessage {
     FORBIDDEN_ADMIN(HttpStatus.FORBIDDEN, 40304, "관리자 권한이 없습니다."),
     FORBIDDEN_ALREADY_EXIST_CLUB_MASTER(HttpStatus.FORBIDDEN, 40305, "해당 동아리에 이미 등록된 동아리장이 존재합니다."),
     FORBIDDEN_NOT_NOTIFICATION_OWNER(HttpStatus.FORBIDDEN, 40306, "본인의 알림이 아닙니다."),
+    FORBIDDEN_INVALID_ORIGIN(HttpStatus.FORBIDDEN, 40307, "허용되지 않은 출처의 요청입니다."),
 
     //404
     NOT_FOUND(HttpStatus.NOT_FOUND, 40400, "리소스를 찾을 수 없습니다."),

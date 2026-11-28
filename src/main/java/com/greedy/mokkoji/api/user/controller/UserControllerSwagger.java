@@ -5,6 +5,8 @@ import com.greedy.mokkoji.api.user.dto.request.UpdateUserInformationRequest;
 import com.greedy.mokkoji.api.user.dto.request.kakao.KakaoSocialLoginRequest;
 import com.greedy.mokkoji.api.user.dto.resopnse.*;
 import com.greedy.mokkoji.common.response.APISuccessResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -25,7 +27,8 @@ public interface UserControllerSwagger {
     @ApiResponse(responseCode = "200", description = "카카오 로그인 성공")
     ResponseEntity<APISuccessResponse<LoginResponse>> kakaoLogin(
             @Parameter(hidden = true) String origin,
-            @Parameter(name = "request", description = "카카오 로그인 요청 본문") KakaoSocialLoginRequest request
+            @Parameter(name = "request", description = "카카오 로그인 요청 본문") KakaoSocialLoginRequest request,
+            @Parameter(hidden = true) HttpServletResponse response
     );
 
     @Operation(
@@ -35,12 +38,14 @@ public interface UserControllerSwagger {
     @ApiResponse(responseCode = "200", description = "Access Token 재발급 성공")
     @Parameter(
             name = "Authorization",
-            description = "Refresh Token (예: Bearer eyJhbGci...)",
+            description = "Refresh Token (예: Bearer eyJhbGci...). 생략 시 refresh_token 쿠키를 사용합니다.",
             in = ParameterIn.HEADER,
-            required = true
+            required = false
     )
     ResponseEntity<APISuccessResponse<RefreshResponse>> refresh(
-            @Parameter(name = "Authorization", description = "Refresh Token 헤더") String bearerToken
+            @Parameter(name = "Authorization", description = "Refresh Token 헤더") String bearerToken,
+            @Parameter(hidden = true) HttpServletRequest request,
+            @Parameter(hidden = true) HttpServletResponse response
     );
 
     @Operation(
@@ -49,7 +54,8 @@ public interface UserControllerSwagger {
     )
     @ApiResponse(responseCode = "200", description = "로그아웃 성공")
     ResponseEntity<APISuccessResponse<Void>> logout(
-            @Parameter(hidden = true) AuthCredential authCredential
+            @Parameter(hidden = true) AuthCredential authCredential,
+            @Parameter(hidden = true) HttpServletResponse response
     );
 
     @Operation(
