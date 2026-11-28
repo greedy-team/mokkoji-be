@@ -1,9 +1,13 @@
 package com.greedy.mokkoji.config;
 
+import com.greedy.mokkoji.api.auth.config.CookieProperties;
+import com.greedy.mokkoji.api.auth.config.CsrfProperties;
 import com.greedy.mokkoji.api.auth.controller.argumentResolver.UserAuthArgumentResolver;
+import com.greedy.mokkoji.common.handler.CsrfOriginInterceptor;
 import com.greedy.mokkoji.common.handler.JwtAuthInterceptor;
 import com.greedy.mokkoji.common.handler.RequestLogInterceptor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -15,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 @Configuration
+@EnableConfigurationProperties({CookieProperties.class, CsrfProperties.class})
 public class WebConfig implements WebMvcConfigurer {
 
     private final Set<String> excludedPaths = Set.of(
@@ -37,6 +42,7 @@ public class WebConfig implements WebMvcConfigurer {
 
 
     private final JwtAuthInterceptor jwtAuthInterceptor;
+    private final CsrfOriginInterceptor csrfOriginInterceptor;
     private final UserAuthArgumentResolver userAuthArgumentResolver;
     private final RequestLogInterceptor requestLogInterceptor;
 
@@ -48,10 +54,12 @@ public class WebConfig implements WebMvcConfigurer {
 
     public WebConfig(
             final JwtAuthInterceptor jwtAuthInterceptor,
+            final CsrfOriginInterceptor csrfOriginInterceptor,
             final RequestLogInterceptor requestLogInterceptor,
             final UserAuthArgumentResolver userAuthArgumentResolver
     ) {
         this.jwtAuthInterceptor = jwtAuthInterceptor;
+        this.csrfOriginInterceptor = csrfOriginInterceptor;
         this.userAuthArgumentResolver = userAuthArgumentResolver;
         this.requestLogInterceptor = requestLogInterceptor;
     }
@@ -61,6 +69,10 @@ public class WebConfig implements WebMvcConfigurer {
         final List<String> excludedApiPaths = excludedPaths.stream()
                 .map(path -> prefixUrl + path)
                 .toList();
+
+        registry.addInterceptor(csrfOriginInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(List.copyOf(swaggerExcludedPaths));
 
         registry.addInterceptor(jwtAuthInterceptor)
                 .addPathPatterns("/**")
