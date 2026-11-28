@@ -13,5 +13,16 @@ services:
       - "8080:8080"
     environment:
       JAVA_TOOL_OPTIONS: "-XX:+UseG1GC"
+      VIEW_COUNT_REDIS_HOST: view-count-redis
+      VIEW_COUNT_REDIS_PORT: 6379
     depends_on:
       - redis
+      - view-count-redis
+
+  view-count-redis:
+    container_name: view-count-redis
+    image: redis:7.4.2-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--maxmemory", "256mb"]
+    ports:
+      - "127.0.0.1:6380:6379"

@@ -12,6 +12,7 @@ import com.greedy.mokkoji.common.exception.MokkojiException;
 import com.greedy.mokkoji.db.club.entity.Club;
 import com.greedy.mokkoji.db.club.repository.ClubRepository;
 import com.greedy.mokkoji.db.favorite.repository.FavoriteRepository;
+import com.greedy.mokkoji.db.viewcount.repository.ViewCountRepository;
 import com.greedy.mokkoji.db.recruitment.entity.Recruitment;
 import com.greedy.mokkoji.db.recruitment.repository.RecruitmentRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
@@ -23,7 +24,6 @@ import com.greedy.mokkoji.enums.university.UniversityCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -42,9 +42,7 @@ public class ClubService {
     private final FavoriteRepository favoriteRepository;
     private final AppDataS3Client appDataS3Client;
     private final ManageAuthorizer clubManageAuthorizer;
-
-    @Value("${mokkoji.view-count.enabled:true}")
-    private boolean viewCountEnabled;
+    private final ViewCountRepository viewCountRepository;
 
     private static PageResponse createPageResponse(Pageable pageable, int totalElements) {
         int totalPages = (int) Math.ceil((double) totalElements / pageable.getPageSize());
@@ -65,20 +63,25 @@ public class ClubService {
         );
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ClubDetailResponse findClub(final Long userId, final Long clubId) {
 
         final Club club = clubRepository.findById(clubId)
                 .orElseThrow(() -> new MokkojiException(FailMessage.NOT_FOUND_CLUB));
-        if (viewCountEnabled) {
-            clubRepository.increaseViewCount(clubId);
-        }
         final Recruitment recruitment = recruitmentRepository
                 .findTopByClubIdOrderByCreatedAtDesc(club.getId())
                 .orElse(null);
         final Boolean isFavorite = getIsFavorite(userId, clubId);
+        final long viewCount = viewCountRepository.findClubViewCount(clubId);
 
-        return mapToClubDetailResponse(club, recruitment, isFavorite);
+        return mapToClubDetailResponse(club, recruitment, isFavorite, viewCount);
+    }
+
+    @Transactional(readOnly = true)
+    public void validateClubExists(final Long clubId) {
+        if (!clubRepository.existsById(clubId)) {
+            throw new MokkojiException(FailMessage.NOT_FOUND_CLUB);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -267,8 +270,12 @@ public class ClubService {
                         (a, b) -> a));
     }
 
-    private ClubDetailResponse mapToClubDetailResponse(final Club club, final Recruitment recruitment,
-                                                       final Boolean isFavorite) {
+    private ClubDetailResponse mapToClubDetailResponse(
+            final Club club,
+            final Recruitment recruitment,
+            final Boolean isFavorite,
+            final long viewCount
+    ) {
         return ClubDetailResponse.of(
                 club.getId(),
                 club.getName(),
@@ -280,7 +287,8 @@ public class ClubService {
                 appDataS3Client.getPublicUrl(club.getLogo()),
                 isFavorite,
                 club.getInstagram(),
-                recruitment != null ? recruitment.getContent() : null
+                recruitment != null ? recruitment.getContent() : null,
+                viewCount
         );
     }
 

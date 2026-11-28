@@ -13,8 +13,12 @@ services:
     ports:
       - "8081:8080"
       - "9091:9090"
+    environment:
+      VIEW_COUNT_REDIS_HOST: view-count-redis
+      VIEW_COUNT_REDIS_PORT: 6379
     depends_on:
       - redis
+      - view-count-redis
 
   green:
     container_name: green
@@ -22,6 +26,15 @@ services:
     ports:
       - "8082:8080"
       - "9092:9090"
+    environment:
+      VIEW_COUNT_REDIS_HOST: view-count-redis
+      VIEW_COUNT_REDIS_PORT: 6379
     depends_on:
       - redis
+      - view-count-redis
 
+  view-count-redis:
+    container_name: view-count-redis
+    image: redis:7.4.2-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--maxmemory", "256mb"]

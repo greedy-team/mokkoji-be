@@ -88,7 +88,8 @@ public class ClubControllerTest extends ControllerTest {
                 Fixture.FIXTURE_CLUB_LOGO,
                 true,
                 club.getInstagram(),
-                recruitment.getContent()
+                recruitment.getContent(),
+                0L
         );
 
         assertThat(statusCode).isEqualTo(HttpStatus.OK.value());
