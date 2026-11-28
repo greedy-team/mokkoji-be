@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -115,7 +116,7 @@ public class UserServiceTest {
         BDDMockito.given(kakaoSocialLoginService.login(code, redirectUri))
                 .willReturn(Fixture.createKakaoUserInfoResponse(kakaoId, "모꼬지"));
         BDDMockito.given(userRepository.findByKakaoIdWithUniversity(kakaoId)).willReturn(Optional.of(existingUser));
-        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, existingUser.getId()))
+        BDDMockito.given(tokenService.issueTokens(eq(AuthRole.USER), eq(existingUser.getId()), any()))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
@@ -151,7 +152,7 @@ public class UserServiceTest {
             ReflectionTestUtils.setField(saved, "id", 1L);
             return saved;
         });
-        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, 1L))
+        BDDMockito.given(tokenService.issueTokens(eq(AuthRole.USER), eq(1L), any()))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
@@ -189,7 +190,7 @@ public class UserServiceTest {
             ReflectionTestUtils.setField(saved, "id", 1L);
             return saved;
         });
-        BDDMockito.given(tokenService.issueTokens(AuthRole.USER, 1L))
+        BDDMockito.given(tokenService.issueTokens(eq(AuthRole.USER), eq(1L), any()))
                 .willReturn(new TokenPair("accessToken", "refreshToken"));
 
         // when
@@ -214,7 +215,10 @@ public class UserServiceTest {
 
         when(jwtUtil.getCredentialFromToken(refreshToken)).thenReturn(credential);
         when(tokenService.getRefreshToken(AuthRole.USER, userId)).thenReturn(refreshToken);
-        when(jwtUtil.generateAccessToken(credential)).thenReturn(newAccessToken);
+        // 갱신 시 현재 권한을 DB 에서 다시 읽으므로 조회 결과가 필요하다.
+        when(userRepository.findById(userId)).thenReturn(Optional.of(
+                Fixture.createUserWithRole(Fixture.createUniversity(), UserRole.NORMAL)));
+        when(jwtUtil.generateAccessToken(any(AuthCredential.class))).thenReturn(newAccessToken);
 
         // when
         String accessToken = userService.refreshAccessToken(refreshToken);
