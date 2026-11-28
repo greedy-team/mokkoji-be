@@ -5,6 +5,7 @@ import com.greedy.mokkoji.api.auth.dto.TokenPair;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
 import com.greedy.mokkoji.db.user.repository.RedisRepository;
 import com.greedy.mokkoji.enums.auth.AuthRole;
+import com.greedy.mokkoji.enums.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class TokenService {
 
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 14; // 14일
+    private static final long REFRESH_TOKEN_EXPIRATION = JwtUtil.REFRESH_TOKEN_EXPIRATION;
     private static final String REFRESH_TOKEN_KEY_PREFIX = "refreshToken";
     private static final String KEY_DELIMITER = ":";
 
@@ -20,7 +21,11 @@ public class TokenService {
     private final JwtUtil jwtUtil;
 
     public TokenPair issueTokens(final AuthRole authRole, final Long accountId) {
-        final AuthCredential credential = new AuthCredential(authRole, accountId);
+        return issueTokens(authRole, accountId, null);
+    }
+
+    public TokenPair issueTokens(final AuthRole authRole, final Long accountId, final UserRole userRole) {
+        final AuthCredential credential = new AuthCredential(authRole, accountId, userRole);
         final String accessToken = jwtUtil.generateAccessToken(credential);
         final String refreshToken = jwtUtil.generateRefreshToken(credential);
         saveRefreshToken(authRole, accountId, refreshToken);
