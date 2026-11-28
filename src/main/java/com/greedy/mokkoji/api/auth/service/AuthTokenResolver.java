@@ -16,6 +16,10 @@ public class AuthTokenResolver {
 
     private final BearerAuthExtractor bearerAuthExtractor;
 
+    /**
+     * Authorization 헤더가 있으면 헤더를, 없으면 access_token 쿠키를 사용한다.
+     * 헤더가 우선이므로 기존 Bearer 방식 클라이언트는 영향을 받지 않는다.
+     */
     public Optional<String> resolveToken(final HttpServletRequest request) {
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header != null) {

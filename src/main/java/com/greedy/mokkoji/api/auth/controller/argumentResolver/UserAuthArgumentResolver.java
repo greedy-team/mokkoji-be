@@ -1,17 +1,19 @@
 package com.greedy.mokkoji.api.auth.controller.argumentResolver;
 
-import com.greedy.mokkoji.api.jwt.BearerAuthExtractor;
+import com.greedy.mokkoji.api.auth.service.AuthTokenResolver;
 import com.greedy.mokkoji.api.jwt.JwtUtil;
+import com.greedy.mokkoji.common.exception.MokkojiException;
+import com.greedy.mokkoji.enums.message.FailMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Component
@@ -19,7 +21,7 @@ import java.util.Set;
 public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
 
     private static final Set<String> EXCLUDE_PATTERNS = Set.of("/clubs", "/recruitments", "/comments");
-    private final BearerAuthExtractor bearerAuthExtractor;
+    private final AuthTokenResolver authTokenResolver;
     private final JwtUtil jwtUtil;
 
     @Override
@@ -33,19 +35,19 @@ public class UserAuthArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(final MethodParameter parameter, final ModelAndViewContainer mavContainer, final NativeWebRequest webRequest, final WebDataBinderFactory binderFactory) throws Exception {
         final HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String requestURI = request.getRequestURI();
+        final Optional<String> token = authTokenResolver.resolveToken(request);
 
-        if (isExcludedRequest(requestURI, authHeader)) {
+        if (token.isEmpty() && isExcludedPath(requestURI)) {
             return new AuthCredential(null, null);
         }
 
-        final String token = bearerAuthExtractor.extractTokenValue(authHeader);
-        return jwtUtil.getCredentialFromToken(token);
+        return jwtUtil.getCredentialFromToken(
+                token.orElseThrow(() -> new MokkojiException(FailMessage.UNAUTHORIZED_EMPTY_HEADER))
+        );
     }
 
-    private boolean isExcludedRequest(String requestURI, String authHeader) {
-        return EXCLUDE_PATTERNS.stream().anyMatch(requestURI::contains) && authHeader == null;
+    private boolean isExcludedPath(final String requestURI) {
+        return EXCLUDE_PATTERNS.stream().anyMatch(requestURI::contains);
     }
 }
-
