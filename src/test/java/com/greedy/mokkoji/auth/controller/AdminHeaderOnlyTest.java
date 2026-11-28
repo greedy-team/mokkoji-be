@@ -15,8 +15,7 @@ import org.springframework.http.HttpStatus;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 이번 전환의 범위는 일반 사용자뿐이다.
- * 관리자 대시보드는 세션 체계가 달라 기존 Bearer 헤더 방식을 유지한다.
+ * 관리자 대시보드는 세션 체계가 달라 이번 전환 범위에서 제외한다.
  */
 @SuppressWarnings("NonAsciiCharacters")
 @DisplayName("관리자는 헤더 방식을 유지한다")

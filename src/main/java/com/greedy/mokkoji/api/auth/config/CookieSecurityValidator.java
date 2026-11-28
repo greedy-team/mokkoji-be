@@ -10,9 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 로컬이 아닌 환경에서 secure=false 로 배포되는 사고를 기동 시점에 막는다.
- * secure 가 빠진 쿠키는 HTTP 로도 전송되어 토큰이 평문 노출되지만,
- * 동작은 정상으로 보이기 때문에 운영 중에는 발견하기 어렵다.
+ * secure 가 빠진 쿠키는 토큰이 평문 노출되지만 동작은 정상으로 보여 운영 중 발견이 어렵다.
  */
 @Slf4j
 @Component

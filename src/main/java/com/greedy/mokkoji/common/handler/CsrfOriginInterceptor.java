@@ -16,9 +16,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import java.util.Set;
 
 /**
- * 쿠키로 인증된 상태 변경 요청(POST/PUT/PATCH/DELETE)의 Origin 을 검사한다.
- * <p>
- * 쿠키는 브라우저가 자동으로 붙이므로 다른 사이트가 사용자 권한으로 요청을 유발할 수 있다(CSRF).
  * Bearer 헤더로 온 요청은 다른 사이트가 헤더를 붙일 수 없으므로 검사하지 않는다.
  */
 @Component
